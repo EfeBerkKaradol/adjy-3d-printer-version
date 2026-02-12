@@ -13,10 +13,12 @@ export async function GET(
 ) {
   try {
     const { slug } = await params;
+    const { searchParams } = new URL(request.url);
+    const byId = searchParams.get("byId") === "true";
 
-    // [GÖREV 6]: Ürünü veritabanından çek
+    // Slug veya ID ile ürünü bul
     const product = await prisma.product.findUnique({
-      where: { slug, isActive: true },
+      where: byId ? { id: slug, isActive: true } : { slug, isActive: true },
       include: {
         category: {
           select: { id: true, name: true, slug: true },
@@ -48,10 +50,12 @@ export async function GET(
     const { reviews: _reviews, ...productData } = productObj;
 
     return NextResponse.json({
-      ...productData,
-      reviews: {
-        averageRating: Math.round(averageRating * 10) / 10,
-        totalCount: totalReviews,
+      product: {
+        ...productData,
+        reviews: {
+          averageRating: Math.round(averageRating * 10) / 10,
+          totalCount: totalReviews,
+        },
       },
     });
   } catch (error) {

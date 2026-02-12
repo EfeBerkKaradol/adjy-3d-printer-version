@@ -1,9 +1,10 @@
 import { getProductBySlug } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Star, Clock, Package, Layers } from "lucide-react";
+import { Star, Clock, Package, Layers, Box } from "lucide-react";
 import Link from "next/link";
 import { AddToCartButton } from "@/components/product/AddToCartButton";
+import { ProductDetailImage } from "@/components/product/ProductDetailImage";
 import { notFound } from "next/navigation";
 
 // ==========================================
@@ -69,21 +70,11 @@ export default async function ProductDetailPage({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Sol: Ürün Görseli */}
-        <div className="aspect-square bg-muted rounded-2xl overflow-hidden flex items-center justify-center">
-          {product.thumbnailUrl ? (
-            <img
-              src={product.thumbnailUrl}
-              alt={product.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="text-center text-muted-foreground">
-              <div className="text-7xl mb-4">🖨️</div>
-              <p className="text-lg">3D Model Gorseli</p>
-              <p className="text-sm">(Yakinda eklenecek)</p>
-            </div>
-          )}
-        </div>
+        <ProductDetailImage
+          slug={product.slug}
+          name={product.name}
+          thumbnailUrl={product.thumbnailUrl}
+        />
 
         {/* Sağ: Ürün Bilgileri */}
         <div className="space-y-6">
@@ -202,7 +193,17 @@ export default async function ProductDetailPage({
 
           <Separator />
 
-          {/* Sepete Ekle */}
+          {/* 3D Ozellestir + Sepete Ekle */}
+          {product.parameters.length > 0 && (
+            <Link
+              href={`/customize/${product.id}`}
+              className="flex items-center justify-center gap-2 w-full py-3 px-6 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold hover:from-blue-700 hover:to-purple-700 transition-all"
+            >
+              <Box className="h-5 w-5" />
+              3D Ozellestir
+            </Link>
+          )}
+
           <AddToCartButton
             product={{
               id: product.id,

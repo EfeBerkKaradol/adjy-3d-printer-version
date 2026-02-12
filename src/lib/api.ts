@@ -7,7 +7,10 @@
 // tarafından kullanılabilir.
 // ==========================================
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.NEXT_PUBLIC_APP_URL ||
+  "http://localhost:3000";
 
 // ==========================================
 // Genel fetch wrapper — hata yönetimi dahil
@@ -134,6 +137,11 @@ export function getProducts(params?: {
 // Tek ürün detayı getir
 export function getProductBySlug(slug: string) {
   return fetchAPI<ProductDetailResponse>(`/api/products/${slug}`);
+}
+
+// Tek ürün detayı ID ile getir (customize sayfası için)
+export function getProductById(id: string) {
+  return fetchAPI<ProductDetailResponse>(`/api/products/${id}?byId=true`);
 }
 
 // Kategorileri listele
