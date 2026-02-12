@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
+import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -35,9 +36,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
-        // TODO: Replace with bcrypt comparison when implementing registration
-        // const isValid = await bcrypt.compare(credentials.password as string, user.passwordHash);
-        // if (!isValid) return null;
+        const isValid = await bcrypt.compare(
+          credentials.password as string,
+          user.passwordHash
+        );
+        if (!isValid) return null;
 
         return {
           id: user.id,

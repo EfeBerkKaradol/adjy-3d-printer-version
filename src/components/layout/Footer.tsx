@@ -6,7 +6,7 @@ export function Footer() {
       <div className="container mx-auto max-w-7xl px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="font-bold text-lg mb-3">ADJY</h3>
+            <h3 className="font-[family-name:var(--font-orbitron)] font-extrabold text-lg tracking-widest mb-3">ADJY</h3>
             <p className="text-sm text-muted-foreground">
               3D baski urunlerini ozellestir, AR ile goruntule ve satin al.
             </p>
@@ -65,7 +65,7 @@ export function Footer() {
         </div>
 
         <div className="mt-8 border-t pt-6 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} ADJY. Tüm hakları saklıdır.</p>
+          <p>&copy; {new Date().getFullYear()} <span className="font-[family-name:var(--font-orbitron)] font-bold tracking-wider">ADJY</span>. Tüm hakları saklıdır.</p>
         </div>
       </div>
     </footer>

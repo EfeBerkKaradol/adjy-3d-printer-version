@@ -56,7 +56,7 @@ export default function HomePage() {
         <div className="container mx-auto max-w-7xl px-4 relative z-10">
           <div className="text-center mb-20 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300 fill-mode-both">
             <h2 className="text-3xl md:text-5xl font-bold mb-6 tracking-tight">
-              Neden <span className="text-foreground">ADJY</span>?
+              Neden <span className="font-[family-name:var(--font-orbitron)] tracking-widest text-foreground">ADJY</span>?
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Sadece bir e-ticaret sitesi değil, yaratıcılığını gerçeğe dönüştüren bir platform.
