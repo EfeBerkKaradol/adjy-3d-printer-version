@@ -28,7 +28,7 @@ import type { ShippingAddressInput, BillingAddressInput } from "@/lib/validation
 export default function CheckoutPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const { items, totalPrice, clearCart } = useCartStore();
+  const { items, totalPrice } = useCartStore();
 
   const [step, setStep] = useState(1);
   const [creatingOrder, setCreatingOrder] = useState(false);
@@ -95,14 +95,13 @@ export default function CheckoutPage() {
       }
 
       setOrderId(data.order.id);
-      clearCart();
       setStep(4);
     } catch {
       alert("Sipariş oluşturulurken bir hata oluştu");
     } finally {
       setCreatingOrder(false);
     }
-  }, [items, shippingAddress, billingAddress, useSameAddress, selectedShipping, clearCart]);
+  }, [items, shippingAddress, billingAddress, useSameAddress, selectedShipping]);
 
   // Auth yükleniyor
   if (status === "loading") {

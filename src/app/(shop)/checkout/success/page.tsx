@@ -1,14 +1,21 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Package, ArrowRight } from "lucide-react";
+import { useCartStore } from "@/store/cartStore";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
+  const clearCart = useCartStore((state) => state.clearCart);
+
+  // Ödeme başarılı — sepeti temizle
+  useEffect(() => {
+    clearCart();
+  }, [clearCart]);
 
   return (
     <div className="container mx-auto max-w-2xl px-4 py-16 text-center">
