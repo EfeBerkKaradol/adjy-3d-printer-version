@@ -35,7 +35,7 @@ async function main() {
     update: {},
     create: {
       email: "test@adjy.com",
-      fullName: "Test Kullanici",
+      fullName: "Test Kullanıcı",
       passwordHash: hashedPassword,
       role: "USER",
       phone: "+905559876543",
@@ -54,8 +54,8 @@ async function main() {
   const tags = await Promise.all(
     [
       { name: "Yeni", slug: "yeni" },
-      { name: "Populer", slug: "populer" },
-      { name: "Indirimli", slug: "indirimli" },
+      { name: "Popüler", slug: "populer" },
+      { name: "İndirimli", slug: "indirimli" },
       { name: "El Yapimi", slug: "el-yapimi" },
       { name: "Hediye", slug: "hediye" },
       { name: "Ofis", slug: "ofis" },
@@ -84,7 +84,7 @@ async function main() {
       name: "Ev & Dekorasyon",
       slug: "ev-dekorasyon",
       description: "3D baski ile uretilen ev dekorasyon urunleri",
-      imageUrl: "/assets/categories/ev-dekorasyon.jpg",
+      imageUrl: "/assets/categories/ev-dekorasyon.svg",
       sortOrder: 1,
     },
   });
@@ -96,7 +96,7 @@ async function main() {
       name: "Ofis Aksesuarlari",
       slug: "ofis-aksesuarlari",
       description: "Masanuzu guzellestirin, veriminizi artirin",
-      imageUrl: "/assets/categories/ofis.jpg",
+      imageUrl: "/assets/categories/ofis.svg",
       sortOrder: 2,
     },
   });
@@ -107,8 +107,8 @@ async function main() {
     create: {
       name: "Takilar & Aksesuarlar",
       slug: "takilar",
-      description: "Kisisellestirilmis 3D baski takilar",
-      imageUrl: "/assets/categories/takilar.jpg",
+      description: "Kişiselleştirilmiş 3D baskı takılar",
+      imageUrl: "/assets/categories/takilar.svg",
       sortOrder: 3,
     },
   });
@@ -120,7 +120,7 @@ async function main() {
       name: "Hediye & Ozel Gun",
       slug: "hediye",
       description: "Sevdiklerinize ozel hediyeler",
-      imageUrl: "/assets/categories/hediye.jpg",
+      imageUrl: "/assets/categories/hediye.svg",
       sortOrder: 4,
     },
   });
@@ -132,7 +132,7 @@ async function main() {
       name: "Teknik Parcalar",
       slug: "teknik-parcalar",
       description: "Fonksiyonel mekanik ve teknik parcalar",
-      imageUrl: "/assets/categories/teknik.jpg",
+      imageUrl: "/assets/categories/teknik.svg",
       sortOrder: 5,
     },
   });
@@ -146,6 +146,10 @@ async function main() {
   // ==========================================
   console.log("📦 Creating products with parameters...");
 
+  // Önceki parametreleri temizle (duplicate önleme)
+  await prisma.parameter.deleteMany({});
+  console.log("  🧹 Eski parametreler temizlendi");
+
   // --- Product 1: Vazo ---
   const vazo = await prisma.product.upsert({
     where: { slug: "parametrik-vazo" },
@@ -154,15 +158,15 @@ async function main() {
       name: "Parametrik Vazo",
       slug: "parametrik-vazo",
       description:
-        "Yukseklik, genislik ve dalga sikligi ayarlanabilen modern vazo. Evinize benzersiz bir dokunustur.",
+        "Yükseklik, genişlik ve dalga sıklığı ayarlanabilen modern vazo. Evinize benzersiz bir dokunuştur.",
       basePrice: 249.99,
       categoryId: catEv.id,
-      thumbnailUrl: "/assets/products/vazo-thumb.jpg",
-      modelFileUrl: "/models/vazo.glb",
+      thumbnailUrl: "/assets/products/vazo-thumb.svg",
+      modelFileUrl: null,
       gallery: [
-        "/assets/products/vazo-1.jpg",
-        "/assets/products/vazo-2.jpg",
-        "/assets/products/vazo-3.jpg",
+        "/assets/products/vazo-1.svg",
+        "/assets/products/vazo-2.svg",
+        "/assets/products/vazo-3.svg",
       ],
       printTimeEst: 180,
       materialType: "PLA",
@@ -177,7 +181,7 @@ async function main() {
       {
         productId: vazo.id,
         name: "height",
-        displayName: "Yukseklik",
+        displayName: "Yükseklik",
         type: "SLIDER",
         minValue: 100,
         maxValue: 300,
@@ -207,7 +211,7 @@ async function main() {
       {
         productId: vazo.id,
         name: "waveFrequency",
-        displayName: "Dalga Sikligi",
+        displayName: "Dalga Sıklığı",
         type: "SLIDER",
         minValue: 1,
         maxValue: 10,
@@ -246,11 +250,11 @@ async function main() {
         "Aci ve genislik ayarlanabilen minimalist telefon standi. Tum telefonlarla uyumlu.",
       basePrice: 89.99,
       categoryId: catOfis.id,
-      thumbnailUrl: "/assets/products/stand-thumb.jpg",
-      modelFileUrl: "/models/phone-stand.glb",
+      thumbnailUrl: "/assets/products/stand-thumb.svg",
+      modelFileUrl: null,
       gallery: [
-        "/assets/products/stand-1.jpg",
-        "/assets/products/stand-2.jpg",
+        "/assets/products/stand-1.svg",
+        "/assets/products/stand-2.svg",
       ],
       printTimeEst: 90,
       materialType: "PETG",
@@ -265,7 +269,7 @@ async function main() {
       {
         productId: stand.id,
         name: "angle",
-        displayName: "Goruntuleme Acisi",
+        displayName: "Görüntüleme Açısı",
         type: "SLIDER",
         minValue: 30,
         maxValue: 75,
@@ -308,22 +312,22 @@ async function main() {
     ],
   });
 
-  // --- Product 3: Isimli Anahtarlik ---
+  // --- Product 3: İsimli Anahtarlık ---
   const anahtarlik = await prisma.product.upsert({
     where: { slug: "isimli-anahtarlik" },
     update: {},
     create: {
-      name: "Isimli Anahtarlik",
+      name: "İsimli Anahtarlık",
       slug: "isimli-anahtarlik",
       description:
         "Kendi isminizi veya ozel bir mesaji 3D olarak yazdirabileceginiz kisisel anahtarlik.",
       basePrice: 39.99,
       categoryId: catHediye.id,
-      thumbnailUrl: "/assets/products/anahtarlik-thumb.jpg",
-      modelFileUrl: "/models/keychain.glb",
+      thumbnailUrl: "/assets/products/anahtarlik-thumb.svg",
+      modelFileUrl: null,
       gallery: [
-        "/assets/products/anahtarlik-1.jpg",
-        "/assets/products/anahtarlik-2.jpg",
+        "/assets/products/anahtarlik-1.svg",
+        "/assets/products/anahtarlik-2.svg",
       ],
       printTimeEst: 30,
       materialType: "PLA",
@@ -338,7 +342,7 @@ async function main() {
       {
         productId: anahtarlik.id,
         name: "text",
-        displayName: "Yazi",
+        displayName: "Yazı",
         type: "TEXT",
         minValue: null,
         maxValue: null,
@@ -353,7 +357,7 @@ async function main() {
       {
         productId: anahtarlik.id,
         name: "thickness",
-        displayName: "Kalinlik",
+        displayName: "Kalınlık",
         type: "SLIDER",
         minValue: 2,
         maxValue: 6,
@@ -393,11 +397,11 @@ async function main() {
         "Geometrik desene sahip, boyut ve desen yogunlugu ayarlanabilen modern masa lambasi kaplamasi.",
       basePrice: 349.99,
       categoryId: catEv.id,
-      thumbnailUrl: "/assets/products/lamba-thumb.jpg",
-      modelFileUrl: "/models/lamp.glb",
+      thumbnailUrl: "/assets/products/lamba-thumb.svg",
+      modelFileUrl: null,
       gallery: [
-        "/assets/products/lamba-1.jpg",
-        "/assets/products/lamba-2.jpg",
+        "/assets/products/lamba-1.svg",
+        "/assets/products/lamba-2.svg",
       ],
       printTimeEst: 240,
       materialType: "PLA",
@@ -412,7 +416,7 @@ async function main() {
       {
         productId: lamba.id,
         name: "diameter",
-        displayName: "Cap",
+        displayName: "Çap",
         type: "SLIDER",
         minValue: 100,
         maxValue: 250,
@@ -427,7 +431,7 @@ async function main() {
       {
         productId: lamba.id,
         name: "height",
-        displayName: "Yukseklik",
+        displayName: "Yükseklik",
         type: "SLIDER",
         minValue: 150,
         maxValue: 350,
@@ -478,12 +482,12 @@ async function main() {
       name: "Modular Kalem Kutusu",
       slug: "modular-kalem-kutusu",
       description:
-        "Bolme sayisi ve boyutu ayarlanabilen modular masa duzenleyici.",
+        "Bölme sayısı ve boyutu ayarlanabilen modular masa düzenleyici.",
       basePrice: 129.99,
       categoryId: catOfis.id,
-      thumbnailUrl: "/assets/products/kalem-kutusu-thumb.jpg",
-      modelFileUrl: "/models/pencil-holder.glb",
-      gallery: ["/assets/products/kalem-1.jpg"],
+      thumbnailUrl: "/assets/products/kalem-kutusu-thumb.svg",
+      modelFileUrl: null,
+      gallery: ["/assets/products/kalem-1.svg"],
       printTimeEst: 120,
       materialType: "PLA",
       materialWeight: 85.0,
@@ -497,7 +501,7 @@ async function main() {
       {
         productId: kalemKutusu.id,
         name: "compartments",
-        displayName: "Bolme Sayisi",
+        displayName: "Bölme Sayısı",
         type: "DROPDOWN",
         minValue: null,
         maxValue: null,
@@ -513,7 +517,7 @@ async function main() {
       {
         productId: kalemKutusu.id,
         name: "height",
-        displayName: "Yukseklik",
+        displayName: "Yükseklik",
         type: "SLIDER",
         minValue: 80,
         maxValue: 150,
@@ -546,15 +550,15 @@ async function main() {
     where: { slug: "kisisel-bileklik" },
     update: {},
     create: {
-      name: "Kisisel Bileklik",
+      name: "Kişisel Bileklik",
       slug: "kisisel-bileklik",
       description:
-        "Cap ve kalinlik ayarlanabilen, isim yazdirma opsiyonlu esnek bileklik.",
+        "Çap ve kalınlık ayarlanabilen, isim yazdırma opsiyonlu esnek bileklik.",
       basePrice: 59.99,
       categoryId: catTakilar.id,
-      thumbnailUrl: "/assets/products/bileklik-thumb.jpg",
-      modelFileUrl: "/models/bracelet.glb",
-      gallery: ["/assets/products/bileklik-1.jpg"],
+      thumbnailUrl: "/assets/products/bileklik-thumb.svg",
+      modelFileUrl: null,
+      gallery: ["/assets/products/bileklik-1.svg"],
       printTimeEst: 45,
       materialType: "TPU",
       materialWeight: 15.0,
@@ -568,7 +572,7 @@ async function main() {
       {
         productId: bileklik.id,
         name: "diameter",
-        displayName: "Bilek Capi",
+        displayName: "Bilek Çapı",
         type: "SLIDER",
         minValue: 55,
         maxValue: 85,
@@ -597,7 +601,7 @@ async function main() {
       {
         productId: bileklik.id,
         name: "text",
-        displayName: "Yazi (opsiyonel)",
+        displayName: "Yazı (opsiyonel)",
         type: "TEXT",
         minValue: null,
         maxValue: null,
@@ -631,15 +635,15 @@ async function main() {
     where: { slug: "parametrik-disli-cark" },
     update: {},
     create: {
-      name: "Parametrik Disli Cark",
+      name: "Parametrik Dişli Çark",
       slug: "parametrik-disli-cark",
       description:
-        "Dis sayisi, modul ve kalinligi ayarlanabilen teknik disli cark. Prototipleme icin ideal.",
+        "Diş sayısı, modül ve kalınlığı ayarlanabilen teknik dişli çark. Prototipleme için ideal.",
       basePrice: 19.99,
       categoryId: catTeknik.id,
-      thumbnailUrl: "/assets/products/disli-thumb.jpg",
-      modelFileUrl: "/models/gear.glb",
-      gallery: ["/assets/products/disli-1.jpg"],
+      thumbnailUrl: "/assets/products/disli-thumb.svg",
+      modelFileUrl: null,
+      gallery: ["/assets/products/disli-1.svg"],
       printTimeEst: 40,
       materialType: "PETG",
       materialWeight: 12.0,
@@ -653,7 +657,7 @@ async function main() {
       {
         productId: disli.id,
         name: "teethCount",
-        displayName: "Dis Sayisi",
+        displayName: "Diş Sayısı",
         type: "NUMBER",
         minValue: 8,
         maxValue: 60,
@@ -668,7 +672,7 @@ async function main() {
       {
         productId: disli.id,
         name: "module",
-        displayName: "Modul",
+        displayName: "Modül",
         type: "DROPDOWN",
         minValue: null,
         maxValue: null,
@@ -684,7 +688,7 @@ async function main() {
       {
         productId: disli.id,
         name: "thickness",
-        displayName: "Kalinlik",
+        displayName: "Kalınlık",
         type: "SLIDER",
         minValue: 3,
         maxValue: 15,
@@ -726,7 +730,7 @@ async function main() {
   for (const pair of productTagPairs) {
     await prisma.productTag
       .create({ data: pair })
-      .catch(() => {}); // skip duplicates
+      .catch(() => { }); // skip duplicates
   }
 
   // ==========================================
@@ -741,26 +745,26 @@ async function main() {
         productId: vazo.id,
         userId: testUser.id,
         rating: 5,
-        title: "Muhtesem bir urun!",
+        title: "Muhteşem bir ürün!",
         comment:
-          "Boyutlari tam istedigim gibi ayarlayabildim. Baski kalitesi cok iyi.",
+          "Boyutları tam istediğim gibi ayarlayabildim. Baskı kalitesi çok iyi.",
         verifiedPurchase: true,
       },
       {
         productId: stand.id,
         userId: testUser.id,
         rating: 4,
-        title: "Cok kullanisli",
+        title: "Çok kullanışlı",
         comment:
-          "Aci ayari harika calisiyor, telefonum mukemmel duruyor. Sadece biraz daha agir olabilirdi.",
+          "Açı ayarı harika çalışıyor, telefonum mükemmel duruyor. Sadece biraz daha ağır olabilirdi.",
         verifiedPurchase: true,
       },
       {
         productId: anahtarlik.id,
         userId: testUser.id,
         rating: 5,
-        title: "Hediye olarak aldim",
-        comment: "Isim yazdirma ozelligi cok guzel. Arkdasim bayildi!",
+        title: "Hediye olarak aldım",
+        comment: "İsim yazdırma özelliği çok güzel. Arkadaşım bayıldı!",
         verifiedPurchase: true,
       },
     ],

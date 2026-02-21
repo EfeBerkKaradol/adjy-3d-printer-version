@@ -8,16 +8,16 @@ export function Footer() {
           <div>
             <h3 className="font-[family-name:var(--font-orbitron)] font-extrabold text-lg tracking-widest mb-3">ADJY</h3>
             <p className="text-sm text-muted-foreground">
-              3D baski urunlerini ozellestir, AR ile goruntule ve satin al.
+              3D baskı ürünlerini özelleştir, AR ile görüntüle ve satın al.
             </p>
           </div>
 
           <div>
-            <h4 className="font-semibold mb-3">Urunler</h4>
+            <h4 className="font-semibold mb-3">Ürünler</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
                 <Link href="/products" className="hover:text-foreground">
-                  Tum Urunler
+                  Tüm Ürünler
                 </Link>
               </li>
               <li>
@@ -25,7 +25,7 @@ export function Footer() {
                   href="/products?featured=true"
                   className="hover:text-foreground"
                 >
-                  One Cikanlar
+                  Öne Çıkanlar
                 </Link>
               </li>
             </ul>
@@ -36,12 +36,12 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
                 <Link href="/login" className="hover:text-foreground">
-                  Giris Yap
+                  Giriş Yap
                 </Link>
               </li>
               <li>
                 <Link href="/register" className="hover:text-foreground">
-                  Kayit Ol
+                  Kayıt Ol
                 </Link>
               </li>
             </ul>
@@ -52,7 +52,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
                 <Link href="/contact" className="hover:text-foreground">
-                  Iletisim
+                  İletişim
                 </Link>
               </li>
               <li>

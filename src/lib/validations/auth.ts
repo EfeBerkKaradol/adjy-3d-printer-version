@@ -7,27 +7,30 @@ import { z } from "zod";
 // tarafında aynı schema kullanılabilir.
 // ==========================================
 
-export const registerSchema = z
-  .object({
-    email: z.string().email("Gecerli bir email adresi giriniz"),
-    password: z
-      .string()
-      .min(8, "Sifre en az 8 karakter olmali")
-      .regex(/[A-Z]/, "En az bir buyuk harf icermeli")
-      .regex(/[0-9]/, "En az bir rakam icermeli"),
+const baseAuthSchema = z.object({
+  email: z.string().email("Geçerli bir e-posta adresi giriniz"),
+  password: z
+    .string()
+    .min(8, "Şifre en az 8 karakter olmalı"),
+});
+
+export const registerSchema = baseAuthSchema
+  .extend({
+    password: baseAuthSchema.shape.password
+      .regex(/[A-Z]/, "En az bir büyük harf içermeli")
+      .regex(/[0-9]/, "En az bir rakam içermeli"),
     confirmPassword: z.string(),
-    fullName: z.string().min(2, "Isim en az 2 karakter olmali"),
+    fullName: z.string().min(2, "İsim en az 2 karakter olmalı"),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Sifreler eslesmiyor",
+    message: "Şifreler eşleşmiyor",
     path: ["confirmPassword"],
   });
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 
-export const loginSchema = z.object({
-  email: z.string().email("Gecerli bir email adresi giriniz"),
-  password: z.string().min(1, "Sifre gerekli"),
+export const loginSchema = baseAuthSchema.extend({
+  password: z.string().min(1, "Şifre gerekli"),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;

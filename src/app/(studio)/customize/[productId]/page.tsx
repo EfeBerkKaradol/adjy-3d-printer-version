@@ -20,6 +20,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { ARButton } from "@/components/ar/ARButton";
+import { ARModal } from "@/components/ar/ARModal";
+import { extractDimensions } from "@/lib/ar/realSizeCalibration";
 
 // ModelViewer'ı SSR olmadan yükle (Three.js browser-only)
 const ModelViewer = dynamic(
@@ -92,6 +95,9 @@ export default function CustomizePage() {
   const [added, setAdded] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [arModalOpen, setArModalOpen] = useState(false);
+  const [arGlbUrl, setArGlbUrl] = useState<string | null>(null);
+  const [arUsdzUrl, setArUsdzUrl] = useState<string | null>(null);
 
   const addItem = useCartStore((state) => state.addItem);
   const { data: session } = useSession();
@@ -184,7 +190,7 @@ export default function CustomizePage() {
       product: {
         id: product.id,
         name: product.name,
-        basePrice: currentPrice,
+        basePrice: Number(product.basePrice),
         thumbnailUrl: product.thumbnailUrl,
       },
       customization: {
@@ -192,6 +198,7 @@ export default function CustomizePage() {
         parameters: paramValues,
       },
       quantity: 1,
+      calculatedPrice: currentPrice,
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
@@ -374,6 +381,20 @@ export default function CustomizePage() {
                 </Button>
               )}
 
+              <Separator />
+
+              <ARButton
+                parameters={paramValues}
+                productType={productType}
+                modelFileUrl={product.modelFileUrl}
+                productName={product.name}
+                onActivateAR={(glbUrl, usdzUrl) => {
+                  setArGlbUrl(glbUrl);
+                  setArUsdzUrl(usdzUrl || null);
+                  setArModalOpen(true);
+                }}
+              />
+
               <p className="text-[11px] text-muted-foreground text-center">
                 Ozellestirme parametreleri siparisinizle birlikte kaydedilir
               </p>
@@ -381,6 +402,18 @@ export default function CustomizePage() {
           </div>
         </div>
       </div>
+
+      {/* AR Modal */}
+      {arGlbUrl && (
+        <ARModal
+          isOpen={arModalOpen}
+          onClose={() => setArModalOpen(false)}
+          glbUrl={arGlbUrl}
+          usdzUrl={arUsdzUrl}
+          productName={product.name}
+          dimensions={extractDimensions(paramValues, productType)}
+        />
+      )}
     </div>
   );
 }

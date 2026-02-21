@@ -16,7 +16,7 @@ export async function PATCH(
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json(
-        { error: "Giris yapmaniz gerekiyor" },
+        { error: "Giriş yapmanız gerekiyor" },
         { status: 401 }
       );
     }
@@ -33,16 +33,16 @@ export async function PATCH(
 
     if (cartItem.count === 0) {
       return NextResponse.json(
-        { error: "Urun bulunamadi" },
+        { error: "Ürün bulunamadı" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({ message: "Miktar guncellendi" });
+    return NextResponse.json({ message: "Miktar güncellendi" });
   } catch (error) {
     console.error("PATCH /api/cart/[itemId] error:", error);
     return NextResponse.json(
-      { error: "Guncelleme sirasinda bir hata olustu" },
+      { error: "Güncelleme sırasında bir hata oluştu" },
       { status: 500 }
     );
   }
@@ -80,11 +80,11 @@ export async function DELETE(
       );
     }
 
-    return NextResponse.json({ message: "Urun sepetten cikarildi" });
+    return NextResponse.json({ message: "Ürün sepetten çıkarıldı" });
   } catch (error) {
     console.error("DELETE /api/cart/[itemId] error:", error);
     return NextResponse.json(
-      { error: "Silme sirasinda bir hata olustu" },
+      { error: "Silme sırasında bir hata oluştu" },
       { status: 500 }
     );
   }

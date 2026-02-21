@@ -5,6 +5,7 @@ import { Star, Clock, Package, Layers, Box } from "lucide-react";
 import Link from "next/link";
 import { AddToCartButton } from "@/components/product/AddToCartButton";
 import { ProductDetailImage } from "@/components/product/ProductDetailImage";
+import { ProductARButton } from "@/components/ar/ProductARButton";
 import { notFound } from "next/navigation";
 
 // ==========================================
@@ -193,15 +194,35 @@ export default async function ProductDetailPage({
 
           <Separator />
 
-          {/* 3D Ozellestir + Sepete Ekle */}
+          {/* 3D Ozellestir + AR + Sepete Ekle */}
           {product.parameters.length > 0 && (
-            <Link
-              href={`/customize/${product.id}`}
-              className="flex items-center justify-center gap-2 w-full py-3 px-6 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold hover:from-blue-700 hover:to-purple-700 transition-all"
-            >
-              <Box className="h-5 w-5" />
-              3D Ozellestir
-            </Link>
+            <div className="space-y-3">
+              <Link
+                href={`/customize/${product.id}`}
+                className="flex items-center justify-center gap-2 w-full py-3 px-6 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold hover:from-blue-700 hover:to-purple-700 transition-all"
+              >
+                <Box className="h-5 w-5" />
+                3D Ozellestir
+              </Link>
+
+              <ProductARButton
+                productId={product.id}
+                productName={product.name}
+                productSlug={product.slug}
+                modelFileUrl={product.modelFileUrl}
+                defaultParameters={product.parameters.reduce(
+                  (acc, param) => {
+                    if (param.type === "COLOR" || param.type === "TEXT" || param.type === "DROPDOWN") {
+                      acc[param.name] = param.defaultValue;
+                    } else {
+                      acc[param.name] = Number(param.defaultValue);
+                    }
+                    return acc;
+                  },
+                  {} as Record<string, number | string>
+                )}
+              />
+            </div>
           )}
 
           <AddToCartButton

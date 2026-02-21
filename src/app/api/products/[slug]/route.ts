@@ -33,7 +33,7 @@ export async function GET(
     });
 
     if (!product) {
-      return NextResponse.json({ error: "Urun bulunamadi" }, { status: 404 });
+      return NextResponse.json({ error: "Ürün bulunamadı" }, { status: 404 });
     }
 
     // [GÖREV 7]: Review ortalamasını hesapla
@@ -61,7 +61,7 @@ export async function GET(
   } catch (error) {
     console.error("GET /api/products/[slug] error:", error);
     return NextResponse.json(
-      { error: "Urun detayi yuklenirken bir hata olustu" },
+      { error: "Ürün detayı yüklenirken bir hata oluştu" },
       { status: 500 }
     );
   }

@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json(
-        { error: "Giris yapmaniz gerekiyor" },
+        { error: "Giriş yapmanız gerekiyor" },
         { status: 401 }
       );
     }
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Gecersiz veri", details: parsed.error.issues },
+        { error: "Geçersiz veri", details: parsed.error.issues },
         { status: 400 }
       );
     }
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
 
     if (!product) {
       return NextResponse.json(
-        { error: "Urun bulunamadi" },
+        { error: "Ürün bulunamadı" },
         { status: 404 }
       );
     }
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("POST /api/customizations error:", error);
     return NextResponse.json(
-      { error: "Ozellestirme kaydedilirken bir hata olustu" },
+      { error: "Özelleştirme kaydedilirken bir hata oluştu" },
       { status: 500 }
     );
   }
@@ -109,7 +109,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("GET /api/customizations error:", error);
     return NextResponse.json(
-      { error: "Ozellestirmeler yuklenirken bir hata olustu" },
+      { error: "Özelleştirmeler yüklenirken bir hata oluştu" },
       { status: 500 }
     );
   }

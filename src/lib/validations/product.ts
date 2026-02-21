@@ -32,13 +32,13 @@ export type ProductQuery = z.infer<typeof productQuerySchema>;
  * Admin panelinde kullanılacak.
  */
 export const createProductSchema = z.object({
-  name: z.string().min(3, "Urun adi en az 3 karakter olmali"),
+  name: z.string().min(3, "Ürün adı en az 3 karakter olmalı"),
   slug: z
     .string()
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Gecersiz slug formati"),
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Geçersiz slug formatı"),
   description: z.string().optional(),
-  basePrice: z.number().positive("Fiyat pozitif olmali"),
-  categoryId: z.string().cuid("Gecersiz kategori ID"),
+  basePrice: z.number().positive("Fiyat pozitif olmalı"),
+  categoryId: z.string().cuid("Geçersiz kategori ID"),
   materialType: z.string().optional(),
   printTimeEst: z.number().int().positive().optional(),
 });

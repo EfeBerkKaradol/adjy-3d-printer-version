@@ -57,6 +57,7 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
       },
       customization: null,
       quantity: 1,
+      calculatedPrice: Number(product.basePrice),
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);

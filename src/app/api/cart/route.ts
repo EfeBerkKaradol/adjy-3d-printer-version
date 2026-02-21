@@ -16,7 +16,7 @@ export async function GET() {
 
     if (!session?.user?.id) {
       return NextResponse.json(
-        { error: "Giris yapmaniz gerekiyor" },
+        { error: "Giriş yapmanız gerekiyor" },
         { status: 401 }
       );
     }
@@ -43,7 +43,7 @@ export async function GET() {
   } catch (error) {
     console.error("GET /api/cart error:", error);
     return NextResponse.json(
-      { error: "Sepet yuklenirken bir hata olustu" },
+      { error: "Sepet yüklenirken bir hata oluştu" },
       { status: 500 }
     );
   }
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
 
     if (!product) {
       return NextResponse.json(
-        { error: "Urun bulunamadi" },
+        { error: "Ürün bulunamadı" },
         { status: 404 }
       );
     }
@@ -119,13 +119,13 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { message: "Urun sepete eklendi", cartItem },
+      { message: "Ürün sepete eklendi", cartItem },
       { status: 201 }
     );
   } catch (error) {
     console.error("POST /api/cart error:", error);
     return NextResponse.json(
-      { error: "Sepete eklerken bir hata olustu" },
+      { error: "Sepete eklerken bir hata oluştu" },
       { status: 500 }
     );
   }

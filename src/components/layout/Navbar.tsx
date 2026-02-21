@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useCartStore } from "@/store/cartStore";
@@ -17,10 +17,17 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/s
 import { ShoppingCart, Menu, ArrowRight, User, Package, MapPin, LogOut } from "lucide-react";
 
 export function Navbar() {
+  const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const totalItems = useCartStore((state) => state.totalItems);
   const { data: session, status } = useSession();
   const isLoggedIn = status === "authenticated";
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const totalCount = typeof totalItems === 'function' ? totalItems() : 0;
 
   const closeMenu = () => setOpen(false);
 
@@ -52,9 +59,9 @@ export function Navbar() {
           <Link href="/cart" className="relative group">
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart className="h-5 w-5 transition-colors group-hover:text-foreground" />
-              {totalItems() > 0 && (
+              {mounted && totalCount > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground animate-in zoom-in">
-                  {totalItems()}
+                  {totalCount}
                 </span>
               )}
             </Button>

@@ -125,7 +125,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("GET /api/products error:", error);
     return NextResponse.json(
-      { error: "Urunler yuklenirken bir hata olustu" },
+      { error: "Ürünler yüklenirken bir hata oluştu" },
       { status: 500 }
     );
   }

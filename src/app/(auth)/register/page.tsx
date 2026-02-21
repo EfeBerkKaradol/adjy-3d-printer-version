@@ -87,7 +87,7 @@ export default function RegisterPage() {
       if (error instanceof Error) {
         setServerError(error.message);
       } else {
-        setServerError("Kayit sirasinda bir hata olustu");
+        setServerError("Kayıt sırasında bir hata oluştu");
       }
     }
   }

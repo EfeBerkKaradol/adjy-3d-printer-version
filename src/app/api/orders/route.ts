@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { createOrderSchema } from "@/lib/validations/order";
+import { calculatePrice } from "@/lib/priceCalculator";
+import { getShippingPrice } from "@/lib/shipping";
+import { ZodError } from "zod";
 
 // ==========================================
 // GET /api/orders
@@ -13,22 +16,31 @@ export async function GET() {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json(
-        { error: "Giris yapmaniz gerekiyor" },
+        { error: "Giriş yapmanız gerekiyor" },
         { status: 401 }
       );
     }
 
-    // [GÖREV 16]: Kullanıcının siparişlerini çek
     const orders = await prisma.order.findMany({
       where: { userId: session.user.id },
       include: {
         items: {
           select: {
+            id: true,
             productName: true,
             quantity: true,
             unitPrice: true,
             lineTotal: true,
             printStatus: true,
+          },
+        },
+        payments: {
+          select: {
+            id: true,
+            status: true,
+            amount: true,
+            cardLastFour: true,
+            paidAt: true,
           },
         },
         shipment: true,
@@ -40,7 +52,7 @@ export async function GET() {
   } catch (error) {
     console.error("GET /api/orders error:", error);
     return NextResponse.json(
-      { error: "Siparisler yuklenirken bir hata olustu" },
+      { error: "Siparişler yüklenirken bir hata oluştu" },
       { status: 500 }
     );
   }
@@ -48,15 +60,14 @@ export async function GET() {
 
 // ==========================================
 // POST /api/orders
-// Sepetteki ürünlerden yeni sipariş oluşturur.
+// Client-side sepet verisiyle sipariş oluşturur.
 //
 // Akış:
 // 1. Auth kontrolü
-// 2. Sepetteki ürünleri çek
-// 3. Fiyatları hesapla
-// 4. Order + OrderItems oluştur (transaction)
-// 5. Sepeti temizle
-// 6. Sipariş numarası üret
+// 2. Body'den sepet ürünlerini al
+// 3. Sunucu tarafında fiyat doğrulaması yap
+// 4. Kargo ücreti hesapla
+// 5. Order + OrderItems oluştur (transaction)
 // ==========================================
 
 export async function POST(request: NextRequest) {
@@ -72,52 +83,87 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = createOrderSchema.parse(body);
 
-    // [GÖREV 17]: Sepetteki ürünleri çek
-    const cartItems = await prisma.cartItem.findMany({
-      where: { userId: session.user.id },
-      include: {
-        product: {
-          select: { id: true, name: true, basePrice: true },
+    // Sipariş numarası üret
+    const orderNumber = `ADJ-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+
+    // Ürünleri DB'den çekip fiyat doğrulaması yap
+    const productIds = validatedData.items.map((i) => i.productId);
+    const products = await prisma.product.findMany({
+      where: { id: { in: productIds } },
+      select: {
+        id: true,
+        name: true,
+        basePrice: true,
+        parameters: {
+          select: {
+            name: true,
+            affectsPrice: true,
+            priceFormula: true,
+            defaultValue: true,
+          },
         },
-        customization: true,
       },
     });
 
-    if (cartItems.length === 0) {
-      return NextResponse.json(
-        { error: "Sepetiniz bos" },
-        { status: 400 }
-      );
-    }
+    const productMap = new Map(products.map((p) => [p.id, p]));
 
-    // [GÖREV 18]: Sipariş numarası üret
-    const orderNumber = `ADJ-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
-
-    // [GÖREV 19]: Transaction ile sipariş oluştur
+    // Transaction ile sipariş oluştur
     const order = await prisma.$transaction(async (tx) => {
-      // 1. Toplam tutarı hesapla
-      const totalAmount = cartItems.reduce(
-        (sum, item) => sum + Number(item.product.basePrice) * item.quantity,
+      const itemsWithPrice = validatedData.items.map((item) => {
+        const product = productMap.get(item.productId);
+        if (!product) throw new Error(`Ürün bulunamadı: ${item.productId}`);
+
+        const basePrice = Number(product.basePrice);
+        const customParams = item.customParams as Record<string, number | string> | null;
+
+        // Sunucu tarafında fiyat hesapla (manipülasyon önleme)
+        const unitPrice = customParams
+          ? calculatePrice(basePrice, product.parameters, customParams)
+          : basePrice;
+
+        return {
+          productId: product.id,
+          productName: product.name,
+          customizationId: item.customizationId || undefined,
+          customParams: customParams ?? undefined,
+          quantity: item.quantity,
+          unitPrice,
+          lineTotal: unitPrice * item.quantity,
+        };
+      });
+
+      // Toplam tutarı hesapla
+      const totalAmount = itemsWithPrice.reduce(
+        (sum, item) => sum + item.lineTotal,
         0
       );
 
-      // 2. Order + OrderItems + OrderAddress oluştur
+      // Kargo ücreti
+      const shippingCost = getShippingPrice(
+        validatedData.shippingMethod,
+        totalAmount
+      );
+
+      // Grand total
+      const grandTotal = totalAmount + shippingCost;
+
+      // Fatura adresi (aynı adres mi?)
+      const billingAddress = validatedData.useSameAddress
+        ? validatedData.shippingAddress
+        : validatedData.billingAddress || validatedData.shippingAddress;
+
+      // Order oluştur
       const newOrder = await tx.order.create({
         data: {
           userId: session.user!.id!,
           orderNumber,
           totalAmount,
-          grandTotal: totalAmount,
+          shippingCost,
+          shippingMethod: validatedData.shippingMethod,
+          grandTotal,
+          notes: validatedData.notes,
           items: {
-            create: cartItems.map((item) => ({
-              productId: item.product.id,
-              productName: item.product.name,
-              customizationId: item.customizationId,
-              customParams: item.customization?.parameters ?? undefined,
-              quantity: item.quantity,
-              unitPrice: item.product.basePrice,
-              lineTotal: Number(item.product.basePrice) * item.quantity,
-            })),
+            create: itemsWithPrice,
           },
           address: {
             create: {
@@ -126,18 +172,18 @@ export async function POST(request: NextRequest) {
               shippingState: validatedData.shippingAddress.state,
               shippingZip: validatedData.shippingAddress.postalCode,
               shippingCountry: validatedData.shippingAddress.country,
-              billingLine1: validatedData.shippingAddress.addressLine,
-              billingCity: validatedData.shippingAddress.city,
-              billingState: validatedData.shippingAddress.state,
-              billingZip: validatedData.shippingAddress.postalCode,
-              billingCountry: validatedData.shippingAddress.country,
+              billingLine1: billingAddress.addressLine,
+              billingCity: billingAddress.city,
+              billingState: billingAddress.state,
+              billingZip: billingAddress.postalCode,
+              billingCountry: billingAddress.country,
             },
           },
           history: {
             create: {
               status: "PENDING",
               changedBy: "system",
-              notes: "Siparis olusturuldu",
+              notes: "Sipariş oluşturuldu",
             },
           },
         },
@@ -147,22 +193,26 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      // 3. Sepeti temizle
-      await tx.cartItem.deleteMany({
-        where: { userId: session.user!.id! },
-      });
-
       return newOrder;
     });
 
     return NextResponse.json(
-      { message: "Siparis olusturuldu", order },
+      { message: "Sipariş oluşturuldu", order },
       { status: 201 }
     );
   } catch (error) {
     console.error("POST /api/orders error:", error);
+
+    if (error instanceof ZodError) {
+      const messages = error.errors.map((e) => `${e.path.join(".")}: ${e.message}`);
+      return NextResponse.json(
+        { error: messages.join(", ") || "Geçersiz form bilgileri" },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
-      { error: "Siparis olusturulurken bir hata olustu" },
+      { error: error instanceof Error ? error.message : "Sipariş oluşturulurken bir hata oluştu" },
       { status: 500 }
     );
   }

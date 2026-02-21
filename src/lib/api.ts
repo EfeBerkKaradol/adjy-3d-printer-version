@@ -30,7 +30,7 @@ async function fetchAPI<T>(
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.error || "Bir hata olustu");
+    throw new Error(data.error || "Bir hata oluştu");
   }
 
   return data as T;

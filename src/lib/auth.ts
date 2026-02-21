@@ -7,7 +7,13 @@ import { prisma } from "@/lib/db";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+    maxAge: 2 * 60 * 60, // 2 saat (saniye cinsinden)
+  },
+  jwt: {
+    maxAge: 2 * 60 * 60, // 2 saat
+  },
   pages: {
     signIn: "/login",
     newUser: "/register",

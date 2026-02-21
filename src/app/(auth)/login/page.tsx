@@ -93,14 +93,14 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setServerError("Email veya sifre hatali");
+        setServerError("E-posta veya şifre hatalı");
         return;
       }
 
       router.push("/");
       router.refresh();
     } catch {
-      setServerError("Giris sirasinda bir hata olustu");
+      setServerError("Giriş sırasında bir hata oluştu");
     }
   }
 
