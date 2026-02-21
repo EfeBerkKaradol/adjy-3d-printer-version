@@ -29,7 +29,7 @@ export async function POST(request: Request) {
         }
 
         const body = await request.json();
-        const { title, addressLine, city, state, postalCode, country, type, isDefault } = body;
+        const { title, fullName, phone, addressLine, city, state, postalCode, country, type, isDefault } = body;
 
         if (!title || !addressLine || !city) {
             return NextResponse.json({ error: "Zorunlu alanları doldurun" }, { status: 400 });
@@ -47,6 +47,8 @@ export async function POST(request: Request) {
             data: {
                 userId: session.user.id,
                 title,
+                fullName: fullName || null,
+                phone: phone || null,
                 addressLine,
                 city,
                 state: state || null,

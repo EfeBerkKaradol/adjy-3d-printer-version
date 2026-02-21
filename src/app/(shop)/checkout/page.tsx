@@ -1,26 +1,34 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cartStore";
 import { useSession } from "next-auth/react";
 import { CheckoutSteps } from "@/components/checkout/CheckoutSteps";
 import { CartSummaryStep } from "@/components/checkout/CartSummaryStep";
 import { AddressStep } from "@/components/checkout/AddressStep";
+import type { SavedAddress } from "@/components/checkout/AddressStep";
 import { ShippingStep } from "@/components/checkout/ShippingStep";
 import { PaymentStep } from "@/components/checkout/PaymentStep";
 import { OrderSummaryPanel } from "@/components/checkout/OrderSummaryPanel";
-import { getShippingOptions, getShippingPrice, getDefaultShipping } from "@/lib/shipping";
+import {
+  getShippingOptions,
+  getShippingPrice,
+  getDefaultShipping,
+} from "@/lib/shipping";
 import { Button } from "@/components/ui/button";
 import { Loader2, ShoppingBag, LogIn } from "lucide-react";
 import Link from "next/link";
-import type { ShippingAddressInput, BillingAddressInput } from "@/lib/validations/order";
+import type {
+  ShippingAddressInput,
+  BillingAddressInput,
+} from "@/lib/validations/order";
 
 // ==========================================
 // CHECKOUT SAYFASI
 // 4 adımlı ödeme akışı:
 // 1. Sepet Özeti
-// 2. Adres Bilgileri
+// 2. Adres Bilgileri (kayıtlı adres seçimi + yeni adres)
 // 3. Kargo Seçimi
 // 4. Ödeme (iyzico)
 // ==========================================
@@ -33,6 +41,10 @@ export default function CheckoutPage() {
   const [step, setStep] = useState(1);
   const [creatingOrder, setCreatingOrder] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+
+  // Kayıtlı adresler
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
+  const [addressesLoaded, setAddressesLoaded] = useState(false);
 
   // Adres state
   const [shippingAddress, setShippingAddress] = useState<ShippingAddressInput>({
@@ -54,6 +66,10 @@ export default function CheckoutPage() {
   });
   const [useSameAddress, setUseSameAddress] = useState(true);
 
+  // Adres kaydetme checkbox state
+  const [saveShippingAddress, setSaveShippingAddress] = useState(false);
+  const [saveBillingAddress, setSaveBillingAddress] = useState(false);
+
   // Kargo state
   const total = totalPrice();
   const defaultShipping = getDefaultShipping(total);
@@ -61,10 +77,96 @@ export default function CheckoutPage() {
   const shippingOptions = getShippingOptions(total);
   const shippingCost = getShippingPrice(selectedShipping, total);
 
+  // Kayıtlı adresleri yükle
+  useEffect(() => {
+    if (!session?.user) return;
+
+    async function fetchAddresses() {
+      try {
+        const res = await fetch("/api/addresses");
+        if (res.ok) {
+          const data = await res.json();
+          setSavedAddresses(data.addresses || []);
+
+          // Varsayılan adresi otomatik doldur
+          const defaultAddr = (data.addresses || []).find(
+            (a: SavedAddress) => a.isDefault
+          );
+          if (defaultAddr) {
+            setShippingAddress({
+              fullName: defaultAddr.fullName || session?.user?.name || "",
+              addressLine: defaultAddr.addressLine,
+              city: defaultAddr.city,
+              state: defaultAddr.state || "",
+              postalCode: defaultAddr.postalCode || "",
+              country: defaultAddr.country,
+              phone: defaultAddr.phone || "",
+            });
+          }
+        }
+      } catch {
+        // Adresler yüklenemedi — kullanıcı yine de elle girebilir
+      } finally {
+        setAddressesLoaded(true);
+      }
+    }
+
+    fetchAddresses();
+  }, [session?.user]);
+
+  // Adres kaydetme fonksiyonu
+  const saveAddressToProfile = async (
+    address: {
+      fullName: string;
+      addressLine: string;
+      city: string;
+      state?: string;
+      postalCode?: string;
+      country: string;
+      phone?: string;
+    },
+    type: "SHIPPING" | "BILLING"
+  ) => {
+    try {
+      await fetch("/api/addresses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title:
+            type === "SHIPPING"
+              ? `Teslimat - ${address.city}`
+              : `Fatura - ${address.city}`,
+          fullName: address.fullName,
+          phone: address.phone || null,
+          addressLine: address.addressLine,
+          city: address.city,
+          state: address.state || null,
+          postalCode: address.postalCode || null,
+          country: address.country,
+          type,
+          isDefault: savedAddresses.length === 0, // İlk adres varsayılan olsun
+        }),
+      });
+    } catch {
+      // Adres kaydedilemedi — sipariş yine de devam eder
+    }
+  };
+
   // Sipariş oluştur ve ödeme adımına geç
   const handleProceedToPayment = useCallback(async () => {
     setCreatingOrder(true);
     try {
+      // Checkbox işaretliyse adresleri kaydet
+      if (saveShippingAddress) {
+        await saveAddressToProfile(
+          { ...shippingAddress, phone: shippingAddress.phone },
+          "SHIPPING"
+        );
+      }
+      if (!useSameAddress && saveBillingAddress) {
+        await saveAddressToProfile(billingAddress, "BILLING");
+      }
+
       // Sepet ürünlerini API'ye gönder
       const orderItems = items.map((item) => ({
         productId: item.product.id,
@@ -101,10 +203,20 @@ export default function CheckoutPage() {
     } finally {
       setCreatingOrder(false);
     }
-  }, [items, shippingAddress, billingAddress, useSameAddress, selectedShipping]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    items,
+    shippingAddress,
+    billingAddress,
+    useSameAddress,
+    selectedShipping,
+    saveShippingAddress,
+    saveBillingAddress,
+    savedAddresses.length,
+  ]);
 
   // Auth yükleniyor
-  if (status === "loading") {
+  if (status === "loading" || (!addressesLoaded && session?.user)) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -126,7 +238,9 @@ export default function CheckoutPage() {
             <Link href="/auth/login?callbackUrl=/checkout">Giriş Yap</Link>
           </Button>
           <Button variant="outline" asChild>
-            <Link href="/auth/register?callbackUrl=/checkout">Hesap Oluştur</Link>
+            <Link href="/auth/register?callbackUrl=/checkout">
+              Hesap Oluştur
+            </Link>
           </Button>
         </div>
       </div>
@@ -182,9 +296,14 @@ export default function CheckoutPage() {
               shippingAddress={shippingAddress}
               billingAddress={billingAddress}
               useSameAddress={useSameAddress}
+              savedAddresses={savedAddresses}
+              saveShippingAddress={saveShippingAddress}
+              saveBillingAddress={saveBillingAddress}
               onShippingChange={setShippingAddress}
               onBillingChange={setBillingAddress}
               onUseSameAddressChange={setUseSameAddress}
+              onSaveShippingChange={setSaveShippingAddress}
+              onSaveBillingChange={setSaveBillingAddress}
               onNext={() => setStep(3)}
               onBack={() => setStep(1)}
             />
@@ -212,7 +331,10 @@ export default function CheckoutPage() {
           )}
 
           {step === 4 && (
-            <PaymentStep orderId={orderId} onBack={() => router.push("/cart")} />
+            <PaymentStep
+              orderId={orderId}
+              onBack={() => router.push("/cart")}
+            />
           )}
         </div>
 
