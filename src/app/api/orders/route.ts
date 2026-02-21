@@ -204,7 +204,7 @@ export async function POST(request: NextRequest) {
     console.error("POST /api/orders error:", error);
 
     if (error instanceof ZodError) {
-      const messages = error.errors.map((e) => `${e.path.join(".")}: ${e.message}`);
+      const messages = error.issues.map((e) => `${String(e.path?.join(".") ?? "")}: ${e.message}`);
       return NextResponse.json(
         { error: messages.join(", ") || "Geçersiz form bilgileri" },
         { status: 400 }

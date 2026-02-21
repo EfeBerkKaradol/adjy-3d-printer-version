@@ -70,6 +70,10 @@ export default function CheckoutPage() {
   const [saveShippingAddress, setSaveShippingAddress] = useState(false);
   const [saveBillingAddress, setSaveBillingAddress] = useState(false);
 
+  // Adres isimleri (kullanıcının vereceği benzersiz isim)
+  const [shippingAddressTitle, setShippingAddressTitle] = useState("");
+  const [billingAddressTitle, setBillingAddressTitle] = useState("");
+
   // Kargo state
   const total = totalPrice();
   const defaultShipping = getDefaultShipping(total);
@@ -125,17 +129,15 @@ export default function CheckoutPage() {
       country: string;
       phone?: string;
     },
-    type: "SHIPPING" | "BILLING"
+    type: "SHIPPING" | "BILLING",
+    title: string
   ) => {
     try {
       await fetch("/api/addresses", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title:
-            type === "SHIPPING"
-              ? `Teslimat - ${address.city}`
-              : `Fatura - ${address.city}`,
+          title: title.trim(),
           fullName: address.fullName,
           phone: address.phone || null,
           addressLine: address.addressLine,
@@ -157,14 +159,15 @@ export default function CheckoutPage() {
     setCreatingOrder(true);
     try {
       // Checkbox işaretliyse adresleri kaydet
-      if (saveShippingAddress) {
+      if (saveShippingAddress && shippingAddressTitle.trim()) {
         await saveAddressToProfile(
           { ...shippingAddress, phone: shippingAddress.phone },
-          "SHIPPING"
+          "SHIPPING",
+          shippingAddressTitle
         );
       }
-      if (!useSameAddress && saveBillingAddress) {
-        await saveAddressToProfile(billingAddress, "BILLING");
+      if (!useSameAddress && saveBillingAddress && billingAddressTitle.trim()) {
+        await saveAddressToProfile(billingAddress, "BILLING", billingAddressTitle);
       }
 
       // Sepet ürünlerini API'ye gönder
@@ -212,6 +215,8 @@ export default function CheckoutPage() {
     selectedShipping,
     saveShippingAddress,
     saveBillingAddress,
+    shippingAddressTitle,
+    billingAddressTitle,
     savedAddresses.length,
   ]);
 
@@ -299,11 +304,15 @@ export default function CheckoutPage() {
               savedAddresses={savedAddresses}
               saveShippingAddress={saveShippingAddress}
               saveBillingAddress={saveBillingAddress}
+              shippingAddressTitle={shippingAddressTitle}
+              billingAddressTitle={billingAddressTitle}
               onShippingChange={setShippingAddress}
               onBillingChange={setBillingAddress}
               onUseSameAddressChange={setUseSameAddress}
               onSaveShippingChange={setSaveShippingAddress}
               onSaveBillingChange={setSaveBillingAddress}
+              onShippingTitleChange={setShippingAddressTitle}
+              onBillingTitleChange={setBillingAddressTitle}
               onNext={() => setStep(3)}
               onBack={() => setStep(1)}
             />
