@@ -88,7 +88,6 @@ export function AddressStep({
   // "new" = yeni adres formu, adres ID = kayıtlı adres seçildi
   const [selectedShippingId, setSelectedShippingId] = useState<string>(() => {
     if (savedAddresses.length === 0) return "new";
-    // Varsayılan adresi bul
     const defaultAddr = savedAddresses.find((a) => a.isDefault);
     return defaultAddr?.id || savedAddresses[0]?.id || "new";
   });
@@ -124,7 +123,6 @@ export function AddressStep({
           country: addr.country,
           phone: addr.phone || "",
         });
-        // Kayıtlı adres seçildiğinde tekrar kaydetmeye gerek yok
         onSaveShippingChange(false);
       }
     }
@@ -158,13 +156,6 @@ export function AddressStep({
     }
   };
 
-  // Seçili adresin özet bilgisi
-  const getAddressSummary = (addr: SavedAddress) => {
-    const parts = [addr.addressLine, addr.city];
-    if (addr.state) parts.splice(1, 0, addr.state);
-    return parts.join(", ");
-  };
-
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -175,36 +166,36 @@ export function AddressStep({
       !shippingAddress.addressLine ||
       shippingAddress.addressLine.length < 5
     ) {
-      newErrors.addressLine = "Adres en az 5 karakter olmal\u0131";
+      newErrors.addressLine = "Adres en az 5 karakter olmalı";
     }
     if (!shippingAddress.city || shippingAddress.city.length < 2) {
-      newErrors.city = "\u015Eehir gerekli";
+      newErrors.city = "Şehir gerekli";
     }
     if (!shippingAddress.phone || shippingAddress.phone.length < 10) {
-      newErrors.phone = "Ge\u00E7erli bir telefon numaras\u0131 giriniz";
+      newErrors.phone = "Geçerli bir telefon numarası giriniz";
     }
 
     // Yeni adres kaydedilecekse isim zorunlu
     if (isNewShipping && saveShippingAddress && !shippingAddressTitle.trim()) {
-      newErrors.shippingTitle = "Adres i\u00E7in bir isim girin (ör: Ev, \u0130\u015F)";
+      newErrors.shippingTitle = "Adres için bir isim girin (ör: Ev, İş)";
     }
 
     if (!useSameAddress) {
       if (!billingAddress.fullName || billingAddress.fullName.length < 2) {
-        newErrors.billingFullName = "Fatura i\u00E7in ad soyad gerekli";
+        newErrors.billingFullName = "Fatura için ad soyad gerekli";
       }
       if (
         !billingAddress.addressLine ||
         billingAddress.addressLine.length < 5
       ) {
-        newErrors.billingAddressLine = "Fatura adresi en az 5 karakter olmal\u0131";
+        newErrors.billingAddressLine = "Fatura adresi en az 5 karakter olmalı";
       }
       if (!billingAddress.city || billingAddress.city.length < 2) {
-        newErrors.billingCity = "Fatura \u015Fehri gerekli";
+        newErrors.billingCity = "Fatura şehri gerekli";
       }
 
       if (isNewBilling && saveBillingAddress && !billingAddressTitle.trim()) {
-        newErrors.billingTitle = "Fatura adresi i\u00E7in bir isim girin";
+        newErrors.billingTitle = "Fatura adresi için bir isim girin";
       }
     }
 
@@ -224,17 +215,17 @@ export function AddressStep({
       <div>
         <h2 className="text-xl font-semibold mb-1">Teslimat Adresi</h2>
         <p className="text-sm text-muted-foreground">
-          Kay\u0131tl\u0131 adreslerinizden birini se\u00E7in veya yeni adres girin.
+          Kayıtlı adreslerinizden birini seçin veya yeni adres girin.
         </p>
       </div>
 
       {/* Adres Dropdown */}
       {savedAddresses.length > 0 && (
         <div className="space-y-2">
-          <Label>Adres Se\u00E7in</Label>
+          <Label>Adres Seçin</Label>
           <Select value={selectedShippingId} onValueChange={handleShippingSelect}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Adres se\u00E7in..." />
+              <SelectValue placeholder="Adres seçin..." />
             </SelectTrigger>
             <SelectContent position="popper">
               {savedAddresses.map((addr) => (
@@ -244,7 +235,7 @@ export function AddressStep({
                     <span className="font-medium">{addr.title}</span>
                     {addr.isDefault && (
                       <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
-                        Varsay\u0131lan
+                        Varsayılan
                       </span>
                     )}
                   </div>
@@ -260,7 +251,7 @@ export function AddressStep({
             </SelectContent>
           </Select>
 
-          {/* Se\u00E7ilen kay\u0131tl\u0131 adresin \u00F6zeti */}
+          {/* Seçilen kayıtlı adresin özeti */}
           {!isNewShipping && (() => {
             const addr = savedAddresses.find((a) => a.id === selectedShippingId);
             if (!addr) return null;
@@ -337,7 +328,7 @@ export function AddressStep({
             </div>
 
             <div>
-              <Label htmlFor="city">\u015Eehir *</Label>
+              <Label htmlFor="city">Şehir *</Label>
               <Input
                 id="city"
                 value={shippingAddress.city}
@@ -347,7 +338,7 @@ export function AddressStep({
                     city: e.target.value,
                   })
                 }
-                placeholder="\u0130stanbul"
+                placeholder="İstanbul"
                 className={errors.city ? "border-destructive" : ""}
               />
               {errors.city && (
@@ -356,7 +347,7 @@ export function AddressStep({
             </div>
 
             <div>
-              <Label htmlFor="state">\u0130l\u00E7e</Label>
+              <Label htmlFor="state">İlçe</Label>
               <Input
                 id="state"
                 value={shippingAddress.state || ""}
@@ -366,7 +357,7 @@ export function AddressStep({
                     state: e.target.value,
                   })
                 }
-                placeholder="Kad\u0131k\u00F6y"
+                placeholder="Kadıköy"
               />
             </div>
 
@@ -419,19 +410,19 @@ export function AddressStep({
                 htmlFor="saveShipping"
                 className="text-sm cursor-pointer text-muted-foreground"
               >
-                Bu adresi sonraki sipari\u015Flerim i\u00E7in kaydet
+                Bu adresi sonraki siparişlerim için kaydet
               </label>
             </div>
 
             {/* Adrese isim ver */}
             {saveShippingAddress && (
               <div className="pl-6">
-                <Label htmlFor="shippingTitle">Adres \u0130smi *</Label>
+                <Label htmlFor="shippingTitle">Adres İsmi *</Label>
                 <Input
                   id="shippingTitle"
                   value={shippingAddressTitle}
                   onChange={(e) => onShippingTitleChange(e.target.value)}
-                  placeholder="\u00D6r: Ev, \u0130\u015F, Yaz\u0131hane..."
+                  placeholder="Ör: Ev, İş, Yazıhane..."
                   className={errors.shippingTitle ? "border-destructive" : ""}
                 />
                 {errors.shippingTitle && (
@@ -459,7 +450,7 @@ export function AddressStep({
             htmlFor="sameAddress"
             className="text-sm font-medium cursor-pointer"
           >
-            Fatura adresim teslimat adresimle ayn\u0131
+            Fatura adresim teslimat adresimle aynı
           </label>
         </div>
       </div>
@@ -471,10 +462,10 @@ export function AddressStep({
           {/* Fatura adresi dropdown */}
           {savedAddresses.length > 0 && (
             <div className="space-y-2">
-              <Label>Fatura Adresi Se\u00E7in</Label>
+              <Label>Fatura Adresi Seçin</Label>
               <Select value={selectedBillingId} onValueChange={handleBillingSelect}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Fatura adresi se\u00E7in..." />
+                  <SelectValue placeholder="Fatura adresi seçin..." />
                 </SelectTrigger>
                 <SelectContent position="popper">
                   {savedAddresses.map((addr) => (
@@ -495,7 +486,7 @@ export function AddressStep({
                 </SelectContent>
               </Select>
 
-              {/* Se\u00E7ilen kay\u0131tl\u0131 fatura adresinin \u00F6zeti */}
+              {/* Seçilen kayıtlı fatura adresinin özeti */}
               {!isNewBilling && (() => {
                 const addr = savedAddresses.find((a) => a.id === selectedBillingId);
                 if (!addr) return null;
@@ -573,7 +564,7 @@ export function AddressStep({
                 </div>
 
                 <div>
-                  <Label htmlFor="billingCity">\u015Eehir *</Label>
+                  <Label htmlFor="billingCity">Şehir *</Label>
                   <Input
                     id="billingCity"
                     value={billingAddress.city}
@@ -583,7 +574,7 @@ export function AddressStep({
                         city: e.target.value,
                       })
                     }
-                    placeholder="\u0130stanbul"
+                    placeholder="İstanbul"
                     className={errors.billingCity ? "border-destructive" : ""}
                   />
                   {errors.billingCity && (
@@ -623,18 +614,18 @@ export function AddressStep({
                     htmlFor="saveBilling"
                     className="text-sm cursor-pointer text-muted-foreground"
                   >
-                    Bu fatura adresini sonraki sipari\u015Flerim i\u00E7in kaydet
+                    Bu fatura adresini sonraki siparişlerim için kaydet
                   </label>
                 </div>
 
                 {saveBillingAddress && (
                   <div className="pl-6">
-                    <Label htmlFor="billingTitle">Fatura Adresi \u0130smi *</Label>
+                    <Label htmlFor="billingTitle">Fatura Adresi İsmi *</Label>
                     <Input
                       id="billingTitle"
                       value={billingAddressTitle}
                       onChange={(e) => onBillingTitleChange(e.target.value)}
-                      placeholder="\u00D6r: \u015Eirket, Fatura Adresi..."
+                      placeholder="Ör: Şirket, Fatura Adresi..."
                       className={errors.billingTitle ? "border-destructive" : ""}
                     />
                     {errors.billingTitle && (
@@ -650,7 +641,7 @@ export function AddressStep({
         </div>
       )}
 
-      {/* Navigasyon butonlar\u0131 */}
+      {/* Navigasyon butonları */}
       <div className="flex gap-3">
         <Button variant="outline" onClick={onBack} className="flex-1 gap-2">
           <ArrowLeft className="h-4 w-4" />
