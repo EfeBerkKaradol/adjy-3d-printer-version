@@ -2,6 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin, isUnauthorized } from "@/lib/admin";
 
+// ==========================================
+// SİPARİŞ DURUM GEÇİŞ KURALLARI
+// Her durumdan hangi durumlara geçilebileceğini tanımlar.
+// ==========================================
+const allowedTransitions: Record<string, string[]> = {
+  PENDING: ["CONFIRMED", "CANCELLED"],
+  CONFIRMED: ["PROCESSING", "CANCELLED"],
+  PROCESSING: ["PRINTING", "CANCELLED"],
+  PRINTING: ["QUALITY_CHECK", "CANCELLED"],
+  QUALITY_CHECK: ["PACKAGING", "PRINTING", "CANCELLED"], // PRINTING'e geri dönebilir (yeniden baskı)
+  PACKAGING: ["SHIPPED", "CANCELLED"],
+  SHIPPED: ["DELIVERED"],
+  DELIVERED: [], // Son durum — geçiş yok
+  CANCELLED: [], // Son durum — geçiş yok
+};
+
 // Sipariş durumu güncelleme
 export async function PATCH(
   request: NextRequest,
@@ -15,15 +31,8 @@ export async function PATCH(
   const { status, notes } = body;
 
   const validStatuses = [
-    "PENDING",
-    "CONFIRMED",
-    "PROCESSING",
-    "PRINTING",
-    "QUALITY_CHECK",
-    "PACKAGING",
-    "SHIPPED",
-    "DELIVERED",
-    "CANCELLED",
+    "PENDING", "CONFIRMED", "PROCESSING", "PRINTING",
+    "QUALITY_CHECK", "PACKAGING", "SHIPPED", "DELIVERED", "CANCELLED",
   ];
 
   if (!status || !validStatuses.includes(status)) {
@@ -33,8 +42,12 @@ export async function PATCH(
     );
   }
 
+  // Sipariş ve ilişkili verileri çek
   const order = await prisma.order.findUnique({
     where: { id: orderId },
+    include: {
+      items: { select: { id: true, printStatus: true } },
+    },
   });
 
   if (!order) {
@@ -44,13 +57,52 @@ export async function PATCH(
     );
   }
 
-  // Durum güncellemesi + geçmiş kaydı (transaction)
+  // Geçiş kuralı kontrolü
+  const currentStatus = order.status;
+  const allowed = allowedTransitions[currentStatus] || [];
+
+  if (!allowed.includes(status)) {
+    return NextResponse.json(
+      {
+        error: `"${currentStatus}" durumundan "${status}" durumuna geçilemez. İzin verilen: ${allowed.join(", ") || "yok (son durum)"}`,
+      },
+      { status: 400 }
+    );
+  }
+
+  // İş mantığı kontrolleri
+  // 1. CONFIRMED'a geçiş — ödeme yapılmış olmalı
+  if (status === "CONFIRMED" && order.paymentStatus !== "PAID") {
+    return NextResponse.json(
+      { error: "Sipariş onaylanabilmesi için ödemenin tamamlanması gerekiyor" },
+      { status: 400 }
+    );
+  }
+
+  // 2. SHIPPED'a geçiş — tüm baskılar DONE olmalı
+  if (status === "SHIPPED") {
+    const unfinished = order.items.filter(
+      (i) => i.printStatus !== "DONE"
+    );
+    if (unfinished.length > 0) {
+      return NextResponse.json(
+        {
+          error: `Kargoya verilemez: ${unfinished.length} ürünün baskısı henüz tamamlanmadı`,
+        },
+        { status: 400 }
+      );
+    }
+  }
+
+  // Transaction ile güncelleme
   const updated = await prisma.$transaction(async (tx) => {
+    // Ana sipariş durumu güncelle
     const updatedOrder = await tx.order.update({
       where: { id: orderId },
       data: { status },
     });
 
+    // Geçmiş kaydı oluştur
     await tx.orderHistory.create({
       data: {
         orderId,
@@ -60,7 +112,29 @@ export async function PATCH(
       },
     });
 
-    // Eğer CANCELLED ise ödeme durumunu da güncelle
+    // 3. PRINTING durumuna geçişte — QUEUED olan ürünleri PRINTING yap
+    if (status === "PRINTING") {
+      await tx.orderItem.updateMany({
+        where: {
+          orderId,
+          printStatus: "QUEUED",
+        },
+        data: { printStatus: "PRINTING" },
+      });
+    }
+
+    // 4. QUALITY_CHECK'e geçişte — PRINTING olan ürünleri DONE yap
+    if (status === "QUALITY_CHECK") {
+      await tx.orderItem.updateMany({
+        where: {
+          orderId,
+          printStatus: "PRINTING",
+        },
+        data: { printStatus: "DONE" },
+      });
+    }
+
+    // 5. CANCELLED — ödeme durumunu REFUNDED yap
     if (status === "CANCELLED") {
       await tx.order.update({
         where: { id: orderId },
@@ -72,12 +146,14 @@ export async function PATCH(
   });
 
   return NextResponse.json({
-    message: "Sipariş durumu güncellendi",
+    message: `Sipariş durumu "${status}" olarak güncellendi`,
     order: {
       id: updated.id,
       orderNumber: updated.orderNumber,
       status: updated.status,
     },
+    // Frontend'e izin verilen sonraki durumları da bildir
+    allowedNextStatuses: allowedTransitions[status] || [],
   });
 }
 
@@ -132,5 +208,7 @@ export async function GET(
         amount: p.amount.toNumber(),
       })),
     },
+    // Mevcut durumdan geçilebilecek durumlar
+    allowedNextStatuses: allowedTransitions[order.status] || [],
   });
 }

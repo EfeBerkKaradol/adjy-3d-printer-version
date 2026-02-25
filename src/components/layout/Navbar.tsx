@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { ShoppingCart, Menu, ArrowRight, User, Package, MapPin, LogOut } from "lucide-react";
+import { ShoppingCart, Menu, ArrowRight, User, Package, MapPin, LogOut, Shield } from "lucide-react";
 
 export function Navbar() {
   const [mounted, setMounted] = useState(false);
@@ -81,6 +81,13 @@ export function Navbar() {
                   <p className="text-xs text-muted-foreground truncate">{session?.user?.email}</p>
                 </div>
                 <DropdownMenuSeparator />
+                {session?.user?.role === "ADMIN" && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin" className="flex items-center gap-2 cursor-pointer text-orange-500 font-medium">
+                      <Shield className="h-4 w-4" /> Admin Paneli
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem asChild>
                   <Link href="/profile" className="flex items-center gap-2 cursor-pointer">
                     <User className="h-4 w-4" /> Profilim
@@ -138,6 +145,9 @@ export function Navbar() {
                       { href: "/products?featured=true", label: "Öne Çıkanlar" },
                       ...(isLoggedIn
                         ? [
+                          ...(session?.user?.role === "ADMIN"
+                            ? [{ href: "/admin", label: "⚡ Admin Paneli" }]
+                            : []),
                           { href: "/profile", label: "Profilim" },
                           { href: "/profile/orders", label: "Siparişlerim" },
                           { href: "/profile/addresses", label: "Adreslerim" },
