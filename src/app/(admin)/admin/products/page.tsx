@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import {
   Search,
   Loader2,
@@ -10,6 +11,8 @@ import {
   Star,
   Eye,
   EyeOff,
+  Plus,
+  Pencil,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -106,11 +109,18 @@ export default function AdminProductsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Ürün Yönetimi</h1>
-        <p className="text-muted-foreground text-sm mt-1">
-          Ürünleri görüntüleyin, aktif/pasif yapın veya öne çıkarın
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Ürün Yönetimi</h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            Ürünleri oluşturun, düzenleyin ve yönetin
+          </p>
+        </div>
+        <Button asChild className="gap-2">
+          <Link href="/admin/products/new">
+            <Plus className="h-4 w-4" /> Yeni Ürün
+          </Link>
+        </Button>
       </div>
 
       {/* Arama */}
@@ -158,13 +168,16 @@ export default function AdminProductsPage() {
                   <th className="text-center px-4 py-3 font-medium text-muted-foreground">
                     Öne Çıkan
                   </th>
+                  <th className="text-center px-4 py-3 font-medium text-muted-foreground">
+                    İşlem
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {products.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={6}
+                      colSpan={7}
                       className="text-center py-12 text-muted-foreground"
                     >
                       Ürün bulunamadı
@@ -248,6 +261,13 @@ export default function AdminProductsPage() {
                                 : "text-muted-foreground"
                             }`}
                           />
+                        </Button>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <Button variant="ghost" size="sm" asChild>
+                          <Link href={`/admin/products/${product.id}`}>
+                            <Pencil className="h-4 w-4" />
+                          </Link>
                         </Button>
                       </td>
                     </tr>

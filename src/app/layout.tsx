@@ -24,9 +24,32 @@ const orbitron = Orbitron({
 });
 
 export const metadata: Metadata = {
-  title: "ADJY - 3D Baskı E-Ticaret Platformu",
+  title: {
+    default: "ADJY - 3D Baskı E-Ticaret Platformu",
+    template: "%s | ADJY",
+  },
   description:
-    "3D modelleri parametrik olarak ozellestir, AR ile goruntule ve satin al.",
+    "3D modelleri parametrik olarak özelleştir, AR ile görüntüle ve satın al. Türkiye'nin ilk parametrik 3D baskı e-ticaret platformu.",
+  keywords: ["3D baskı", "3D print", "parametrik tasarım", "AR", "e-ticaret", "özelleştirilebilir ürünler"],
+  authors: [{ name: "ADJY" }],
+  creator: "ADJY",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
+  openGraph: {
+    type: "website",
+    locale: "tr_TR",
+    siteName: "ADJY",
+    title: "ADJY - 3D Baskı E-Ticaret Platformu",
+    description: "3D modelleri parametrik olarak özelleştir, AR ile görüntüle ve satın al.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ADJY - 3D Baskı E-Ticaret Platformu",
+    description: "3D modelleri parametrik olarak özelleştir, AR ile görüntüle ve satın al.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

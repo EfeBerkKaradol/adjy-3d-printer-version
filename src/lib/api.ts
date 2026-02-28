@@ -51,6 +51,7 @@ export interface ProductsResponse {
     featured: boolean;
     category: { id: string; name: string; slug: string };
     _count: { reviews: number };
+    averageRating?: number;
   }>;
   pagination: {
     total: number;

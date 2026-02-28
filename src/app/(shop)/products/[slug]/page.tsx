@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getProductBySlug } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -9,19 +10,27 @@ import { ProductARButton } from "@/components/ar/ProductARButton";
 import { ProductReviews } from "@/components/product/ProductReviews";
 import { notFound } from "next/navigation";
 
-// ==========================================
-// ÜRÜN DETAY SAYFASI (Server Component)
-//
-// URL'deki [slug] parametresine göre ürünü
-// API'den çeker ve detaylarını gösterir.
-//
-// Java karşılığı:
-//   @GetMapping("/products/{slug}")
-//   public String detail(@PathVariable String slug, Model model)
-// ==========================================
-
 interface ProductDetailPageProps {
   params: Promise<{ slug: string }>;
+}
+
+// Dinamik SEO metadata
+export async function generateMetadata({ params }: ProductDetailPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  try {
+    const { product } = await getProductBySlug(slug);
+    return {
+      title: product.name,
+      description: product.description || `${product.name} - ${product.category.name} kategorisinde 3D baskı ürünü. ${Number(product.basePrice).toFixed(2)} TL`,
+      openGraph: {
+        title: `${product.name} | ADJY`,
+        description: product.description || `${product.name} - ${Number(product.basePrice).toFixed(2)} TL`,
+        ...(product.thumbnailUrl && { images: [{ url: product.thumbnailUrl }] }),
+      },
+    };
+  } catch {
+    return { title: "Ürün Bulunamadı" };
+  }
 }
 
 export default async function ProductDetailPage({

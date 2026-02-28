@@ -23,6 +23,7 @@ interface ProductCardProps {
     featured: boolean;
     category: { name: string; slug: string };
     _count: { reviews: number };
+    averageRating?: number;
   };
 }
 
@@ -162,7 +163,10 @@ export function ProductCard({ product }: ProductCardProps) {
           {product._count.reviews > 0 && (
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <Star className="h-3.5 w-3.5 fill-yellow-500 text-yellow-500" />
-              <span>{product._count.reviews} yorum</span>
+              <span>
+                {product.averageRating ? `${product.averageRating}` : ""}
+                {" "}({product._count.reviews})
+              </span>
             </div>
           )}
         </CardFooter>

@@ -63,6 +63,63 @@ export async function GET(request: NextRequest) {
   });
 }
 
+// Yeni ürün oluştur
+export async function POST(request: NextRequest) {
+  const authResult = await requireAdmin();
+  if (isUnauthorized(authResult)) return authResult;
+
+  const body = await request.json();
+  const {
+    name, slug, description, basePrice, categoryId,
+    materialType, materialWeight, printTimeEst,
+    thumbnailUrl, modelFileUrl,
+  } = body;
+
+  if (!name || !slug || !basePrice || !categoryId) {
+    return NextResponse.json(
+      { error: "Ad, slug, fiyat ve kategori zorunludur" },
+      { status: 400 }
+    );
+  }
+
+  // Slug çakışma kontrolü
+  const existing = await prisma.product.findUnique({ where: { slug } });
+  if (existing) {
+    return NextResponse.json(
+      { error: "Bu slug zaten kullanılıyor" },
+      { status: 409 }
+    );
+  }
+
+  try {
+    const product = await prisma.product.create({
+      data: {
+        name,
+        slug,
+        description: description || null,
+        basePrice,
+        categoryId,
+        materialType: materialType || null,
+        materialWeight: materialWeight || null,
+        printTimeEst: printTimeEst || null,
+        thumbnailUrl: thumbnailUrl || null,
+        modelFileUrl: modelFileUrl || null,
+      },
+    });
+
+    return NextResponse.json(
+      { message: "Ürün oluşturuldu", product: { id: product.id, name: product.name, slug: product.slug } },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("POST /api/admin/products error:", error);
+    return NextResponse.json(
+      { error: "Ürün oluşturulurken hata oluştu" },
+      { status: 500 }
+    );
+  }
+}
+
 // Ürün aktif/pasif + öne çıkarma
 export async function PATCH(request: NextRequest) {
   const authResult = await requireAdmin();

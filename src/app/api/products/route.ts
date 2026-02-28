@@ -110,6 +110,9 @@ export async function GET(request: NextRequest) {
               slug: true,
             },
           },
+          reviews: {
+            select: { rating: true },
+          },
           _count: {
             select: {
               reviews: true,
@@ -125,9 +128,20 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    // 6. Response döndür
+    // 6. Ortalama ratingi hesapla
+    const productsWithRating = products.map((p) => {
+      const ratings = p.reviews.map((r) => r.rating);
+      const avgRating = ratings.length > 0 ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0;
+      const { reviews: _reviews, ...rest } = p;
+      return {
+        ...rest,
+        averageRating: Math.round(avgRating * 10) / 10,
+      };
+    });
+
+    // 7. Response döndür
     return NextResponse.json({
-      products,
+      products: productsWithRating,
       pagination: {
         page: query.page,
         limit: query.limit,
