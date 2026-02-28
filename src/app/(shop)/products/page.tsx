@@ -54,6 +54,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   // ==========================================
   let products: Awaited<ReturnType<typeof getProducts>>["products"] = [];
   let categories: Awaited<ReturnType<typeof getCategories>>["categories"] = [];
+  let materials: string[] = [];
 
   try {
     const [productsData, categoriesData] = await Promise.all([
@@ -61,13 +62,14 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         category: params.category,
         featured: params.featured === "true",
         search: params.search,
-        sort: params.sort,
+        sort: params.sort as string | undefined,
         page: params.page ? Number(params.page) : 1,
       }),
       getCategories(),
     ]);
     products = productsData.products;
     categories = categoriesData.categories;
+    materials = productsData.filters?.materials || [];
   } catch (error) {
     console.error("Urunler yuklenirken hata:", error);
   }
@@ -83,7 +85,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
       {/* Filtreler */}
       <div className="mb-8">
-        <ProductFilters categories={categories} />
+        <ProductFilters categories={categories} materials={materials} />
       </div>
 
       {/* Ürün Grid */}

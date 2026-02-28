@@ -58,6 +58,9 @@ export interface ProductsResponse {
     limit: number;
     totalPages: number;
   };
+  filters?: {
+    materials: string[];
+  };
 }
 
 export interface ProductDetailResponse {

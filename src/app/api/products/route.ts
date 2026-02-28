@@ -55,6 +55,11 @@ export async function GET(request: NextRequest) {
       if (query.maxPrice) where.basePrice.lte = query.maxPrice;
     }
 
+    // Materyal filtresi
+    if (query.material) {
+      where.materialType = { equals: query.material, mode: "insensitive" };
+    }
+
     // 3. Sıralama
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let orderBy: any = { createdAt: "desc" };
@@ -73,13 +78,16 @@ export async function GET(request: NextRequest) {
       case "popular":
         orderBy = { featured: "desc" };
         break;
+      case "rating":
+        orderBy = { reviews: { _count: "desc" } };
+        break;
     }
 
     // 4. Sayfalama hesapla
     const skip = (query.page - 1) * query.limit;
 
     // 5. Veritabanından çek
-    const [products, totalCount] = await Promise.all([
+    const [products, totalCount, materials] = await Promise.all([
       prisma.product.findMany({
         where,
         orderBy,
@@ -110,6 +118,11 @@ export async function GET(request: NextRequest) {
         },
       }),
       prisma.product.count({ where }),
+      prisma.product.findMany({
+        where: { isActive: true, materialType: { not: null } },
+        select: { materialType: true },
+        distinct: ["materialType"],
+      }),
     ]);
 
     // 6. Response döndür
@@ -120,6 +133,11 @@ export async function GET(request: NextRequest) {
         limit: query.limit,
         totalCount,
         totalPages: Math.ceil(totalCount / query.limit),
+      },
+      filters: {
+        materials: materials
+          .map((m) => m.materialType)
+          .filter((m): m is string => m !== null),
       },
     });
   } catch (error) {

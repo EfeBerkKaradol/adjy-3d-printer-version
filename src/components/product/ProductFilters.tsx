@@ -4,14 +4,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, X, SlidersHorizontal } from "lucide-react";
+import { Search, X, SlidersHorizontal, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
-
-// ==========================================
-// ÜRÜN FİLTRE KOMPONENTİ
-// Kategori, arama ve sıralama filtreleri.
-// URL search params ile çalışır (SSR uyumlu).
-// ==========================================
 
 interface Category {
   id: string;
@@ -22,9 +16,10 @@ interface Category {
 
 interface ProductFiltersProps {
   categories: Category[];
+  materials?: string[];
 }
 
-export function ProductFilters({ categories }: ProductFiltersProps) {
+export function ProductFilters({ categories, materials = [] }: ProductFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -32,31 +27,21 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
   const currentSearch = searchParams.get("search") || "";
   const currentSort = searchParams.get("sort") || "";
   const currentFeatured = searchParams.get("featured") === "true";
+  const currentMinPrice = searchParams.get("minPrice") || "";
+  const currentMaxPrice = searchParams.get("maxPrice") || "";
+  const currentMaterial = searchParams.get("material") || "";
 
   const [searchInput, setSearchInput] = useState(currentSearch);
+  const [minPrice, setMinPrice] = useState(currentMinPrice);
+  const [maxPrice, setMaxPrice] = useState(currentMaxPrice);
+  const [showAdvanced, setShowAdvanced] = useState(
+    !!(currentMinPrice || currentMaxPrice || currentMaterial)
+  );
 
-  // Search input değiştiğinde URL'i güncelle
   useEffect(() => {
     setSearchInput(currentSearch);
   }, [currentSearch]);
 
-  // ==========================================
-  // [GÖREV 20]: updateFilter fonksiyonunu tamamla
-  //
-  // Bu fonksiyon, URL search params'ı güncelleyerek
-  // sayfayı yeni filtrelerle yeniden yükler.
-  //
-  // İpucu:
-  //   1. Mevcut searchParams'tan yeni bir URLSearchParams oluştur
-  //   2. Eğer value boşsa, o parametreyi sil (.delete)
-  //   3. Eğer value doluysa, o parametreyi set et (.set)
-  //   4. "page" parametresini her zaman sil (filtre değişince sayfa 1'e döner)
-  //   5. router.push(`/products?${params.toString()}`) ile yönlendir
-  //
-  // Java karşılığı:
-  //   Spring'de @RequestParam ile aynı mantık.
-  //   UriComponentsBuilder.fromPath("/products").queryParam(key, value).build()
-  // ==========================================
   function updateFilter(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
     if (value) {
@@ -68,37 +53,41 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
     router.push(`/products?${params.toString()}`);
   }
 
-  // ==========================================
-  // [GÖREV 21]: handleSearch fonksiyonunu tamamla
-  //
-  // Form submit edildiğinde arama yapılmasını sağlar.
-  //
-  // İpucu:
-  //   1. e.preventDefault() ile form'un default davranışını engelle
-  //   2. updateFilter("search", searchInput.trim()) çağır
-  //
-  // Java karşılığı:
-  //   Controller'da @GetMapping ile search parametresi almak gibi.
-  // ==========================================
+  function updateMultipleFilters(updates: Record<string, string>) {
+    const params = new URLSearchParams(searchParams.toString());
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value) {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
+    });
+    params.delete("page");
+    router.push(`/products?${params.toString()}`);
+  }
+
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     updateFilter("search", searchInput.trim());
   }
 
-  // ==========================================
-  // [GÖREV 22]: clearAllFilters fonksiyonunu tamamla
-  //
-  // Tüm filtreleri temizleyip /products sayfasına yönlendir.
-  //
-  // İpucu:
-  //   router.push("/products") yeterli
-  // ==========================================
+  function handlePriceFilter() {
+    updateMultipleFilters({
+      minPrice: minPrice,
+      maxPrice: maxPrice,
+    });
+  }
+
   function clearAllFilters() {
     setSearchInput("");
+    setMinPrice("");
+    setMaxPrice("");
     router.push("/products");
   }
 
-  const hasActiveFilters = currentCategory || currentSearch || currentSort || currentFeatured;
+  const hasActiveFilters =
+    currentCategory || currentSearch || currentSort || currentFeatured ||
+    currentMinPrice || currentMaxPrice || currentMaterial;
 
   return (
     <div className="space-y-4">
@@ -107,7 +96,7 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Urun ara..."
+            placeholder="Ürün ara..."
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             className="pl-10"
@@ -125,14 +114,14 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
           size="sm"
           onClick={() => clearAllFilters()}
         >
-          Tumu
+          Tümü
         </Button>
         <Button
           variant={currentFeatured ? "default" : "outline"}
           size="sm"
           onClick={() => updateFilter("featured", currentFeatured ? "" : "true")}
         >
-          ⭐ One Cikanlar
+          Öne Çıkanlar
         </Button>
         {categories.map((cat) => (
           <Button
@@ -152,13 +141,14 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
       {/* Sıralama */}
       <div className="flex items-center gap-2 flex-wrap">
         <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm text-muted-foreground">Sirala:</span>
+        <span className="text-sm text-muted-foreground">Sırala:</span>
         {[
-          { value: "", label: "Varsayilan" },
+          { value: "", label: "Varsayılan" },
           { value: "newest", label: "En Yeni" },
           { value: "price_asc", label: "Fiyat: Artan" },
           { value: "price_desc", label: "Fiyat: Azalan" },
-          { value: "popular", label: "Populer" },
+          { value: "popular", label: "Popüler" },
+          { value: "rating", label: "En Çok Yorum" },
         ].map((option) => (
           <Button
             key={option.value}
@@ -172,25 +162,102 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
         ))}
       </div>
 
+      {/* Gelişmiş Filtre Aç/Kapat */}
+      <button
+        onClick={() => setShowAdvanced(!showAdvanced)}
+        className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ChevronDown className={`h-4 w-4 transition-transform ${showAdvanced ? "rotate-180" : ""}`} />
+        Gelişmiş Filtreler
+      </button>
+
+      {/* Gelişmiş Filtreler */}
+      {showAdvanced && (
+        <div className="flex flex-wrap items-end gap-4 p-4 bg-muted/30 rounded-xl">
+          {/* Fiyat Aralığı */}
+          <div className="flex items-end gap-2">
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Min Fiyat (TL)</label>
+              <Input
+                type="number"
+                placeholder="0"
+                value={minPrice}
+                onChange={(e) => setMinPrice(e.target.value)}
+                className="w-28 h-9"
+                min={0}
+              />
+            </div>
+            <span className="text-muted-foreground pb-2">—</span>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Max Fiyat (TL)</label>
+              <Input
+                type="number"
+                placeholder="10000"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+                className="w-28 h-9"
+                min={0}
+              />
+            </div>
+            <Button size="sm" variant="secondary" className="h-9" onClick={handlePriceFilter}>
+              Uygula
+            </Button>
+          </div>
+
+          {/* Materyal Filtresi */}
+          {materials.length > 0 && (
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Materyal</label>
+              <div className="flex flex-wrap gap-1.5">
+                {materials.map((mat) => (
+                  <Button
+                    key={mat}
+                    variant={currentMaterial === mat ? "default" : "outline"}
+                    size="sm"
+                    className="h-9 text-xs"
+                    onClick={() => updateFilter("material", currentMaterial === mat ? "" : mat)}
+                  >
+                    {mat}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Aktif Filtreler */}
       {hasActiveFilters && (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs text-muted-foreground">Aktif filtreler:</span>
           {currentSearch && (
             <Badge variant="secondary" className="gap-1">
               Arama: {currentSearch}
-              <X
-                className="h-3 w-3 cursor-pointer"
-                onClick={() => updateFilter("search", "")}
-              />
+              <X className="h-3 w-3 cursor-pointer" onClick={() => updateFilter("search", "")} />
             </Badge>
           )}
           {currentCategory && (
             <Badge variant="secondary" className="gap-1">
               Kategori: {currentCategory}
+              <X className="h-3 w-3 cursor-pointer" onClick={() => updateFilter("category", "")} />
+            </Badge>
+          )}
+          {currentMaterial && (
+            <Badge variant="secondary" className="gap-1">
+              Materyal: {currentMaterial}
+              <X className="h-3 w-3 cursor-pointer" onClick={() => updateFilter("material", "")} />
+            </Badge>
+          )}
+          {(currentMinPrice || currentMaxPrice) && (
+            <Badge variant="secondary" className="gap-1">
+              Fiyat: {currentMinPrice || "0"} - {currentMaxPrice || "max"} TL
               <X
                 className="h-3 w-3 cursor-pointer"
-                onClick={() => updateFilter("category", "")}
+                onClick={() => {
+                  setMinPrice("");
+                  setMaxPrice("");
+                  updateMultipleFilters({ minPrice: "", maxPrice: "" });
+                }}
               />
             </Badge>
           )}
@@ -200,7 +267,7 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
             className="text-xs text-red-500"
             onClick={clearAllFilters}
           >
-            Tumu Temizle
+            Tümü Temizle
           </Button>
         </div>
       )}

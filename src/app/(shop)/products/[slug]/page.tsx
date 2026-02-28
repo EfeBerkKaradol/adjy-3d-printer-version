@@ -6,6 +6,7 @@ import Link from "next/link";
 import { AddToCartButton } from "@/components/product/AddToCartButton";
 import { ProductDetailImage } from "@/components/product/ProductDetailImage";
 import { ProductARButton } from "@/components/ar/ProductARButton";
+import { ProductReviews } from "@/components/product/ProductReviews";
 import { notFound } from "next/navigation";
 
 // ==========================================
@@ -235,6 +236,9 @@ export default async function ProductDetailPage({
           />
         </div>
       </div>
+
+      {/* Değerlendirmeler */}
+      <ProductReviews productId={product.id} />
     </div>
   );
 }

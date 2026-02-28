@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin, isUnauthorized } from "@/lib/admin";
+import { sendStatusUpdate } from "@/lib/email";
 
 // ==========================================
 // SİPARİŞ DURUM GEÇİŞ KURALLARI
@@ -47,6 +48,8 @@ export async function PATCH(
     where: { id: orderId },
     include: {
       items: { select: { id: true, printStatus: true } },
+      user: { select: { fullName: true, email: true } },
+      shipment: { select: { trackingNumber: true, carrier: true } },
     },
   });
 
@@ -144,6 +147,21 @@ export async function PATCH(
 
     return updatedOrder;
   });
+
+  // E-posta bildirimi gönder (async, response'u bekletmez)
+  if (order.user.email) {
+    sendStatusUpdate({
+      customerName: order.user.fullName || "Müşteri",
+      customerEmail: order.user.email,
+      orderNumber: order.orderNumber,
+      orderId: order.id,
+      oldStatus: currentStatus,
+      newStatus: status,
+      notes: notes || undefined,
+      trackingNumber: order.shipment?.trackingNumber || undefined,
+      carrier: order.shipment?.carrier || undefined,
+    }).catch(() => {});
+  }
 
   return NextResponse.json({
     message: `Sipariş durumu "${status}" olarak güncellendi`,

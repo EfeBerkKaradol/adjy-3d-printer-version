@@ -5,6 +5,7 @@ import { createOrderSchema } from "@/lib/validations/order";
 import { calculatePrice } from "@/lib/priceCalculator";
 import { getShippingPrice } from "@/lib/shipping";
 import { ZodError } from "zod";
+import { sendOrderConfirmation } from "@/lib/email";
 
 // ==========================================
 // GET /api/orders
@@ -195,6 +196,25 @@ export async function POST(request: NextRequest) {
 
       return newOrder;
     });
+
+    // E-posta bildirimi gönder (async, response'u bekletmez)
+    const shippingAddr = validatedData.shippingAddress;
+    sendOrderConfirmation({
+      customerName: session.user?.name || "Müşteri",
+      customerEmail: session.user?.email || "",
+      orderNumber,
+      orderId: order.id,
+      items: order.items.map((i) => ({
+        name: i.productName,
+        quantity: i.quantity,
+        unitPrice: Number(i.unitPrice),
+        lineTotal: Number(i.lineTotal),
+      })),
+      totalAmount: Number(order.totalAmount),
+      shippingCost: Number(order.shippingCost),
+      grandTotal: Number(order.grandTotal),
+      shippingAddress: `${shippingAddr.addressLine}, ${shippingAddr.city}`,
+    }).catch(() => {});
 
     return NextResponse.json(
       { message: "Sipariş oluşturuldu", order },
