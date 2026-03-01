@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
@@ -32,6 +32,23 @@ import { Loader2, Eye, EyeOff } from "lucide-react";
 // ==========================================
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto max-w-md px-4 py-24">
+        <Card>
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">Giriş Yap</CardTitle>
+            <p className="text-sm text-muted-foreground">Yükleniyor...</p>
+          </CardHeader>
+        </Card>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
