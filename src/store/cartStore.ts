@@ -121,11 +121,41 @@ export const useCartStore = create<CartStore>()((set, get) => ({
   switchUser: (userId) => {
     const currentState = get();
 
-    // Mevcut kullanıcının sepetini kaydet
-    saveCart(currentState.currentUserId, currentState.items);
+    // Login: guest → authenticated user geçişi
+    if (userId && !currentState.currentUserId) {
+      const guestItems = currentState.items;
+      const userItems = loadCart(userId);
 
-    // Yeni kullanıcının sepetini yükle
-    const newItems = loadCart(userId);
-    set({ currentUserId: userId, items: newItems });
+      // Guest sepetindeki ürünleri kullanıcı sepetine merge et
+      // Aynı ürün + customization varsa miktarları topla, yoksa ekle
+      const mergedItems = [...userItems];
+      for (const guestItem of guestItems) {
+        const existingIndex = mergedItems.findIndex(
+          (ui) =>
+            ui.product.id === guestItem.product.id &&
+            ui.customization?.id === guestItem.customization?.id
+        );
+        if (existingIndex >= 0) {
+          mergedItems[existingIndex] = {
+            ...mergedItems[existingIndex],
+            quantity:
+              mergedItems[existingIndex].quantity + guestItem.quantity,
+          };
+        } else {
+          mergedItems.push(guestItem);
+        }
+      }
+
+      // Merge'lenmiş sepeti kullanıcıya kaydet
+      saveCart(userId, mergedItems);
+      // Guest sepetini temizle
+      saveCart(null, []);
+      set({ currentUserId: userId, items: mergedItems });
+    } else {
+      // Logout veya farklı kullanıcıya geçiş
+      saveCart(currentState.currentUserId, currentState.items);
+      const newItems = loadCart(userId);
+      set({ currentUserId: userId, items: newItems });
+    }
   },
 }));

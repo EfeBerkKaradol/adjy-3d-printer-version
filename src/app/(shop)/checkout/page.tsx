@@ -240,10 +240,10 @@ export default function CheckoutPage() {
         </p>
         <div className="flex gap-3 justify-center">
           <Button asChild>
-            <Link href="/auth/login?callbackUrl=/checkout">Giriş Yap</Link>
+            <Link href="/login?callbackUrl=/checkout">Giriş Yap</Link>
           </Button>
           <Button variant="outline" asChild>
-            <Link href="/auth/register?callbackUrl=/checkout">
+            <Link href="/register?callbackUrl=/checkout">
               Hesap Oluştur
             </Link>
           </Button>
