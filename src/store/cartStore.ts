@@ -8,7 +8,7 @@ export interface CartProduct {
 }
 
 export interface CartCustomization {
-  id: string;
+  id: string | null; // null = henüz DB'ye kaydedilmemiş (guest user)
   parameters: Record<string, unknown>;
 }
 

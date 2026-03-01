@@ -179,11 +179,10 @@ export default function CustomizePage() {
       paramValues
     );
 
-    // Logged-in ise DB'ye kaydet
-    let customizationId = crypto.randomUUID();
+    // Logged-in ise customization'ı DB'ye kaydet
+    let customizationId: string | null = null;
     if (session?.user) {
-      const dbId = await saveCustomization();
-      if (dbId) customizationId = dbId;
+      customizationId = await saveCustomization();
     }
 
     addItem({
@@ -194,7 +193,7 @@ export default function CustomizePage() {
         thumbnailUrl: product.thumbnailUrl,
       },
       customization: {
-        id: customizationId,
+        id: customizationId, // null = guest, DB kaydı yok
         parameters: paramValues,
       },
       quantity: 1,

@@ -108,6 +108,20 @@ export async function POST(request: NextRequest) {
 
     const productMap = new Map(products.map((p) => [p.id, p]));
 
+    // customizationId'lerin gerçekte DB'de var olduğunu doğrula
+    const customizationIds = validatedData.items
+      .map((i) => i.customizationId)
+      .filter((id): id is string => !!id);
+
+    const validCustomizationIds = new Set<string>();
+    if (customizationIds.length > 0) {
+      const existing = await prisma.customization.findMany({
+        where: { id: { in: customizationIds } },
+        select: { id: true },
+      });
+      existing.forEach((c) => validCustomizationIds.add(c.id));
+    }
+
     // Transaction ile sipariş oluştur
     const order = await prisma.$transaction(async (tx) => {
       const itemsWithPrice = validatedData.items.map((item) => {
@@ -122,10 +136,15 @@ export async function POST(request: NextRequest) {
           ? calculatePrice(basePrice, product.parameters, customParams)
           : basePrice;
 
+        // customizationId sadece DB'de gerçekten varsa kullan
+        const validCustId = item.customizationId && validCustomizationIds.has(item.customizationId)
+          ? item.customizationId
+          : undefined;
+
         return {
           productId: product.id,
           productName: product.name,
-          customizationId: item.customizationId || undefined,
+          customizationId: validCustId,
           customParams: customParams ?? undefined,
           quantity: item.quantity,
           unitPrice,
