@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 
@@ -33,6 +33,8 @@ import { Loader2, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
   const [serverError, setServerError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -97,7 +99,7 @@ export default function LoginPage() {
         return;
       }
 
-      router.push("/");
+      router.push(callbackUrl);
       router.refresh();
     } catch {
       setServerError("Giriş sırasında bir hata oluştu");
