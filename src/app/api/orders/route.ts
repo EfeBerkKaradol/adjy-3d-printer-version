@@ -6,6 +6,7 @@ import { calculatePrice } from "@/lib/priceCalculator";
 import { getShippingPrice } from "@/lib/shipping";
 import { ZodError } from "zod";
 import { sendOrderConfirmation } from "@/lib/email";
+import { invalidateCache, CACHE_KEYS } from "@/lib/cache";
 
 // ==========================================
 // GET /api/orders
@@ -164,8 +165,40 @@ export async function POST(request: NextRequest) {
         totalAmount
       );
 
+      // Kupon indirimi hesapla
+      let discountAmount = 0;
+      let couponCode: string | undefined;
+
+      if (validatedData.couponCode) {
+        const coupon = await tx.coupon.findUnique({
+          where: { code: validatedData.couponCode.toUpperCase() },
+        });
+
+        if (coupon && coupon.isActive) {
+          const now = new Date();
+          const validDate = (!coupon.validTo || now <= coupon.validTo) && now >= coupon.validFrom;
+          const validUses = !coupon.maxUses || coupon.usedCount < coupon.maxUses;
+          const minOk = !coupon.minOrderAmount || totalAmount >= Number(coupon.minOrderAmount);
+
+          if (validDate && validUses && minOk) {
+            const val = Number(coupon.value);
+            discountAmount = coupon.type === "PERCENTAGE"
+              ? Math.min((totalAmount * val) / 100, totalAmount)
+              : Math.min(val, totalAmount);
+            discountAmount = Math.round(discountAmount * 100) / 100;
+            couponCode = coupon.code;
+
+            // usedCount artir
+            await tx.coupon.update({
+              where: { id: coupon.id },
+              data: { usedCount: { increment: 1 } },
+            });
+          }
+        }
+      }
+
       // Grand total
-      const grandTotal = totalAmount + shippingCost;
+      const grandTotal = totalAmount + shippingCost - discountAmount;
 
       // Fatura adresi (aynı adres mi?)
       const billingAddress = validatedData.useSameAddress
@@ -178,6 +211,8 @@ export async function POST(request: NextRequest) {
           userId: session.user!.id!,
           orderNumber,
           totalAmount,
+          discountAmount,
+          couponCode: couponCode || null,
           shippingCost,
           shippingMethod: validatedData.shippingMethod,
           grandTotal,
@@ -234,6 +269,9 @@ export async function POST(request: NextRequest) {
       grandTotal: Number(order.grandTotal),
       shippingAddress: `${shippingAddr.addressLine}, ${shippingAddr.city}`,
     }).catch(() => {});
+
+    // Admin stats cache'ini invalidate et
+    invalidateCache(CACHE_KEYS.ADMIN_STATS).catch(() => {});
 
     return NextResponse.json(
       { message: "Sipariş oluşturuldu", order },

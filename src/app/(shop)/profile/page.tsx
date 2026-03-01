@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, User, Package, MapPin, Save, CheckCircle } from "lucide-react";
+import { Loader2, User, Package, MapPin, Heart, Save, CheckCircle } from "lucide-react";
 import Link from "next/link";
 
 export default function ProfilePage() {
@@ -79,7 +79,7 @@ export default function ProfilePage() {
         <div className="container mx-auto max-w-3xl px-4 py-12">
             {/* Navigation Tabs */}
             <Tabs defaultValue="profile" className="mb-8">
-                <TabsList className="grid w-full grid-cols-3">
+                <TabsList className="grid w-full grid-cols-4">
                     <TabsTrigger value="profile" asChild>
                         <Link href="/profile" className="flex items-center gap-2">
                             <User className="h-4 w-4" /> Profil
@@ -87,7 +87,12 @@ export default function ProfilePage() {
                     </TabsTrigger>
                     <TabsTrigger value="orders" asChild>
                         <Link href="/profile/orders" className="flex items-center gap-2">
-                            <Package className="h-4 w-4" /> Siparişler
+                            <Package className="h-4 w-4" /> Siparisler
+                        </Link>
+                    </TabsTrigger>
+                    <TabsTrigger value="favorites" asChild>
+                        <Link href="/profile/favorites" className="flex items-center gap-2">
+                            <Heart className="h-4 w-4" /> Favoriler
                         </Link>
                     </TabsTrigger>
                     <TabsTrigger value="addresses" asChild>

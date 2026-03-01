@@ -11,6 +11,7 @@ import type { SavedAddress } from "@/components/checkout/AddressStep";
 import { ShippingStep } from "@/components/checkout/ShippingStep";
 import { PaymentStep } from "@/components/checkout/PaymentStep";
 import { OrderSummaryPanel } from "@/components/checkout/OrderSummaryPanel";
+import { CouponInput } from "@/components/checkout/CouponInput";
 import {
   getShippingOptions,
   getShippingPrice,
@@ -73,6 +74,15 @@ export default function CheckoutPage() {
   // Adres isimleri (kullanıcının vereceği benzersiz isim)
   const [shippingAddressTitle, setShippingAddressTitle] = useState("");
   const [billingAddressTitle, setBillingAddressTitle] = useState("");
+
+  // Kupon state
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    couponId: string;
+    code: string;
+    type: string;
+    value: number;
+    calculatedDiscount: number;
+  } | null>(null);
 
   // Kargo state
   const total = totalPrice();
@@ -189,6 +199,7 @@ export default function CheckoutPage() {
           useSameAddress,
           shippingMethod: selectedShipping,
           items: orderItems,
+          couponCode: appliedCoupon?.code || undefined,
         }),
       });
 
@@ -357,7 +368,18 @@ export default function CheckoutPage() {
               shippingMethod={
                 step >= 3 ? selectedShippingOption?.name || null : null
               }
+              discountAmount={appliedCoupon?.calculatedDiscount || 0}
+              couponCode={appliedCoupon?.code || null}
             />
+            {/* Kupon Girisi */}
+            <div className="mt-4">
+              <CouponInput
+                orderTotal={total}
+                appliedCoupon={appliedCoupon}
+                onCouponApplied={(coupon) => setAppliedCoupon(coupon)}
+                onCouponRemoved={() => setAppliedCoupon(null)}
+              />
+            </div>
           </div>
         )}
       </div>

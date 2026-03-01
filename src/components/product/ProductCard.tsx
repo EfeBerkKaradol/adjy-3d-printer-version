@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Star, Box } from "lucide-react";
+import { WishlistButton } from "./WishlistButton";
 
 // ==========================================
 // ÜRÜN KARTI KOMPONENTİ
@@ -138,6 +139,11 @@ export function ProductCard({ product }: ProductCardProps) {
               One Cikan
             </Badge>
           )}
+
+          {/* Wishlist Button */}
+          <div className="absolute top-3 right-3 z-10">
+            <WishlistButton productId={product.id} />
+          </div>
         </div>
 
         {/* Kart İçeriği */}

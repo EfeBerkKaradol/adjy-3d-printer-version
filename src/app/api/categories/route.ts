@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { getFromCache, setCache, CACHE_KEYS, CACHE_TTL } from "@/lib/cache";
 
 // ==========================================
 // GET /api/categories
@@ -9,6 +10,12 @@ import { prisma } from "@/lib/db";
 
 export async function GET() {
   try {
+    // Cache kontrol
+    const cached = await getFromCache(CACHE_KEYS.CATEGORIES);
+    if (cached) {
+      return NextResponse.json(cached);
+    }
+
     // TODO 🟢 [GÖREV 8]: Kategorileri veritabanından çek
     // ─────────────────────────────────────────────
     // Sadece isActive=true olan, parentId=null olan (ana kategoriler)
@@ -40,7 +47,9 @@ export async function GET() {
       orderBy: { sortOrder: "asc" },
     });
 
-    return NextResponse.json({ categories });
+    const response = { categories };
+    await setCache(CACHE_KEYS.CATEGORIES, response, CACHE_TTL.CATEGORIES);
+    return NextResponse.json(response);
   } catch (error) {
     console.error("GET /api/categories error:", error);
     return NextResponse.json(

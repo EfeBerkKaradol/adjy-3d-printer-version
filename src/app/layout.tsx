@@ -5,6 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "@/components/session-provider";
 import { CartSyncProvider } from "@/components/cart-sync-provider";
+import { WishlistProvider } from "@/components/wishlist-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -64,6 +65,7 @@ export default function RootLayout({
       >
         <SessionProvider>
           <CartSyncProvider>
+          <WishlistProvider>
             <ThemeProvider
               attribute="class"
               defaultTheme="dark"
@@ -76,6 +78,7 @@ export default function RootLayout({
                 <Footer />
               </div>
             </ThemeProvider>
+          </WishlistProvider>
           </CartSyncProvider>
         </SessionProvider>
       </body>

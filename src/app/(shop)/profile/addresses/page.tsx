@@ -14,6 +14,7 @@ import {
   User,
   Package,
   MapPin,
+  Heart,
   Plus,
   Trash2,
   Star,
@@ -151,28 +152,24 @@ export default function AddressesPage() {
   return (
     <div className="container mx-auto max-w-3xl px-4 py-12">
       <Tabs defaultValue="addresses" className="mb-8">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="profile" asChild>
-            <Link
-              href="/profile"
-              className="flex items-center gap-2"
-            >
+            <Link href="/profile" className="flex items-center gap-2">
               <User className="h-4 w-4" /> Profil
             </Link>
           </TabsTrigger>
           <TabsTrigger value="orders" asChild>
-            <Link
-              href="/profile/orders"
-              className="flex items-center gap-2"
-            >
-              <Package className="h-4 w-4" /> Siparişler
+            <Link href="/profile/orders" className="flex items-center gap-2">
+              <Package className="h-4 w-4" /> Siparisler
+            </Link>
+          </TabsTrigger>
+          <TabsTrigger value="favorites" asChild>
+            <Link href="/profile/favorites" className="flex items-center gap-2">
+              <Heart className="h-4 w-4" /> Favoriler
             </Link>
           </TabsTrigger>
           <TabsTrigger value="addresses" asChild>
-            <Link
-              href="/profile/addresses"
-              className="flex items-center gap-2"
-            >
+            <Link href="/profile/addresses" className="flex items-center gap-2">
               <MapPin className="h-4 w-4" /> Adresler
             </Link>
           </TabsTrigger>

@@ -41,6 +41,7 @@ export const createOrderSchema = z.object({
   shippingMethod: z.string().min(1, "Kargo yöntemi seçiniz"),
   notes: z.string().optional(),
   items: z.array(cartItemSchema).min(1, "Sepetiniz boş"),
+  couponCode: z.string().optional(),
 });
 
 export type ShippingAddressInput = z.infer<typeof shippingAddressSchema>;

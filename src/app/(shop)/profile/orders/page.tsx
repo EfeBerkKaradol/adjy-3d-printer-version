@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, User, Package, MapPin } from "lucide-react";
+import { Loader2, User, Package, MapPin, Heart } from "lucide-react";
 import Link from "next/link";
 
 interface OrderItem {
@@ -91,7 +91,7 @@ export default function OrdersPage() {
     return (
         <div className="container mx-auto max-w-3xl px-4 py-12">
             <Tabs defaultValue="orders" className="mb-8">
-                <TabsList className="grid w-full grid-cols-3">
+                <TabsList className="grid w-full grid-cols-4">
                     <TabsTrigger value="profile" asChild>
                         <Link href="/profile" className="flex items-center gap-2">
                             <User className="h-4 w-4" /> Profil
@@ -99,7 +99,12 @@ export default function OrdersPage() {
                     </TabsTrigger>
                     <TabsTrigger value="orders" asChild>
                         <Link href="/profile/orders" className="flex items-center gap-2">
-                            <Package className="h-4 w-4" /> Siparişler
+                            <Package className="h-4 w-4" /> Siparisler
+                        </Link>
+                    </TabsTrigger>
+                    <TabsTrigger value="favorites" asChild>
+                        <Link href="/profile/favorites" className="flex items-center gap-2">
+                            <Heart className="h-4 w-4" /> Favoriler
                         </Link>
                     </TabsTrigger>
                     <TabsTrigger value="addresses" asChild>

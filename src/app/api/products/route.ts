@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { productQuerySchema } from "@/lib/validations/product";
+import { getFromCache, setCache, CACHE_KEYS, CACHE_TTL } from "@/lib/cache";
 
 // ==========================================
 // GET /api/products
@@ -23,6 +24,13 @@ export async function GET(request: NextRequest) {
     const query = productQuerySchema.parse(
       Object.fromEntries(searchParams.entries())
     );
+
+    // Cache key oluştur (sorgu parametreleri dahil)
+    const cacheKey = `${CACHE_KEYS.PRODUCTS}:${searchParams.toString()}`;
+    const cached = await getFromCache(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached);
+    }
 
     // 2. Prisma where koşulunu oluştur
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -140,7 +148,7 @@ export async function GET(request: NextRequest) {
     });
 
     // 7. Response döndür
-    return NextResponse.json({
+    const response = {
       products: productsWithRating,
       pagination: {
         page: query.page,
@@ -153,7 +161,12 @@ export async function GET(request: NextRequest) {
           .map((m) => m.materialType)
           .filter((m): m is string => m !== null),
       },
-    });
+    };
+
+    // Cache'e kaydet
+    await setCache(cacheKey, response, CACHE_TTL.PRODUCTS);
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error("GET /api/products error:", error);
     return NextResponse.json(

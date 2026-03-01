@@ -12,6 +12,8 @@ interface OrderSummaryPanelProps {
   totalPrice: number;
   shippingCost: number;
   shippingMethod: string | null;
+  discountAmount?: number;
+  couponCode?: string | null;
 }
 
 export function OrderSummaryPanel({
@@ -19,12 +21,14 @@ export function OrderSummaryPanel({
   totalPrice,
   shippingCost,
   shippingMethod,
+  discountAmount = 0,
+  couponCode,
 }: OrderSummaryPanelProps) {
-  const grandTotal = totalPrice + shippingCost;
+  const grandTotal = totalPrice + shippingCost - discountAmount;
 
   return (
     <div className="p-5 border border-border/40 rounded-xl bg-card sticky top-24">
-      <h3 className="font-semibold text-base mb-4">Sipariş Özeti</h3>
+      <h3 className="font-semibold text-base mb-4">Siparis Ozeti</h3>
 
       {/* Ürünler */}
       <div className="space-y-2 mb-4">
@@ -49,6 +53,16 @@ export function OrderSummaryPanel({
         <span>{totalPrice.toFixed(2)} TL</span>
       </div>
 
+      {/* Indirim */}
+      {discountAmount > 0 && (
+        <div className="flex justify-between text-sm mb-2">
+          <span className="text-green-600">
+            Indirim{couponCode ? ` (${couponCode})` : ""}
+          </span>
+          <span className="text-green-600">-{discountAmount.toFixed(2)} TL</span>
+        </div>
+      )}
+
       {/* Kargo */}
       <div className="flex justify-between text-sm mb-2">
         <span className="text-muted-foreground">
@@ -56,7 +70,7 @@ export function OrderSummaryPanel({
         </span>
         <span>
           {shippingCost === 0 ? (
-            <span className="text-green-600">Ücretsiz</span>
+            <span className="text-green-600">Ucretsiz</span>
           ) : shippingCost > 0 ? (
             `${shippingCost.toFixed(2)} TL`
           ) : (

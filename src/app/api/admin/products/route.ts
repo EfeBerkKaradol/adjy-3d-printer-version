@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin, isUnauthorized } from "@/lib/admin";
+import { invalidateProductCache } from "@/lib/cache";
 
 export async function GET(request: NextRequest) {
   const authResult = await requireAdmin();
@@ -107,6 +108,8 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    await invalidateProductCache();
+
     return NextResponse.json(
       { message: "Ürün oluşturuldu", product: { id: product.id, name: product.name, slug: product.slug } },
       { status: 201 }
@@ -144,6 +147,8 @@ export async function PATCH(request: NextRequest) {
     data,
     select: { id: true, name: true, isActive: true, featured: true },
   });
+
+  await invalidateProductCache();
 
   return NextResponse.json({ message: "Ürün güncellendi", product });
 }

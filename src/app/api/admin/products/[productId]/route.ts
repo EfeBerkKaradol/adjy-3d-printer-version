@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin, isUnauthorized } from "@/lib/admin";
+import { invalidateProductCache } from "@/lib/cache";
 
 // ==========================================
 // GET /api/admin/products/:productId
@@ -91,6 +92,8 @@ export async function PUT(
       },
     });
 
+    await invalidateProductCache();
+
     return NextResponse.json({
       message: "Ürün güncellendi",
       product: {
@@ -137,6 +140,7 @@ export async function DELETE(
 
   try {
     await prisma.product.delete({ where: { id: productId } });
+    await invalidateProductCache();
     return NextResponse.json({ message: "Ürün silindi" });
   } catch (error) {
     console.error("DELETE /api/admin/products/[productId] error:", error);

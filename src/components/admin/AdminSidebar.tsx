@@ -9,6 +9,8 @@ import {
   Users,
   Printer,
   BarChart3,
+  Ticket,
+  FolderTree,
   ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -17,6 +19,8 @@ const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/orders", label: "Siparişler", icon: ShoppingCart },
   { href: "/admin/products", label: "Ürünler", icon: Package },
+  { href: "/admin/categories", label: "Kategoriler", icon: FolderTree },
+  { href: "/admin/coupons", label: "Kuponlar", icon: Ticket },
   { href: "/admin/users", label: "Kullanıcılar", icon: Users },
   { href: "/admin/print-queue", label: "Baskı Kuyruğu", icon: Printer },
   { href: "/admin/reports", label: "Raporlar", icon: BarChart3 },
