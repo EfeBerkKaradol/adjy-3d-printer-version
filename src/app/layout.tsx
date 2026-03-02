@@ -6,6 +6,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "@/components/session-provider";
 import { CartSyncProvider } from "@/components/cart-sync-provider";
 import { WishlistProvider } from "@/components/wishlist-provider";
+import { Toaster } from "sonner";
+import { CookieConsent } from "@/components/layout/CookieConsent";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -47,6 +49,7 @@ export const metadata: Metadata = {
     title: "ADJY - 3D Baskı E-Ticaret Platformu",
     description: "3D modelleri parametrik olarak özelleştir, AR ile görüntüle ve satın al.",
   },
+  manifest: "/manifest.json",
   robots: {
     index: true,
     follow: true,
@@ -77,6 +80,8 @@ export default function RootLayout({
                 <main className="flex-1">{children}</main>
                 <Footer />
               </div>
+              <Toaster richColors position="top-right" />
+              <CookieConsent />
             </ThemeProvider>
           </WishlistProvider>
           </CartSyncProvider>

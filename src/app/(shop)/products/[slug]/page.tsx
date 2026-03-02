@@ -9,6 +9,7 @@ import { ProductDetailImage } from "@/components/product/ProductDetailImage";
 import { ProductARButton } from "@/components/ar/ProductARButton";
 import { ProductReviews } from "@/components/product/ProductReviews";
 import { notFound } from "next/navigation";
+import { ProductJsonLd } from "@/components/seo/JsonLd";
 
 interface ProductDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -61,8 +62,24 @@ export default async function ProductDetailPage({
     notFound();
   }
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8">
+      <ProductJsonLd
+        name={product.name}
+        description={product.description || ""}
+        price={Number(product.basePrice)}
+        image={product.thumbnailUrl}
+        url={`${baseUrl}/products/${product.slug}`}
+        category={product.category.name}
+        rating={
+          product.reviews.totalCount > 0
+            ? { average: product.reviews.averageRating, count: product.reviews.totalCount }
+            : undefined
+        }
+      />
+
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
         <Link href="/products" className="hover:text-foreground transition-colors">

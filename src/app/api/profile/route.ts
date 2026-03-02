@@ -17,6 +17,7 @@ export async function GET() {
                 fullName: true,
                 phone: true,
                 image: true,
+                passwordHash: true,
                 createdAt: true,
             },
         });
@@ -25,7 +26,13 @@ export async function GET() {
             return NextResponse.json({ error: "Kullanıcı bulunamadı" }, { status: 404 });
         }
 
-        return NextResponse.json({ user });
+        return NextResponse.json({
+            user: {
+                ...user,
+                passwordHash: undefined,
+                hasPassword: !!user.passwordHash,
+            },
+        });
     } catch (error) {
         console.error("GET /api/profile error:", error);
         return NextResponse.json({ error: "Profil yüklenirken hata oluştu" }, { status: 500 });

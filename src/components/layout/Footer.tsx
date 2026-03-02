@@ -51,13 +51,28 @@ export function Footer() {
             <h4 className="font-semibold mb-3">Destek</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
+                <Link href="/about" className="hover:text-foreground">
+                  Hakkimizda
+                </Link>
+              </li>
+              <li>
                 <Link href="/contact" className="hover:text-foreground">
-                  İletişim
+                  Iletisim
                 </Link>
               </li>
               <li>
                 <Link href="/faq" className="hover:text-foreground">
                   SSS
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="hover:text-foreground">
+                  Kullanim Sartlari
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacy" className="hover:text-foreground">
+                  Gizlilik Politikasi
                 </Link>
               </li>
             </ul>

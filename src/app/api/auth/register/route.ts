@@ -1,17 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { registerSchema } from "@/lib/validations/auth";
+import { rateLimit } from "@/lib/rate-limit";
 import bcrypt from "bcryptjs";
-
-// ==========================================
-// POST /api/auth/register
-// Yeni kullanıcı kayıt endpoint'i.
-//
-// Body: { email, password, confirmPassword, fullName }
-// ==========================================
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 5 kayit/dk per IP
+    const ip = request.headers.get("x-forwarded-for") || "unknown";
+    const { success } = await rateLimit(`register:${ip}`, { windowMs: 60_000, max: 5 });
+    if (!success) {
+      return NextResponse.json({ error: "Cok fazla istek. Lutfen bekleyin." }, { status: 429 });
+    }
+
     const body = await request.json();
 
     // 1. Validasyon

@@ -1,0 +1,16 @@
+{
+  "name": "ADJY - 3D Baski E-Ticaret",
+  "short_name": "ADJY",
+  "description": "3D modelleri parametrik olarak ozellestir, AR ile goruntule ve satin al.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}

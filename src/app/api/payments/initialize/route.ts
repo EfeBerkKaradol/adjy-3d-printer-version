@@ -2,14 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { initializeCheckoutForm } from "@/lib/iyzico";
-
-// ==========================================
-// POST /api/payments/initialize
-// iyzico Checkout Form başlatır.
-//
-// Body: { orderId: string }
-// Response: { checkoutFormContent, token }
-// ==========================================
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,6 +12,12 @@ export async function POST(request: NextRequest) {
         { error: "Giriş yapmanız gerekiyor" },
         { status: 401 }
       );
+    }
+
+    // Rate limit: 5 odeme/dk per user
+    const { success } = await rateLimit(`payment:${session.user.id}`, { windowMs: 60_000, max: 5 });
+    if (!success) {
+      return NextResponse.json({ error: "Cok fazla istek. Lutfen bekleyin." }, { status: 429 });
     }
 
     const { orderId } = await request.json();

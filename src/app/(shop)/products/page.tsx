@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import { getProducts, getCategories } from "@/lib/api";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { ProductFilters } from "@/components/product/ProductFilters";
+import { Pagination } from "@/components/ui/pagination";
 
 // ==========================================
 // ÜRÜNLER SAYFASI (Server Component)
@@ -55,6 +57,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   let products: Awaited<ReturnType<typeof getProducts>>["products"] = [];
   let categories: Awaited<ReturnType<typeof getCategories>>["categories"] = [];
   let materials: string[] = [];
+  let pagination = { total: 0, page: 1, limit: 12, totalPages: 1 };
 
   try {
     const [productsData, categoriesData] = await Promise.all([
@@ -70,6 +73,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     products = productsData.products;
     categories = categoriesData.categories;
     materials = productsData.filters?.materials || [];
+    pagination = productsData.pagination;
   } catch (error) {
     console.error("Urunler yuklenirken hata:", error);
   }
@@ -90,6 +94,13 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
       {/* Ürün Grid */}
       <ProductGrid products={products} />
+
+      {/* Pagination */}
+      {pagination.totalPages > 1 && (
+        <Suspense>
+          <Pagination currentPage={pagination.page} totalPages={pagination.totalPages} />
+        </Suspense>
+      )}
     </div>
   );
 }

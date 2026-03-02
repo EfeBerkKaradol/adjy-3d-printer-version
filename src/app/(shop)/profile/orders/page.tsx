@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, User, Package, MapPin, Heart } from "lucide-react";
+import { Loader2, User, Package, MapPin, Heart, Lock } from "lucide-react";
 import Link from "next/link";
 
 interface OrderItem {
@@ -91,7 +91,7 @@ export default function OrdersPage() {
     return (
         <div className="container mx-auto max-w-3xl px-4 py-12">
             <Tabs defaultValue="orders" className="mb-8">
-                <TabsList className="grid w-full grid-cols-4">
+                <TabsList className="grid w-full grid-cols-5">
                     <TabsTrigger value="profile" asChild>
                         <Link href="/profile" className="flex items-center gap-2">
                             <User className="h-4 w-4" /> Profil
@@ -110,6 +110,11 @@ export default function OrdersPage() {
                     <TabsTrigger value="addresses" asChild>
                         <Link href="/profile/addresses" className="flex items-center gap-2">
                             <MapPin className="h-4 w-4" /> Adresler
+                        </Link>
+                    </TabsTrigger>
+                    <TabsTrigger value="security" asChild>
+                        <Link href="/profile/security" className="flex items-center gap-2">
+                            <Lock className="h-4 w-4" /> Guvenlik
                         </Link>
                     </TabsTrigger>
                 </TabsList>

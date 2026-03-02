@@ -4,6 +4,7 @@ import { ArrowRight, Box, Layers, Zap, ShoppingBag, Users, Star } from "lucide-r
 import { StarBackground } from "@/components/ui/star-background";
 import { prisma } from "@/lib/db";
 import { ProductCard } from "@/components/product/ProductCard";
+import { WebSiteJsonLd } from "@/components/seo/JsonLd";
 
 async function getFeaturedProducts() {
   try {
@@ -61,8 +62,16 @@ export default async function HomePage() {
     getStats(),
   ]);
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
   return (
     <div className="flex flex-col min-h-screen">
+      <WebSiteJsonLd
+        name="ADJY - 3D Baski E-Ticaret Platformu"
+        url={baseUrl}
+        description="3D modelleri parametrik olarak ozellestir, AR ile goruntule ve satin al."
+      />
+
       {/* Hero Section */}
       <section className="relative flex flex-col items-center justify-center min-h-[85vh] overflow-hidden bg-background pt-16 md:pt-20">
         <StarBackground />

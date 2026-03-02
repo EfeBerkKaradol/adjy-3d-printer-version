@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, User, Package, MapPin, Heart, Save, CheckCircle } from "lucide-react";
+import { Loader2, User, Package, MapPin, Heart, Lock, Save } from "lucide-react";
+import { toast } from "sonner";
 import Link from "next/link";
 
 export default function ProfilePage() {
@@ -16,7 +17,6 @@ export default function ProfilePage() {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [saved, setSaved] = useState(false);
     const [fullName, setFullName] = useState("");
     const [phone, setPhone] = useState("");
     const [email, setEmail] = useState("");
@@ -49,7 +49,6 @@ export default function ProfilePage() {
 
     async function handleSave() {
         setSaving(true);
-        setSaved(false);
         try {
             const res = await fetch("/api/profile", {
                 method: "PUT",
@@ -57,11 +56,12 @@ export default function ProfilePage() {
                 body: JSON.stringify({ fullName, phone }),
             });
             if (res.ok) {
-                setSaved(true);
-                setTimeout(() => setSaved(false), 3000);
+                toast.success("Profil kaydedildi");
+            } else {
+                toast.error("Profil kaydedilemedi");
             }
-        } catch (error) {
-            console.error("Profile save error:", error);
+        } catch {
+            toast.error("Bir hata olustu");
         } finally {
             setSaving(false);
         }
@@ -79,7 +79,7 @@ export default function ProfilePage() {
         <div className="container mx-auto max-w-3xl px-4 py-12">
             {/* Navigation Tabs */}
             <Tabs defaultValue="profile" className="mb-8">
-                <TabsList className="grid w-full grid-cols-4">
+                <TabsList className="grid w-full grid-cols-5">
                     <TabsTrigger value="profile" asChild>
                         <Link href="/profile" className="flex items-center gap-2">
                             <User className="h-4 w-4" /> Profil
@@ -98,6 +98,11 @@ export default function ProfilePage() {
                     <TabsTrigger value="addresses" asChild>
                         <Link href="/profile/addresses" className="flex items-center gap-2">
                             <MapPin className="h-4 w-4" /> Adresler
+                        </Link>
+                    </TabsTrigger>
+                    <TabsTrigger value="security" asChild>
+                        <Link href="/profile/security" className="flex items-center gap-2">
+                            <Lock className="h-4 w-4" /> Guvenlik
                         </Link>
                     </TabsTrigger>
                 </TabsList>
@@ -157,10 +162,6 @@ export default function ProfilePage() {
                             {saving ? (
                                 <>
                                     <Loader2 className="h-4 w-4 animate-spin" /> Kaydediliyor...
-                                </>
-                            ) : saved ? (
-                                <>
-                                    <CheckCircle className="h-4 w-4" /> Kaydedildi
                                 </>
                             ) : (
                                 <>

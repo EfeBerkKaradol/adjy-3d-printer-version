@@ -1,4 +1,19 @@
 services:
+  app:
+    build: .
+    container_name: adjy-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://adjy:adjy_dev_2024@postgres:5432/adjy_db"
+      REDIS_URL: "redis://redis:6379"
+      AUTH_SECRET: "${AUTH_SECRET:-change-me-in-production}"
+      NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+    depends_on:
+      - postgres
+      - redis
+
   postgres:
     image: postgres:16-alpine
     container_name: adjy-postgres

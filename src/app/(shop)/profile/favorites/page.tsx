@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProductCard } from "@/components/product/ProductCard";
-import { Loader2, User, Package, MapPin, Heart } from "lucide-react";
+import { Loader2, User, Package, MapPin, Heart, Lock } from "lucide-react";
 import Link from "next/link";
 
 interface WishlistProduct {
@@ -68,7 +68,7 @@ export default function FavoritesPage() {
   return (
     <div className="container mx-auto max-w-5xl px-4 py-12">
       <Tabs defaultValue="favorites" className="mb-8">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="profile" asChild>
             <Link href="/profile" className="flex items-center gap-2">
               <User className="h-4 w-4" /> Profil
@@ -88,6 +88,11 @@ export default function FavoritesPage() {
             <Link href="/profile/addresses" className="flex items-center gap-2">
               <MapPin className="h-4 w-4" /> Adresler
             </Link>
+          </TabsTrigger>
+          <TabsTrigger value="security" asChild>
+              <Link href="/profile/security" className="flex items-center gap-2">
+                  <Lock className="h-4 w-4" /> Guvenlik
+              </Link>
           </TabsTrigger>
         </TabsList>
       </Tabs>

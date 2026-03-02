@@ -18,6 +18,7 @@ import {
   getDefaultShipping,
 } from "@/lib/shipping";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { Loader2, ShoppingBag, LogIn } from "lucide-react";
 import Link from "next/link";
 import type {
@@ -206,14 +207,14 @@ export default function CheckoutPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.error || "Sipariş oluşturulamadı");
+        toast.error(data.error || "Siparis olusturulamadi");
         return;
       }
 
       setOrderId(data.order.id);
       setStep(4);
     } catch {
-      alert("Sipariş oluşturulurken bir hata oluştu");
+      toast.error("Siparis olusturulurken bir hata olustu");
     } finally {
       setCreatingOrder(false);
     }
