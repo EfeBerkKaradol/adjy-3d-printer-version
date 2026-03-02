@@ -14,6 +14,9 @@ import {
   Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { RevenueChart } from "@/components/admin/charts/RevenueChart";
+import { OrderStatusChart } from "@/components/admin/charts/OrderStatusChart";
+import { DailyOrdersChart } from "@/components/admin/charts/DailyOrdersChart";
 
 interface Stats {
   totalOrders: number;
@@ -25,6 +28,11 @@ interface Stats {
   totalProducts: number;
   pendingOrders: number;
   printingItems: number;
+}
+
+interface Charts {
+  dailyRevenue: Array<{ date: string; revenue: number; orderCount: number }>;
+  statusDistribution: Array<{ name: string; value: number; status: string }>;
 }
 
 interface RecentOrder {
@@ -81,6 +89,7 @@ function formatDate(dateStr: string) {
 export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
+  const [charts, setCharts] = useState<Charts | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -91,6 +100,7 @@ export default function AdminDashboard() {
           const data = await res.json();
           setStats(data.stats);
           setRecentOrders(data.recentOrders);
+          setCharts(data.charts);
         }
       } catch {
         // Hata durumunda boş bırak
@@ -240,6 +250,38 @@ export default function AdminDashboard() {
           </div>
         </Link>
       </div>
+
+      {/* Grafikler */}
+      {charts && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold">Son 30 Gün</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Gelir Grafiği */}
+            <div className="bg-card border border-border/40 rounded-xl p-5">
+              <h3 className="text-sm font-medium text-muted-foreground mb-4">
+                Günlük Gelir
+              </h3>
+              <RevenueChart data={charts.dailyRevenue} />
+            </div>
+
+            {/* Günlük Sipariş Grafiği */}
+            <div className="bg-card border border-border/40 rounded-xl p-5">
+              <h3 className="text-sm font-medium text-muted-foreground mb-4">
+                Günlük Sipariş Sayısı
+              </h3>
+              <DailyOrdersChart data={charts.dailyRevenue} />
+            </div>
+          </div>
+
+          {/* Sipariş Durum Dağılımı */}
+          <div className="bg-card border border-border/40 rounded-xl p-5 max-w-lg">
+            <h3 className="text-sm font-medium text-muted-foreground mb-4">
+              Sipariş Durum Dağılımı
+            </h3>
+            <OrderStatusChart data={charts.statusDistribution} />
+          </div>
+        </div>
+      )}
 
       {/* Son Siparişler */}
       <div>
