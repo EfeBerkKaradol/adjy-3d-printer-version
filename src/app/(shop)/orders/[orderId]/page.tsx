@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 import {
   Loader2,
   ArrowLeft,
@@ -160,17 +161,18 @@ export default function OrderDetailPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.error || "Sipariş iptal edilemedi");
+        toast.error(data.error || "Sipariş iptal edilemedi");
         return;
       }
 
+      toast.success("Sipariş iptal edildi");
       setOrder((prev) =>
         prev
           ? { ...prev, status: "CANCELLED", paymentStatus: data.order.paymentStatus }
           : null
       );
     } catch {
-      alert("Bir hata oluştu");
+      toast.error("Bir hata oluştu");
     } finally {
       setCancelling(false);
     }

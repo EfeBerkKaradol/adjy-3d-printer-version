@@ -8,11 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export default function NewCouponPage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     code: "",
@@ -27,7 +27,6 @@ export default function NewCouponPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setError(null);
 
     try {
       const res = await fetch("/api/admin/coupons", {
@@ -47,13 +46,14 @@ export default function NewCouponPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Kupon olusturulamadi");
+        toast.error(data.error || "Kupon oluşturulamadı");
         return;
       }
 
+      toast.success("Kupon başarıyla oluşturuldu");
       router.push("/admin/coupons");
     } catch {
-      setError("Bir hata olustu");
+      toast.error("Bir hata oluştu");
     } finally {
       setSaving(false);
     }
@@ -74,12 +74,6 @@ export default function NewCouponPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-                {error}
-              </div>
-            )}
-
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="code">Kupon Kodu</Label>

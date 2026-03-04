@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 interface Category {
     id: string;
@@ -35,8 +36,6 @@ export default function AdminCategoriesPage() {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
-
     // Form state
     const [name, setName] = useState("");
     const [slug, setSlug] = useState("");
@@ -53,7 +52,7 @@ export default function AdminCategoriesPage() {
                 setCategories(data.categories);
             }
         } catch {
-            setError("Kategoriler yüklenemedi");
+            toast.error("Kategoriler yüklenemedi");
         } finally {
             setLoading(false);
         }
@@ -85,7 +84,6 @@ export default function AdminCategoriesPage() {
         setParentId("");
         setShowForm(false);
         setEditingId(null);
-        setError(null);
     }
 
     function handleEditClick(cat: Category) {
@@ -97,17 +95,15 @@ export default function AdminCategoriesPage() {
         setParentId(cat.parentId || "");
         setEditingId(cat.id);
         setShowForm(true);
-        setError(null);
     }
 
     async function handleSave() {
         if (!name || !slug) {
-            setError("Ad ve slug zorunludur");
+            toast.error("Ad ve slug zorunludur");
             return;
         }
 
         setSaving(true);
-        setError(null);
 
         try {
             const payload = {
@@ -133,14 +129,15 @@ export default function AdminCategoriesPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                setError(data.error || "Bir hata oluştu");
+                toast.error(data.error || "Bir hata oluştu");
                 return;
             }
 
+            toast.success(editingId ? "Kategori güncellendi" : "Kategori oluşturuldu");
             resetForm();
             fetchCategories();
         } catch {
-            setError("İstek sırasında bir hata oluştu");
+            toast.error("İstek sırasında bir hata oluştu");
         } finally {
             setSaving(false);
         }
@@ -150,7 +147,6 @@ export default function AdminCategoriesPage() {
         if (!confirm("Bu kategoriyi silmek istediğinize emin misiniz?")) return;
 
         setDeletingId(id);
-        setError(null);
 
         try {
             const res = await fetch(`/api/admin/categories/${id}`, {
@@ -160,13 +156,14 @@ export default function AdminCategoriesPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                setError(data.error || "Silme işlemi başarısız");
+                toast.error(data.error || "Silme işlemi başarısız");
                 return;
             }
 
+            toast.success("Kategori silindi");
             fetchCategories();
         } catch {
-            setError("Silme işlemi sırasında hata oluştu");
+            toast.error("Silme işlemi sırasında hata oluştu");
         } finally {
             setDeletingId(null);
         }
@@ -214,13 +211,6 @@ export default function AdminCategoriesPage() {
                     </Button>
                 )}
             </div>
-
-            {/* Error Message */}
-            {error && (
-                <div className="bg-destructive/10 text-destructive text-sm px-4 py-3 rounded-lg">
-                    {error}
-                </div>
-            )}
 
             {/* Form */}
             {showForm && (

@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, ArrowLeft, CheckCircle } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export default function EditCouponPage() {
   const params = useParams();
@@ -16,8 +17,6 @@ export default function EditCouponPage() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   const [form, setForm] = useState({
     code: "",
@@ -60,8 +59,6 @@ export default function EditCouponPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setError(null);
-    setSuccess(false);
 
     try {
       const res = await fetch(`/api/admin/coupons/${couponId}`, {
@@ -81,14 +78,13 @@ export default function EditCouponPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Kupon guncellenemedi");
+        toast.error(data.error || "Kupon güncellenemedi");
         return;
       }
 
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 2000);
+      toast.success("Kupon başarıyla güncellendi");
     } catch {
-      setError("Bir hata olustu");
+      toast.error("Bir hata oluştu");
     } finally {
       setSaving(false);
     }
@@ -117,17 +113,6 @@ export default function EditCouponPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-                {error}
-              </div>
-            )}
-            {success && (
-              <div className="p-3 rounded-lg bg-green-500/10 text-green-600 text-sm flex items-center gap-2">
-                <CheckCircle className="h-4 w-4" /> Kupon guncellendi
-              </div>
-            )}
-
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="code">Kupon Kodu</Label>

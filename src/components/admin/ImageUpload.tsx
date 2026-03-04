@@ -10,16 +10,22 @@ import { cn } from "@/lib/utils";
 interface ImageUploadProps {
   value: string;
   onChange: (url: string) => void;
+  onUploading?: (uploading: boolean) => void;
   disabled?: boolean;
 }
 
-export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
+export function ImageUpload({ value, onChange, onUploading, disabled }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
+
+  const updateUploading = (state: boolean) => {
+    setUploading(state);
+    onUploading?.(state);
+  };
   const [dragOver, setDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = async (file: File) => {
-    setUploading(true);
+    updateUploading(true);
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -32,15 +38,15 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
       if (res.ok) {
         const data = await res.json();
         onChange(data.url);
-        toast.success("Gorsel yuklendi");
+        toast.success("Görsel yüklendi");
       } else {
         const err = await res.json();
-        toast.error(err.error || "Yukleme basarisiz");
+        toast.error(err.error || "Yükleme başarısız");
       }
     } catch {
-      toast.error("Yukleme sirasinda hata olustu");
+      toast.error("Yükleme sırasında hata oluştu");
     } finally {
-      setUploading(false);
+      updateUploading(false);
     }
   };
 

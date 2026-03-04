@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 interface Product {
   id: string;
@@ -95,8 +96,9 @@ export default function AdminProductsPage() {
       setProducts((prev) =>
         prev.map((p) => (p.id === productId ? { ...p, [field]: value } : p))
       );
+      toast.success(field === "isActive" ? (value ? "Ürün aktifleştirildi" : "Ürün pasifleştirildi") : (value ? "Öne çıkan yapıldı" : "Öne çıkandan kaldırıldı"));
     } catch {
-      // Hata
+      toast.error("İşlem başarısız oldu");
     }
   };
 

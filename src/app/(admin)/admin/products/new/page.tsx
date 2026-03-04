@@ -6,6 +6,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { ImageUpload } from "@/components/admin/ImageUpload";
+import { toast } from "sonner";
 
 interface Category {
   id: string;
@@ -17,7 +19,7 @@ export default function NewProductPage() {
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -64,7 +66,6 @@ export default function NewProductPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setError(null);
 
     try {
       const res = await fetch("/api/admin/products", {
@@ -81,13 +82,14 @@ export default function NewProductPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error);
+        toast.error(data.error || "Ürün oluşturulamadı");
         return;
       }
 
+      toast.success("Ürün başarıyla oluşturuldu");
       router.push("/admin/products");
     } catch {
-      setError("Bir hata oluştu");
+      toast.error("Bir hata oluştu");
     } finally {
       setSaving(false);
     }
@@ -104,10 +106,6 @@ export default function NewProductPage() {
           <p className="text-sm text-muted-foreground">Yeni bir 3D baskı ürünü ekleyin</p>
         </div>
       </div>
-
-      {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{error}</div>
-      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Temel Bilgiler */}
@@ -210,16 +208,13 @@ export default function NewProductPage() {
 
         {/* Dosyalar */}
         <div className="border border-border/40 rounded-xl p-5 bg-card space-y-4">
-          <h3 className="font-semibold text-sm text-muted-foreground">Dosyalar (URL)</h3>
+          <h3 className="font-semibold text-sm text-muted-foreground">Dosyalar</h3>
 
-          <div>
-            <label className="text-sm font-medium mb-1.5 block">Thumbnail URL</label>
-            <Input
-              value={form.thumbnailUrl}
-              onChange={(e) => setForm((p) => ({ ...p, thumbnailUrl: e.target.value }))}
-              placeholder="https://..."
-            />
-          </div>
+          <ImageUpload
+            value={form.thumbnailUrl}
+            onChange={(url) => setForm((p) => ({ ...p, thumbnailUrl: url }))}
+            onUploading={setUploading}
+          />
 
           <div>
             <label className="text-sm font-medium mb-1.5 block">3D Model URL (GLB/STL)</label>
@@ -232,9 +227,9 @@ export default function NewProductPage() {
         </div>
 
         <div className="flex gap-3">
-          <Button type="submit" disabled={saving} className="gap-2">
+          <Button type="submit" disabled={saving || uploading} className="gap-2">
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Ürünü Kaydet
+            {uploading ? "Görsel yükleniyor..." : "Ürünü Kaydet"}
           </Button>
           <Button type="button" variant="outline" onClick={() => router.push("/admin/products")}>
             İptal
