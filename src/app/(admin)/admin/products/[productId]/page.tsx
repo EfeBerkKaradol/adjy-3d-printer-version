@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Loader2, Save, Trash2 } from "lucide-react";
 import { ImageUpload } from "@/components/admin/ImageUpload";
+import { ParameterManager } from "@/components/admin/ParameterManager";
 import { toast } from "sonner";
 
 interface Category {
@@ -269,6 +270,17 @@ export default function EditProductPage() {
           {uploading ? "Görsel yükleniyor..." : "Değişiklikleri Kaydet"}
         </Button>
       </form>
+
+      {/* Özelleştirme Parametreleri — form dışında, bağımsız save */}
+      <div className="border border-border/40 rounded-xl p-5 bg-card space-y-4">
+        <div>
+          <h3 className="font-semibold text-sm text-muted-foreground">Özelleştirme Parametreleri</h3>
+          <p className="text-xs text-muted-foreground mt-1">
+            Müşterilerin özelleştirme sayfasında göreceği parametreleri yönetin.
+          </p>
+        </div>
+        <ParameterManager productId={productId} />
+      </div>
     </div>
   );
 }
