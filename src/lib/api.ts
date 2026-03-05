@@ -9,8 +9,6 @@
 
 import { getBaseUrl } from "@/lib/url";
 
-const API_BASE = getBaseUrl();
-
 // ==========================================
 // Genel fetch wrapper — hata yönetimi dahil
 // ==========================================
@@ -18,7 +16,8 @@ async function fetchAPI<T>(
   endpoint: string,
   options?: RequestInit
 ): Promise<T> {
-  const res = await fetch(`${API_BASE}${endpoint}`, {
+  const base = getBaseUrl();
+  const res = await fetch(`${base}${endpoint}`, {
     headers: {
       "Content-Type": "application/json",
       ...options?.headers,
