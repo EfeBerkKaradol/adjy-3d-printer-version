@@ -4,6 +4,9 @@ import { prisma } from "@/lib/db";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "@/components/session-provider";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const metadata = {
   title: "ADJY Admin Panel",
@@ -40,9 +43,31 @@ export default async function AdminLayout({
         disableTransitionOnChange
       >
         <div className="flex min-h-screen">
-          <AdminSidebar />
-          <main className="flex-1 bg-background">
-            <div className="p-6 lg:p-8">{children}</div>
+          {/* Desktop Sidebar */}
+          <div className="hidden md:flex">
+            <AdminSidebar />
+          </div>
+
+          <main className="flex-1 bg-background max-w-full overflow-x-hidden">
+            {/* Mobile Header with Hamburger Menu */}
+            <div className="md:hidden flex items-center p-4 border-b border-border/40 bg-card">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="md:hidden">
+                    <Menu className="w-5 h-5" />
+                    <span className="sr-only">Toggle Admin Menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="p-0 w-64">
+                  <AdminSidebar />
+                </SheetContent>
+              </Sheet>
+              <div className="ml-4 font-bold font-[var(--font-orbitron)] tracking-wider">
+                ADJY Admin
+              </div>
+            </div>
+
+            <div className="p-4 md:p-6 lg:p-8 w-full max-w-full overflow-x-auto">{children}</div>
           </main>
         </div>
       </ThemeProvider>
