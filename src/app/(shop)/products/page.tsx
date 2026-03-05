@@ -1,8 +1,20 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { getProducts, getCategories } from "@/lib/api";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { ProductFilters } from "@/components/product/ProductFilters";
 import { Pagination } from "@/components/ui/pagination";
+
+export const metadata: Metadata = {
+  title: "Ürünler",
+  description:
+    "3D baskıya uygun parametrik ürünlerimizi keşfedin. Renk, boyut ve materyal seçenekleriyle kişiselleştirin.",
+  openGraph: {
+    title: "Ürünler | ADJY",
+    description:
+      "3D baskıya uygun parametrik ürünlerimizi keşfedin.",
+  },
+};
 
 // ==========================================
 // ÜRÜNLER SAYFASI (Server Component)

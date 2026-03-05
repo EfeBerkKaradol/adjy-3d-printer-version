@@ -13,7 +13,11 @@ export async function GET() {
     // Cache kontrol
     const cached = await getFromCache(CACHE_KEYS.CATEGORIES);
     if (cached) {
-      return NextResponse.json(cached);
+      return NextResponse.json(cached, {
+        headers: {
+          "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+        },
+      });
     }
 
     // TODO 🟢 [GÖREV 8]: Kategorileri veritabanından çek
@@ -49,7 +53,11 @@ export async function GET() {
 
     const response = { categories };
     await setCache(CACHE_KEYS.CATEGORIES, response, CACHE_TTL.CATEGORIES);
-    return NextResponse.json(response);
+    return NextResponse.json(response, {
+      headers: {
+        "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+      },
+    });
   } catch (error) {
     console.error("GET /api/categories error:", error);
     return NextResponse.json(

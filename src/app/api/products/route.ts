@@ -29,7 +29,11 @@ export async function GET(request: NextRequest) {
     const cacheKey = `${CACHE_KEYS.PRODUCTS}:${searchParams.toString()}`;
     const cached = await getFromCache(cacheKey);
     if (cached) {
-      return NextResponse.json(cached);
+      return NextResponse.json(cached, {
+        headers: {
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        },
+      });
     }
 
     // 2. Prisma where koşulunu oluştur
@@ -166,7 +170,11 @@ export async function GET(request: NextRequest) {
     // Cache'e kaydet
     await setCache(cacheKey, response, CACHE_TTL.PRODUCTS);
 
-    return NextResponse.json(response);
+    return NextResponse.json(response, {
+      headers: {
+        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+      },
+    });
   } catch (error) {
     console.error("GET /api/products error:", error);
     return NextResponse.json(

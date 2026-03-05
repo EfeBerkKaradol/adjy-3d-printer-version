@@ -30,14 +30,21 @@ const navItems = [
   { href: "/admin/messages", label: "Mesajlar", icon: Mail },
 ];
 
-export function AdminSidebar() {
+function ConditionalSheetClose({ isMobile, children }: { isMobile?: boolean; children: React.ReactNode }) {
+  if (isMobile) {
+    return <SheetClose asChild>{children}</SheetClose>;
+  }
+  return <>{children}</>;
+}
+
+export function AdminSidebar({ isMobile = false }: { isMobile?: boolean }) {
   const pathname = usePathname();
 
   return (
     <aside className="w-64 min-h-screen border-r border-border/40 bg-card/50 flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-border/40">
-        <SheetClose asChild>
+        <ConditionalSheetClose isMobile={isMobile}>
           <Link href="/admin" className="flex items-center gap-2">
             <span className="text-xl font-bold font-[var(--font-orbitron)] tracking-wider">
               ADJY
@@ -46,7 +53,7 @@ export function AdminSidebar() {
               Admin
             </span>
           </Link>
-        </SheetClose>
+        </ConditionalSheetClose>
       </div>
 
       {/* Menü */}
@@ -59,7 +66,7 @@ export function AdminSidebar() {
           const Icon = item.icon;
 
           return (
-            <SheetClose asChild key={item.href}>
+            <ConditionalSheetClose isMobile={isMobile} key={item.href}>
               <Link
                 href={item.href}
                 className={cn(
@@ -72,14 +79,14 @@ export function AdminSidebar() {
                 <Icon className="h-4.5 w-4.5" />
                 {item.label}
               </Link>
-            </SheetClose>
+            </ConditionalSheetClose>
           );
         })}
       </nav>
 
       {/* Mağazaya Dön */}
       <div className="p-4 border-t border-border/40">
-        <SheetClose asChild>
+        <ConditionalSheetClose isMobile={isMobile}>
           <Link
             href="/"
             className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
@@ -87,7 +94,7 @@ export function AdminSidebar() {
             <ArrowLeft className="h-4 w-4" />
             Mağazaya Dön
           </Link>
-        </SheetClose>
+        </ConditionalSheetClose>
       </div>
     </aside>
   );

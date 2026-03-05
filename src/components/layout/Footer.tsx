@@ -52,12 +52,12 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
                 <Link href="/about" className="hover:text-foreground">
-                  Hakkimizda
+                  Hakkımızda
                 </Link>
               </li>
               <li>
                 <Link href="/contact" className="hover:text-foreground">
-                  Iletisim
+                  İletişim
                 </Link>
               </li>
               <li>
@@ -67,12 +67,12 @@ export function Footer() {
               </li>
               <li>
                 <Link href="/terms" className="hover:text-foreground">
-                  Kullanim Sartlari
+                  Kullanım Şartları
                 </Link>
               </li>
               <li>
                 <Link href="/privacy" className="hover:text-foreground">
-                  Gizlilik Politikasi
+                  Gizlilik Politikası
                 </Link>
               </li>
             </ul>

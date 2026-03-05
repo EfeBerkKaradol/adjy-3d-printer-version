@@ -59,7 +59,7 @@ export default async function AdminLayout({
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="p-0 w-64">
-                  <AdminSidebar />
+                  <AdminSidebar isMobile={true} />
                 </SheetContent>
               </Sheet>
               <div className="ml-4 font-bold font-[var(--font-orbitron)] tracking-wider">
