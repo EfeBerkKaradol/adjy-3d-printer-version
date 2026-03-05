@@ -91,6 +91,7 @@ export default function AdminDashboard() {
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [charts, setCharts] = useState<Charts | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchStats() {
@@ -101,9 +102,16 @@ export default function AdminDashboard() {
           setStats(data.stats);
           setRecentOrders(data.recentOrders);
           setCharts(data.charts);
+        } else {
+          const data = await res.json().catch(() => null);
+          if (res.status === 401 || res.status === 403) {
+            setError("Oturum süreniz dolmuş olabilir. Sayfayı yenileyin veya tekrar giriş yapın.");
+          } else {
+            setError(data?.error || `Sunucu hatası (${res.status})`);
+          }
         }
       } catch {
-        // Hata durumunda boş bırak
+        setError("Sunucuya bağlanılamadı. Lütfen tekrar deneyin.");
       } finally {
         setLoading(false);
       }
@@ -121,8 +129,14 @@ export default function AdminDashboard() {
 
   if (!stats) {
     return (
-      <div className="text-center py-16 text-muted-foreground">
-        İstatistikler yüklenemedi.
+      <div className="text-center py-16 space-y-3">
+        <p className="text-muted-foreground">İstatistikler yüklenemedi.</p>
+        {error && (
+          <p className="text-sm text-destructive">{error}</p>
+        )}
+        <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+          Tekrar Dene
+        </Button>
       </div>
     );
   }
