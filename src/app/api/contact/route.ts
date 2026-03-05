@@ -1,53 +1,40 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
 import { contactSchema } from "@/lib/validations/contact";
-import { rateLimit } from "@/lib/rate-limit";
-import nodemailer from "nodemailer";
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || "smtp.gmail.com",
-  port: Number(process.env.SMTP_PORT) || 587,
-  secure: process.env.SMTP_SECURE === "true",
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
-
-export async function POST(request: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const ip = request.headers.get("x-forwarded-for") || "unknown";
-    const { success } = await rateLimit(`contact:${ip}`, { windowMs: 60_000, max: 3 });
-    if (!success) {
-      return NextResponse.json({ error: "Cok fazla istek. Lutfen bekleyin." }, { status: 429 });
+    const body = await req.json();
+
+    // Zod validasyonu
+    const validatedData = contactSchema.safeParse(body);
+
+    if (!validatedData.success) {
+      return NextResponse.json(
+        { error: "Geçersiz form verileri", details: validatedData.error.flatten() },
+        { status: 400 }
+      );
     }
 
-    const body = await request.json();
-    const data = contactSchema.parse(body);
+    const { name, email, subject, message } = validatedData.data;
 
-    const from = process.env.SMTP_FROM || process.env.SMTP_USER;
-    if (from) {
-      await transporter.sendMail({
-        from,
-        to: from,
-        replyTo: data.email,
-        subject: `[ADJY Iletisim] ${data.subject}`,
-        html: `
-          <h2>Yeni Iletisim Mesaji</h2>
-          <p><strong>Ad:</strong> ${data.name}</p>
-          <p><strong>E-posta:</strong> ${data.email}</p>
-          <p><strong>Konu:</strong> ${data.subject}</p>
-          <hr/>
-          <p>${data.message.replace(/\n/g, "<br/>")}</p>
-        `,
-      });
-    }
+    // Veritabanına kaydet
+    // @ts-ignore - Prisma client hasn't caught up in TS server yet
+    const newMsg = await (prisma as any).contactMessage.create({
+      data: {
+        name,
+        email,
+        subject,
+        message,
+      },
+    });
 
-    return NextResponse.json({ message: "Mesajiniz gonderildi" });
+    return NextResponse.json({ success: true, messageId: newMsg.id }, { status: 201 });
   } catch (error) {
-    if (error instanceof Error && error.name === "ZodError") {
-      return NextResponse.json({ error: "Gecersiz veri" }, { status: 400 });
-    }
-    console.error("Contact form error:", error);
-    return NextResponse.json({ error: "Mesaj gonderilemedi" }, { status: 500 });
+    console.error("Contact API error:", error);
+    return NextResponse.json(
+      { error: "İletişim mesajı gönderilirken bir hata oluştu." },
+      { status: 500 }
+    );
   }
 }

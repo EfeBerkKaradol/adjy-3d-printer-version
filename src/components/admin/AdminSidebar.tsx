@@ -12,6 +12,7 @@ import {
   Ticket,
   FolderTree,
   ArrowLeft,
+  Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +27,7 @@ const navItems = [
   { href: "/admin/users", label: "Kullanıcılar", icon: Users },
   { href: "/admin/print-queue", label: "Baskı Kuyruğu", icon: Printer },
   { href: "/admin/reports", label: "Raporlar", icon: BarChart3 },
+  { href: "/admin/messages", label: "Mesajlar", icon: Mail },
 ];
 
 export function AdminSidebar() {

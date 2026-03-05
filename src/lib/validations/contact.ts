@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export const contactSchema = z.object({
-  name: z.string().min(2, "Ad en az 2 karakter olmali"),
-  email: z.string().email("Gecerli bir e-posta girin"),
-  subject: z.string().min(3, "Konu en az 3 karakter olmali"),
-  message: z.string().min(10, "Mesaj en az 10 karakter olmali").max(2000, "Mesaj en fazla 2000 karakter olabilir"),
+  name: z.string().min(2, "İsim en az 2 karakter olmalıdır"),
+  email: z.string().email("Geçerli bir e-posta adresi giriniz"),
+  subject: z.string().min(3, "Konu en az 3 karakter olmalıdır"),
+  message: z.string().min(10, "Mesajınız en az 10 karakter olmalıdır"),
 });
 
 export type ContactInput = z.infer<typeof contactSchema>;

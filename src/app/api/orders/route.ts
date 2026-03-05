@@ -252,26 +252,22 @@ export async function POST(request: NextRequest) {
     });
 
     // E-posta bildirimi gönder (async, response'u bekletmez)
-    const shippingAddr = validatedData.shippingAddress;
-    sendOrderConfirmation({
-      customerName: session.user?.name || "Müşteri",
-      customerEmail: session.user?.email || "",
-      orderNumber,
-      orderId: order.id,
-      items: order.items.map((i) => ({
-        name: i.productName,
-        quantity: i.quantity,
-        unitPrice: Number(i.unitPrice),
-        lineTotal: Number(i.lineTotal),
-      })),
-      totalAmount: Number(order.totalAmount),
-      shippingCost: Number(order.shippingCost),
-      grandTotal: Number(order.grandTotal),
-      shippingAddress: `${shippingAddr.addressLine}, ${shippingAddr.city}`,
-    }).catch(() => {});
+    if (session.user?.email) {
+      sendOrderConfirmation(
+        session.user.email,
+        session.user.name || "Müşteri",
+        orderNumber,
+        order.items.map((i) => ({
+          name: i.productName,
+          quantity: i.quantity,
+          price: Number(i.unitPrice),
+        })),
+        Number(order.grandTotal)
+      ).catch(() => { });
+    }
 
     // Admin stats cache'ini invalidate et
-    invalidateCache(CACHE_KEYS.ADMIN_STATS).catch(() => {});
+    invalidateCache(CACHE_KEYS.ADMIN_STATS).catch(() => { });
 
     return NextResponse.json(
       { message: "Sipariş oluşturuldu", order },
