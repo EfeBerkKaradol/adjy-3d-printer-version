@@ -5,6 +5,7 @@ import { StarBackground } from "@/components/ui/star-background";
 import { prisma } from "@/lib/db";
 import { ProductCard } from "@/components/product/ProductCard";
 import { WebSiteJsonLd } from "@/components/seo/JsonLd";
+import { getAbsoluteUrl } from "@/lib/url";
 
 async function getFeaturedProducts() {
   try {
@@ -62,7 +63,7 @@ export default async function HomePage() {
     getStats(),
   ]);
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+  const baseUrl = getAbsoluteUrl();
 
   return (
     <div className="flex flex-col min-h-screen">

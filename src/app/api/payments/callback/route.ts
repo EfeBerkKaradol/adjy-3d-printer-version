@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { retrieveCheckoutForm } from "@/lib/iyzico";
+import { getAbsoluteUrl } from "@/lib/url";
 
 // ==========================================
 // POST /api/payments/callback
@@ -12,7 +13,7 @@ import { retrieveCheckoutForm } from "@/lib/iyzico";
 // ==========================================
 
 export async function POST(request: NextRequest) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+  const baseUrl = getAbsoluteUrl();
 
   try {
     // ---- 1. Token'ı oku ----

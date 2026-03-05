@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
+import { getAbsoluteUrl } from "@/lib/url";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 
@@ -88,9 +89,7 @@ export async function POST(request: NextRequest) {
 
     // E-posta gönder
     if (isEmailConfigured()) {
-      const baseUrl =
-        process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-      const resetUrl = `${baseUrl}/reset-password/${token}`;
+      const resetUrl = `${getAbsoluteUrl()}/reset-password/${token}`;
 
       try {
         await transporter.sendMail({

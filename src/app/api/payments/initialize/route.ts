@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { initializeCheckoutForm } from "@/lib/iyzico";
 import { rateLimit } from "@/lib/rate-limit";
+import { getAbsoluteUrl } from "@/lib/url";
 
 export async function POST(request: NextRequest) {
   try {
@@ -89,8 +90,7 @@ export async function POST(request: NextRequest) {
     const lastName = nameParts.slice(1).join(" ") || firstName;
 
     // Callback URL
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-    const callbackUrl = `${baseUrl}/api/payments/callback`;
+    const callbackUrl = `${getAbsoluteUrl()}/api/payments/callback`;
 
     // Basket items
     const basketItems = order.items.map((item) => ({

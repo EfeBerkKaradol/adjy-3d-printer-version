@@ -1,6 +1,5 @@
 import { MetadataRoute } from "next";
-
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+import { getAbsoluteUrl } from "@/lib/url";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -11,6 +10,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/admin/", "/api/", "/checkout/", "/profile/", "/cart"],
       },
     ],
-    sitemap: `${BASE_URL}/sitemap.xml`,
+    sitemap: `${getAbsoluteUrl()}/sitemap.xml`,
   };
 }

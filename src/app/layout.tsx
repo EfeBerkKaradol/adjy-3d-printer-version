@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   creator: "ADJY",
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://v0-adjy-3d-printer-version.vercel.app")
   ),
   openGraph: {
     type: "website",

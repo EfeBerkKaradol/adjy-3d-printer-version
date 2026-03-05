@@ -10,6 +10,7 @@ import { ProductARButton } from "@/components/ar/ProductARButton";
 import { ProductReviews } from "@/components/product/ProductReviews";
 import { notFound } from "next/navigation";
 import { ProductJsonLd } from "@/components/seo/JsonLd";
+import { getAbsoluteUrl } from "@/lib/url";
 
 interface ProductDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -104,7 +105,7 @@ export default async function ProductDetailPage({
     notFound();
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+  const baseUrl = getAbsoluteUrl();
 
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8">
