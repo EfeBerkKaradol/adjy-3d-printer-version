@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getProductBySlug } from "@/lib/api";
+import { prisma } from "@/lib/db";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Star, Clock, Package, Layers, Box } from "lucide-react";
@@ -15,50 +15,92 @@ interface ProductDetailPageProps {
   params: Promise<{ slug: string }>;
 }
 
+// Ürünü Prisma ile doğrudan çek (API fetch yerine)
+async function getProduct(slug: string) {
+  const byId = /^c[a-z0-9]{24,}$/.test(slug);
+
+  const product = await prisma.product.findFirst({
+    where: byId ? { id: slug, isActive: true } : { slug, isActive: true },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      description: true,
+      basePrice: true,
+      thumbnailUrl: true,
+      modelFileUrl: true,
+      gallery: true,
+      printTimeEst: true,
+      materialType: true,
+      materialWeight: true,
+      featured: true,
+      category: { select: { id: true, name: true, slug: true } },
+      parameters: {
+        orderBy: { sortOrder: "asc" },
+        select: {
+          id: true,
+          name: true,
+          displayName: true,
+          type: true,
+          minValue: true,
+          maxValue: true,
+          defaultValue: true,
+          step: true,
+          unit: true,
+          affectsPrice: true,
+          priceFormula: true,
+          affectsGeometry: true,
+          sortOrder: true,
+        },
+      },
+      reviews: { select: { rating: true } },
+      _count: { select: { reviews: true } },
+    },
+  });
+
+  if (!product) return null;
+
+  const ratings = product.reviews.map((r) => r.rating);
+  const avgRating = ratings.length > 0
+    ? ratings.reduce((a, b) => a + b, 0) / ratings.length
+    : 0;
+
+  return {
+    ...product,
+    basePrice: Number(product.basePrice),
+    materialWeight: product.materialWeight ? Number(product.materialWeight) : null,
+    reviews: {
+      averageRating: Math.round(avgRating * 10) / 10,
+      totalCount: product._count.reviews,
+    },
+  };
+}
+
 // Dinamik SEO metadata
 export async function generateMetadata({ params }: ProductDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  try {
-    const { product } = await getProductBySlug(slug);
-    return {
-      title: product.name,
-      description: product.description || `${product.name} - ${product.category.name} kategorisinde 3D baskı ürünü. ${Number(product.basePrice).toFixed(2)} TL`,
-      openGraph: {
-        title: `${product.name} | ADJY`,
-        description: product.description || `${product.name} - ${Number(product.basePrice).toFixed(2)} TL`,
-        ...(product.thumbnailUrl && { images: [{ url: product.thumbnailUrl }] }),
-      },
-    };
-  } catch {
-    return { title: "Ürün Bulunamadı" };
-  }
+  const product = await getProduct(slug);
+
+  if (!product) return { title: "Ürün Bulunamadı" };
+
+  return {
+    title: product.name,
+    description: product.description || `${product.name} - ${product.category.name} kategorisinde 3D baskı ürünü. ${product.basePrice.toFixed(2)} TL`,
+    openGraph: {
+      title: `${product.name} | ADJY`,
+      description: product.description || `${product.name} - ${product.basePrice.toFixed(2)} TL`,
+      ...(product.thumbnailUrl && { images: [{ url: product.thumbnailUrl }] }),
+    },
+  };
 }
 
 export default async function ProductDetailPage({
   params,
 }: ProductDetailPageProps) {
   const { slug } = await params;
+  const product = await getProduct(slug);
 
-  // ==========================================
-  // [GÖREV 25]: Ürün detayını API'den çek
-  //
-  // İpucu:
-  //   1. try-catch bloğu içinde getProductBySlug(slug) çağır
-  //   2. Sonuçtan product'ı al: const { product } = await getProductBySlug(slug)
-  //   3. Eğer hata olursa (ürün bulunamadı), notFound() çağır
-  //      notFound() Next.js'in 404 sayfasını gösterir.
-  //
-  // Java karşılığı:
-  //   Product product = productService.findBySlug(slug)
-  //       .orElseThrow(() -> new NotFoundException("Urun bulunamadi"));
-  //
-  // ==========================================
-  let product: Awaited<ReturnType<typeof getProductBySlug>>["product"];
-
-  try {
-    const data = await getProductBySlug(slug);
-    product = data.product;
-  } catch {
+  if (!product) {
     notFound();
   }
 
@@ -69,7 +111,7 @@ export default async function ProductDetailPage({
       <ProductJsonLd
         name={product.name}
         description={product.description || ""}
-        price={Number(product.basePrice)}
+        price={product.basePrice}
         image={product.thumbnailUrl}
         url={`${baseUrl}/products/${product.slug}`}
         category={product.category.name}
@@ -137,7 +179,7 @@ export default async function ProductDetailPage({
 
           {/* Fiyat */}
           <div className="text-4xl font-bold text-primary">
-            {Number(product.basePrice).toFixed(2)} TL
+            {product.basePrice.toFixed(2)} TL
           </div>
 
           {/* Açıklama */}
@@ -256,7 +298,7 @@ export default async function ProductDetailPage({
             product={{
               id: product.id,
               name: product.name,
-              basePrice: Number(product.basePrice),
+              basePrice: product.basePrice,
               thumbnailUrl: product.thumbnailUrl,
             }}
           />
