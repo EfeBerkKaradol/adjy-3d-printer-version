@@ -7,10 +7,9 @@
 // tarafından kullanılabilir.
 // ==========================================
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL ||
-  process.env.NEXT_PUBLIC_APP_URL ||
-  "http://localhost:3000";
+import { getBaseUrl } from "@/lib/url";
+
+const API_BASE = getBaseUrl();
 
 // ==========================================
 // Genel fetch wrapper — hata yönetimi dahil

@@ -1,0 +1,34 @@
+# Database
+DATABASE_URL="postgresql://neondb_owner:npg_aMoHAgstr48V@ep-falling-silence-agzlsonn-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+DIRECT_DATABASE_URL="postgresql://neondb_owner:npg_aMoHAgstr48V@ep-falling-silence-agzlsonn.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+
+# NextAuth
+AUTH_SECRET="generate-a-random-secret-here-change-in-production"
+AUTH_URL="http://localhost:3000"
+
+# Redis
+REDIS_URL="redis-cli --tls -u redis://default:AfmIAAIncDI1YmZkNzRmZDI3ZTE0MzU2YjQ5Njc2Yzk0ODEzODVhMHAyNjM4ODA@allowing-macaw-63880.upstash.io:6379"
+
+# App
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT="587"
+SMTP_SECURE="false"
+SMTP_USER="efeberkkaradol@gmail.com"
+SMTP_PASS="jqom mfqf cekq jcjg"
+SMTP_FROM="ADJY 3D <efeberkkaradol@gmail.com>"
+
+# Cloudinary (Image Upload - optional)
+CLOUDINARY_CLOUD_NAME="ds0unvnrs"
+CLOUDINARY_API_KEY="831386395214849"
+CLOUDINARY_API_SECRET="AhtzTYmTSA18ValjF_C7MDgo5QY"
+
+# Google OAuth (optional)
+AUTH_GOOGLE_ID="603603415570-vj7g6rt0smj0fqf5pba4193bpfp4bgqj.apps.googleusercontent.com"
+AUTH_GOOGLE_SECRET="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"
+
+# iyzico Payment (Sandbox)
+IYZICO_API_KEY="sandbox-WnhzZuPRYJgI0ahV8SqTWh6DxSCAA5Uv"
+IYZICO_SECRET_KEY="sandbox-1gwYNlpASVWMJbKKHob6geJsSzrKc55R"
+IYZICO_BASE_URL="https://sandbox-api.iyzipay.com"

@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
     // E-posta gönder
     if (isEmailConfigured()) {
       const baseUrl =
-        process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+        process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
       const resetUrl = `${baseUrl}/reset-password/${token}`;
 
       try {

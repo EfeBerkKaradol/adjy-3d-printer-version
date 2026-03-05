@@ -62,7 +62,7 @@ export default async function ProductDetailPage({
     notFound();
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8">

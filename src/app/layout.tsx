@@ -36,7 +36,10 @@ export const metadata: Metadata = {
   keywords: ["3D baskı", "3D print", "parametrik tasarım", "AR", "e-ticaret", "özelleştirilebilir ürünler"],
   authors: [{ name: "ADJY" }],
   creator: "ADJY",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
+  ),
   openGraph: {
     type: "website",
     locale: "tr_TR",
