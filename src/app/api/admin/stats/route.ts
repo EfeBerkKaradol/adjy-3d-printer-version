@@ -89,12 +89,12 @@ export async function GET() {
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   const dailyData = await prisma.$queryRaw<Array<{ date: string; revenue: number; order_count: number }>>`
     SELECT
-      TO_CHAR(created_at, 'YYYY-MM-DD') as date,
-      COALESCE(SUM(CASE WHEN payment_status = 'PAID' THEN grand_total ELSE 0 END), 0)::float as revenue,
+      TO_CHAR("createdAt", 'YYYY-MM-DD') as date,
+      COALESCE(SUM(CASE WHEN "paymentStatus"::text = 'PAID' THEN "grandTotal" ELSE 0 END), 0)::float as revenue,
       COUNT(*)::int as order_count
     FROM orders
-    WHERE created_at >= ${thirtyDaysAgo}
-    GROUP BY TO_CHAR(created_at, 'YYYY-MM-DD')
+    WHERE "createdAt" >= ${thirtyDaysAgo}
+    GROUP BY TO_CHAR("createdAt", 'YYYY-MM-DD')
     ORDER BY date ASC
   `;
 
