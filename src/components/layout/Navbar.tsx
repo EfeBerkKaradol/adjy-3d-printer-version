@@ -57,10 +57,13 @@ export function Navbar() {
           <ModeToggle />
 
           <Link href="/cart" className="relative group">
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative" data-cart-icon>
               <ShoppingCart className="h-5 w-5 transition-colors group-hover:text-foreground" />
               {mounted && totalCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground animate-in zoom-in">
+                <span
+                  data-cart-badge
+                  className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground animate-in zoom-in"
+                >
                   {totalCount}
                 </span>
               )}
