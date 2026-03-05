@@ -138,42 +138,47 @@ export default function OrdersPage() {
             ) : (
                 <div className="space-y-4">
                     {orders.map((order) => (
-                        <Card key={order.id}>
-                            <CardHeader className="pb-3">
-                                <div className="flex items-center justify-between flex-wrap gap-2">
-                                    <div>
-                                        <CardTitle className="text-base font-mono">#{order.orderNumber}</CardTitle>
-                                        <p className="text-xs text-muted-foreground mt-1">
-                                            {new Date(order.createdAt).toLocaleDateString("tr-TR", {
-                                                year: "numeric",
-                                                month: "long",
-                                                day: "numeric",
-                                            })}
-                                        </p>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Badge variant="outline" className={statusColors[order.status] || ""}>
-                                            {statusLabels[order.status] || order.status}
-                                        </Badge>
-                                        <span className="font-semibold text-sm">
-                                            ₺{Number(order.grandTotal).toFixed(2)}
-                                        </span>
-                                    </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-2">
-                                    {order.items.map((item, idx) => (
-                                        <div key={idx} className="flex items-center justify-between text-sm py-1.5 border-t border-border/40 first:border-0">
-                                            <span className="text-muted-foreground">
-                                                {item.productName} <span className="text-xs">×{item.quantity}</span>
-                                            </span>
-                                            <span>₺{Number(item.lineTotal).toFixed(2)}</span>
+                        <Link key={order.id} href={`/orders/${order.id}`} className="block group">
+                            <Card className="transition-colors group-hover:border-primary/40">
+                                <CardHeader className="pb-3">
+                                    <div className="flex items-center justify-between flex-wrap gap-2">
+                                        <div>
+                                            <CardTitle className="text-base font-mono group-hover:text-primary transition-colors">#{order.orderNumber}</CardTitle>
+                                            <p className="text-xs text-muted-foreground mt-1">
+                                                {new Date(order.createdAt).toLocaleDateString("tr-TR", {
+                                                    year: "numeric",
+                                                    month: "long",
+                                                    day: "numeric",
+                                                })}
+                                            </p>
                                         </div>
-                                    ))}
-                                </div>
-                            </CardContent>
-                        </Card>
+                                        <div className="flex items-center gap-2">
+                                            <Badge variant="outline" className={statusColors[order.status] || ""}>
+                                                {statusLabels[order.status] || order.status}
+                                            </Badge>
+                                            <span className="font-semibold text-sm">
+                                                ₺{Number(order.grandTotal).toFixed(2)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-2">
+                                        {order.items.map((item, idx) => (
+                                            <div key={idx} className="flex items-center justify-between text-sm py-1.5 border-t border-border/40 first:border-0">
+                                                <span className="text-muted-foreground">
+                                                    {item.productName} <span className="text-xs">×{item.quantity}</span>
+                                                </span>
+                                                <span>₺{Number(item.lineTotal).toFixed(2)}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <p className="text-xs text-primary mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        Detayları görüntüle →
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        </Link>
                     ))}
                 </div>
             )}

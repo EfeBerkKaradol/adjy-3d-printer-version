@@ -17,7 +17,7 @@ export async function GET(
     const byId = searchParams.get("byId") === "true";
 
     // Slug veya ID ile ürünü bul
-    const product = await prisma.product.findUnique({
+    const product = await prisma.product.findFirst({
       where: byId ? { id: slug, isActive: true } : { slug, isActive: true },
       include: {
         category: {

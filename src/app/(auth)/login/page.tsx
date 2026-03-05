@@ -161,7 +161,7 @@ function LoginForm() {
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Şifre</Label>
                 <Link
-                  href="#"
+                  href="/forgot-password"
                   className="text-xs text-muted-foreground hover:text-primary"
                 >
                   Şifremi Unuttum

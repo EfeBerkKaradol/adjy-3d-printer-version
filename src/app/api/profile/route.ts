@@ -17,7 +17,6 @@ export async function GET() {
                 fullName: true,
                 phone: true,
                 image: true,
-                passwordHash: true,
                 createdAt: true,
             },
         });
@@ -26,11 +25,16 @@ export async function GET() {
             return NextResponse.json({ error: "Kullanıcı bulunamadı" }, { status: 404 });
         }
 
+        // hasPassword kontrolü için ayrı sorgu
+        const passwordCheck = await prisma.user.findUnique({
+            where: { id: session.user.id },
+            select: { passwordHash: true },
+        });
+
         return NextResponse.json({
             user: {
                 ...user,
-                passwordHash: undefined,
-                hasPassword: !!user.passwordHash,
+                hasPassword: !!passwordCheck?.passwordHash,
             },
         });
     } catch (error) {

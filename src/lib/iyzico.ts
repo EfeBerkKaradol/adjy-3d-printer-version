@@ -83,10 +83,12 @@ export interface CheckoutFormInitParams {
     surname: string;
     email: string;
     identityNumber: string;
+    gsmNumber?: string;
     registrationAddress: string;
     ip: string;
     city: string;
     country: string;
+    zipCode?: string;
   };
   shippingAddress: {
     contactName: string;

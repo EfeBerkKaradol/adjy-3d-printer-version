@@ -103,10 +103,13 @@ interface OrderConfirmationData {
   shippingAddress: string;
 }
 
-export async function sendOrderConfirmation(data: OrderConfirmationData) {
+export async function sendOrderConfirmation(data: OrderConfirmationData): Promise<{ sent: boolean }> {
   if (!isEmailConfigured()) {
-    console.log("[Email] SMTP yapılandırılmamış, sipariş onay e-postası atlanıyor:", data.orderNumber);
-    return;
+    console.warn("[Email] UYARI: SMTP yapilandirmamis! Siparis onay e-postasi gonderilemedi:", data.orderNumber);
+    if (process.env.NODE_ENV === "production") {
+      console.warn("[Email] Production'da SMTP_USER ve SMTP_PASS ayarlayin.");
+    }
+    return { sent: false };
   }
 
   const itemsHtml = data.items
@@ -176,8 +179,10 @@ export async function sendOrderConfirmation(data: OrderConfirmationData) {
       html: baseTemplate(content),
     });
     console.log("[Email] Sipariş onay e-postası gönderildi:", data.orderNumber);
+    return { sent: true };
   } catch (error) {
     console.error("[Email] Sipariş onay e-postası gönderilemedi:", error);
+    return { sent: false };
   }
 }
 
@@ -196,10 +201,13 @@ interface StatusUpdateData {
   carrier?: string;
 }
 
-export async function sendStatusUpdate(data: StatusUpdateData) {
+export async function sendStatusUpdate(data: StatusUpdateData): Promise<{ sent: boolean }> {
   if (!isEmailConfigured()) {
-    console.log("[Email] SMTP yapılandırılmamış, durum güncelleme e-postası atlanıyor:", data.orderNumber);
-    return;
+    console.warn("[Email] UYARI: SMTP yapilandirmamis! Durum guncelleme e-postasi gonderilemedi:", data.orderNumber);
+    if (process.env.NODE_ENV === "production") {
+      console.warn("[Email] Production'da SMTP_USER ve SMTP_PASS ayarlayin.");
+    }
+    return { sent: false };
   }
 
   const statusLabel = STATUS_LABELS[data.newStatus] || data.newStatus;
@@ -264,7 +272,9 @@ export async function sendStatusUpdate(data: StatusUpdateData) {
       html: baseTemplate(content),
     });
     console.log("[Email] Durum güncelleme e-postası gönderildi:", data.orderNumber, data.newStatus);
+    return { sent: true };
   } catch (error) {
     console.error("[Email] Durum güncelleme e-postası gönderilemedi:", error);
+    return { sent: false };
   }
 }

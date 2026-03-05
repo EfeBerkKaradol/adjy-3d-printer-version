@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -352,12 +353,14 @@ export default function OrderDetailPage() {
                   key={item.id}
                   className="flex items-center gap-4 p-3 bg-muted/20 rounded-lg"
                 >
-                  <div className="w-12 h-12 bg-muted/30 rounded-lg flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 bg-muted/30 rounded-lg flex items-center justify-center shrink-0 overflow-hidden relative">
                     {item.product.thumbnailUrl ? (
-                      <img
+                      <Image
                         src={item.product.thumbnailUrl}
                         alt={item.productName}
-                        className="w-full h-full object-cover rounded-lg"
+                        fill
+                        className="object-cover rounded-lg"
+                        sizes="48px"
                       />
                     ) : (
                       <span className="text-xs text-muted-foreground">3D</span>

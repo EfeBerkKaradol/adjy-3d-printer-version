@@ -126,14 +126,14 @@ export async function POST(request: NextRequest) {
         name: firstName,
         surname: lastName,
         email: order.user.email || "customer@adjy.com",
-        // TODO: Production'da gerçek TC kimlik numarası kullanılmalı
-        // OrderAddress modeline identityNumber alanı eklenecek
-        identityNumber: "11111111111",
+        identityNumber: order.address?.identityNumber || "11111111111",
+        gsmNumber: order.user.phone || undefined,
         registrationAddress:
           order.address?.shippingLine1 || "İstanbul, Türkiye",
         ip,
         city: order.address?.shippingCity || "İstanbul",
         country: "Turkey",
+        zipCode: order.address?.shippingZip || undefined,
       },
       shippingAddress: {
         contactName: fullName,
