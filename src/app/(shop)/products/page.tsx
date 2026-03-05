@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { getProducts, getCategories } from "@/lib/api";
+import { prisma } from "@/lib/db";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { ProductFilters } from "@/components/product/ProductFilters";
 import { Pagination } from "@/components/ui/pagination";
@@ -18,16 +18,8 @@ export const metadata: Metadata = {
 
 // ==========================================
 // ÜRÜNLER SAYFASI (Server Component)
-//
-// Bu sayfa URL search params üzerinden filtre alır
-// ve server-side'da API'den veri çeker.
-//
-// Next.js'te searchParams, server component'lerde
-// otomatik olarak props olarak gelir.
-//
-// Java karşılığı:
-//   @GetMapping("/products")
-//   public String listProducts(@RequestParam Map<String,String> params, Model model)
+// Doğrudan Prisma ile veritabanından veri çeker.
+// Vercel'de self-fetch sorunu yaşanmaz.
 // ==========================================
 
 interface ProductsPageProps {
@@ -43,76 +35,135 @@ interface ProductsPageProps {
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const params = await searchParams;
 
-  // ==========================================
-  // [GÖREV 23]: Ürünleri ve kategorileri API'den çek
-  //
-  // İpucu:
-  //   1. getProducts() ve getCategories() fonksiyonlarını
-  //      parallel olarak çağır (Promise.all kullanarak)
-  //   2. getProducts'a URL'den gelen parametreleri aktar:
-  //      - category: params.category
-  //      - featured: params.featured === "true"  (string → boolean çevir)
-  //      - search: params.search
-  //      - sort: params.sort
-  //      - page: params.page ? Number(params.page) : 1  (string → number çevir)
-  //
-  // Java karşılığı:
-  //   CompletableFuture.allOf(productsF, categoriesF).join()
-  //   yani iki async isteği aynı anda başlatıp ikisini de beklemek.
-  //
-  // Örnek:
-  //   const [productsData, categoriesData] = await Promise.all([
-  //     getProducts({ category: params.category, ... }),
-  //     getCategories(),
-  //   ]);
-  // ==========================================
-  let products: Awaited<ReturnType<typeof getProducts>>["products"] = [];
-  let categories: Awaited<ReturnType<typeof getCategories>>["categories"] = [];
-  let materials: string[] = [];
-  let pagination = { total: 0, page: 1, limit: 12, totalPages: 1 };
+  const page = params.page ? Number(params.page) : 1;
+  const limit = 12;
 
-  try {
-    const [productsData, categoriesData] = await Promise.all([
-      getProducts({
-        category: params.category,
-        featured: params.featured === "true",
-        search: params.search,
-        sort: params.sort as string | undefined,
-        page: params.page ? Number(params.page) : 1,
-      }),
-      getCategories(),
-    ]);
-    products = productsData.products;
-    categories = categoriesData.categories;
-    materials = productsData.filters?.materials || [];
-    pagination = productsData.pagination;
-  } catch (error) {
-    console.error("Urunler yuklenirken hata:", error);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const where: any = { isActive: true };
+
+  if (params.category) {
+    where.category = { slug: params.category };
+  }
+  if (params.featured === "true") {
+    where.featured = true;
+  }
+  if (params.search) {
+    where.OR = [
+      { name: { contains: params.search, mode: "insensitive" } },
+      { description: { contains: params.search, mode: "insensitive" } },
+    ];
   }
 
-  return (
-    <div className="container mx-auto max-w-7xl px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Urunler</h1>
-        <p className="text-muted-foreground">
-          3D baskiya uygun parametrik urunlerimizi kesfedin
-        </p>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let orderBy: any = { createdAt: "desc" };
+  switch (params.sort) {
+    case "price_asc":
+      orderBy = { basePrice: "asc" };
+      break;
+    case "price_desc":
+      orderBy = { basePrice: "desc" };
+      break;
+    case "newest":
+      orderBy = { createdAt: "desc" };
+      break;
+    case "popular":
+      orderBy = { featured: "desc" };
+      break;
+    case "rating":
+      orderBy = { reviews: { _count: "desc" } };
+      break;
+  }
+
+  try {
+    const [productsRaw, totalCount, materialsRaw, categories] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        orderBy,
+        skip: (page - 1) * limit,
+        take: limit,
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+          basePrice: true,
+          thumbnailUrl: true,
+          featured: true,
+          materialType: true,
+          printTimeEst: true,
+          category: { select: { id: true, name: true, slug: true } },
+          reviews: { select: { rating: true } },
+          _count: { select: { reviews: true } },
+        },
+      }),
+      prisma.product.count({ where }),
+      prisma.product.findMany({
+        where: { isActive: true, materialType: { not: null } },
+        select: { materialType: true },
+        distinct: ["materialType"],
+      }),
+      prisma.category.findMany({
+        where: { isActive: true, parentId: null },
+        include: {
+          children: { where: { isActive: true }, orderBy: { sortOrder: "asc" } },
+          _count: { select: { products: true } },
+        },
+        orderBy: { sortOrder: "asc" },
+      }),
+    ]);
+
+    // Ortalama rating hesapla
+    const products = productsRaw.map((p) => {
+      const ratings = p.reviews.map((r) => r.rating);
+      const avgRating = ratings.length > 0
+        ? ratings.reduce((a, b) => a + b, 0) / ratings.length
+        : 0;
+      const { reviews: _reviews, basePrice, ...rest } = p;
+      return { ...rest, basePrice: Number(basePrice), averageRating: Math.round(avgRating * 10) / 10 };
+    });
+
+    const materials = materialsRaw
+      .map((m) => m.materialType)
+      .filter((m): m is string => m !== null);
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return (
+      <div className="container mx-auto max-w-7xl px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Urunler</h1>
+          <p className="text-muted-foreground">
+            3D baskiya uygun parametrik urunlerimizi kesfedin
+          </p>
+        </div>
+
+        <div className="mb-8">
+          <ProductFilters categories={categories} materials={materials} />
+        </div>
+
+        <ProductGrid products={products} />
+
+        {totalPages > 1 && (
+          <Suspense>
+            <Pagination currentPage={page} totalPages={totalPages} />
+          </Suspense>
+        )}
       </div>
-
-      {/* Filtreler */}
-      <div className="mb-8">
-        <ProductFilters categories={categories} materials={materials} />
+    );
+  } catch (error) {
+    console.error("Urunler yuklenirken hata:", error);
+    return (
+      <div className="container mx-auto max-w-7xl px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Urunler</h1>
+          <p className="text-muted-foreground">
+            3D baskiya uygun parametrik urunlerimizi kesfedin
+          </p>
+        </div>
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Ürünler yüklenirken bir hata oluştu. Lütfen tekrar deneyin.</p>
+        </div>
       </div>
-
-      {/* Ürün Grid */}
-      <ProductGrid products={products} />
-
-      {/* Pagination */}
-      {pagination.totalPages > 1 && (
-        <Suspense>
-          <Pagination currentPage={pagination.page} totalPages={pagination.totalPages} />
-        </Suspense>
-      )}
-    </div>
-  );
+    );
+  }
 }
