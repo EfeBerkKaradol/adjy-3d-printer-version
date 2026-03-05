@@ -19,7 +19,7 @@ import { ShoppingCart, Menu, ArrowRight, User, Package, MapPin, LogOut, Shield }
 export function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
-  const totalItems = useCartStore((state) => state.totalItems);
+  const items = useCartStore((state) => state.items);
   const { data: session, status } = useSession();
   const isLoggedIn = status === "authenticated";
 
@@ -27,7 +27,7 @@ export function Navbar() {
     setMounted(true);
   }, []);
 
-  const totalCount = typeof totalItems === 'function' ? totalItems() : 0;
+  const totalCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   const closeMenu = () => setOpen(false);
 
@@ -57,17 +57,19 @@ export function Navbar() {
           <ModeToggle />
 
           <Link href="/cart" className="relative group">
-            <Button variant="ghost" size="icon" className="relative" data-cart-icon>
-              <ShoppingCart className="h-5 w-5 transition-colors group-hover:text-foreground" />
+            <div data-cart-icon className="relative">
+              <Button variant="ghost" size="icon" className="relative">
+                <ShoppingCart className="h-5 w-5 transition-colors group-hover:text-foreground" />
+              </Button>
               {mounted && totalCount > 0 && (
                 <span
                   data-cart-badge
-                  className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground animate-in zoom-in"
+                  className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground animate-in zoom-in pointer-events-none"
                 >
                   {totalCount}
                 </span>
               )}
-            </Button>
+            </div>
           </Link>
 
           {/* Desktop: Auth State */}
