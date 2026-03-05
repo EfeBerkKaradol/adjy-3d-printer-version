@@ -5,13 +5,17 @@ const globalForRedis = globalThis as unknown as {
 };
 
 function createRedisClient(): Redis {
-  const redis = new Redis(process.env.REDIS_URL || "redis://localhost:6379", {
+  const url = process.env.REDIS_URL || "redis://localhost:6379";
+
+  const redis = new Redis(url, {
     maxRetriesPerRequest: 3,
     retryStrategy(times) {
       if (times > 3) return null;
       return Math.min(times * 200, 2000);
     },
     lazyConnect: true,
+    // Upstash TLS bağlantısı için (rediss:// protokolü)
+    ...(url.startsWith("rediss://") ? { tls: { rejectUnauthorized: false } } : {}),
   });
 
   redis.on("error", (err) => {

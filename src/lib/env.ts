@@ -12,9 +12,10 @@ const baseSchema = z.object({
 const productionSchema = baseSchema.extend({
   REDIS_URL: z.string().min(1, "REDIS_URL is required in production"),
   NEXT_PUBLIC_APP_URL: z.string().min(1, "NEXT_PUBLIC_APP_URL is required in production"),
-  IYZICO_API_KEY: z.string().min(1, "IYZICO_API_KEY is required for payments"),
-  IYZICO_SECRET_KEY: z.string().min(1, "IYZICO_SECRET_KEY is required for payments"),
-  IYZICO_BASE_URL: z.string().min(1, "IYZICO_BASE_URL is required"),
+  // Ödeme entegrasyonu opsiyonel (test ortamında olmayabilir)
+  IYZICO_API_KEY: z.string().optional(),
+  IYZICO_SECRET_KEY: z.string().optional(),
+  IYZICO_BASE_URL: z.string().optional(),
 });
 
 export function validateEnv() {
