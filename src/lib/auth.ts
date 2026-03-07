@@ -4,6 +4,7 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
+import { authConfig } from "./auth.config";
 
 // Google OAuth sadece env değerleri ayarlandığında aktif
 const providers = [];
@@ -62,7 +63,7 @@ providers.push(
 );
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  trustHost: true,
+  ...authConfig,
   adapter: (() => {
     const adapter = PrismaAdapter(prisma);
     return {
@@ -119,17 +120,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   jwt: {
     maxAge: 2 * 60 * 60,
   },
-  pages: {
-    signIn: "/login",
-    newUser: "/register",
-    error: "/login",
-  },
   providers,
   callbacks: {
+    ...authConfig.callbacks,
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        // Kullanıcının rolünü DB'den çek
+        // Kullanıcının rolünü DB'den çek (ilk login'de)
         const dbUser = await prisma.user.findUnique({
           where: { id: user.id },
           select: { role: true },
@@ -139,13 +136,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
       }
       return token;
-    },
-    async session({ session, token }) {
-      if (session.user && token.id) {
-        session.user.id = token.id as string;
-        session.user.role = (token.role as string) || "USER";
-      }
-      return session;
     },
   },
 });
