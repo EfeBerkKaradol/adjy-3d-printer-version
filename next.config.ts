@@ -33,23 +33,8 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // AR model dosyalari icin CORS header'lari
-      {
-        source: "/ar-models/:path*.glb",
-        headers: [
-          { key: "Content-Type", value: "model/gltf-binary" },
-          { key: "Access-Control-Allow-Origin", value: "*" },
-          { key: "Cache-Control", value: "public, max-age=300" },
-        ],
-      },
-      {
-        source: "/ar-models/:path*.usdz",
-        headers: [
-          { key: "Content-Type", value: "model/vnd.usdz+zip" },
-          { key: "Access-Control-Allow-Origin", value: "*" },
-          { key: "Cache-Control", value: "public, max-age=300" },
-        ],
-      },
+      // AR model dosyalari /api/ar GET handler uzerinden servis edilir
+      // (headers response'a eklenir, static config gerekmez)
     ];
   },
 };
