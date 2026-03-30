@@ -8,6 +8,9 @@ import {
   revokeGLBUrl,
 } from "@/lib/ar/glbExporter";
 import type { ARExportResult } from "@/types/ar.types";
+import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 
 interface UseGLBExportOptions {
   parameters: Record<string, number | string>;
@@ -42,15 +45,6 @@ export function useGLBExport({
   const exportForAR = useCallback(async (): Promise<ARExportResult | null> => {
     setError(null);
 
-    // Mevcut GLB dosyasi varsa direkt kullan (USDZ olmadan)
-    if (
-      modelFileUrl &&
-      (modelFileUrl.endsWith(".glb") || modelFileUrl.endsWith(".gltf"))
-    ) {
-      setGlbUrl(modelFileUrl);
-      return { glbUrl: modelFileUrl };
-    }
-
     setIsExporting(true);
     try {
       // Onceki blob'u temizle
@@ -58,8 +52,19 @@ export function useGLBExport({
         revokeGLBUrl(blobUrlRef.current);
       }
 
-      console.log("[AR Export] Sahne olusturuluyor:", productType);
-      const scene = buildParametricScene(parameters, productType);
+      let scene: THREE.Scene;
+
+      // Harici GLB/GLTF dosyasi varsa yukle, yoksa parametrik sahne olustur
+      if (
+        modelFileUrl &&
+        (modelFileUrl.endsWith(".glb") || modelFileUrl.endsWith(".gltf"))
+      ) {
+        console.log("[AR Export] Harici GLB yukleniyor:", modelFileUrl);
+        scene = await loadGLBAsScene(modelFileUrl);
+      } else {
+        console.log("[AR Export] Parametrik sahne olusturuluyor:", productType);
+        scene = buildParametricScene(parameters, productType);
+      }
 
       // 1) GLB export
       console.log("[AR Export] GLB export...");
@@ -140,4 +145,65 @@ export function useGLBExport({
   }, [exportForAR]);
 
   return { glbUrl, usdzUrl, isExporting, error, exportGLB, exportForAR };
+}
+
+/**
+ * Harici GLB/GLTF dosyasini Three.js Scene olarak yukler.
+ * Draco sikistirmali dosyalari da destekler.
+ * USDZ export icin gerekli — iOS AR Quick Look sadece USDZ kabul eder.
+ */
+async function loadGLBAsScene(url: string): Promise<THREE.Scene> {
+  return new Promise((resolve, reject) => {
+    const loader = new GLTFLoader();
+
+    // Draco decoder ayarla
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath(
+      "https://www.gstatic.com/draco/versioned/decoders/1.5.7/"
+    );
+    loader.setDRACOLoader(dracoLoader);
+
+    loader.load(
+      url,
+      (gltf) => {
+        const scene = new THREE.Scene();
+        scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+
+        const model = gltf.scene;
+
+        // Materyalsiz mesh'lere varsayilan materyal ata
+        model.traverse((child) => {
+          if (child instanceof THREE.Mesh) {
+            if (
+              !child.material ||
+              !(child.material instanceof THREE.MeshStandardMaterial)
+            ) {
+              child.material = new THREE.MeshStandardMaterial({
+                color: "#ffffff",
+                roughness: 0.3,
+                metalness: 0.1,
+              });
+            }
+          }
+        });
+
+        // Z-up → Y-up donusumu
+        const preBox = new THREE.Box3().setFromObject(model);
+        const preSize = preBox.getSize(new THREE.Vector3());
+        if (preSize.z > preSize.y * 1.2) {
+          model.rotation.x = -Math.PI / 2;
+          model.updateMatrixWorld(true);
+        }
+
+        scene.add(model);
+        dracoLoader.dispose();
+        resolve(scene);
+      },
+      undefined,
+      (err) => {
+        dracoLoader.dispose();
+        reject(new Error(`GLB yukleme hatasi: ${err.message}`));
+      }
+    );
+  });
 }
