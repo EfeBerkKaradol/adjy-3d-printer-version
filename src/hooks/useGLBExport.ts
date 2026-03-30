@@ -200,9 +200,10 @@ async function loadGLBAsScene(url: string): Promise<THREE.Scene> {
         resolve(scene);
       },
       undefined,
-      (err) => {
+      (err: unknown) => {
         dracoLoader.dispose();
-        reject(new Error(`GLB yukleme hatasi: ${err.message}`));
+        const message = err instanceof Error ? err.message : String(err);
+        reject(new Error(`GLB yukleme hatasi: ${message}`));
       }
     );
   });
