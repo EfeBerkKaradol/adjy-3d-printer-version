@@ -4,13 +4,19 @@ import { useRef, useMemo } from "react";
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 // ==========================================
 // GLB/GLTF MODEL VIEWER
 //
 // URL'den GLB/GLTF model yukler ve sahneye ekler.
+// Draco sikistirmali modelleri destekler.
 // Parametrelere gore renk ve olcek degistirir.
 // ==========================================
+
+// Draco decoder'i useGLTF icin global olarak ayarla
+useGLTF.setDecoderPath("https://www.gstatic.com/draco/versioned/decoders/1.5.7/");
 
 interface GLBModelViewerProps {
   url: string;
