@@ -60,7 +60,8 @@ export function useGLBExport({
         (modelFileUrl.endsWith(".glb") || modelFileUrl.endsWith(".gltf"))
       ) {
         console.log("[AR Export] Harici GLB yukleniyor:", modelFileUrl);
-        scene = await loadGLBAsScene(modelFileUrl);
+        const color = (parameters.color as string) || undefined;
+        scene = await loadGLBAsScene(modelFileUrl, color);
       } else {
         console.log("[AR Export] Parametrik sahne olusturuluyor:", productType);
         scene = buildParametricScene(parameters, productType);
@@ -152,7 +153,7 @@ export function useGLBExport({
  * Draco sikistirmali dosyalari da destekler.
  * USDZ export icin gerekli — iOS AR Quick Look sadece USDZ kabul eder.
  */
-async function loadGLBAsScene(url: string): Promise<THREE.Scene> {
+async function loadGLBAsScene(url: string, color?: string): Promise<THREE.Scene> {
   return new Promise((resolve, reject) => {
     const loader = new GLTFLoader();
 
@@ -171,7 +172,8 @@ async function loadGLBAsScene(url: string): Promise<THREE.Scene> {
 
         const model = gltf.scene;
 
-        // Materyalsiz mesh'lere varsayilan materyal ata
+        // Materyalsiz mesh'lere varsayilan materyal ata + secilen rengi uygula
+        const meshColor = color || "#ffffff";
         model.traverse((child) => {
           if (child instanceof THREE.Mesh) {
             if (
@@ -179,10 +181,14 @@ async function loadGLBAsScene(url: string): Promise<THREE.Scene> {
               !(child.material instanceof THREE.MeshStandardMaterial)
             ) {
               child.material = new THREE.MeshStandardMaterial({
-                color: "#ffffff",
+                color: meshColor,
                 roughness: 0.3,
                 metalness: 0.1,
               });
+            } else {
+              const mat = (child.material as THREE.MeshStandardMaterial).clone();
+              mat.color.set(meshColor);
+              child.material = mat;
             }
           }
         });
