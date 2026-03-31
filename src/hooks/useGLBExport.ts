@@ -101,32 +101,22 @@ export function useGLBExport({
         console.warn("[AR Export] GLB upload basarisiz:", e);
       }
 
-      // 4) USDZ'yi sunucuya yukle (varsa)
-      let serverUsdzUrl: string | null = null;
+      // 4) USDZ icin blob URL olustur (sunucuya yuklemek yerine)
+      // Vercel serverless fonksiyon body limiti 4.5MB — USDZ dosyalari
+      // genellikle bundan buyuk oldugu icin blob URL kullaniyoruz.
+      let usdzBlobUrl: string | null = null;
       if (usdzBlob) {
-        try {
-          const uploadRes = await fetch("/api/ar", {
-            method: "POST",
-            headers: { "Content-Type": "model/vnd.usdz+zip" },
-            body: usdzBlob,
-          });
-          if (uploadRes.ok) {
-            const json = await uploadRes.json();
-            serverUsdzUrl = `${window.location.origin}${json.url}`;
-            console.log("[AR Export] USDZ URL:", serverUsdzUrl);
-          }
-        } catch (e) {
-          console.warn("[AR Export] USDZ upload basarisiz:", e);
-        }
+        usdzBlobUrl = URL.createObjectURL(usdzBlob);
+        console.log("[AR Export] USDZ blob URL olusturuldu:", usdzBlobUrl);
       }
 
       const finalGlbUrl = serverGlbUrl || glbResult.blobUrl;
       setGlbUrl(finalGlbUrl);
-      setUsdzUrl(serverUsdzUrl);
+      setUsdzUrl(usdzBlobUrl);
 
       return {
         glbUrl: finalGlbUrl,
-        usdzUrl: serverUsdzUrl || undefined,
+        usdzUrl: usdzBlobUrl || undefined,
       };
     } catch (err) {
       const message =
