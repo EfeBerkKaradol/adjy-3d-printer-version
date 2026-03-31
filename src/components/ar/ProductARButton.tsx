@@ -71,5 +71,6 @@ function getProductType(slug: string): string {
   if (slug.includes("kalem") || slug.includes("pencil")) return "pencilHolder";
   if (slug.includes("bileklik") || slug.includes("bracelet")) return "bracelet";
   if (slug.includes("disli") || slug.includes("gear")) return "gear";
+  if (slug.includes("ejderha") || slug.includes("figur")) return "figure";
   return "vase";
 }

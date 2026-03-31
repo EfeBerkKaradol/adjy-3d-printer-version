@@ -57,8 +57,14 @@ export function extractDimensions(
         depthMm: dim,
       };
     }
+    case "figure":
+      return {
+        widthMm: Number(parameters.width || 80),
+        heightMm: Number(parameters.height || 180),
+        depthMm: Number(parameters.depth || 80),
+      };
     default:
-      return { widthMm: 100, heightMm: 100, depthMm: 100 };
+      return { widthMm: 100, heightMm: 200, depthMm: 100 };
   }
 }
 
