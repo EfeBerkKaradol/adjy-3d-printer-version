@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Star, Clock, Package, Layers, Box } from "lucide-react";
+import { Star, Clock, Package, Layers, Box, Hash, AlertCircle, CheckCircle, Truck } from "lucide-react";
 import Link from "next/link";
 import { AddToCartButton } from "@/components/product/AddToCartButton";
 import { ProductDetailImage } from "@/components/product/ProductDetailImage";
@@ -26,6 +26,7 @@ async function getProduct(slug: string) {
       id: true,
       name: true,
       slug: true,
+      sku: true,
       description: true,
       basePrice: true,
       thumbnailUrl: true,
@@ -34,6 +35,7 @@ async function getProduct(slug: string) {
       printTimeEst: true,
       materialType: true,
       materialWeight: true,
+      stockQty: true,
       featured: true,
       category: { select: { id: true, name: true, slug: true } },
       parameters: {
@@ -70,6 +72,7 @@ async function getProduct(slug: string) {
     ...product,
     basePrice: Number(product.basePrice),
     materialWeight: product.materialWeight ? Number(product.materialWeight) : null,
+    stockQty: product.stockQty ?? 999,
     reviews: {
       averageRating: Math.round(avgRating * 10) / 10,
       totalCount: product._count.reviews,
@@ -115,6 +118,8 @@ export default async function ProductDetailPage({
         price={product.basePrice}
         image={product.thumbnailUrl}
         url={`${baseUrl}/products/${product.slug}`}
+        sku={product.sku}
+        stockQty={product.stockQty}
         category={product.category.name}
         rating={
           product.reviews.totalCount > 0
@@ -192,13 +197,31 @@ export default async function ProductDetailPage({
 
           <Separator />
 
+          {/* Stok Durumu */}
+          {product.stockQty <= 10 && product.stockQty > 0 ? (
+            <div className="flex items-center gap-2 text-amber-500 text-sm">
+              <AlertCircle className="h-4 w-4" />
+              <span>Son {product.stockQty} adet kaldı!</span>
+            </div>
+          ) : product.stockQty > 10 ? (
+            <div className="flex items-center gap-2 text-green-500 text-sm">
+              <CheckCircle className="h-4 w-4" />
+              <span>Stokta mevcut</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-destructive text-sm">
+              <AlertCircle className="h-4 w-4" />
+              <span>Stok tükendi</span>
+            </div>
+          )}
+
           {/* Teknik Detaylar */}
           <div className="grid grid-cols-2 gap-4">
             {product.printTimeEst && (
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Baski Suresi</p>
+                  <p className="text-xs text-muted-foreground">Baskı Süresi</p>
                   <p className="text-sm font-medium">{product.printTimeEst} dakika</p>
                 </div>
               </div>
@@ -216,11 +239,32 @@ export default async function ProductDetailPage({
               <div className="flex items-center gap-2">
                 <Layers className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Agirlik</p>
+                  <p className="text-xs text-muted-foreground">Ağırlık</p>
                   <p className="text-sm font-medium">{product.materialWeight}g</p>
                 </div>
               </div>
             )}
+            {product.sku && (
+              <div className="flex items-center gap-2">
+                <Hash className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Stok Kodu</p>
+                  <p className="text-sm font-medium font-mono">{product.sku}</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Teslimat & İade Özet */}
+          <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+            <Link href="/teslimat-politikasi" className="flex items-center gap-1 hover:text-foreground transition-colors">
+              <Truck className="h-3 w-3" />
+              500 TL üzeri ücretsiz kargo · 2–5 iş günü teslimat
+            </Link>
+            <Link href="/iade-politikasi" className="flex items-center gap-1 hover:text-foreground transition-colors">
+              <CheckCircle className="h-3 w-3" />
+              14 gün iade hakkı
+            </Link>
           </div>
 
           {/* Parametreler */}
