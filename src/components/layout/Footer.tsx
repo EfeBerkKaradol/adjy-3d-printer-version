@@ -72,6 +72,16 @@ export function Footer() {
             <h4 className="font-semibold mb-3">Politikalar</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
+                <Link href="/mesafeli-satis-sozlesmesi" className="hover:text-foreground">
+                  Mesafeli Satış Sözleşmesi
+                </Link>
+              </li>
+              <li>
+                <Link href="/on-bilgilendirme" className="hover:text-foreground">
+                  Ön Bilgilendirme Formu
+                </Link>
+              </li>
+              <li>
                 <Link href="/iade-politikasi" className="hover:text-foreground">
                   İade ve İptal Politikası
                 </Link>
@@ -82,13 +92,23 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="hover:text-foreground">
-                  Kullanım Şartları
+                <Link href="/kvkk" className="hover:text-foreground">
+                  KVKK Aydınlatma Metni
+                </Link>
+              </li>
+              <li>
+                <Link href="/cerez-politikasi" className="hover:text-foreground">
+                  Çerez Politikası
                 </Link>
               </li>
               <li>
                 <Link href="/privacy" className="hover:text-foreground">
                   Gizlilik Politikası
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="hover:text-foreground">
+                  Kullanım Şartları
                 </Link>
               </li>
             </ul>

@@ -63,6 +63,54 @@ export function extractDimensions(
         heightMm: Number(parameters.height || 180),
         depthMm: Number(parameters.depth || 80),
       };
+    case "meltingShelf":
+      return {
+        widthMm:  Number(parameters.width  || 235),
+        heightMm: Number(parameters.height || 120),
+        depthMm:  Number(parameters.depth  || 104),
+      };
+    case "hexShelf":
+      return {
+        widthMm:  Number(parameters.width  || 252),
+        heightMm: Number(parameters.height || 192),
+        depthMm:  Number(parameters.depth  || 100),
+      };
+    case "skadisPanel":
+      return {
+        widthMm:  Number(parameters.width     || 240),
+        heightMm: Number(parameters.height    || 240),
+        depthMm:  Number(parameters.thickness ||   5),
+      };
+    case "decorativeStorage":
+      return {
+        widthMm:  Number(parameters.width  || 220),
+        heightMm: Number(parameters.height || 35),
+        depthMm:  Number(parameters.width  || 220),
+      };
+    case "cornerShelf":
+      return {
+        widthMm:  Number(parameters.width  || 200),
+        heightMm: Number(parameters.height || 120),
+        depthMm:  Number(parameters.width  || 200),
+      };
+    case "storageBasket":
+      return {
+        widthMm:  Number(parameters.width  || 120),
+        heightMm: Number(parameters.height || 80),
+        depthMm:  Number(parameters.width  || 120),
+      };
+    case "shelfForShelf":
+      return {
+        widthMm:  Number(parameters.width  || 250),
+        heightMm: Number(parameters.height || 60),
+        depthMm:  Number(parameters.width  || 250) * 0.5,
+      };
+    case "ribbedBowl":
+      return {
+        widthMm:  Number(parameters.width  || 160),
+        heightMm: Number(parameters.height || 70),
+        depthMm:  Number(parameters.width  || 160),
+      };
     default:
       return { widthMm: 100, heightMm: 200, depthMm: 100 };
   }

@@ -64,7 +64,15 @@ export function ProductARButton({
 }
 
 function getProductType(slug: string): string {
-  if (slug.includes("vazo")) return "vase";
+  if (slug.includes("eriyen"))  return "meltingShelf";
+  if (slug.includes("kup") || slug.includes("cubic") || slug.includes("hex")) return "hexShelf";
+  if (slug.includes("skadis"))  return "skadisPanel";
+  if (slug.includes("kose-rafi") || slug.includes("kose_rafi")) return "cornerShelf";
+  if (slug.includes("depolama-kutusu") || slug.includes("storage-basket")) return "storageBasket";
+  if (slug.includes("rafa-raf") || slug.includes("shelf-for-shelf")) return "shelfForShelf";
+  if (slug.includes("kase") || slug.includes("bowl")) return "ribbedBowl";
+  if (slug.includes("dekoratif-depolama") || slug.includes("tabagi") || slug.includes("tabak")) return "decorativeStorage";
+  if (slug.includes("vazo"))    return "vase";
   if (slug.includes("stand") || slug.includes("telefon")) return "stand";
   if (slug.includes("anahtarlik")) return "keychain";
   if (slug.includes("lamba") || slug.includes("lamp")) return "lamp";

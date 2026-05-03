@@ -76,8 +76,16 @@ class GLBErrorBoundary extends Component<GLBErrorBoundaryProps, GLBErrorBoundary
   }
 }
 
+// Gerçek parametrik modeli olan ürün tipleri — bu tipler için GLB yerine
+// prosedürel model kullanılır (parametre değişiklikleri anında yansır).
+const PARAMETRIC_TYPES = new Set([
+  "vase", "stand", "keychain", "lamp", "pencilHolder",
+  "bracelet", "gear",
+]);
+
 export function ModelViewer({ parameters, productType, modelFileUrl }: ModelViewerProps) {
-  const useGLB = isValidGLBUrl(modelFileUrl);
+  const hasParametricModel = !!productType && PARAMETRIC_TYPES.has(productType);
+  const useGLB = isValidGLBUrl(modelFileUrl) && !hasParametricModel;
 
   const parametricFallback = (
     <ParametricModel parameters={parameters} productType={productType} />
@@ -119,7 +127,7 @@ export function ModelViewer({ parameters, productType, modelFileUrl }: ModelView
           >
             {useGLB ? (
               <GLBErrorBoundary fallback={parametricFallback}>
-                <GLBModelViewer url={modelFileUrl} parameters={parameters} />
+                <GLBModelViewer url={modelFileUrl} parameters={parameters} productType={productType} />
               </GLBErrorBoundary>
             ) : (
               parametricFallback

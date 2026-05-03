@@ -7,12 +7,22 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, Package, ArrowRight } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 
+// GA4 purchase event helper
+function trackPurchase(orderId: string) {
+  if (typeof window !== "undefined" && typeof (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag === "function") {
+    (window as unknown as { gtag: (...args: unknown[]) => void }).gtag("event", "purchase", {
+      transaction_id: orderId,
+      currency: "TRY",
+    });
+  }
+}
+
 function SuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
   const hasClearedRef = useRef(false);
 
-  // Ödeme başarılı — sepeti temizle (sadece 1 kez)
+  // Ödeme başarılı — sepeti temizle + GA4 purchase event (sadece 1 kez)
   useEffect(() => {
     if (hasClearedRef.current) return;
     hasClearedRef.current = true;
@@ -20,10 +30,11 @@ function SuccessContent() {
     // Store'un hydrate olması için kısa gecikme
     const timer = setTimeout(() => {
       useCartStore.getState().clearCart();
+      if (orderId) trackPurchase(orderId);
     }, 100);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [orderId]);
 
   return (
     <div className="container mx-auto max-w-2xl px-4 py-16 text-center">
