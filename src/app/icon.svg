@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Dark background with rounded corners -->
+  <rect width="32" height="32" rx="6" fill="#0a0a0a"/>
+
+  <!-- Isometric 3D cube — top face (bright white) -->
+  <polygon points="16,4 28,10.5 16,17 4,10.5" fill="#f5f5f5"/>
+
+  <!-- Left face (dark gray) -->
+  <polygon points="4,10.5 16,17 16,28 4,21.5" fill="#5a5a5a"/>
+
+  <!-- Right face (medium gray) -->
+  <polygon points="28,10.5 16,17 16,28 28,21.5" fill="#959595"/>
+
+  <!-- Edge lines for crispness -->
+  <polyline points="16,4 28,10.5 28,21.5 16,28 4,21.5 4,10.5 16,4" fill="none" stroke="#222" stroke-width="0.4"/>
+  <line x1="16" y1="17" x2="16" y2="28" stroke="#222" stroke-width="0.4"/>
+  <line x1="16" y1="4" x2="16" y2="17" stroke="#222" stroke-width="0.3"/>
+  <line x1="4" y1="10.5" x2="28" y2="10.5" stroke="#222" stroke-width="0.3"/>
+</svg>
