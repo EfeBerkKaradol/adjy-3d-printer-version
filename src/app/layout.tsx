@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Orbitron } from "next/font/google";
 import Script from "next/script";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -105,6 +106,7 @@ export default function RootLayout({
               </div>
               <Toaster richColors position="top-right" />
               <CookieConsent />
+              <SpeedInsights />
             </ThemeProvider>
           </WishlistProvider>
           </CartSyncProvider>
