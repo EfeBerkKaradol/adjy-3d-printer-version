@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export function Footer() {
   return (
@@ -115,8 +116,32 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 border-t pt-6 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} <span className="font-[family-name:var(--font-orbitron)] font-bold tracking-wider">ADJY</span>. Tüm hakları saklıdır.</p>
+        <div className="mt-8 border-t pt-6 flex flex-col items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground mr-2">Güvenli Ödeme:</span>
+            <Image
+              src="/assets/payment/visa.svg"
+              alt="Visa"
+              width={60}
+              height={38}
+              className="h-8 w-auto opacity-80 hover:opacity-100 transition-opacity"
+            />
+            <Image
+              src="/assets/payment/mastercard.svg"
+              alt="MasterCard"
+              width={60}
+              height={38}
+              className="h-8 w-auto opacity-80 hover:opacity-100 transition-opacity"
+            />
+            <Image
+              src="/assets/payment/iyzico.svg"
+              alt="iyzico ile Öde"
+              width={90}
+              height={28}
+              className="h-7 w-auto opacity-80 hover:opacity-100 transition-opacity"
+            />
+          </div>
+          <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} <span className="font-[family-name:var(--font-orbitron)] font-bold tracking-wider">ADJY</span>. Tüm hakları saklıdır.</p>
         </div>
       </div>
     </footer>
