@@ -80,5 +80,6 @@ function getProductType(slug: string): string {
   if (slug.includes("bileklik") || slug.includes("bracelet")) return "bracelet";
   if (slug.includes("disli") || slug.includes("gear")) return "gear";
   if (slug.includes("ejderha") || slug.includes("figur")) return "figure";
+  if (slug.includes("fazil")) return "fazilModel";
   return "vase";
 }

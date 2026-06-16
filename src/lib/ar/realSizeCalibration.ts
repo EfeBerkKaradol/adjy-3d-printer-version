@@ -111,6 +111,12 @@ export function extractDimensions(
         heightMm: Number(parameters.height || 70),
         depthMm:  Number(parameters.width  || 160),
       };
+    case "fazilModel":
+      return {
+        widthMm:  Number(parameters.width  || 160),
+        heightMm: Number(parameters.height || 90),
+        depthMm:  50,
+      };
     default:
       return { widthMm: 100, heightMm: 200, depthMm: 100 };
   }

@@ -58,6 +58,11 @@ export function GLBModelViewer({ url, parameters, productType }: GLBModelViewerP
     scaleX = ((parameters.width  as number) || 235) / 235;
     scaleY = ((parameters.height as number) || 120) / 120;
     scaleZ = 1;
+  } else if (productType === "fazilModel") {
+    // default: 160mm genişlik (X), 90mm yükseklik (Y); derinlik sabit
+    scaleX = ((parameters.width  as number) || 160) / 160;
+    scaleY = ((parameters.height as number) || 90) / 90;
+    scaleZ = 1;
   } else {
     scaleX = ((parameters.width  as number) || 100) / 100;
     scaleY = ((parameters.height as number) || 100) / 100;
