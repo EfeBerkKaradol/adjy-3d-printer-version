@@ -1,33 +1,49 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Box, Layers, Zap, ShoppingBag, Users, Star } from "lucide-react";
+import { ArrowRight, Box, Layers, Zap, ShoppingBag, Users, Star, Sparkles } from "lucide-react";
 import { StarBackground } from "@/components/ui/star-background";
 import { prisma } from "@/lib/db";
 import { ProductCard } from "@/components/product/ProductCard";
 import { WebSiteJsonLd } from "@/components/seo/JsonLd";
 import { getAbsoluteUrl } from "@/lib/url";
 
-async function getFeaturedProducts() {
+const PRODUCT_SELECT = {
+  id: true,
+  name: true,
+  slug: true,
+  description: true,
+  basePrice: true,
+  thumbnailUrl: true,
+  featured: true,
+  materialType: true,
+  printTimeEst: true,
+  category: { select: { id: true, name: true, slug: true } },
+  reviews: { select: { rating: true } },
+  _count: { select: { reviews: true } },
+} as const;
+
+// Ana sayfada gösterilecek ürünler: önce öne çıkanlar, yetmezse
+// en yeni aktif ürünlerle 8'e tamamlanır.
+async function getShowcaseProducts() {
   try {
-    const products = await prisma.product.findMany({
+    const featured = await prisma.product.findMany({
       where: { isActive: true, featured: true },
-      take: 4,
+      take: 8,
       orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        basePrice: true,
-        thumbnailUrl: true,
-        featured: true,
-        materialType: true,
-        printTimeEst: true,
-        category: { select: { id: true, name: true, slug: true } },
-        reviews: { select: { rating: true } },
-        _count: { select: { reviews: true } },
-      },
+      select: PRODUCT_SELECT,
     });
+
+    let products = featured;
+    if (products.length < 8) {
+      const fillerIds = products.map((p) => p.id);
+      const fillers = await prisma.product.findMany({
+        where: { isActive: true, id: { notIn: fillerIds } },
+        take: 8 - products.length,
+        orderBy: { createdAt: "desc" },
+        select: PRODUCT_SELECT,
+      });
+      products = [...products, ...fillers];
+    }
 
     return products.map((p) => {
       const ratings = p.reviews.map((r) => r.rating);
@@ -58,8 +74,8 @@ async function getStats() {
 }
 
 export default async function HomePage() {
-  const [featuredProducts, stats] = await Promise.all([
-    getFeaturedProducts(),
+  const [showcaseProducts, stats] = await Promise.all([
+    getShowcaseProducts(),
     getStats(),
   ]);
 
@@ -73,34 +89,35 @@ export default async function HomePage() {
         description="3D modelleri parametrik olarak ozellestir, AR ile goruntule ve satin al."
       />
 
-      {/* Hero Section */}
-      <section className="relative flex flex-col items-center justify-center min-h-[85vh] overflow-hidden bg-background pt-16 md:pt-20">
+      {/* Kompakt Hero + Ürünler */}
+      <section className="relative overflow-hidden bg-background pt-24 md:pt-28 pb-10">
         <StarBackground />
 
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-foreground/5 rounded-full blur-[120px] opacity-30 pointer-events-none" />
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-foreground/5 rounded-full blur-[100px] opacity-20 pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-foreground/5 rounded-full blur-[130px] opacity-30 pointer-events-none" />
 
-        <div className="container relative z-10 mx-auto max-w-7xl px-4 text-center">
-          <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000">
-            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter mb-4 md:mb-6">
-              3D Baskı Ürünlerini
-              <br />
-              <span className="text-gradient">
-                Kendin Tasarla
-              </span>
-            </h1>
-            <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-8 md:mb-10 max-w-3xl mx-auto leading-relaxed px-2">
-              Parametrik 3D modelleri özelleştir, AR ile gerçek ortamında
-              görüntüle ve hemen sipariş ver. Geleceğin üretim teknolojisi şimdi elinin altında.
-            </p>
+        <div className="container relative z-10 mx-auto max-w-7xl px-4">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 animate-in fade-in slide-in-from-bottom-6 duration-700">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-border/50 bg-background/40 backdrop-blur-sm px-4 py-1.5 mb-5 text-xs font-medium text-muted-foreground">
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+                Parametrik 3D Baskı · AR Önizleme
+              </div>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tighter mb-4">
+                3D Baskı Ürünlerini{" "}
+                <span className="text-gradient">Kendin Tasarla</span>
+              </h1>
+              <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+                Boyut ve rengi özelleştir, AR ile gerçek ortamında gör, hemen sipariş ver.
+              </p>
+            </div>
 
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <Button size="lg" className="h-14 px-8 text-lg rounded-full glow-white bg-primary text-primary-foreground hover:bg-primary/90 transition-all hover:scale-105" asChild>
+            <div className="flex gap-3 shrink-0">
+              <Button size="lg" className="h-12 px-6 rounded-full glow-white bg-primary text-primary-foreground hover:bg-primary/90 transition-all hover:scale-105" asChild>
                 <Link href="/products">
-                  Ürünleri Keşfet <ArrowRight className="ml-2 h-5 w-5" />
+                  Tüm Ürünler <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="h-14 px-8 text-lg rounded-full border-border/40 bg-background/5 hover:bg-accent backdrop-blur-sm transition-all hover:scale-105" asChild>
+              <Button size="lg" variant="outline" className="h-12 px-6 rounded-full border-border/40 bg-background/5 hover:bg-accent backdrop-blur-sm transition-all hover:scale-105" asChild>
                 <Link href="/products?featured=true">
                   Öne Çıkanlar
                 </Link>
@@ -108,14 +125,34 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
-
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 animate-bounce opacity-50 z-0 pointer-events-none">
-          <div className="w-6 h-10 border-2 border-muted-foreground rounded-full flex justify-center">
-            <div className="w-1 h-2 bg-muted-foreground rounded-full mt-2" />
-          </div>
-        </div>
       </section>
+
+      {/* Ürünler — sayfa açılır açılmaz görünür */}
+      {showcaseProducts.length > 0 && (
+        <section className="pb-16 md:pb-24 bg-background">
+          <div className="container mx-auto max-w-7xl px-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              {showcaseProducts.map((product, i) => (
+                <div
+                  key={product.id}
+                  className="animate-in fade-in slide-in-from-bottom-4 fill-mode-both"
+                  style={{ animationDelay: `${i * 60}ms`, animationDuration: "600ms" }}
+                >
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </div>
+
+            <div className="text-center mt-12">
+              <Button size="lg" variant="outline" className="rounded-full px-8" asChild>
+                <Link href="/products">
+                  Tüm Ürünleri Gör <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* İstatistikler */}
       <section className="py-12 bg-muted/30 border-y border-border/40">
@@ -145,34 +182,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Öne Çıkan Ürünler */}
-      {featuredProducts.length > 0 && (
-        <section className="py-16 md:py-24 bg-background">
-          <div className="container mx-auto max-w-7xl px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold mb-3">Öne Çıkan Ürünler</h2>
-              <p className="text-muted-foreground max-w-xl mx-auto">
-                En popüler 3D baskı ürünlerimizi keşfedin ve hemen özelleştirmeye başlayın
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featuredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-
-            <div className="text-center mt-10">
-              <Button size="lg" variant="outline" className="rounded-full px-8" asChild>
-                <Link href="/products">
-                  Tüm Ürünleri Gör <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Features Section */}
       <section className="py-24 md:py-32 bg-background relative overflow-hidden">
