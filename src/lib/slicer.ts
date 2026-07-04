@@ -36,17 +36,20 @@ export interface Material {
   description: string;
 }
 
+// Tüm malzemelerde sabit gram fiyatı
+const PRICE_PER_GRAM = 4;
+
 export const MATERIALS: Material[] = [
-  { id: "pla", name: "PLA", density: 1.24, pricePerGram: 2.5, description: "Genel kullanım, kolay baskı" },
-  { id: "silk-pla", name: "Silk PLA", density: 1.24, pricePerGram: 3.0, description: "Parlak ipeksi yüzey" },
-  { id: "star-pla", name: "Star PLA (Simli)", density: 1.24, pricePerGram: 3.2, description: "Simli dekoratif görünüm" },
-  { id: "glow-pla", name: "Ultra-Glow PLA", density: 1.3, pricePerGram: 4.0, description: "Karanlıkta parlar" },
-  { id: "abs", name: "ABS", density: 1.04, pricePerGram: 2.8, description: "Isıya dayanıklı, mukavemetli" },
-  { id: "petg", name: "PETG", density: 1.27, pricePerGram: 2.8, description: "Darbe ve neme dayanıklı" },
-  { id: "petg-cf", name: "PETG-CF", density: 1.3, pricePerGram: 4.5, description: "Karbon fiber takviyeli PETG" },
-  { id: "tpu", name: "TPU (95A)", density: 1.21, pricePerGram: 4.0, description: "Esnek, kauçuk benzeri" },
-  { id: "asa", name: "ASA", density: 1.07, pricePerGram: 3.5, description: "UV dayanımlı, dış mekan" },
-  { id: "pla-cf", name: "PLA-CF", density: 1.29, pricePerGram: 4.5, description: "Karbon fiber takviyeli PLA" },
+  { id: "pla", name: "PLA", density: 1.24, pricePerGram: PRICE_PER_GRAM, description: "Genel kullanım, kolay baskı" },
+  { id: "silk-pla", name: "Silk PLA", density: 1.24, pricePerGram: PRICE_PER_GRAM, description: "Parlak ipeksi yüzey" },
+  { id: "star-pla", name: "Star PLA (Simli)", density: 1.24, pricePerGram: PRICE_PER_GRAM, description: "Simli dekoratif görünüm" },
+  { id: "glow-pla", name: "Ultra-Glow PLA", density: 1.3, pricePerGram: PRICE_PER_GRAM, description: "Karanlıkta parlar" },
+  { id: "abs", name: "ABS", density: 1.04, pricePerGram: PRICE_PER_GRAM, description: "Isıya dayanıklı, mukavemetli" },
+  { id: "petg", name: "PETG", density: 1.27, pricePerGram: PRICE_PER_GRAM, description: "Darbe ve neme dayanıklı" },
+  { id: "petg-cf", name: "PETG-CF", density: 1.3, pricePerGram: PRICE_PER_GRAM, description: "Karbon fiber takviyeli PETG" },
+  { id: "tpu", name: "TPU (95A)", density: 1.21, pricePerGram: PRICE_PER_GRAM, description: "Esnek, kauçuk benzeri" },
+  { id: "asa", name: "ASA", density: 1.07, pricePerGram: PRICE_PER_GRAM, description: "UV dayanımlı, dış mekan" },
+  { id: "pla-cf", name: "PLA-CF", density: 1.29, pricePerGram: PRICE_PER_GRAM, description: "Karbon fiber takviyeli PLA" },
 ];
 
 // --- Katman yükseklikleri (baskı kalitesi) ---
@@ -57,9 +60,9 @@ export interface LayerHeightOption {
 }
 
 export const LAYER_HEIGHTS: LayerHeightOption[] = [
-  { value: 0.08, label: "Ultra", flowRate: 5.5 },
-  { value: 0.12, label: "Yüksek", flowRate: 8.5 },
-  { value: 0.2, label: "Standart", flowRate: 13 },
+  { value: 0.2, label: "Yüksek", flowRate: 13 },
+  { value: 0.4, label: "Orta", flowRate: 20 },
+  { value: 0.6, label: "Standart", flowRate: 28 },
 ];
 
 // --- Doluluk oranları ---

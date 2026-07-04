@@ -88,7 +88,7 @@ export function PriceCalculator() {
   // Seçenekler
   const [materialId, setMaterialId] = useState(MATERIALS[0].id);
   const [colorId, setColorId] = useState(FILAMENT_COLORS[0].id);
-  const [layerHeight, setLayerHeight] = useState(0.2);
+  const [layerHeight, setLayerHeight] = useState(0.6);
   const [infill, setInfill] = useState(20);
   const [quantity, setQuantity] = useState(1);
 
