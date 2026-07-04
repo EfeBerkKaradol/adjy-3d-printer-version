@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Box, Layers, Zap, ShoppingBag, Users, Star, Sparkles } from "lucide-react";
-import { StarBackground } from "@/components/ui/star-background";
 import { prisma } from "@/lib/db";
 import { ProductCard } from "@/components/product/ProductCard";
+import { HeroSlider } from "@/components/home/HeroSlider";
 import { WebSiteJsonLd } from "@/components/seo/JsonLd";
 import { getAbsoluteUrl } from "@/lib/url";
 
@@ -89,48 +89,30 @@ export default async function HomePage() {
         description="3D modelleri parametrik olarak ozellestir, AR ile goruntule ve satin al."
       />
 
-      {/* Kompakt Hero + Ürünler */}
-      <section className="relative overflow-hidden bg-background pt-24 md:pt-28 pb-10">
-        <StarBackground />
+      {/* Hero Ürün Slider'ı */}
+      <div className="pt-16 md:pt-20">
+        <HeroSlider products={showcaseProducts} />
+      </div>
 
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-foreground/5 rounded-full blur-[130px] opacity-30 pointer-events-none" />
-
-        <div className="container relative z-10 mx-auto max-w-7xl px-4">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 animate-in fade-in slide-in-from-bottom-6 duration-700">
-            <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-border/50 bg-background/40 backdrop-blur-sm px-4 py-1.5 mb-5 text-xs font-medium text-muted-foreground">
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
-                Parametrik 3D Baskı · AR Önizleme
-              </div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tighter mb-4">
-                3D Baskı Ürünlerini{" "}
-                <span className="text-gradient">Kendin Tasarla</span>
-              </h1>
-              <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                Boyut ve rengi özelleştir, AR ile gerçek ortamında gör, hemen sipariş ver.
-              </p>
-            </div>
-
-            <div className="flex gap-3 shrink-0">
-              <Button size="lg" className="h-12 px-6 rounded-full glow-white bg-primary text-primary-foreground hover:bg-primary/90 transition-all hover:scale-105" asChild>
-                <Link href="/products">
-                  Tüm Ürünler <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" className="h-12 px-6 rounded-full border-border/40 bg-background/5 hover:bg-accent backdrop-blur-sm transition-all hover:scale-105" asChild>
-                <Link href="/products?featured=true">
-                  Öne Çıkanlar
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Ürünler — sayfa açılır açılmaz görünür */}
+      {/* Ürünler — slider altında, başlığı slider görünürken de belli olur */}
       {showcaseProducts.length > 0 && (
-        <section className="pb-16 md:pb-24 bg-background">
+        <section className="pt-10 md:pt-14 pb-16 md:pb-24 bg-background">
           <div className="container mx-auto max-w-7xl px-4">
+            <div className="flex items-end justify-between mb-6 md:mb-8">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-border/50 bg-background/40 px-3 py-1 mb-3 text-xs font-medium text-muted-foreground">
+                  <Sparkles className="h-3.5 w-3.5 text-primary" />
+                  Parametrik 3D Baskı · AR Önizleme
+                </div>
+                <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Ürünler</h2>
+              </div>
+              <Button variant="outline" className="rounded-full hidden sm:inline-flex" asChild>
+                <Link href="/products">
+                  Tümü <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {showcaseProducts.map((product, i) => (
                 <div
