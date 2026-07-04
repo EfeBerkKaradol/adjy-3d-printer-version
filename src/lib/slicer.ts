@@ -13,7 +13,7 @@
 
 // --- Dosya ve boyut sınırları (referans servisle birebir) ---
 export const ACCEPTED_EXTENSIONS = [".stl"];
-export const MAX_FILE_SIZE_MB = 90;
+export const MAX_FILE_SIZE_MB = 9;
 export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 export const MAX_MODEL_DIMENSION_MM = 300;
 
@@ -64,6 +64,7 @@ export const LAYER_HEIGHTS: LayerHeightOption[] = [
 
 // --- Doluluk oranları ---
 export const INFILL_OPTIONS = [20, 30, 40, 50, 60, 70, 80, 90, 100];
+
 
 // --- Renkler ---
 export const FILAMENT_COLORS = [
