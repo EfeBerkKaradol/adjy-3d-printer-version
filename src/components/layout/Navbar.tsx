@@ -51,6 +51,12 @@ export function Navbar() {
           >
             Öne Çıkanlar
           </Link>
+          <Link
+            href="/3d-baski-fiyati-hesapla"
+            className="transition-colors hover:text-foreground/80 text-muted-foreground"
+          >
+            Fiyat Hesapla
+          </Link>
         </nav>
 
         <div className="flex items-center gap-4">
@@ -148,6 +154,7 @@ export function Navbar() {
                     {[
                       { href: "/products", label: "Ürünler" },
                       { href: "/products?featured=true", label: "Öne Çıkanlar" },
+                      { href: "/3d-baski-fiyati-hesapla", label: "Fiyat Hesapla" },
                       ...(isLoggedIn
                         ? [
                           ...(session?.user?.role === "ADMIN"
