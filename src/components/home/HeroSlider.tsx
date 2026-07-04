@@ -118,9 +118,9 @@ export function HeroSlider({ products }: HeroSliderProps) {
                     </div>
                   </div>
 
-                  {/* Görsel tarafı */}
-                  <div className={`hidden md:flex items-center justify-center h-full py-10 ${active ? "animate-in fade-in slide-in-from-right-8 duration-700" : ""}`}>
-                    <div className="relative w-full max-w-md aspect-square rounded-3xl overflow-hidden border border-border/40 bg-background/30 backdrop-blur-sm shadow-2xl">
+                  {/* Görsel tarafı — dikeyde ortalı, sabit yükseklik ile dengeli üst/alt boşluk */}
+                  <div className={`hidden md:flex items-center justify-center h-full pb-8 ${active ? "animate-in fade-in slide-in-from-right-8 duration-700" : ""}`}>
+                    <div className="relative aspect-square h-[300px] lg:h-[360px] w-auto max-w-full rounded-3xl overflow-hidden border border-border/40 bg-background/30 backdrop-blur-sm shadow-2xl">
                       {product.thumbnailUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
