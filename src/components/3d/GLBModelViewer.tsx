@@ -1,8 +1,7 @@
 "use client";
 
-import { useRef, useMemo } from "react";
+import { useMemo } from "react";
 import { useGLTF } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
@@ -28,7 +27,6 @@ interface GLBModelViewerProps {
 }
 
 export function GLBModelViewer({ url, parameters, productType }: GLBModelViewerProps) {
-  const groupRef = useRef<THREE.Group>(null);
   const { scene } = useGLTF(url);
 
   const color   = (parameters.color as string) || "#ffffff";
@@ -135,23 +133,19 @@ export function GLBModelViewer({ url, parameters, productType }: GLBModelViewerP
       clone.scale.multiplyScalar(s);
       clone.updateMatrixWorld(true);
 
+      // XZ'de merkezle, alt yüzeyi y=0'a oturt (baskı tablası konvansiyonu)
       const newBox    = new THREE.Box3().setFromObject(clone);
       const newCenter = newBox.getCenter(new THREE.Vector3());
-      clone.position.sub(newCenter);
+      clone.position.x -= newCenter.x;
+      clone.position.z -= newCenter.z;
+      clone.position.y -= newBox.min.y;
     }
 
     return clone;
   }, [scene, color, productType]);
 
-  // Yavas donus animasyonu
-  useFrame((_, delta) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y += delta * 0.15;
-    }
-  });
-
   return (
-    <group ref={groupRef} scale={[scaleX, scaleY, scaleZ]}>
+    <group scale={[scaleX, scaleY, scaleZ]}>
       <primitive object={clonedScene} />
     </group>
   );

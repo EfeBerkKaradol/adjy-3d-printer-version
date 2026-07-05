@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useRef, forwardRef } from "react";
-import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 // ==========================================
@@ -32,13 +31,6 @@ type ModelProps = {
 
 export function ParametricModel({ parameters, productType }: ParametricModelProps) {
   const meshRef = useRef<THREE.Mesh>(null);
-
-  // Yavaş dönüş animasyonu
-  useFrame((_, delta) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y += delta * 0.15;
-    }
-  });
 
   // Renk
   const color = (parameters.color as string) || "#FFFFFF";

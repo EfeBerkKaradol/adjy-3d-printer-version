@@ -5,11 +5,12 @@ import {
   OrbitControls,
   Environment,
   ContactShadows,
-  PresentationControls,
+  Grid,
   AdaptiveDpr,
   AdaptiveEvents,
 } from "@react-three/drei";
-import { Suspense, Component, type ReactNode } from "react";
+import { Suspense, Component, useRef, useLayoutEffect, type ReactNode } from "react";
+import * as THREE from "three";
 import { ParametricModel } from "./ParametricModel";
 import { GLBModelViewer } from "./GLBModelViewer";
 import { Loader2 } from "lucide-react";
@@ -76,6 +77,29 @@ class GLBErrorBoundary extends Component<GLBErrorBoundaryProps, GLBErrorBoundary
   }
 }
 
+// ==========================================
+// Grounded: içeriğini XZ'de merkezleyip alt yüzeyini
+// y=0'a (tabla seviyesi) oturtur. Parametrik modeller
+// orijin merkezli üretildiği için bu düzeltme gerekir.
+// ==========================================
+function Grounded({ children }: { children: ReactNode }) {
+  const ref = useRef<THREE.Group>(null);
+
+  useLayoutEffect(() => {
+    const group = ref.current;
+    if (!group) return;
+    group.position.set(0, 0, 0);
+    group.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(group);
+    if (!box.isEmpty()) {
+      const center = box.getCenter(new THREE.Vector3());
+      group.position.set(-center.x, -box.min.y, -center.z);
+    }
+  });
+
+  return <group ref={ref}>{children}</group>;
+}
+
 // Gerçek parametrik modeli olan ürün tipleri — bu tipler için GLB yerine
 // prosedürel model kullanılır (parametre değişiklikleri anında yansır).
 const PARAMETRIC_TYPES = new Set([
@@ -95,7 +119,7 @@ export function ModelViewer({ parameters, productType, modelFileUrl }: ModelView
     <div className="relative w-full aspect-square bg-gradient-to-b from-muted/30 to-muted/60 rounded-2xl overflow-hidden border border-border/30">
       <Suspense fallback={<LoadingFallback />}>
         <Canvas
-          camera={{ position: [0, 2, 5], fov: 45 }}
+          camera={{ position: [5, 3.8, 5], fov: 45 }}
           shadows
           dpr={[1, 1.5]}
           gl={{ antialias: true, alpha: true }}
@@ -104,7 +128,7 @@ export function ModelViewer({ parameters, productType, modelFileUrl }: ModelView
           <AdaptiveDpr pixelated />
           <AdaptiveEvents />
 
-          {/* Aydınlatma */}
+          {/* Aydınlatma — StlViewer ile aynı stüdyo düzeni */}
           <ambientLight intensity={0.4} />
           <directionalLight
             position={[5, 8, 5]}
@@ -112,19 +136,13 @@ export function ModelViewer({ parameters, productType, modelFileUrl }: ModelView
             castShadow
             shadow-mapSize={[1024, 1024]}
           />
-          <directionalLight position={[-3, 4, -3]} intensity={0.3} />
+          <directionalLight position={[-5, 5, -5]} intensity={0.3} />
 
           {/* Ortam */}
           <Environment preset="studio" />
 
-          {/* 3D Model */}
-          <PresentationControls
-            global
-            zoom={0.8}
-            rotation={[0, -Math.PI / 6, 0]}
-            polar={[-Math.PI / 4, Math.PI / 4]}
-            azimuth={[-Math.PI / 4, Math.PI / 4]}
-          >
+          {/* 3D Model — tablaya oturmuş, dik ve sabit */}
+          <Grounded>
             {useGLB ? (
               <GLBErrorBoundary fallback={parametricFallback}>
                 <GLBModelViewer url={modelFileUrl} parameters={parameters} productType={productType} />
@@ -132,23 +150,31 @@ export function ModelViewer({ parameters, productType, modelFileUrl }: ModelView
             ) : (
               parametricFallback
             )}
-          </PresentationControls>
+          </Grounded>
 
-          {/* Zemin gölgesi */}
-          <ContactShadows
-            position={[0, -1.5, 0]}
-            opacity={0.4}
-            scale={8}
-            blur={2}
+          {/* Baskı tablası ızgarası */}
+          <Grid
+            position={[0, -0.01, 0]}
+            args={[10, 10]}
+            cellSize={0.35}
+            cellThickness={0.6}
+            cellColor="#6b7280"
+            sectionSize={1.75}
+            sectionThickness={1.1}
+            sectionColor="#9ca3af"
+            fadeDistance={28}
+            fadeStrength={1}
+            infiniteGrid={false}
           />
+          <ContactShadows position={[0, 0, 0]} opacity={0.35} scale={12} blur={2.2} far={4} />
 
           {/* Kontroller */}
           <OrbitControls
-            enablePan={false}
-            minDistance={3}
-            maxDistance={10}
-            minPolarAngle={Math.PI / 6}
-            maxPolarAngle={Math.PI / 2}
+            target={[0, 1.2, 0]}
+            enablePan
+            minDistance={2.5}
+            maxDistance={14}
+            maxPolarAngle={Math.PI / 2.05}
           />
         </Canvas>
       </Suspense>
