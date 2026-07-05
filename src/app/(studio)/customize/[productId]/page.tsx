@@ -156,6 +156,37 @@ export default function CustomizePage() {
       ? (paramValues.attachments as string).split(",")
       : [];
 
+  // Eklenti fiyatları — her eklentinin bağımsız ürün kaydındaki güncel fiyat
+  const [attachmentPrices, setAttachmentPrices] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    if (!product || getProductType(product.slug) !== "perforatedPanel") return;
+    let cancelled = false;
+    (async () => {
+      const prices: Record<string, number> = {};
+      await Promise.all(
+        PANEL_ATTACHMENTS.map(async (att) => {
+          try {
+            const res = await fetch(`/api/products/${att.id}`);
+            if (!res.ok) return;
+            const json = await res.json();
+            const p = json.product || json;
+            prices[att.id] = Number(p.basePrice) || 0;
+          } catch {
+            /* fiyat alınamazsa eklenti 0 TL görünmesin diye listeden düşer */
+          }
+        })
+      );
+      if (!cancelled) setAttachmentPrices(prices);
+    })();
+    return () => { cancelled = true; };
+  }, [product]);
+
+  const attachmentsTotal = selectedAttachments.reduce(
+    (sum, id) => sum + (attachmentPrices[id] ?? 0),
+    0
+  );
+
   const toggleAttachment = useCallback((id: string, checked: boolean) => {
     setParamValues((prev) => {
       const current =
@@ -206,11 +237,9 @@ export default function CustomizePage() {
   // Sepete ekle
   const handleAddToCart = useCallback(async () => {
     if (!product) return;
-    const currentPrice = calculatePrice(
-      Number(product.basePrice),
-      product.parameters,
-      paramValues
-    );
+    const currentPrice =
+      calculatePrice(Number(product.basePrice), product.parameters, paramValues) +
+      attachmentsTotal;
 
     // Logged-in ise customization'ı DB'ye kaydet
     let customizationId: string | null = null;
@@ -234,7 +263,7 @@ export default function CustomizePage() {
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
-  }, [product, paramValues, addItem, session, saveCustomization]);
+  }, [product, paramValues, attachmentsTotal, addItem, session, saveCustomization]);
 
   // Tasarimi kaydet (sepete eklemeden)
   const handleSaveDesign = useCallback(async () => {
@@ -275,9 +304,10 @@ export default function CustomizePage() {
     );
   }
 
-  // Fiyat hesapla
+  // Fiyat hesapla (seçili panel eklentileri dahil)
   const basePrice = Number(product.basePrice);
-  const currentPrice = calculatePrice(basePrice, product.parameters, paramValues);
+  const currentPrice =
+    calculatePrice(basePrice, product.parameters, paramValues) + attachmentsTotal;
   const priceChange = calculatePriceChange(basePrice, currentPrice);
   const productType = getProductType(product.slug);
 
@@ -379,7 +409,12 @@ export default function CustomizePage() {
                           toggleAttachment(att.id, checked === true)
                         }
                       />
-                      <span className="text-sm font-medium">{att.label}</span>
+                      <span className="text-sm font-medium flex-1">{att.label}</span>
+                      {attachmentPrices[att.id] !== undefined && (
+                        <span className="text-sm font-semibold text-primary">
+                          +{attachmentPrices[att.id].toFixed(2)} TL
+                        </span>
+                      )}
                     </label>
                   ))}
                 </div>

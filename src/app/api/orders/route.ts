@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { createOrderSchema } from "@/lib/validations/order";
 import { calculatePrice } from "@/lib/priceCalculator";
 import { getShippingPrice } from "@/lib/shipping";
+import { parseAttachmentIds, getAttachmentPriceMap } from "@/lib/panelAttachmentPricing";
 import { ZodError } from "zod";
 import { sendOrderConfirmation } from "@/lib/email";
 import { invalidateCache, CACHE_KEYS } from "@/lib/cache";
@@ -123,6 +124,13 @@ export async function POST(request: NextRequest) {
       existing.forEach((c) => validCustomizationIds.add(c.id));
     }
 
+    // Panel eklentisi fiyatları: tüm kalemlerdeki eklenti slug'ları için
+    // güncel ürün fiyatlarını tek sorguda çek (sunucu tarafı doğrulama)
+    const allAttachmentIds = validatedData.items.flatMap((item) =>
+      parseAttachmentIds(item.customParams as Record<string, unknown> | null)
+    );
+    const attachmentPriceMap = await getAttachmentPriceMap([...new Set(allAttachmentIds)]);
+
     // Transaction ile sipariş oluştur
     const order = await prisma.$transaction(async (tx) => {
       const itemsWithPrice = validatedData.items.map((item) => {
@@ -133,9 +141,14 @@ export async function POST(request: NextRequest) {
         const customParams = item.customParams as Record<string, number | string> | null;
 
         // Sunucu tarafında fiyat hesapla (manipülasyon önleme)
-        const unitPrice = customParams
+        let unitPrice = customParams
           ? calculatePrice(basePrice, product.parameters, customParams)
           : basePrice;
+
+        // Seçili panel eklentilerinin güncel ürün fiyatlarını ekle
+        for (const attId of parseAttachmentIds(customParams)) {
+          unitPrice += attachmentPriceMap.get(attId) ?? 0;
+        }
 
         // customizationId sadece DB'de gerçekten varsa kullan
         const validCustId = item.customizationId && validCustomizationIds.has(item.customizationId)
