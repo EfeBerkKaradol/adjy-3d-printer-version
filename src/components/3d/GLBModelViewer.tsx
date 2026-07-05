@@ -63,6 +63,16 @@ export function GLBModelViewer({ url, parameters, productType }: GLBModelViewerP
     scaleX = ((parameters.width  as number) || 160) / 160;
     scaleY = ((parameters.height as number) || 90) / 90;
     scaleZ = 1;
+  } else if (productType === "tabletStand") {
+    // default: 140mm genişlik, 190mm yükseklik
+    scaleX = ((parameters.width  as number) || 140) / 140;
+    scaleY = ((parameters.height as number) || 190) / 190;
+    scaleZ = 1;
+  } else if (productType === "perforatedPanel") {
+    // default: 250mm genişlik, 300mm yükseklik; panel kalınlığı sabit
+    scaleX = ((parameters.width  as number) || 250) / 250;
+    scaleY = ((parameters.height as number) || 300) / 300;
+    scaleZ = 1;
   } else {
     scaleX = ((parameters.width  as number) || 100) / 100;
     scaleY = ((parameters.height as number) || 100) / 100;

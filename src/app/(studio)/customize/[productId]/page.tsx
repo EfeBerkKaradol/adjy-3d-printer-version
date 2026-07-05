@@ -81,6 +81,8 @@ function getProductType(slug: string): string {
   if (slug.includes("rafa-raf") || slug.includes("shelf-for-shelf")) return "shelfForShelf";
   if (slug.includes("kase") || slug.includes("bowl")) return "ribbedBowl";
   if (slug.includes("dekoratif-depolama") || slug.includes("tabagi") || slug.includes("tabak")) return "decorativeStorage";
+  if (slug.includes("tablet"))  return "tabletStand";   // "stand" kontrolünden önce gelmeli
+  if (slug.includes("delikli") || slug.includes("panel")) return "perforatedPanel";
   if (slug.includes("vazo"))    return "vase";
   if (slug.includes("stand") || slug.includes("telefon")) return "stand";
   if (slug.includes("anahtarlik")) return "keychain";

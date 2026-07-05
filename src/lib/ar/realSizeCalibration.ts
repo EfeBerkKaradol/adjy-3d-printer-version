@@ -117,6 +117,18 @@ export function extractDimensions(
         heightMm: Number(parameters.height || 90),
         depthMm:  50,
       };
+    case "tabletStand":
+      return {
+        widthMm:  Number(parameters.width  || 140),
+        heightMm: Number(parameters.height || 190),
+        depthMm:  110,
+      };
+    case "perforatedPanel":
+      return {
+        widthMm:  Number(parameters.width  || 250),
+        heightMm: Number(parameters.height || 300),
+        depthMm:  6,
+      };
     default:
       return { widthMm: 100, heightMm: 200, depthMm: 100 };
   }
