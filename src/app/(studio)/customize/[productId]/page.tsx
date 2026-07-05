@@ -9,6 +9,8 @@ import { useCartStore } from "@/store/cartStore";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+import { PANEL_ATTACHMENTS } from "@/components/3d/panelAttachments";
 import {
   Loader2,
   ShoppingCart,
@@ -146,6 +148,25 @@ export default function CustomizePage() {
   // Parametre değişikliği
   const handleParamChange = useCallback((name: string, value: number | string) => {
     setParamValues((prev) => ({ ...prev, [name]: value }));
+  }, []);
+
+  // Panel eklentileri: "attachments" parametresinde virgülle ayrılmış slug listesi
+  const selectedAttachments =
+    typeof paramValues.attachments === "string" && paramValues.attachments
+      ? (paramValues.attachments as string).split(",")
+      : [];
+
+  const toggleAttachment = useCallback((id: string, checked: boolean) => {
+    setParamValues((prev) => {
+      const current =
+        typeof prev.attachments === "string" && prev.attachments
+          ? (prev.attachments as string).split(",")
+          : [];
+      const set = new Set(current);
+      if (checked) set.add(id);
+      else set.delete(id);
+      return { ...prev, attachments: Array.from(set).join(",") };
+    });
   }, []);
 
   // Parametreleri sıfırla
@@ -334,6 +355,36 @@ export default function CustomizePage() {
                 onReset={handleReset}
               />
             </div>
+
+            {/* Panel Eklentileri — sadece delikli panelde gösterilir */}
+            {productType === "perforatedPanel" && PANEL_ATTACHMENTS.length > 0 && (
+              <div className="border border-border/40 rounded-xl p-5 bg-card space-y-4">
+                <div>
+                  <h3 className="font-semibold mb-1">Panel Eklentileri</h3>
+                  <p className="text-xs text-muted-foreground">
+                    İşaretlediğin eklentiler 3D önizlemede panel üzerinde gösterilir
+                    ve siparişinle birlikte kaydedilir. Her eklenti ayrı ürün olarak
+                    da satılmaktadır.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  {PANEL_ATTACHMENTS.map((att) => (
+                    <label
+                      key={att.id}
+                      className="flex items-center gap-3 rounded-lg border border-border/40 px-3 py-2.5 cursor-pointer hover:bg-accent/50 transition-colors"
+                    >
+                      <Checkbox
+                        checked={selectedAttachments.includes(att.id)}
+                        onCheckedChange={(checked) =>
+                          toggleAttachment(att.id, checked === true)
+                        }
+                      />
+                      <span className="text-sm font-medium">{att.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Sepete Ekle */}
             <div className="border border-border/40 rounded-xl p-5 bg-card space-y-4">

@@ -5,6 +5,11 @@ import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import {
+  PANEL_ATTACHMENTS,
+  PANEL_BASE_HEIGHT_MM,
+  type PanelAttachmentDef,
+} from "./panelAttachments";
 
 // ==========================================
 // GLB/GLTF MODEL VIEWER
@@ -78,7 +83,7 @@ export function GLBModelViewer({ url, parameters, productType }: GLBModelViewerP
   }
 
   // Scene'i klonla, materyal ata ve olcekle — her parametre degisikliginde guncelle
-  const clonedScene = useMemo(() => {
+  const { clonedScene, modelDims } = useMemo(() => {
     const clone = scene.clone(true);
 
     // Materyalsiz mesh'lere varsayilan materyal ata + renk uygula
@@ -139,14 +144,129 @@ export function GLBModelViewer({ url, parameters, productType }: GLBModelViewerP
       clone.position.x -= newCenter.x;
       clone.position.z -= newCenter.z;
       clone.position.y -= newBox.min.y;
+      clone.updateMatrixWorld(true);
     }
 
-    return clone;
+    // Oturtulmuş modelin boyutları — eklenti yerleşiminde kullanılır
+    const seatedBox  = new THREE.Box3().setFromObject(clone);
+    const seatedSize = seatedBox.getSize(new THREE.Vector3());
+
+    return {
+      clonedScene: clone,
+      modelDims: { w: seatedSize.x, h: seatedSize.y, frontZ: seatedBox.max.z },
+    };
   }, [scene, color, productType]);
 
+  // Panel eklentileri: "attachments" parametresi virgülle ayrılmış slug listesi taşır
+  const attachmentIds =
+    productType === "perforatedPanel" && typeof parameters.attachments === "string"
+      ? (parameters.attachments as string).split(",").filter(Boolean)
+      : [];
+
   return (
-    <group scale={[scaleX, scaleY, scaleZ]}>
-      <primitive object={clonedScene} />
+    <group>
+      <group scale={[scaleX, scaleY, scaleZ]}>
+        <primitive object={clonedScene} />
+      </group>
+      {attachmentIds.map((id) => {
+        const def = PANEL_ATTACHMENTS.find((a) => a.id === id);
+        if (!def) return null;
+        return (
+          <PanelAttachment
+            key={id}
+            def={def}
+            panel={modelDims}
+            scaleX={scaleX}
+            scaleY={scaleY}
+          />
+        );
+      })}
+    </group>
+  );
+}
+
+// ==========================================
+// PANEL EKLENTİSİ
+// Seçilen eklenti GLB'sini panel yüzeyine, kayıttaki
+// orana göre konumlandırır. Boyut gerçek mm oranıyla
+// hesaplanır; panel slider'la büyütülse de eklenti
+// gerçek boyutunda kalır, sadece konumu ölçeklenir.
+// ==========================================
+interface PanelAttachmentProps {
+  def: PanelAttachmentDef;
+  panel: { w: number; h: number; frontZ: number };
+  scaleX: number;
+  scaleY: number;
+}
+
+function PanelAttachment({ def, panel, scaleX, scaleY }: PanelAttachmentProps) {
+  const { scene } = useGLTF(def.url);
+
+  const prepared = useMemo(() => {
+    const clone = scene.clone(true);
+
+    // Ana viewer ile aynı materyal mantığı: mevcut PBR materyali klonla,
+    // sadece rengi değiştir (trimesh çıktısı GLB'lerde doku/ayarlar korunur)
+    clone.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        if (!child.material || !(child.material instanceof THREE.MeshStandardMaterial)) {
+          child.material = new THREE.MeshStandardMaterial({
+            color: "#f2f2f2",
+            roughness: 0.3,
+            metalness: 0.1,
+          });
+        } else {
+          const mat = (child.material as THREE.MeshStandardMaterial).clone();
+          mat.color.set("#f2f2f2");
+          child.material = mat;
+        }
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+
+    // Ana viewer'daki gibi koşullu Z-up tespiti: bazı GLB'ler (ör. trimesh
+    // çıktısı) zaten Y-up gelir, onlara flip uygulanmaz. rotationY her iki
+    // durumda da dik eksen etrafında döndürür.
+    const preBox  = new THREE.Box3().setFromObject(clone);
+    const preSize = preBox.getSize(new THREE.Vector3());
+    const isZUp = preBox.min.z >= -preSize.z * 0.05;
+    if (isZUp) {
+      clone.rotation.set(-Math.PI / 2, 0, def.rotationY ?? 0);
+    } else {
+      clone.rotation.y = def.rotationY ?? 0;
+    }
+    clone.updateMatrixWorld(true);
+
+    // Gerçek boyut: panel baz yüksekliği (300mm) üzerinden mm → sahne birimi
+    const box  = new THREE.Box3().setFromObject(clone);
+    const size = box.getSize(new THREE.Vector3());
+    const heightUnits = def.heightMm * (panel.h / PANEL_BASE_HEIGHT_MM);
+    const s = size.y > 0 ? heightUnits / size.y : 1;
+    clone.scale.multiplyScalar(s);
+    clone.updateMatrixWorld(true);
+
+    // X/Y'de merkezle, arka yüzeyi z=0'a getir (panel yüzüne dayanır)
+    const b2 = new THREE.Box3().setFromObject(clone);
+    const c2 = b2.getCenter(new THREE.Vector3());
+    clone.position.x -= c2.x;
+    clone.position.y -= c2.y;
+    clone.position.z -= b2.min.z;
+
+    return clone;
+  }, [scene, def, panel.h]);
+
+  // Konum dış group'ta: primitive'e position verilirse useMemo'daki
+  // merkezleme çevirileri ezilir.
+  return (
+    <group
+      position={[
+        def.xFrac * panel.w * scaleX,
+        (0.5 + def.yFrac) * panel.h * scaleY,
+        panel.frontZ + 0.005,
+      ]}
+    >
+      <primitive object={prepared} />
     </group>
   );
 }
