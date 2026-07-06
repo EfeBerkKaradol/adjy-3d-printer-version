@@ -12,11 +12,14 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Loader2,
+  Globe,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RevenueChart } from "@/components/admin/charts/RevenueChart";
 import { OrderStatusChart } from "@/components/admin/charts/OrderStatusChart";
 import { DailyOrdersChart } from "@/components/admin/charts/DailyOrdersChart";
+import { VisitorsChart } from "@/components/admin/charts/VisitorsChart";
 
 interface Stats {
   totalOrders: number;
@@ -33,6 +36,17 @@ interface Stats {
 interface Charts {
   dailyRevenue: Array<{ date: string; revenue: number; orderCount: number }>;
   statusDistribution: Array<{ name: string; value: number; status: string }>;
+}
+
+interface VisitStats {
+  totalPageviews: number;
+  totalVisitors: number;
+  daily: Array<{ date: string; pageviews: number; visitors: number }>;
+}
+
+interface AnalyticsResponse {
+  configured: boolean;
+  visits: VisitStats | null;
 }
 
 interface RecentOrder {
@@ -90,6 +104,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [charts, setCharts] = useState<Charts | null>(null);
+  const [analytics, setAnalytics] = useState<AnalyticsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -116,7 +131,21 @@ export default function AdminDashboard() {
         setLoading(false);
       }
     }
+
+    // Ziyaret verileri ayrı yüklenir — Vercel API yavaşsa dashboard'u bekletmez
+    async function fetchAnalytics() {
+      try {
+        const res = await fetch("/api/admin/analytics");
+        if (res.ok) {
+          setAnalytics(await res.json());
+        }
+      } catch {
+        // Analytics yüklenemezse bölüm sessizce gizlenir
+      }
+    }
+
     fetchStats();
+    fetchAnalytics();
   }, []);
 
   if (loading) {
@@ -264,6 +293,61 @@ export default function AdminDashboard() {
           </div>
         </Link>
       </div>
+
+      {/* Site Ziyaretleri (Vercel Web Analytics) */}
+      {analytics?.configured && analytics.visits && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold">Site Ziyaretleri</h2>
+          <div className="bg-card border border-border/40 rounded-xl p-5">
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+              <h3 className="text-sm font-medium text-muted-foreground">
+                Son 30 Gün — Vercel Web Analytics
+              </h3>
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Globe className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-lg font-bold leading-none">
+                      {analytics.visits.totalVisitors.toLocaleString("tr-TR")}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Ziyaretçi</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                    <Eye className="h-4 w-4 text-purple-500" />
+                  </div>
+                  <div>
+                    <p className="text-lg font-bold leading-none">
+                      {analytics.visits.totalPageviews.toLocaleString("tr-TR")}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Görüntülenme</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <VisitorsChart data={analytics.visits.daily} />
+          </div>
+        </div>
+      )}
+
+      {/* Analytics yapılandırılmamışsa kurulum ipucu */}
+      {analytics && !analytics.configured && (
+        <div className="border border-dashed border-border/60 rounded-xl p-5 flex items-start gap-3">
+          <Globe className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+          <div className="text-sm">
+            <p className="font-medium">Site ziyaret istatistikleri yapılandırılmamış</p>
+            <p className="text-muted-foreground mt-1">
+              Ziyaretçi sayılarını burada görmek için{" "}
+              <code className="text-xs bg-muted px-1.5 py-0.5 rounded">VERCEL_API_TOKEN</code> ve{" "}
+              <code className="text-xs bg-muted px-1.5 py-0.5 rounded">VERCEL_PROJECT_ID</code>{" "}
+              env değişkenlerini ekleyin, Vercel panelinden Web Analytics&apos;i etkinleştirin.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Grafikler */}
       {charts && (

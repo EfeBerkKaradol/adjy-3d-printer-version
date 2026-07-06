@@ -5,6 +5,7 @@ export const CACHE_KEYS = {
   PRODUCTS: "cache:products",
   CATEGORIES: "cache:categories",
   ADMIN_STATS: "cache:admin:stats",
+  ADMIN_ANALYTICS: "cache:admin:analytics",
   PRODUCT_DETAIL: "cache:product:",
 } as const;
 
@@ -13,6 +14,7 @@ export const CACHE_TTL = {
   PRODUCTS: 5 * 60,       // 5 dakika
   CATEGORIES: 10 * 60,    // 10 dakika
   ADMIN_STATS: 2 * 60,    // 2 dakika
+  ADMIN_ANALYTICS: 10 * 60, // 10 dakika (Vercel API rate limit dostu)
   PRODUCT_DETAIL: 5 * 60, // 5 dakika
 } as const;
 
