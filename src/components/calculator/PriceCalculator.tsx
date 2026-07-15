@@ -54,6 +54,7 @@ import {
   type MeshStats,
 } from "@/lib/slicer";
 import { prepareGeometry } from "./StlViewer";
+import { ParameterPanel } from "@/components/3d/ParameterPanel";
 
 // Canvas SSR'da çalışmaz — yalnızca istemcide yüklenir
 const StlViewer = dynamic(
@@ -92,8 +93,62 @@ export function PriceCalculator() {
   const [infill, setInfill] = useState(20);
   const [quantity, setQuantity] = useState(1);
 
+  // Boyut özelleştirmesi (mm, STL eksenlerinde) — model yüklenince doldurulur
+  const [dimValues, setDimValues] = useState<Record<string, number | string>>({});
+
   const selectedColor =
     FILAMENT_COLORS.find((c) => c.id === colorId) ?? FILAMENT_COLORS[0];
+
+  // Yüklenen modelin boyutlarından jenerik özelleştirme parametreleri üret
+  // (ürün özelleştirme sayfasındaki ParameterPanel ile aynı bileşen)
+  const dimensionParams = useMemo(() => {
+    if (!model) return [];
+    const make = (name: string, displayName: string, dim: number, sortOrder: number) => ({
+      id: `dim-${name}`,
+      name,
+      displayName,
+      type: "SLIDER",
+      minValue: Math.max(1, Math.round(dim * 0.5)),
+      maxValue: Math.min(MAX_MODEL_DIMENSION_MM, Math.round(dim * 2)),
+      defaultValue: String(Math.round(dim)),
+      step: 1,
+      unit: "mm",
+      affectsPrice: true,
+      priceFormula: null,
+      affectsGeometry: true,
+      sortOrder,
+    });
+    return [
+      make("width",  "Genişlik (X)",  model.dimensions.x, 1),
+      make("depth",  "Derinlik (Y)",  model.dimensions.y, 2),
+      make("height", "Yükseklik (Z)", model.dimensions.z, 3),
+    ];
+  }, [model]);
+
+  const resetDimensions = useCallback(() => {
+    setDimValues((prev) => {
+      if (!model) return prev;
+      return {
+        width:  Math.round(model.dimensions.x),
+        depth:  Math.round(model.dimensions.y),
+        height: Math.round(model.dimensions.z),
+      };
+    });
+  }, [model]);
+
+  // Ölçek katsayıları (STL eksenlerinde): hedef boyut / orijinal boyut
+  const dimScale = useMemo(() => {
+    if (!model) return { sx: 1, sy: 1, sz: 1 };
+    const s = (val: number | string | undefined, dim: number) => {
+      const n = Number(val);
+      return n > 0 && dim > 0 ? n / dim : 1;
+    };
+    return {
+      sx: s(dimValues.width,  model.dimensions.x),
+      sy: s(dimValues.depth,  model.dimensions.y),
+      sz: s(dimValues.height, model.dimensions.z),
+    };
+  }, [model, dimValues]);
 
   const handleFile = useCallback(async (file: File) => {
     setError(null);
@@ -152,6 +207,12 @@ export function PriceCalculator() {
           stats,
         };
       });
+      // Boyut özelleştirmesini modelin gerçek ölçüleriyle başlat
+      setDimValues({
+        width:  Math.round(dimensions.x),
+        depth:  Math.round(dimensions.y),
+        height: Math.round(dimensions.z),
+      });
     } catch (err) {
       console.error("STL yükleme hatası:", err);
       setError("Dosya okunamadı. Geçerli bir STL dosyası olduğundan emin olun.");
@@ -165,17 +226,20 @@ export function PriceCalculator() {
       prev?.geometry.dispose();
       return null;
     });
+    setDimValues({});
     setError(null);
     if (inputRef.current) inputRef.current.value = "";
   };
 
-  // Tahmin + fiyat
+  // Tahmin + fiyat — boyut özelleştirmesi hacim/alan/yüksekliği ölçekler
   const result = useMemo(() => {
     if (!model) return null;
+    const { sx, sy, sz } = dimScale;
     const estimate = estimatePrint({
-      volumeMm3: model.stats.volumeMm3,
-      areaMm2: model.stats.areaMm2,
-      heightMm: model.dimensions.z,
+      volumeMm3: model.stats.volumeMm3 * sx * sy * sz,
+      // Yüzey alanı eksen çiftlerinin ortalamasıyla yaklaşık ölçeklenir
+      areaMm2: model.stats.areaMm2 * ((sx * sy + sx * sz + sy * sz) / 3),
+      heightMm: model.dimensions.z * sz,
       infillPercent: infill,
       layerHeight,
       materialId,
@@ -188,7 +252,7 @@ export function PriceCalculator() {
       colorId,
     });
     return { estimate, price };
-  }, [model, infill, layerHeight, materialId, quantity, colorId]);
+  }, [model, dimScale, infill, layerHeight, materialId, quantity, colorId]);
 
   const clampQuantity = (q: number) =>
     Math.max(1, Math.min(99999, Math.floor(q) || 1));
@@ -257,7 +321,12 @@ export function PriceCalculator() {
           </div>
         ) : (
           <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-border/30 bg-gradient-to-b from-muted/30 to-muted/60">
-            <StlViewer geometry={model.geometry} color={selectedColor.hex} />
+            <StlViewer
+              geometry={model.geometry}
+              color={selectedColor.hex}
+              // Sahne eksenleri: x=STL X, y=STL Z (yükseklik), z=STL Y (derinlik)
+              scale={[dimScale.sx, dimScale.sz, dimScale.sy]}
+            />
             <div className="pointer-events-none absolute bottom-3 left-3 select-none text-[10px] text-muted-foreground/50">
               Sürükle: Döndür · Sağ tık: Kaydır · Scroll: Zoom
             </div>
@@ -331,6 +400,22 @@ export function PriceCalculator() {
 
       {/* ============ SAĞ: SEÇENEKLER + FİYAT ============ */}
       <div className="space-y-4">
+        {/* 3D Özelleştirme — ürün sayfasındaki jenerik ParameterPanel ile */}
+        {model && dimensionParams.length > 0 && (
+          <Card>
+            <CardContent className="pt-6">
+              <ParameterPanel
+                parameters={dimensionParams}
+                values={dimValues}
+                onChange={(name, value) =>
+                  setDimValues((prev) => ({ ...prev, [name]: value }))
+                }
+                onReset={resetDimensions}
+              />
+            </CardContent>
+          </Card>
+        )}
+
         <Card>
           <CardHeader className="pb-4">
             <CardTitle className="text-base">Baskı Seçenekleri</CardTitle>

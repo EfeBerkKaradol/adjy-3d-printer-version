@@ -62,14 +62,19 @@ export function prepareGeometry(geometry: THREE.BufferGeometry): {
 interface StlViewerProps {
   geometry: THREE.BufferGeometry;
   color: string;
+  /** Sahne eksenlerinde ölçek [x, y, z] — boyut özelleştirmesi için (varsayılan 1,1,1) */
+  scale?: [number, number, number];
 }
 
-export function StlViewer({ geometry, color }: StlViewerProps) {
-  // Kamera mesafesini model boyutuna göre ayarla
+export function StlViewer({ geometry, color, scale = [1, 1, 1] }: StlViewerProps) {
+  // Kamera mesafesini (ölçeklenmiş) model boyutuna göre ayarla
   const { cameraPos, targetY, controlsDist } = useMemo(() => {
     geometry.computeBoundingBox();
     const size = new THREE.Vector3();
     geometry.boundingBox!.getSize(size);
+    size.x *= scale[0];
+    size.y *= scale[1];
+    size.z *= scale[2];
     const maxDim = Math.max(size.x, size.y, size.z, 1);
     const dist = maxDim * 1.9;
     return {
@@ -77,7 +82,7 @@ export function StlViewer({ geometry, color }: StlViewerProps) {
       targetY: size.y / 2,
       controlsDist: { min: maxDim * 0.6, max: maxDim * 5 },
     };
-  }, [geometry]);
+  }, [geometry, scale]);
 
   return (
     <Canvas
@@ -101,8 +106,8 @@ export function StlViewer({ geometry, color }: StlViewerProps) {
       <directionalLight position={[-cameraPos[0], cameraPos[1], -cameraPos[2]]} intensity={0.3} />
       <Environment preset="studio" />
 
-      {/* Model — tablaya düz oturmuş halde */}
-      <mesh geometry={geometry} castShadow receiveShadow>
+      {/* Model — tablaya düz oturmuş halde (taban y=0'da, ölçek bunu korur) */}
+      <mesh geometry={geometry} scale={scale} castShadow receiveShadow>
         <meshStandardMaterial color={color} roughness={0.45} metalness={0.05} />
       </mesh>
 
