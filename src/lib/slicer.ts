@@ -22,6 +22,24 @@ const WALL_THICKNESS_MM = 1.2; // 3 çevre duvarı × 0.4mm nozzle
 const WASTE_FACTOR = 1.05; // %5 fire (purge, brim, ilk katman)
 const SETUP_TIME_MIN = 8; // tabla ısıtma + kalibrasyon
 const LAYER_OVERHEAD_SEC = 2; // katman başına hareket/geri çekme kaybı
+
+// ==========================================
+// FİYAT SABİTLERİ
+//
+// Fiyatı etkileyen TÜM ayarlar buradan düzenlenir.
+// Çarpan (multiplier) mantığı: 1 = fiyata etkisi yok,
+// 1.2 = %20 zam, 0.9 = %10 indirim.
+//
+// Çarpanlar minimum fiyat tabanından SONRA uygulanır;
+// böylece küçük modellerde de seçenek değişimi fiyata yansır.
+//
+// Seçenek bazlı çarpanlar aşağıdaki listelerde:
+//   - Baskı kalitesi  → LAYER_HEIGHTS[].priceMultiplier
+//   - Doluluk oranı   → INFILL_PRICE_MULTIPLIERS
+//   - Malzeme         → MATERIALS[].priceMultiplier (+ pricePerGram)
+//   - Renk            → FILAMENT_COLORS[].priceMultiplier
+//   - Adet indirimi   → QUANTITY_DISCOUNTS
+// ==========================================
 const MACHINE_RATE_PER_HOUR = 60; // ₺/saat makine amortismanı + elektrik
 const PREP_FEE = 25; // ₺ hazırlık/işçilik (dilimleme, tabla temizliği)
 const MIN_UNIT_PRICE = 40; // ₺ minimum birim fiyat
@@ -33,6 +51,7 @@ export interface Material {
   name: string;
   density: number; // g/cm³
   pricePerGram: number; // ₺/g
+  priceMultiplier: number; // birim fiyat çarpanı (1 = etkisiz)
   description: string;
 }
 
@@ -40,16 +59,16 @@ export interface Material {
 const PRICE_PER_GRAM = 4;
 
 export const MATERIALS: Material[] = [
-  { id: "pla", name: "PLA", density: 1.24, pricePerGram: PRICE_PER_GRAM, description: "Genel kullanım, kolay baskı" },
-  { id: "silk-pla", name: "Silk PLA", density: 1.24, pricePerGram: PRICE_PER_GRAM, description: "Parlak ipeksi yüzey" },
-  { id: "star-pla", name: "Star PLA (Simli)", density: 1.24, pricePerGram: PRICE_PER_GRAM, description: "Simli dekoratif görünüm" },
-  { id: "glow-pla", name: "Ultra-Glow PLA", density: 1.3, pricePerGram: PRICE_PER_GRAM, description: "Karanlıkta parlar" },
-  { id: "abs", name: "ABS", density: 1.04, pricePerGram: PRICE_PER_GRAM, description: "Isıya dayanıklı, mukavemetli" },
-  { id: "petg", name: "PETG", density: 1.27, pricePerGram: PRICE_PER_GRAM, description: "Darbe ve neme dayanıklı" },
-  { id: "petg-cf", name: "PETG-CF", density: 1.3, pricePerGram: PRICE_PER_GRAM, description: "Karbon fiber takviyeli PETG" },
-  { id: "tpu", name: "TPU (95A)", density: 1.21, pricePerGram: PRICE_PER_GRAM, description: "Esnek, kauçuk benzeri" },
-  { id: "asa", name: "ASA", density: 1.07, pricePerGram: PRICE_PER_GRAM, description: "UV dayanımlı, dış mekan" },
-  { id: "pla-cf", name: "PLA-CF", density: 1.29, pricePerGram: PRICE_PER_GRAM, description: "Karbon fiber takviyeli PLA" },
+  { id: "pla", name: "PLA", density: 1.24, pricePerGram: PRICE_PER_GRAM, priceMultiplier: 1, description: "Genel kullanım, kolay baskı" },
+  { id: "silk-pla", name: "Silk PLA", density: 1.24, pricePerGram: PRICE_PER_GRAM, priceMultiplier: 1, description: "Parlak ipeksi yüzey" },
+  { id: "star-pla", name: "Star PLA (Simli)", density: 1.24, pricePerGram: PRICE_PER_GRAM, priceMultiplier: 1, description: "Simli dekoratif görünüm" },
+  { id: "glow-pla", name: "Ultra-Glow PLA", density: 1.3, pricePerGram: PRICE_PER_GRAM, priceMultiplier: 1, description: "Karanlıkta parlar" },
+  { id: "abs", name: "ABS", density: 1.04, pricePerGram: PRICE_PER_GRAM, priceMultiplier: 1, description: "Isıya dayanıklı, mukavemetli" },
+  { id: "petg", name: "PETG", density: 1.27, pricePerGram: PRICE_PER_GRAM, priceMultiplier: 1, description: "Darbe ve neme dayanıklı" },
+  { id: "petg-cf", name: "PETG-CF", density: 1.3, pricePerGram: PRICE_PER_GRAM, priceMultiplier: 1, description: "Karbon fiber takviyeli PETG" },
+  { id: "tpu", name: "TPU (95A)", density: 1.21, pricePerGram: PRICE_PER_GRAM, priceMultiplier: 1, description: "Esnek, kauçuk benzeri" },
+  { id: "asa", name: "ASA", density: 1.07, pricePerGram: PRICE_PER_GRAM, priceMultiplier: 1, description: "UV dayanımlı, dış mekan" },
+  { id: "pla-cf", name: "PLA-CF", density: 1.29, pricePerGram: PRICE_PER_GRAM, priceMultiplier: 1, description: "Karbon fiber takviyeli PLA" },
 ];
 
 // --- Katman yükseklikleri (baskı kalitesi) ---
@@ -57,30 +76,62 @@ export interface LayerHeightOption {
   value: number; // mm
   label: string;
   flowRate: number; // mm³/s ortalama ekstrüzyon debisi
+  priceMultiplier: number; // birim fiyat çarpanı (1 = etkisiz)
 }
 
 export const LAYER_HEIGHTS: LayerHeightOption[] = [
-  { value: 0.2, label: "Yüksek", flowRate: 13 },
-  { value: 0.4, label: "Orta", flowRate: 20 },
-  { value: 0.6, label: "Standart", flowRate: 28 },
+  { value: 0.2, label: "Yüksek", flowRate: 13, priceMultiplier: 1.3 },
+  { value: 0.4, label: "Orta", flowRate: 20, priceMultiplier: 1.15 },
+  { value: 0.6, label: "Standart", flowRate: 28, priceMultiplier: 1 },
 ];
+
+export function getLayerPriceMultiplier(layerHeight: number): number {
+  return LAYER_HEIGHTS.find((l) => l.value === layerHeight)?.priceMultiplier ?? 1;
+}
 
 // --- Doluluk oranları ---
 export const INFILL_OPTIONS = [20, 30, 40, 50, 60, 70, 80, 90, 100];
 
+// Doluluk oranı birim fiyat çarpanları (malzeme artışına ek olarak uygulanır)
+export const INFILL_PRICE_MULTIPLIERS: Record<number, number> = {
+  20: 1,
+  30: 1.03,
+  40: 1.06,
+  50: 1.09,
+  60: 1.12,
+  70: 1.15,
+  80: 1.18,
+  90: 1.21,
+  100: 1.25,
+};
+
+export function getInfillPriceMultiplier(infillPercent: number): number {
+  return INFILL_PRICE_MULTIPLIERS[infillPercent] ?? 1;
+}
 
 // --- Renkler ---
-export const FILAMENT_COLORS = [
-  { id: "siyah", name: "Siyah", hex: "#2b2b2b" },
-  { id: "beyaz", name: "Beyaz", hex: "#f2f2f2" },
-  { id: "gri", name: "Gri", hex: "#9ca3af" },
-  { id: "kirmizi", name: "Kırmızı", hex: "#dc2626" },
-  { id: "turuncu", name: "Turuncu", hex: "#f97316" },
-  { id: "sari", name: "Sarı", hex: "#eab308" },
-  { id: "yesil", name: "Yeşil", hex: "#16a34a" },
-  { id: "mavi", name: "Mavi", hex: "#2563eb" },
-  { id: "mor", name: "Mor", hex: "#7c3aed" },
+export interface FilamentColor {
+  id: string;
+  name: string;
+  hex: string;
+  priceMultiplier: number; // birim fiyat çarpanı (1 = etkisiz)
+}
+
+export const FILAMENT_COLORS: FilamentColor[] = [
+  { id: "siyah", name: "Siyah", hex: "#2b2b2b", priceMultiplier: 1 },
+  { id: "beyaz", name: "Beyaz", hex: "#f2f2f2", priceMultiplier: 1 },
+  { id: "gri", name: "Gri", hex: "#9ca3af", priceMultiplier: 1 },
+  { id: "kirmizi", name: "Kırmızı", hex: "#dc2626", priceMultiplier: 1 },
+  { id: "turuncu", name: "Turuncu", hex: "#f97316", priceMultiplier: 1 },
+  { id: "sari", name: "Sarı", hex: "#eab308", priceMultiplier: 1 },
+  { id: "yesil", name: "Yeşil", hex: "#16a34a", priceMultiplier: 1 },
+  { id: "mavi", name: "Mavi", hex: "#2563eb", priceMultiplier: 1 },
+  { id: "mor", name: "Mor", hex: "#7c3aed", priceMultiplier: 1 },
 ];
+
+export function getColorPriceMultiplier(colorId: string): number {
+  return FILAMENT_COLORS.find((c) => c.id === colorId)?.priceMultiplier ?? 1;
+}
 
 // --- Adet bazlı indirim tablosu (referans servisle birebir) ---
 export interface DiscountTier {
@@ -205,20 +256,38 @@ export interface PriceBreakdown {
   totalGross: number;
 }
 
+export interface PriceOptions {
+  materialId: string;
+  quantity: number;
+  layerHeight: number; // baskı kalitesi (mm)
+  infillPercent: number;
+  colorId?: string;
+}
+
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }
 
 export function calculatePrintPrice(
   estimate: PrintEstimate,
-  materialId: string,
-  quantity: number
+  options: PriceOptions
 ): PriceBreakdown {
+  const { materialId, quantity, layerHeight, infillPercent, colorId } = options;
   const material = MATERIALS.find((m) => m.id === materialId) ?? MATERIALS[0];
 
   const materialCost = estimate.weightGrams * material.pricePerGram;
   const machineCost = (estimate.printTimeMinutes / 60) * MACHINE_RATE_PER_HOUR;
-  const baseUnit = Math.max(MIN_UNIT_PRICE, materialCost + machineCost + PREP_FEE);
+
+  // Seçenek çarpanları minimum fiyat tabanından SONRA uygulanır ki
+  // küçük modellerde de kalite/doluluk/malzeme/renk seçimi fiyata yansısın
+  const optionMultiplier =
+    getLayerPriceMultiplier(layerHeight) *
+    getInfillPriceMultiplier(infillPercent) *
+    material.priceMultiplier *
+    (colorId ? getColorPriceMultiplier(colorId) : 1);
+
+  const baseUnit =
+    Math.max(MIN_UNIT_PRICE, materialCost + machineCost + PREP_FEE) * optionMultiplier;
 
   const discountRate = getDiscountRate(quantity);
   const unitPriceNet = round2(baseUnit * (1 - discountRate));

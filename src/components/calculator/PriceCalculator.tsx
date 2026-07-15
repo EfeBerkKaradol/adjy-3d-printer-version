@@ -180,9 +180,15 @@ export function PriceCalculator() {
       layerHeight,
       materialId,
     });
-    const price = calculatePrintPrice(estimate, materialId, quantity);
+    const price = calculatePrintPrice(estimate, {
+      materialId,
+      quantity,
+      layerHeight,
+      infillPercent: infill,
+      colorId,
+    });
     return { estimate, price };
-  }, [model, infill, layerHeight, materialId, quantity]);
+  }, [model, infill, layerHeight, materialId, quantity, colorId]);
 
   const clampQuantity = (q: number) =>
     Math.max(1, Math.min(99999, Math.floor(q) || 1));
