@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import type * as THREE from "three";
+import * as THREE from "three";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -35,6 +35,8 @@ import {
   Minus,
   Plus,
   RotateCcw,
+  ShoppingCart,
+  Check,
 } from "lucide-react";
 import {
   ACCEPTED_EXTENSIONS,
@@ -55,6 +57,10 @@ import {
 } from "@/lib/slicer";
 import { prepareGeometry } from "./StlViewer";
 import { ParameterPanel } from "@/components/3d/ParameterPanel";
+import { useCartStore } from "@/store/cartStore";
+import { CUSTOM_PRINT_PRODUCT_ID } from "@/lib/customPrint";
+import { ARModal } from "@/components/ar/ARModal";
+import { exportSceneToGLB, exportSceneToUSDZ } from "@/lib/ar/glbExporter";
 
 // Canvas SSR'da çalışmaz — yalnızca istemcide yüklenir
 const StlViewer = dynamic(
@@ -95,6 +101,20 @@ export function PriceCalculator() {
 
   // Boyut özelleştirmesi (mm, STL eksenlerinde) — model yüklenince doldurulur
   const [dimValues, setDimValues] = useState<Record<string, number | string>>({});
+
+  // Sepet + sipariş akışı
+  const addItem = useCartStore((s) => s.addItem);
+  const [modelFile, setModelFile] = useState<File | null>(null);
+  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [addedToCart, setAddedToCart] = useState(false);
+  const [cartError, setCartError] = useState<string | null>(null);
+
+  // AR görüntüleme
+  const [arOpen, setArOpen] = useState(false);
+  const [arGlbUrl, setArGlbUrl] = useState<string | null>(null);
+  const [arUsdzUrl, setArUsdzUrl] = useState<string | null>(null);
+  const [arExporting, setArExporting] = useState(false);
 
   const selectedColor =
     FILAMENT_COLORS.find((c) => c.id === colorId) ?? FILAMENT_COLORS[0];
@@ -213,6 +233,10 @@ export function PriceCalculator() {
         depth:  Math.round(dimensions.y),
         height: Math.round(dimensions.z),
       });
+      // Sipariş akışı için orijinal dosyayı sakla; önceki yükleme önbelleğini sıfırla
+      setModelFile(file);
+      setUploadedUrl(null);
+      setCartError(null);
     } catch (err) {
       console.error("STL yükleme hatası:", err);
       setError("Dosya okunamadı. Geçerli bir STL dosyası olduğundan emin olun.");
@@ -227,6 +251,9 @@ export function PriceCalculator() {
       return null;
     });
     setDimValues({});
+    setModelFile(null);
+    setUploadedUrl(null);
+    setCartError(null);
     setError(null);
     if (inputRef.current) inputRef.current.value = "";
   };
@@ -256,6 +283,128 @@ export function PriceCalculator() {
 
   const clampQuantity = (q: number) =>
     Math.max(1, Math.min(99999, Math.floor(q) || 1));
+
+  // STL'i (bir kez) Cloudinary'ye yükle — imza sunucudan, dosya doğrudan gider
+  const ensureUploaded = useCallback(async (): Promise<string> => {
+    if (uploadedUrl) return uploadedUrl;
+    if (!modelFile) throw new Error("Model dosyası bulunamadı");
+
+    const sigRes = await fetch("/api/upload-model", { method: "POST" });
+    if (!sigRes.ok) throw new Error("Yükleme imzası alınamadı");
+    const sig = await sigRes.json();
+
+    const fd = new FormData();
+    fd.append("file", modelFile);
+    fd.append("api_key", sig.apiKey);
+    fd.append("timestamp", String(sig.timestamp));
+    fd.append("signature", sig.signature);
+    fd.append("folder", sig.folder);
+
+    const upRes = await fetch(
+      `https://api.cloudinary.com/v1_1/${sig.cloudName}/raw/upload`,
+      { method: "POST", body: fd }
+    );
+    if (!upRes.ok) throw new Error("Dosya yüklenemedi, lütfen tekrar deneyin");
+    const up = await upRes.json();
+    setUploadedUrl(up.secure_url);
+    return up.secure_url;
+  }, [uploadedUrl, modelFile]);
+
+  // Sepete ekle: dosyayı yükle + tüm özelleştirmeleri sipariş parametresi yap
+  const handleAddToCart = useCallback(async () => {
+    if (!model || !result) return;
+    setAddingToCart(true);
+    setCartError(null);
+    try {
+      const fileUrl = await ensureUploaded();
+      const { sx, sy, sz } = dimScale;
+      const material = MATERIALS.find((m) => m.id === materialId) ?? MATERIALS[0];
+
+      const params = {
+        isCustomUpload: true as const,
+        fileName: model.fileName,
+        fileUrl,
+        volumeMm3: model.stats.volumeMm3 * sx * sy * sz,
+        areaMm2: model.stats.areaMm2 * ((sx * sy + sx * sz + sy * sz) / 3),
+        heightMm: model.dimensions.z * sz,
+        materialId,
+        materialName: material.name,
+        colorId,
+        colorName: selectedColor.name,
+        layerHeight,
+        infillPercent: infill,
+        dimensions: {
+          x: Math.round(model.dimensions.x * sx),
+          y: Math.round(model.dimensions.y * sy),
+          z: Math.round(model.dimensions.z * sz),
+        },
+        originalDimensions: {
+          x: Number(model.dimensions.x.toFixed(1)),
+          y: Number(model.dimensions.y.toFixed(1)),
+          z: Number(model.dimensions.z.toFixed(1)),
+        },
+      };
+
+      addItem({
+        product: {
+          id: CUSTOM_PRINT_PRODUCT_ID,
+          name: `Özel Baskı — ${model.fileName}`,
+          basePrice: 0,
+          thumbnailUrl: null,
+        },
+        customization: { id: null, parameters: params },
+        quantity,
+        calculatedPrice: result.price.unitPriceGross,
+      });
+      setAddedToCart(true);
+      setTimeout(() => setAddedToCart(false), 2500);
+    } catch (e) {
+      setCartError(e instanceof Error ? e.message : "Sepete eklenemedi");
+    } finally {
+      setAddingToCart(false);
+    }
+  }, [model, result, ensureUploaded, dimScale, materialId, colorId, selectedColor, layerHeight, infill, quantity, addItem]);
+
+  // AR: yüklenen geometriden gerçek boyutlu (metre) GLB/USDZ üret
+  const handleAR = useCallback(async () => {
+    if (!model) return;
+    setArExporting(true);
+    setCartError(null);
+    try {
+      const scene = new THREE.Scene();
+      const mesh = new THREE.Mesh(
+        model.geometry,
+        new THREE.MeshStandardMaterial({
+          color: selectedColor.hex,
+          roughness: 0.45,
+          metalness: 0.05,
+        })
+      );
+      // mm → metre + boyut özelleştirmesi (sahne eksenleri: x=X, y=Z, z=Y)
+      mesh.scale.set(
+        dimScale.sx * 0.001,
+        dimScale.sz * 0.001,
+        dimScale.sy * 0.001
+      );
+      scene.add(mesh);
+
+      const glb = await exportSceneToGLB(scene);
+      let usdzUrl: string | null = null;
+      try {
+        const usdz = await exportSceneToUSDZ(scene);
+        usdzUrl = usdz.blobUrl;
+      } catch {
+        // USDZ üretilemezse iOS Quick Look devre dışı kalır, GLB yeterli
+      }
+      setArGlbUrl(glb.blobUrl);
+      setArUsdzUrl(usdzUrl);
+      setArOpen(true);
+    } catch {
+      setCartError("AR görünümü oluşturulamadı");
+    } finally {
+      setArExporting(false);
+    }
+  }, [model, selectedColor, dimScale]);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_400px]">
@@ -655,6 +804,54 @@ export function PriceCalculator() {
                   </span>
                 </div>
 
+                <Separator />
+
+                {/* Sepete ekle + AR */}
+                <div className="space-y-2">
+                  <Button
+                    size="lg"
+                    className="w-full gap-2 text-base"
+                    onClick={handleAddToCart}
+                    disabled={addingToCart || addedToCart}
+                  >
+                    {addedToCart ? (
+                      <>
+                        <Check className="h-5 w-5" />
+                        Sepete Eklendi
+                      </>
+                    ) : addingToCart ? (
+                      <>
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        Dosya yükleniyor...
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart className="h-5 w-5" />
+                        Sepete Ekle
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full gap-2"
+                    onClick={handleAR}
+                    disabled={arExporting}
+                  >
+                    {arExporting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Hazırlanıyor...
+                      </>
+                    ) : (
+                      "AR'da Görüntüle"
+                    )}
+                  </Button>
+                  {cartError && (
+                    <p className="text-xs text-destructive">{cartError}</p>
+                  )}
+                </div>
+
                 <p className="text-xs leading-relaxed text-muted-foreground">
                   Değerler tahminidir; kesin gramaj ve fiyat, dilimleme sonrası
                   sipariş onayında netleşir. Kargo ücreti sipariş tutarına ve
@@ -669,6 +866,22 @@ export function PriceCalculator() {
           </CardContent>
         </Card>
       </div>
+
+      {/* AR Modal — yüklenen model, özelleştirilmiş gerçek boyutlarıyla */}
+      {arGlbUrl && model && (
+        <ARModal
+          isOpen={arOpen}
+          onClose={() => setArOpen(false)}
+          glbUrl={arGlbUrl}
+          usdzUrl={arUsdzUrl}
+          productName={model.fileName}
+          dimensions={{
+            widthMm: Math.round(model.dimensions.x * dimScale.sx),
+            heightMm: Math.round(model.dimensions.z * dimScale.sz),
+            depthMm: Math.round(model.dimensions.y * dimScale.sy),
+          }}
+        />
+      )}
     </div>
   );
 }

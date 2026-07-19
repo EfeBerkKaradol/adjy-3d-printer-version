@@ -5,6 +5,8 @@ import { createOrderSchema } from "@/lib/validations/order";
 import { calculatePrice } from "@/lib/priceCalculator";
 import { getShippingPrice } from "@/lib/shipping";
 import { parseAttachmentIds, getAttachmentPriceMap } from "@/lib/panelAttachmentPricing";
+import { CUSTOM_PRINT_SLUG, isCustomPrintParams } from "@/lib/customPrint";
+import { estimatePrint, calculatePrintPrice } from "@/lib/slicer";
 import { ZodError } from "zod";
 import { sendOrderConfirmation } from "@/lib/email";
 import { invalidateCache, CACHE_KEYS } from "@/lib/cache";
@@ -96,6 +98,7 @@ export async function POST(request: NextRequest) {
       select: {
         id: true,
         name: true,
+        slug: true,
         basePrice: true,
         parameters: {
           select: {
@@ -141,13 +144,35 @@ export async function POST(request: NextRequest) {
         const customParams = item.customParams as Record<string, number | string> | null;
 
         // Sunucu tarafında fiyat hesapla (manipülasyon önleme)
-        let unitPrice = customParams
-          ? calculatePrice(basePrice, product.parameters, customParams)
-          : basePrice;
+        let unitPrice: number;
 
-        // Seçili panel eklentilerinin güncel ürün fiyatlarını ekle
-        for (const attId of parseAttachmentIds(customParams)) {
-          unitPrice += attachmentPriceMap.get(attId) ?? 0;
+        if (product.slug === CUSTOM_PRINT_SLUG && isCustomPrintParams(customParams)) {
+          // Müşteri yüklemesi: slicer motoru ile KDV dahil birim fiyat
+          const estimate = estimatePrint({
+            volumeMm3: Number(customParams.volumeMm3) || 0,
+            areaMm2: Number(customParams.areaMm2) || 0,
+            heightMm: Number(customParams.heightMm) || 1,
+            infillPercent: Number(customParams.infillPercent) || 20,
+            layerHeight: Number(customParams.layerHeight) || 0.6,
+            materialId: String(customParams.materialId),
+          });
+          const breakdown = calculatePrintPrice(estimate, {
+            materialId: String(customParams.materialId),
+            quantity: item.quantity,
+            layerHeight: Number(customParams.layerHeight) || 0.6,
+            infillPercent: Number(customParams.infillPercent) || 20,
+            colorId: String(customParams.colorId || ""),
+          });
+          unitPrice = breakdown.unitPriceGross;
+        } else {
+          unitPrice = customParams
+            ? calculatePrice(basePrice, product.parameters, customParams)
+            : basePrice;
+
+          // Seçili panel eklentilerinin güncel ürün fiyatlarını ekle
+          for (const attId of parseAttachmentIds(customParams)) {
+            unitPrice += attachmentPriceMap.get(attId) ?? 0;
+          }
         }
 
         // customizationId sadece DB'de gerçekten varsa kullan

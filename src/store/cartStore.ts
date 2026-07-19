@@ -123,7 +123,9 @@ export const useCartStore = create<CartStore>()((set, get) => ({
 
     // Login: guest → authenticated user geçişi
     if (userId && !currentState.currentUserId) {
-      const guestItems = currentState.items;
+      // Tam sayfa yenilemede store boş başlar; guest sepeti storage'dan al
+      const guestItems =
+        currentState.items.length > 0 ? currentState.items : loadCart(null);
       const userItems = loadCart(userId);
 
       // Guest sepetindeki ürünleri kullanıcı sepetine merge et
@@ -152,8 +154,11 @@ export const useCartStore = create<CartStore>()((set, get) => ({
       saveCart(null, []);
       set({ currentUserId: userId, items: mergedItems });
     } else {
-      // Logout veya farklı kullanıcıya geçiş
-      saveCart(currentState.currentUserId, currentState.items);
+      // İlk mount'ta (aynı kullanıcı) storage'daki sepeti boş state ile
+      // EZME — yalnızca gerçekten kullanıcı değişiyorsa öncekini kaydet
+      if (currentState.currentUserId !== userId) {
+        saveCart(currentState.currentUserId, currentState.items);
+      }
       const newItems = loadCart(userId);
       set({ currentUserId: userId, items: newItems });
     }
