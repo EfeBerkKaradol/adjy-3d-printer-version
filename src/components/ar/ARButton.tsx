@@ -71,7 +71,7 @@ export function ARButton({
         size="icon"
         onClick={handleClick}
         disabled={isLoading}
-        title={isSupported ? "AR'da Gor" : "3D Onizleme"}
+        title={isSupported ? "AR'da Gör" : "3D Önizleme"}
       >
         {isLoading ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -98,7 +98,7 @@ export function ARButton({
       ) : (
         <>
           <ARIcon className="h-5 w-5" />
-          {isSupported ? "AR'da Gor" : "3D Onizleme"}
+          {isSupported ? "AR'da Gör" : "3D Önizleme"}
         </>
       )}
     </Button>

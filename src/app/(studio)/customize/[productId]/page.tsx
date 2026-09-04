@@ -135,6 +135,22 @@ export default function CustomizePage() {
             defaults[param.name] = Number(param.defaultValue);
           }
         }
+
+        // Ana sayfadaki konfigüratör önizlemesinden gelinmişse, URL'deki
+        // değerlerle başla. Yalnızca sayısal parametreler ve yalnızca
+        // min/max aralığı içinde kabul edilir.
+        const urlParams = new URLSearchParams(window.location.search);
+        for (const param of data.parameters) {
+          const raw = urlParams.get(param.name);
+          if (raw === null) continue;
+          const value = Number(raw);
+          if (!Number.isFinite(value)) continue;
+          const min = param.minValue ?? -Infinity;
+          const max = param.maxValue ?? Infinity;
+          if (value < min || value > max) continue;
+          defaults[param.name] = value;
+        }
+
         setParamValues(defaults);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Bir hata olustu");

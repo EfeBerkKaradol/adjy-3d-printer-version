@@ -12,12 +12,18 @@ interface AddToCartButtonProps {
     basePrice: number;
     thumbnailUrl: string | null;
   };
+  /** Parametrik üründe birincil eylem "Özelleştir" olduğu için ikincil görünüm */
+  variant?: "default" | "outline";
+  size?: "lg" | "xl";
 }
 
-export function AddToCartButton({ product }: AddToCartButtonProps) {
+export function AddToCartButton({
+  product,
+  variant = "default",
+  size = "lg",
+}: AddToCartButtonProps) {
   const addItem = useCartStore((state) => state.addItem);
   const [added, setAdded] = useState(false);
-  const [flyingItems, setFlyingItems] = useState<{ id: number; x: number; y: number }[]>([]);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const triggerFlyAnimation = useCallback(() => {
@@ -33,8 +39,6 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
     const startY = buttonRect.top + buttonRect.height / 2;
     const endX = cartRect.left + cartRect.width / 2;
     const endY = cartRect.top + cartRect.height / 2;
-
-    const flyId = Date.now();
 
     // Create the flying element
     const flyEl = document.createElement("div");
@@ -107,8 +111,9 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
   return (
     <Button
       ref={buttonRef}
-      size="lg"
-      className="w-full text-base gap-2"
+      size={size}
+      variant={variant}
+      className="w-full gap-2"
       onClick={handleAddToCart}
       disabled={added}
     >

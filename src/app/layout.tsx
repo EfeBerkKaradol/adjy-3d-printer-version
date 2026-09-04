@@ -3,7 +3,7 @@ import { Geist, Geist_Mono, Orbitron } from "next/font/google";
 import Script from "next/script";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
-import { Navbar } from "@/components/layout/Navbar";
+import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "@/components/session-provider";
@@ -101,8 +101,10 @@ export default function RootLayout({
               disableTransitionOnChange
             >
               <div className="flex min-h-screen flex-col">
-                <Navbar />
-                <main className="flex-1">{children}</main>
+                <Header />
+                <main id="main" className="flex-1">
+                  {children}
+                </main>
                 <Footer />
               </div>
               <Toaster richColors position="top-right" />

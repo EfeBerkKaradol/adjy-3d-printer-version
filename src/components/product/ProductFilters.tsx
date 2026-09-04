@@ -1,276 +1,342 @@
 "use client";
 
+import { useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Search, X, SlidersHorizontal, ChevronDown } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Sliders } from "lucide-react";
 
-interface Category {
+// ==========================================
+// FİLTRE PANELİ
+// Hem masaüstü kenar çubuğunda hem de mobil
+// çekmecede aynı bileşen kullanılır.
+//
+// Yalnızca veritabanında karşılığı olan filtreler
+// gösterilir. Renk / beden / ürün tipi için Product
+// modelinde alan bulunmadığından bu gruplar
+// bilinçli olarak eklenmedi — çalışmayan bir filtre
+// göstermek, hiç göstermemekten kötüdür.
+// ==========================================
+
+export interface FilterCategory {
   id: string;
   name: string;
   slug: string;
-  _count: { products: number };
+  productCount: number;
 }
 
-interface ProductFiltersProps {
-  categories: Category[];
-  materials?: string[];
+export interface ProductFiltersProps {
+  categories: FilterCategory[];
+  materials: string[];
+  /** Çekmece içinde kullanıldığında seçim sonrası kapanır */
+  onNavigate?: () => void;
+  /** Çekmecenin kendi başlığı olduğu için orada gizlenir */
+  showHeader?: boolean;
 }
 
-export function ProductFilters({ categories, materials = [] }: ProductFiltersProps) {
-  const router = useRouter();
+export function useFilterState() {
   const searchParams = useSearchParams();
+  const router = useRouter();
 
-  const currentCategory = searchParams.get("category") || "";
-  const currentSearch = searchParams.get("search") || "";
-  const currentSort = searchParams.get("sort") || "";
-  const currentFeatured = searchParams.get("featured") === "true";
-  const currentMinPrice = searchParams.get("minPrice") || "";
-  const currentMaxPrice = searchParams.get("maxPrice") || "";
-  const currentMaterial = searchParams.get("material") || "";
-
-  const [searchInput, setSearchInput] = useState(currentSearch);
-  const [minPrice, setMinPrice] = useState(currentMinPrice);
-  const [maxPrice, setMaxPrice] = useState(currentMaxPrice);
-  const [showAdvanced, setShowAdvanced] = useState(
-    !!(currentMinPrice || currentMaxPrice || currentMaterial)
+  const setParams = useCallback(
+    (updates: Record<string, string | null>) => {
+      const params = new URLSearchParams(searchParams.toString());
+      for (const [key, value] of Object.entries(updates)) {
+        if (value === null || value === "") params.delete(key);
+        else params.set(key, value);
+      }
+      // Filtre değişince ilk sayfaya dön
+      params.delete("page");
+      const qs = params.toString();
+      router.push(qs ? `/products?${qs}` : "/products", { scroll: false });
+    },
+    [router, searchParams]
   );
 
-  useEffect(() => {
-    setSearchInput(currentSearch);
-  }, [currentSearch]);
+  const current = {
+    category: searchParams.get("category") ?? "",
+    material: searchParams.get("material") ?? "",
+    minPrice: searchParams.get("minPrice") ?? "",
+    maxPrice: searchParams.get("maxPrice") ?? "",
+    customizable: searchParams.get("customizable") === "true",
+    inStock: searchParams.get("inStock") === "true",
+    featured: searchParams.get("featured") === "true",
+    search: searchParams.get("search") ?? "",
+    sort: searchParams.get("sort") ?? "",
+  };
 
-  function updateFilter(key: string, value: string) {
-    const params = new URLSearchParams(searchParams.toString());
-    if (value) {
-      params.set(key, value);
-    } else {
-      params.delete(key);
-    }
-    params.delete("page");
-    router.push(`/products?${params.toString()}`);
-  }
+  const activeCount =
+    (current.category ? 1 : 0) +
+    (current.material ? 1 : 0) +
+    (current.minPrice || current.maxPrice ? 1 : 0) +
+    (current.customizable ? 1 : 0) +
+    (current.inStock ? 1 : 0) +
+    (current.featured ? 1 : 0) +
+    (current.search ? 1 : 0);
 
-  function updateMultipleFilters(updates: Record<string, string>) {
-    const params = new URLSearchParams(searchParams.toString());
-    Object.entries(updates).forEach(([key, value]) => {
-      if (value) {
-        params.set(key, value);
-      } else {
-        params.delete(key);
-      }
-    });
-    params.delete("page");
-    router.push(`/products?${params.toString()}`);
-  }
+  const clearAll = useCallback(() => {
+    const sort = searchParams.get("sort");
+    router.push(sort ? `/products?sort=${sort}` : "/products", { scroll: false });
+  }, [router, searchParams]);
 
-  function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    updateFilter("search", searchInput.trim());
-  }
+  return { current, setParams, activeCount, clearAll };
+}
 
-  function handlePriceFilter() {
-    updateMultipleFilters({
-      minPrice: minPrice,
-      maxPrice: maxPrice,
-    });
-  }
-
-  function clearAllFilters() {
-    setSearchInput("");
-    setMinPrice("");
-    setMaxPrice("");
-    router.push("/products");
-  }
-
-  const hasActiveFilters =
-    currentCategory || currentSearch || currentSort || currentFeatured ||
-    currentMinPrice || currentMaxPrice || currentMaterial;
+/**
+ * Fiyat aralığı alanları.
+ * Dışarıdan gelen değerlerle `key` verilerek monte edilir; böylece
+ * URL değiştiğinde alanlar effect içinde setState çağrılmadan sıfırlanır.
+ */
+function PriceRange({
+  initialMin,
+  initialMax,
+  onApply,
+}: {
+  initialMin: string;
+  initialMax: string;
+  onApply: (min: string, max: string) => void;
+}) {
+  const [min, setMin] = useState(initialMin);
+  const [max, setMax] = useState(initialMax);
 
   return (
-    <div className="space-y-4">
-      {/* Arama */}
-      <form onSubmit={handleSearch} className="flex gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Ürün ara..."
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <Button type="submit" variant="secondary">
-          Ara
-        </Button>
-      </form>
-
-      {/* Kategori Filtreleri */}
-      <div className="flex flex-wrap gap-2">
-        <Button
-          variant={!currentCategory && !currentFeatured ? "default" : "outline"}
-          size="sm"
-          onClick={() => clearAllFilters()}
-        >
-          Tümü
-        </Button>
-        <Button
-          variant={currentFeatured ? "default" : "outline"}
-          size="sm"
-          onClick={() => updateFilter("featured", currentFeatured ? "" : "true")}
-        >
-          Öne Çıkanlar
-        </Button>
-        {categories.map((cat) => (
-          <Button
-            key={cat.id}
-            variant={currentCategory === cat.slug ? "default" : "outline"}
-            size="sm"
-            onClick={() => updateFilter("category", currentCategory === cat.slug ? "" : cat.slug)}
-          >
-            {cat.name}
-            <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5">
-              {cat._count.products}
-            </Badge>
-          </Button>
-        ))}
+    <>
+      <div className="flex items-center gap-2">
+        <Input
+          type="number"
+          inputMode="numeric"
+          min={0}
+          placeholder="Min"
+          aria-label="En düşük fiyat (TL)"
+          value={min}
+          onChange={(e) => setMin(e.target.value)}
+          className="h-9"
+        />
+        <span className="text-muted-foreground" aria-hidden>
+          —
+        </span>
+        <Input
+          type="number"
+          inputMode="numeric"
+          min={0}
+          placeholder="Maks"
+          aria-label="En yüksek fiyat (TL)"
+          value={max}
+          onChange={(e) => setMax(e.target.value)}
+          className="h-9"
+        />
       </div>
-
-      {/* Sıralama */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm text-muted-foreground">Sırala:</span>
-        {[
-          { value: "", label: "Varsayılan" },
-          { value: "newest", label: "En Yeni" },
-          { value: "price_asc", label: "Fiyat: Artan" },
-          { value: "price_desc", label: "Fiyat: Azalan" },
-          { value: "popular", label: "Popüler" },
-          { value: "rating", label: "En Çok Yorum" },
-        ].map((option) => (
-          <Button
-            key={option.value}
-            variant={currentSort === option.value ? "secondary" : "ghost"}
-            size="sm"
-            className="text-xs"
-            onClick={() => updateFilter("sort", option.value)}
-          >
-            {option.label}
-          </Button>
-        ))}
-      </div>
-
-      {/* Gelişmiş Filtre Aç/Kapat */}
-      <button
-        onClick={() => setShowAdvanced(!showAdvanced)}
-        className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+      <Button
+        variant="outline"
+        size="sm"
+        className="mt-3 w-full"
+        onClick={() => onApply(min, max)}
       >
-        <ChevronDown className={`h-4 w-4 transition-transform ${showAdvanced ? "rotate-180" : ""}`} />
-        Gelişmiş Filtreler
-      </button>
+        Fiyatı uygula
+      </Button>
+    </>
+  );
+}
 
-      {/* Gelişmiş Filtreler */}
-      {showAdvanced && (
-        <div className="flex flex-wrap items-end gap-4 p-4 bg-muted/30 rounded-xl">
-          {/* Fiyat Aralığı */}
-          <div className="flex items-end gap-2">
-            <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Min Fiyat (TL)</label>
-              <Input
-                type="number"
-                placeholder="0"
-                value={minPrice}
-                onChange={(e) => setMinPrice(e.target.value)}
-                className="w-28 h-9"
-                min={0}
-              />
-            </div>
-            <span className="text-muted-foreground pb-2">—</span>
-            <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Max Fiyat (TL)</label>
-              <Input
-                type="number"
-                placeholder="10000"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
-                className="w-28 h-9"
-                min={0}
-              />
-            </div>
-            <Button size="sm" variant="secondary" className="h-9" onClick={handlePriceFilter}>
-              Uygula
-            </Button>
+/** Etiketli onay kutusu satırı — tüm gruplar aynı ritmi kullanır */
+function CheckRow({
+  id,
+  label,
+  count,
+  checked,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  count?: number;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
+  return (
+    <div className="flex items-center gap-3 py-1.5">
+      <Checkbox
+        id={id}
+        checked={checked}
+        onCheckedChange={(v) => onChange(v === true)}
+      />
+      <label
+        htmlFor={id}
+        className="flex flex-1 cursor-pointer items-baseline justify-between gap-3 text-sm"
+      >
+        <span>{label}</span>
+        {count !== undefined && (
+          <span className="text-xs tabular-nums text-muted-foreground">{count}</span>
+        )}
+      </label>
+    </div>
+  );
+}
+
+export function ProductFilters({
+  categories,
+  materials,
+  onNavigate,
+  showHeader = true,
+}: ProductFiltersProps) {
+  const { current, setParams, activeCount, clearAll } = useFilterState();
+
+  function update(updates: Record<string, string | null>) {
+    setParams(updates);
+    onNavigate?.();
+  }
+
+  return (
+    <div>
+      {showHeader ? (
+        <div className="flex items-center justify-between border-b border-border pb-4">
+          <h2 className="flex items-center gap-2 text-sm font-medium">
+            <Sliders className="h-4 w-4" aria-hidden />
+            Filtreler
+            {activeCount > 0 && (
+              <span className="text-xs font-normal text-muted-foreground">
+                ({activeCount})
+              </span>
+            )}
+          </h2>
+          {activeCount > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                clearAll();
+                onNavigate?.();
+              }}
+              className="text-xs text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
+            >
+              Temizle
+            </button>
+          )}
+        </div>
+      ) : (
+        activeCount > 0 && (
+          <div className="flex justify-end pb-2">
+            <button
+              type="button"
+              onClick={() => {
+                clearAll();
+                onNavigate?.();
+              }}
+              className="text-xs text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
+            >
+              Filtreleri temizle ({activeCount})
+            </button>
           </div>
-
-          {/* Materyal Filtresi */}
-          {materials.length > 0 && (
-            <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Materyal</label>
-              <div className="flex flex-wrap gap-1.5">
-                {materials.map((mat) => (
-                  <Button
-                    key={mat}
-                    variant={currentMaterial === mat ? "default" : "outline"}
-                    size="sm"
-                    className="h-9 text-xs"
-                    onClick={() => updateFilter("material", currentMaterial === mat ? "" : mat)}
-                  >
-                    {mat}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        )
       )}
 
-      {/* Aktif Filtreler */}
-      {hasActiveFilters && (
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-muted-foreground">Aktif filtreler:</span>
-          {currentSearch && (
-            <Badge variant="secondary" className="gap-1">
-              Arama: {currentSearch}
-              <X className="h-3 w-3 cursor-pointer" onClick={() => updateFilter("search", "")} />
-            </Badge>
-          )}
-          {currentCategory && (
-            <Badge variant="secondary" className="gap-1">
-              Kategori: {currentCategory}
-              <X className="h-3 w-3 cursor-pointer" onClick={() => updateFilter("category", "")} />
-            </Badge>
-          )}
-          {currentMaterial && (
-            <Badge variant="secondary" className="gap-1">
-              Materyal: {currentMaterial}
-              <X className="h-3 w-3 cursor-pointer" onClick={() => updateFilter("material", "")} />
-            </Badge>
-          )}
-          {(currentMinPrice || currentMaxPrice) && (
-            <Badge variant="secondary" className="gap-1">
-              Fiyat: {currentMinPrice || "0"} - {currentMaxPrice || "max"} TL
-              <X
-                className="h-3 w-3 cursor-pointer"
-                onClick={() => {
-                  setMinPrice("");
-                  setMaxPrice("");
-                  updateMultipleFilters({ minPrice: "", maxPrice: "" });
-                }}
-              />
-            </Badge>
-          )}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-xs text-red-500"
-            onClick={clearAllFilters}
-          >
-            Tümü Temizle
-          </Button>
-        </div>
-      )}
+      <Accordion
+        type="multiple"
+        defaultValue={["ozellestirme", "kategori", "fiyat"]}
+        className="w-full"
+      >
+        {/* Özelleştirme — ADJY'yi ayıran filtre, en üstte */}
+        <AccordionItem value="ozellestirme" className="border-b border-border">
+          <AccordionTrigger className="py-4 text-sm hover:no-underline">
+            Özelleştirme
+          </AccordionTrigger>
+          <AccordionContent className="pb-4">
+            <CheckRow
+              id="f-customizable"
+              label="Özelleştirilebilir"
+              checked={current.customizable}
+              onChange={(v) => update({ customizable: v ? "true" : null })}
+            />
+            <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+              Ölçüleri kendi alanına göre değiştirilebilen parametrik ürünler.
+            </p>
+          </AccordionContent>
+        </AccordionItem>
+
+        {/* Kategori */}
+        {categories.length > 0 && (
+          <AccordionItem value="kategori" className="border-b border-border">
+            <AccordionTrigger className="py-4 text-sm hover:no-underline">
+              Kategori
+            </AccordionTrigger>
+            <AccordionContent className="pb-4">
+              {categories.map((cat) => (
+                <CheckRow
+                  key={cat.id}
+                  id={`f-cat-${cat.slug}`}
+                  label={cat.name}
+                  count={cat.productCount}
+                  checked={current.category === cat.slug}
+                  onChange={(v) => update({ category: v ? cat.slug : null })}
+                />
+              ))}
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
+        {/* Fiyat */}
+        <AccordionItem value="fiyat" className="border-b border-border">
+          <AccordionTrigger className="py-4 text-sm hover:no-underline">
+            Fiyat
+          </AccordionTrigger>
+          <AccordionContent className="pb-4">
+            <PriceRange
+              key={`${current.minPrice}-${current.maxPrice}`}
+              initialMin={current.minPrice}
+              initialMax={current.maxPrice}
+              onApply={(min, max) =>
+                update({ minPrice: min || null, maxPrice: max || null })
+              }
+            />
+          </AccordionContent>
+        </AccordionItem>
+
+        {/* Malzeme */}
+        {materials.length > 0 && (
+          <AccordionItem value="malzeme" className="border-b border-border">
+            <AccordionTrigger className="py-4 text-sm hover:no-underline">
+              Malzeme
+            </AccordionTrigger>
+            <AccordionContent className="pb-4">
+              {materials.map((mat) => (
+                <CheckRow
+                  key={mat}
+                  id={`f-mat-${mat}`}
+                  label={mat}
+                  checked={current.material === mat}
+                  onChange={(v) => update({ material: v ? mat : null })}
+                />
+              ))}
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
+        {/* Durum */}
+        <AccordionItem value="durum" className="border-b border-border">
+          <AccordionTrigger className="py-4 text-sm hover:no-underline">
+            Durum
+          </AccordionTrigger>
+          <AccordionContent className="pb-4">
+            <CheckRow
+              id="f-instock"
+              label="Stokta olanlar"
+              checked={current.inStock}
+              onChange={(v) => update({ inStock: v ? "true" : null })}
+            />
+            <CheckRow
+              id="f-featured"
+              label="Öne çıkanlar"
+              checked={current.featured}
+              onChange={(v) => update({ featured: v ? "true" : null })}
+            />
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 }

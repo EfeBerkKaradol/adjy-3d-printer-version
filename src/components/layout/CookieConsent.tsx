@@ -1,52 +1,70 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Cookie } from "lucide-react";
+import { useHydrated } from "@/hooks/useClientState";
+
+// ==========================================
+// ÇEREZ BİLDİRİMİ
+// Sayfanın altında ince bir şerit — ilk ekranı
+// kapatmaz. Karar localStorage'da saklanır.
+// ==========================================
+
+const STORAGE_KEY = "cookie-consent";
+
+function readConsent(): string | null {
+  try {
+    return localStorage.getItem(STORAGE_KEY);
+  } catch {
+    // Gizli sekme / engellenmiş depolama: bildirim gösterilmez
+    return "unavailable";
+  }
+}
 
 export function CookieConsent() {
-  const [visible, setVisible] = useState(false);
+  const hydrated = useHydrated();
+  const [decided, setDecided] = useState(false);
 
-  useEffect(() => {
-    const consent = localStorage.getItem("cookie-consent");
-    if (!consent) {
-      setVisible(true);
+  // Hidrasyondan önce sunucuyla aynı çıktıyı ver (hiçbir şey)
+  const alreadyDecided = hydrated ? Boolean(readConsent()) : true;
+  const visible = hydrated && !alreadyDecided && !decided;
+
+  function decide(value: "accepted" | "rejected") {
+    try {
+      localStorage.setItem(STORAGE_KEY, value);
+    } catch {
+      // Depolama yoksa da bildirimi kapat
     }
-  }, []);
-
-  const handleAccept = () => {
-    localStorage.setItem("cookie-consent", "accepted");
-    setVisible(false);
-  };
-
-  const handleReject = () => {
-    localStorage.setItem("cookie-consent", "rejected");
-    setVisible(false);
-  };
+    setDecided(true);
+  }
 
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-4">
-      <div className="container mx-auto max-w-4xl">
-        <div className="bg-card border border-border/40 rounded-xl p-4 shadow-lg flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <Cookie className="h-5 w-5 shrink-0 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground flex-1">
-            Deneyiminizi iyilestirmek icin cerezler kullaniyoruz.{" "}
-            <Link href="/privacy" className="underline hover:text-foreground">
-              Gizlilik politikamizi
-            </Link>{" "}
-            inceleyebilirsiniz.
-          </p>
-          <div className="flex gap-2 shrink-0">
-            <Button variant="outline" size="sm" onClick={handleReject}>
-              Reddet
-            </Button>
-            <Button size="sm" onClick={handleAccept}>
-              Kabul Et
-            </Button>
-          </div>
+    <div
+      className="fixed inset-x-0 bottom-0 z-[60] border-t border-border bg-background/95 backdrop-blur-md"
+      role="region"
+      aria-label="Çerez bildirimi"
+    >
+      <div className="adjy-container flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-muted-foreground">
+          Deneyiminizi iyileştirmek için çerez kullanıyoruz.{" "}
+          <Link
+            href="/cerez-politikasi"
+            className="underline underline-offset-4 transition-colors hover:text-foreground"
+          >
+            Çerez politikamızı
+          </Link>{" "}
+          inceleyebilirsiniz.
+        </p>
+        <div className="flex shrink-0 gap-2">
+          <Button variant="outline" size="sm" onClick={() => decide("rejected")}>
+            Reddet
+          </Button>
+          <Button size="sm" onClick={() => decide("accepted")}>
+            Kabul et
+          </Button>
         </div>
       </div>
     </div>
