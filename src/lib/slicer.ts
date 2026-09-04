@@ -13,9 +13,12 @@
 
 // --- Dosya ve boyut sınırları (referans servisle birebir) ---
 export const ACCEPTED_EXTENSIONS = [".stl"];
-export const MAX_FILE_SIZE_MB = 9;
+export const MAX_FILE_SIZE_MB = 25;
 export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 export const MAX_MODEL_DIMENSION_MM = 300;
+
+// Dosya limitini aşan müşteriler için alternatif teklif kanalı
+export const BIG_FILE_CONTACT_EMAIL = "info@adjy3d.com";
 
 // --- Baskı sabitleri ---
 const WALL_THICKNESS_MM = 1.2; // 3 çevre duvarı × 0.4mm nozzle
@@ -75,14 +78,15 @@ export const MATERIALS: Material[] = [
 export interface LayerHeightOption {
   value: number; // mm
   label: string;
+  hint: string; // müşteri dostu açıklama (teknik olmayan)
   flowRate: number; // mm³/s ortalama ekstrüzyon debisi
   priceMultiplier: number; // birim fiyat çarpanı (1 = etkisiz)
 }
 
 export const LAYER_HEIGHTS: LayerHeightOption[] = [
-  { value: 0.2, label: "Yüksek", flowRate: 13, priceMultiplier: 1.3 },
-  { value: 0.4, label: "Orta", flowRate: 20, priceMultiplier: 1.15 },
-  { value: 0.6, label: "Standart", flowRate: 28, priceMultiplier: 1 },
+  { value: 0.2, label: "Yüksek", hint: "Detaylı · yavaş · daha pahalı", flowRate: 13, priceMultiplier: 1.3 },
+  { value: 0.4, label: "Orta", hint: "Dengeli", flowRate: 20, priceMultiplier: 1.15 },
+  { value: 0.6, label: "Standart", hint: "Hızlı · ekonomik · büyük yüzey", flowRate: 28, priceMultiplier: 1 },
 ];
 
 export function getLayerPriceMultiplier(layerHeight: number): number {

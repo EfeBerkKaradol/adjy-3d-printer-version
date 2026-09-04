@@ -37,12 +37,14 @@ import {
   RotateCcw,
   ShoppingCart,
   Check,
+  Mail,
 } from "lucide-react";
 import {
   ACCEPTED_EXTENSIONS,
   MAX_FILE_SIZE_BYTES,
   MAX_FILE_SIZE_MB,
   MAX_MODEL_DIMENSION_MM,
+  BIG_FILE_CONTACT_EMAIL,
   MATERIALS,
   LAYER_HEIGHTS,
   INFILL_OPTIONS,
@@ -88,6 +90,7 @@ interface ModelData {
 export function PriceCalculator() {
   const [model, setModel] = useState<ModelData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [tooBig, setTooBig] = useState(false);
   const [loading, setLoading] = useState(false);
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -172,6 +175,7 @@ export function PriceCalculator() {
 
   const handleFile = useCallback(async (file: File) => {
     setError(null);
+    setTooBig(false);
 
     const lowerName = file.name.toLowerCase();
     if (!ACCEPTED_EXTENSIONS.some((ext) => lowerName.endsWith(ext))) {
@@ -184,6 +188,7 @@ export function PriceCalculator() {
       setError(
         `Dosya boyutu ${sizeMB}MB. En fazla ${MAX_FILE_SIZE_MB}MB boyutunda dosya yükleyebilirsiniz.`
       );
+      setTooBig(true);
       return;
     }
 
@@ -255,6 +260,7 @@ export function PriceCalculator() {
     setUploadedUrl(null);
     setCartError(null);
     setError(null);
+    setTooBig(false);
     if (inputRef.current) inputRef.current.value = "";
   };
 
@@ -465,6 +471,18 @@ export function PriceCalculator() {
                   Yalnızca .stl · En fazla {MAX_FILE_SIZE_MB}MB · Maks.{" "}
                   {MAX_MODEL_DIMENSION_MM}mm
                 </p>
+                <p className="mt-1.5 text-xs text-muted-foreground/80">
+                  Dosyanız daha büyükse{" "}
+                  <a
+                    href={`mailto:${BIG_FILE_CONTACT_EMAIL}?subject=${encodeURIComponent(
+                      "Büyük dosya baskı teklifi"
+                    )}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="font-medium text-foreground underline underline-offset-2 hover:no-underline"
+                  >
+                    WeTransfer / Drive ile teklif alın
+                  </a>
+                </p>
               </div>
             )}
           </div>
@@ -497,6 +515,33 @@ export function PriceCalculator() {
             <div>
               <p className="font-medium text-destructive">Dosya yüklenemedi</p>
               <p className="text-muted-foreground">{error}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Büyük dosya için alternatif teklif kanalı */}
+        {tooBig && (
+          <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/40 p-4 text-sm">
+            <Mail className="mt-0.5 h-5 w-5 shrink-0 text-foreground" />
+            <div className="space-y-2">
+              <p className="font-medium">Dosyanız {MAX_FILE_SIZE_MB}MB&apos;tan büyük mü?</p>
+              <p className="text-muted-foreground">
+                Büyük maket, obje veya mimari modeliniz için dosyanızı
+                WeTransfer / Google Drive bağlantısıyla bize gönderin, size özel
+                teklif hazırlayalım.
+              </p>
+              <Button asChild variant="outline" size="sm" className="mt-1 gap-1.5">
+                <a
+                  href={`mailto:${BIG_FILE_CONTACT_EMAIL}?subject=${encodeURIComponent(
+                    "Büyük dosya baskı teklifi"
+                  )}&body=${encodeURIComponent(
+                    "Merhaba, dosya bağlantım (WeTransfer/Drive):\n\nMalzeme:\nRenk:\nAdet:\nNot:"
+                  )}`}
+                >
+                  <Mail className="h-3.5 w-3.5" />
+                  Dosya bağlantısıyla teklif al
+                </a>
+              </Button>
             </div>
           </div>
         )}
@@ -619,28 +664,39 @@ export function PriceCalculator() {
             {/* Baskı kalitesi */}
             <div className="space-y-2">
               <Label>Baskı Kalitesi</Label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="space-y-2">
                 {LAYER_HEIGHTS.map((l) => (
                   <button
                     key={l.value}
                     type="button"
                     onClick={() => setLayerHeight(l.value)}
-                    className={`rounded-lg border px-2 py-2.5 text-center transition-colors ${
+                    className={`flex w-full items-center justify-between gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors ${
                       layerHeight === l.value
                         ? "border-foreground bg-foreground text-background"
                         : "border-border hover:border-foreground/40"
                     }`}
                   >
-                    <p className="text-sm font-semibold">{l.value}mm</p>
-                    <p
+                    <span className="flex items-baseline gap-2">
+                      <span className="text-sm font-semibold">{l.value}mm</span>
+                      <span
+                        className={`text-xs ${
+                          layerHeight === l.value
+                            ? "text-background/70"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        {l.label}
+                      </span>
+                    </span>
+                    <span
                       className={`text-xs ${
                         layerHeight === l.value
                           ? "text-background/70"
                           : "text-muted-foreground"
                       }`}
                     >
-                      {l.label}
-                    </p>
+                      {l.hint}
+                    </span>
                   </button>
                 ))}
               </div>
