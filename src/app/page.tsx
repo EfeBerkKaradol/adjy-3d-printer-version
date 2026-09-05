@@ -212,7 +212,12 @@ async function getSpaceScenes(): Promise<SpaceScene[]> {
             maxValue: { not: null },
           },
           orderBy: { sortOrder: "asc" },
-          select: { minValue: true, maxValue: true, unit: true },
+          select: {
+            displayName: true,
+            minValue: true,
+            maxValue: true,
+            defaultValue: true,
+          },
           take: 1,
         },
       },
@@ -225,10 +230,19 @@ async function getSpaceScenes(): Promise<SpaceScene[]> {
       if (seen.has(row.category.slug)) continue;
       seen.add(row.category.slug);
 
+      // Ölçek çizimi yalnızca gerçek bir aralık varsa çizilir
       const param = row.parameters[0];
-      const dimension =
-        param && param.minValue !== null && param.maxValue !== null
-          ? `${param.minValue} – ${param.maxValue} ${param.unit ?? "mm"}`
+      const width =
+        param &&
+        param.minValue !== null &&
+        param.maxValue !== null &&
+        param.maxValue > param.minValue
+          ? {
+              min: param.minValue,
+              max: param.maxValue,
+              default: Number(param.defaultValue) || param.minValue,
+              label: param.displayName,
+            }
           : null;
 
       scenes.push({
@@ -240,7 +254,7 @@ async function getSpaceScenes(): Promise<SpaceScene[]> {
           slug: row.slug,
           thumbnailUrl: row.thumbnailUrl,
         },
-        dimension,
+        width,
       });
       if (scenes.length === 4) break;
     }

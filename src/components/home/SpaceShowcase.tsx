@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ProductImageFallback } from "@/components/product/ProductImageFallback";
+import { ScaleDiagram } from "./ScaleDiagram";
 import { ArrowRight } from "lucide-react";
 
 // ==========================================
@@ -15,9 +16,10 @@ import { ArrowRight } from "lucide-react";
 // bağlıdır; her sekme o kategoriden gerçek bir ürün
 // gösterir ve kategoriye götürür.
 //
-// Not: elimizde iç mekân fotoğrafı yok. Sahte bir
-// yaşam alanı görseli üretmek yerine ürünün kendisi
-// ve gerçek ölçü aralığı gösteriliyor.
+// Sahte bir yaşam alanı görseli ya da ölçeği yanlış bir
+// 3D oda yerine, ürünün gerçek ölçü aralığı A4 kâğıtla
+// aynı ölçekte çizilir. Ziyaretçi büyüklüğü tahmin
+// etmez, karşılaştırarak görür.
 // ==========================================
 
 export interface SpaceScene {
@@ -30,8 +32,13 @@ export interface SpaceScene {
     slug: string;
     thumbnailUrl: string | null;
   };
-  /** Bu üründe değiştirilebilen ölçü aralığı, varsa */
-  dimension: string | null;
+  /** Değiştirilebilir genişlik — ölçek çizimi bundan beslenir */
+  width: {
+    min: number;
+    max: number;
+    default: number;
+    label: string;
+  } | null;
 }
 
 interface SpaceShowcaseProps {
@@ -92,7 +99,7 @@ export function SpaceShowcase({ scenes }: SpaceShowcaseProps) {
         </div>
 
         {/* Sahne */}
-        <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,8fr)_minmax(0,4fr)] lg:gap-14">
+        <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-14">
           <div className="relative aspect-[16/10] overflow-hidden bg-surface">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
@@ -124,14 +131,25 @@ export function SpaceShowcase({ scenes }: SpaceShowcaseProps) {
               {scene.product.name}
             </h3>
 
-            {scene.dimension && (
-              <dl className="mt-6 border-t border-border pt-4">
-                <dt className="adjy-eyebrow">Değiştirilebilir ölçü</dt>
-                <dd className="mt-2 font-mono text-lg tabular-nums">{scene.dimension}</dd>
-              </dl>
+            {scene.width ? (
+              <div className="mt-7 border-t border-border pt-6">
+                <p className="adjy-eyebrow mb-4">
+                  {scene.width.label} · {scene.width.min}–{scene.width.max} mm
+                </p>
+                <ScaleDiagram
+                  min={scene.width.min}
+                  max={scene.width.max}
+                  current={scene.width.default}
+                  label={scene.product.name}
+                />
+              </div>
+            ) : (
+              <p className="mt-7 border-t border-border pt-6 text-sm text-muted-foreground">
+                Bu ürün sabit ölçüde üretilir.
+              </p>
             )}
 
-            <div className="mt-8 flex flex-col gap-3">
+            <div className="mt-8 flex flex-col items-start gap-3">
               <Link
                 href={`/products/${scene.product.slug}`}
                 className="group inline-flex items-center gap-2 border-b border-foreground pb-1 text-sm font-medium transition-colors hover:border-muted-foreground hover:text-muted-foreground"
