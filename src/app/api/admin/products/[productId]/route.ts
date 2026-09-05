@@ -56,8 +56,20 @@ export async function PUT(
     name, slug, description, basePrice, categoryId,
     materialType, materialWeight, printTimeEst,
     thumbnailUrl, modelFileUrl, gallery,
-    isActive, featured,
+    isActive, featured, stockQty,
   } = body;
+
+  // Stok negatif olamaz ve tam sayı olmalı — yoksa alan hiç yazılmaz
+  const parsedStock =
+    stockQty === undefined || stockQty === null || stockQty === ""
+      ? undefined
+      : Math.max(0, Math.trunc(Number(stockQty)));
+  if (parsedStock !== undefined && !Number.isFinite(parsedStock)) {
+    return NextResponse.json(
+      { error: "Stok adedi geçerli bir sayı olmalı" },
+      { status: 400 }
+    );
+  }
 
   try {
     // Slug çakışma kontrolü
@@ -89,6 +101,7 @@ export async function PUT(
         ...(gallery !== undefined && { gallery }),
         ...(isActive !== undefined && { isActive }),
         ...(featured !== undefined && { featured }),
+        ...(parsedStock !== undefined && { stockQty: parsedStock }),
       },
     });
 

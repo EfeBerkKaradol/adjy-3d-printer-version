@@ -36,6 +36,7 @@ export default function EditProductPage() {
     materialType: "",
     materialWeight: "",
     printTimeEst: "",
+    stockQty: "",
     thumbnailUrl: "",
     modelFileUrl: "",
     isActive: true,
@@ -58,6 +59,7 @@ export default function EditProductPage() {
           materialType: p.materialType || "",
           materialWeight: p.materialWeight ? String(p.materialWeight) : "",
           printTimeEst: p.printTimeEst ? String(p.printTimeEst) : "",
+          stockQty: p.stockQty !== null && p.stockQty !== undefined ? String(p.stockQty) : "",
           thumbnailUrl: p.thumbnailUrl || "",
           modelFileUrl: p.modelFileUrl || "",
           isActive: p.isActive ?? true,
@@ -82,6 +84,7 @@ export default function EditProductPage() {
           basePrice: Number(form.basePrice),
           materialWeight: form.materialWeight ? Number(form.materialWeight) : null,
           printTimeEst: form.printTimeEst ? Number(form.printTimeEst) : null,
+          stockQty: form.stockQty === "" ? undefined : Number(form.stockQty),
         }),
       });
 
@@ -245,6 +248,22 @@ export default function EditProductPage() {
             <div>
               <label className="text-sm font-medium mb-1.5 block">Baskı Süresi (dk)</label>
               <Input type="number" value={form.printTimeEst} onChange={(e) => setForm((p) => ({ ...p, printTimeEst: e.target.value }))} />
+            </div>
+            <div>
+              <label htmlFor="stockQty" className="text-sm font-medium mb-1.5 block">
+                Stok Adedi
+              </label>
+              <Input
+                id="stockQty"
+                type="number"
+                min={0}
+                step={1}
+                value={form.stockQty}
+                onChange={(e) => setForm((p) => ({ ...p, stockQty: e.target.value }))}
+              />
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                0 girilirse ürün sitede &ldquo;Stokta yok&rdquo; görünür ve sepete eklenemez.
+              </p>
             </div>
           </div>
         </div>

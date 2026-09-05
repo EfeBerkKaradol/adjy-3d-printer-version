@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
   const {
     name, slug, description, basePrice, categoryId,
     materialType, materialWeight, printTimeEst,
-    thumbnailUrl, modelFileUrl,
+    thumbnailUrl, modelFileUrl, stockQty,
   } = body;
 
   if (!name || !slug || !basePrice || !categoryId) {
@@ -105,6 +105,12 @@ export async function POST(request: NextRequest) {
         printTimeEst: printTimeEst || null,
         thumbnailUrl: thumbnailUrl || null,
         modelFileUrl: modelFileUrl || null,
+        // Stok girilmezse şema varsayılanı (999) kullanılır
+        ...(stockQty !== undefined &&
+          stockQty !== null &&
+          stockQty !== "" && {
+            stockQty: Math.max(0, Math.trunc(Number(stockQty))),
+          }),
       },
     });
 
