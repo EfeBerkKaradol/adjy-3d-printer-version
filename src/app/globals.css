@@ -78,57 +78,62 @@
   /* İçerik genişliği */
   --container-max: 90rem; /* 1440px */
 
-  /* --- Açık tema: kırık beyaz zemin, mürekkep siyahı metin --- */
-  --background: oklch(0.99 0.001 264);
-  --foreground: oklch(0.17 0.008 264);
+  /* --- Açık tema (varsayılan) ---
+     Sıcak kırık beyaz zemin, üstünde beyaz yüzeyler.
+     Sayfanın %70-80'i bu nötr tonlarda kalır; neon vurgular
+     yalnızca CTA, hover, seçili durum ve göstergelerde çıkar. */
+  --background: #F5F4F0;
+  --foreground: #171717;
 
-  --surface: oklch(0.972 0.002 264);
-  --surface-2: oklch(0.948 0.003 264);
+  /* Yükseltilmiş yüzey (kart, panel) zeminden daha açık */
+  --surface: #FFFFFF;
+  /* Çukur yüzey (görsel kuyusu, ayraç bandı) zeminden daha koyu */
+  --surface-2: #EBE9E3;
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.17 0.008 264);
+  --card: #FFFFFF;
+  --card-foreground: #171717;
 
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.17 0.008 264);
+  --popover: #FFFFFF;
+  --popover-foreground: #171717;
 
-  --primary: oklch(0.17 0.008 264);
-  --primary-foreground: oklch(0.99 0.001 264);
+  --primary: #171717;
+  --primary-foreground: #F5F4F0;
 
-  --secondary: oklch(0.962 0.003 264);
-  --secondary-foreground: oklch(0.17 0.008 264);
+  --secondary: #EDEBE5;
+  --secondary-foreground: #171717;
 
-  --muted: oklch(0.962 0.003 264);
-  --muted-foreground: oklch(0.505 0.011 264);
+  --muted: #EDEBE5;
+  --muted-foreground: #6F6F6F;
 
-  --accent: oklch(0.955 0.004 264);
-  --accent-foreground: oklch(0.17 0.008 264);
+  --accent: #E9E7E0;
+  --accent-foreground: #171717;
 
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.99 0.001 264);
+  --destructive: oklch(0.55 0.22 27);
+  --destructive-foreground: #FFFFFF;
 
-  --border: oklch(0.905 0.004 264);
-  --input: oklch(0.895 0.005 264);
-  --ring: oklch(0.17 0.008 264);
+  --border: #E2E0D9;
+  --input: #D6D3CA;
+  --ring: #171717;
 
-  /* Neon vurgular — açık temada okunabilirlik için koyulaştırılmış */
-  --brand-violet: oklch(0.53 0.24 296);
-  --brand-lime: oklch(0.62 0.19 140);
-  --brand-amber: oklch(0.62 0.16 68);
+  /* Marka vurguları — açık zeminde okunacak kadar koyulaştırılmış */
+  --brand-violet: #5B34D6;
+  --brand-lime: #2F7D42;
+  --brand-amber: #9A6212;
 
-  --chart-1: oklch(0.17 0.008 264);
-  --chart-2: oklch(0.32 0.008 264);
-  --chart-3: oklch(0.47 0.009 264);
-  --chart-4: oklch(0.62 0.010 264);
-  --chart-5: oklch(0.76 0.008 264);
+  --chart-1: #171717;
+  --chart-2: #3D3D3D;
+  --chart-3: #6F6F6F;
+  --chart-4: #9A9A96;
+  --chart-5: #C4C2BB;
 
-  --sidebar: oklch(0.972 0.002 264);
-  --sidebar-foreground: oklch(0.17 0.008 264);
-  --sidebar-primary: oklch(0.17 0.008 264);
-  --sidebar-primary-foreground: oklch(0.99 0.001 264);
-  --sidebar-accent: oklch(0.955 0.004 264);
-  --sidebar-accent-foreground: oklch(0.17 0.008 264);
-  --sidebar-border: oklch(0.905 0.004 264);
-  --sidebar-ring: oklch(0.17 0.008 264);
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #171717;
+  --sidebar-primary: #171717;
+  --sidebar-primary-foreground: #F5F4F0;
+  --sidebar-accent: #E9E7E0;
+  --sidebar-accent-foreground: #171717;
+  --sidebar-border: #E2E0D9;
+  --sidebar-ring: #171717;
 }
 
 .dark {

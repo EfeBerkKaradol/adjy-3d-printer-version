@@ -96,7 +96,7 @@ export default function RootLayout({
           <WishlistProvider>
             <ThemeProvider
               attribute="class"
-              defaultTheme="dark"
+              defaultTheme="light"
               enableSystem
               disableTransitionOnChange
             >

@@ -43,3 +43,21 @@ export function useScrolled(threshold = 8): boolean {
     () => false
   );
 }
+
+/**
+ * Bir medya sorgusu eşleşiyor mu?
+ * Sunucuda her zaman false döner; ağır bileşenleri (ör. 3D sahne)
+ * yalnızca eşleşen ekranlarda MOUNT etmek için kullanılır.
+ * CSS ile gizlemek yetmez: gizli bir bileşen de kodunu indirir.
+ */
+export function useMediaQuery(query: string): boolean {
+  return useSyncExternalStore(
+    (onChange) => {
+      const mql = window.matchMedia(query);
+      mql.addEventListener("change", onChange);
+      return () => mql.removeEventListener("change", onChange);
+    },
+    () => window.matchMedia(query).matches,
+    () => false
+  );
+}
