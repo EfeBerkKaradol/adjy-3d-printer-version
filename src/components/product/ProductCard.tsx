@@ -59,7 +59,7 @@ export function ProductCard({ product, index = 0, priority = false }: ProductCar
     e.stopPropagation();
 
     if (customizable) {
-      router.push(`/customize/${product.id}`);
+      router.push(`/configure/${product.id}`);
       return;
     }
 

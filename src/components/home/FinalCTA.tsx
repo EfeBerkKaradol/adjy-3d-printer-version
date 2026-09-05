@@ -35,7 +35,7 @@ export function FinalCTA() {
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
             <Link
-              href="/products?customizable=true"
+              href="/configure"
               className="inline-flex h-13 items-center justify-center gap-2 rounded-md border border-[#F5F4F0]/25 px-8 text-[0.9375rem] font-medium text-[#F5F4F0] transition-colors hover:border-[#F5F4F0]/60"
             >
               <Sliders className="h-4 w-4" aria-hidden />

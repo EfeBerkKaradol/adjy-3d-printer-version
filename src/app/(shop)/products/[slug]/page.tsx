@@ -356,7 +356,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             <div className="mt-5 space-y-3">
               {isCustomizable && (
                 <Button asChild size="xl" className="w-full">
-                  <Link href={`/customize/${product.id}`}>
+                  <Link href={`/configure/${product.id}`}>
                     <Sliders className="h-4 w-4" aria-hidden />
                     Ölçüleri özelleştir
                   </Link>

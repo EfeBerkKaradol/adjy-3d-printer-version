@@ -181,7 +181,7 @@ export function HeroExperience({ product }: HeroExperienceProps) {
 
         <div className="mt-8 flex flex-col gap-3">
           <Button asChild size="xl">
-            <Link href={`/customize/${product.id}`}>
+            <Link href={`/configure/${product.id}`}>
               <Sliders className="h-4 w-4" aria-hidden />
               Kendi nesneni yapılandır
             </Link>
@@ -258,7 +258,7 @@ export function HeroExperience({ product }: HeroExperienceProps) {
                 className="mt-9 flex flex-wrap gap-3"
               >
                 <Button asChild size="xl">
-                  <Link href={`/customize/${product.id}`}>
+                  <Link href={`/configure/${product.id}`}>
                     <Sliders className="h-4 w-4" aria-hidden />
                     Bu nesneyi yapılandır
                   </Link>

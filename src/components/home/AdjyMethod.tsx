@@ -32,9 +32,9 @@ const STEPS = [
   },
   {
     title: "Yapılandır",
-    body: "Ölçüyü, malzemeyi ve detayı kendi alanına göre ayarla. 3D önizlemede sonucu anında gör.",
-    href: "/products?customizable=true",
-    action: "Parametrik ürünler",
+    body: "Nesneyi kendi alanına göre ayarla: ölçü, malzeme, renk. 3D önizlemede sonucu anında gör.",
+    href: "/configure",
+    action: "Yapılandırmaya başla",
   },
   {
     title: "Üret",

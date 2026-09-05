@@ -5,36 +5,39 @@ import { AdjyMethod } from "@/components/home/AdjyMethod";
 import { FeaturedObjects, type FeaturedObject } from "@/components/home/FeaturedObjects";
 import { ConfiguratorShowcase } from "@/components/home/ConfiguratorShowcase";
 import { SpaceShowcase, type SpaceScene } from "@/components/home/SpaceShowcase";
-import { HowItWorks } from "@/components/home/HowItWorks";
-import { CollectionsStrip } from "@/components/home/CollectionsStrip";
-import { CreateSection } from "@/components/home/CreateSection";
+import { DigitalToPhysical } from "@/components/home/DigitalToPhysical";
+import { ExploreShop, type ShopTeaserProduct } from "@/components/home/ExploreShop";
 import { FinalCTA } from "@/components/home/FinalCTA";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { WebSiteJsonLd } from "@/components/seo/JsonLd";
 import { getAbsoluteUrl } from "@/lib/url";
 import { getProductType } from "@/lib/productType";
-import type { HomeCategory } from "@/components/home/CategoryGrid";
 
-// Ana sayfa vitrini veritabanından beslenir; statik kalırsa yeni ürünler
-// ancak yeni bir deploy ile görünür. 5 dakikada bir tazelenir.
+// Vitrin veritabanından beslenir; statik kalırsa yeni ürünler ancak
+// yeni bir deploy ile görünür. 5 dakikada bir tazelenir.
 export const revalidate = 300;
 
 // ==========================================
-// ANA SAYFA
+// ANA SAYFA — KATALOG DEĞİL, HİKÂYE
 //
-// Tek bir hikâye: nesne → tasarım → ölçü → mekân → üretim.
+// Ziyaretçi sırayla şunu düşünmeli:
+//   "İlginç nesneler." →
+//   "Bunları değiştirebiliyor muyum?" →
+//   "Ben de bir tane yapılandırayım." →
+//   "Benimki kaça gelir?"
 //
-// 01/02  Hero + scroll anlatısı (gerçek parametrik model)
-// 03     ADJY nedir — keşfet / yapılandır / üret
-// 04     Öne çıkan nesneler
-// 05     Parametrik konfigüratör (gerçek Parameter kayıtları)
-// 06     Alanına göre
-// 07     Nasıl çalışır
-// 08     Koleksiyonlar
-// 09     Kendi modelini üret + kapanış
+// Yerleşim:
+//   01  Hero + scroll anlatısı (gerçek parametrik model)
+//   02  Keşfet / Yapılandır / Üret
+//   03  Öne çıkan nesneler (3-4 tane, katalog değil)
+//   04  Seninki yap — gerçek konfigüratör teaser'ı
+//   05  Alanına göre
+//   06  Dijitalden fiziksele
+//   07  Mağazaya geçiş
+//   08  Kapanış
 //
-// Veritabanına ulaşılamazsa her bölüm sessizce gizlenir;
-// hiçbir sorgu sayfayı düşürmez.
+// Ana sayfa her şeyi göstermez: merak uyandırıp derinlere yollar.
+// Veritabanına ulaşılamazsa bölümler sessizce gizlenir.
 // ==========================================
 
 const CARD_SELECT = {
@@ -45,32 +48,45 @@ const CARD_SELECT = {
   basePrice: true,
   thumbnailUrl: true,
   featured: true,
-  materialType: true,
   category: { select: { id: true, name: true, slug: true } },
   _count: { select: { reviews: true, parameters: true } },
 } as const;
 
-async function getShowcaseProducts() {
+/** Öne çıkan nesneler — ana sayfada yalnızca 4 tane */
+async function getFeaturedObjects(): Promise<FeaturedObject[]> {
   try {
     const featured = await prisma.product.findMany({
       where: { isActive: true, featured: true },
-      take: 6,
+      take: 4,
       orderBy: { createdAt: "desc" },
       select: CARD_SELECT,
     });
 
-    let products = featured;
-    if (products.length < 6) {
+    let rows = featured;
+    if (rows.length < 4) {
       const fillers = await prisma.product.findMany({
-        where: { isActive: true, id: { notIn: products.map((p) => p.id) } },
-        take: 6 - products.length,
+        where: {
+          isActive: true,
+          thumbnailUrl: { not: null },
+          id: { notIn: rows.map((p) => p.id) },
+        },
+        take: 4 - rows.length,
         orderBy: { createdAt: "desc" },
         select: CARD_SELECT,
       });
-      products = [...products, ...fillers];
+      rows = [...rows, ...fillers];
     }
 
-    return products.map((p) => ({ ...p, basePrice: Number(p.basePrice) }));
+    return rows.map((p) => ({
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      description: p.description,
+      basePrice: Number(p.basePrice),
+      thumbnailUrl: p.thumbnailUrl,
+      category: { name: p.category.name },
+      isCustomizable: p._count.parameters > 0,
+    }));
   } catch {
     return [];
   }
@@ -122,35 +138,6 @@ async function getHeroProduct(): Promise<HeroProduct | null> {
     };
   } catch {
     return null;
-  }
-}
-
-async function getCategories(): Promise<HomeCategory[]> {
-  try {
-    const categories = await prisma.category.findMany({
-      where: { isActive: true, parentId: null },
-      orderBy: { sortOrder: "asc" },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        _count: { select: { products: true } },
-      },
-    });
-
-    return categories
-      .filter((c) => c._count.products > 0)
-      .map((c) => ({
-        id: c.id,
-        name: c.name,
-        slug: c.slug,
-        description: c.description,
-        imageUrl: null,
-        productCount: c._count.products,
-      }));
-  } catch {
-    return [];
   }
 }
 
@@ -223,7 +210,6 @@ async function getSpaceScenes(): Promise<SpaceScene[]> {
       },
     });
 
-    // Kategori başına ilk ürün
     const seen = new Set<string>();
     const scenes: SpaceScene[] = [];
     for (const row of rows) {
@@ -264,66 +250,88 @@ async function getSpaceScenes(): Promise<SpaceScene[]> {
   }
 }
 
+/** Mağaza geçişi: küçük vitrin + katalog büyüklüğü */
+async function getShopTeaser(): Promise<{
+  products: ShopTeaserProduct[];
+  total: number;
+}> {
+  try {
+    const [rows, total] = await Promise.all([
+      prisma.product.findMany({
+        where: { isActive: true },
+        take: 6,
+        orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+        select: { id: true, name: true, slug: true, thumbnailUrl: true },
+      }),
+      prisma.product.count({ where: { isActive: true } }),
+    ]);
+    return { products: rows, total };
+  } catch {
+    return { products: [], total: 0 };
+  }
+}
+
 export default async function HomePage() {
-  const [showcaseProducts, heroProduct, categories, configurable, spaceScenes] =
+  const [featuredObjects, heroProduct, configurable, spaceScenes, shopTeaser] =
     await Promise.all([
-      getShowcaseProducts(),
+      getFeaturedObjects(),
       getHeroProduct(),
-      getCategories(),
       getConfigurableProduct(),
       getSpaceScenes(),
+      getShopTeaser(),
     ]);
 
   const baseUrl = getAbsoluteUrl();
-  const withImage = showcaseProducts.filter((p) => p.thumbnailUrl);
+  const withImage = featuredObjects.filter((p) => p.thumbnailUrl);
 
-  const featuredObjects: FeaturedObject[] = showcaseProducts.map((p) => ({
-    id: p.id,
-    name: p.name,
-    slug: p.slug,
-    description: p.description,
-    basePrice: p.basePrice,
-    thumbnailUrl: p.thumbnailUrl,
-    category: { name: p.category.name },
-    isCustomizable: (p._count?.parameters ?? 0) > 0,
-  }));
-
-  const methodProducts = (withImage.length >= 3 ? withImage : showcaseProducts)
+  const methodProducts = (withImage.length >= 3 ? withImage : featuredObjects)
     .slice(0, 3)
     .map((p) => ({ name: p.name, slug: p.slug, thumbnailUrl: p.thumbnailUrl }));
 
   return (
     <>
       <WebSiteJsonLd
-        name="ADJY — Parametrik 3D Baskı Nesneleri"
+        name="ADJY — Dijital tasarlanmış, senin ölçünde üretilen nesneler"
         url={baseUrl}
-        description="Dijital olarak tasarlandı, senin ölçünle yapılandırıldı, alanına göre üretildi. Hazır nesneleri satın al ya da kendi modelini ürettir."
+        description="Hazır nesneleri satın al ya da ölçüsünü kendin belirleyip ürettir. Dijital olarak tasarlandı, senin tarafından yapılandırıldı, alanına göre üretildi."
       />
 
-      {/* 01 + 02 — Hero ve scroll anlatısı */}
+      {/* 01 — Hero ve scroll anlatısı */}
       {heroProduct ? (
         <HeroExperience product={heroProduct} />
       ) : (
-        <Hero product={withImage[0] ?? showcaseProducts[0] ?? null} />
+        <Hero
+          product={
+            withImage[0]
+              ? {
+                  name: withImage[0].name,
+                  slug: withImage[0].slug,
+                  thumbnailUrl: withImage[0].thumbnailUrl,
+                  category: withImage[0].category,
+                }
+              : null
+          }
+        />
       )}
 
-      {/* 03 — ADJY nedir */}
+      {/* 02 — Keşfet / Yapılandır / Üret */}
       {methodProducts.length > 0 && <AdjyMethod products={methodProducts} />}
 
-      {/* 04 — Öne çıkan nesneler */}
+      {/* 03 — Öne çıkan nesneler */}
       {featuredObjects.length > 0 && <FeaturedObjects products={featuredObjects} />}
 
-      {/* 05 — Parametrik konfigüratör */}
+      {/* 04 — Seninki yap */}
       {configurable && (
         <section
           className="border-y border-border bg-surface"
-          aria-label="Parametrik konfigüratör"
+          aria-label="Nesneyi yapılandır"
         >
           <div className="adjy-container adjy-section">
             <SectionHeading
               eyebrow="Yapılandır"
-              title="Senin ölçün."
-              description="Tek tasarım, senin boyutların. Ölçüyü buradan denemeye başla; 3D önizleme ve fiyat konfigüratörde devralır."
+              title="Seninki yap."
+              description="Tek tasarım. Senin ölçülerin. Senin konfigürasyonun. Aşağıdan denemeye başla; 3D önizleme ve fiyat konfigüratörde devralır."
+              action={{ label: "Tüm yapılandırılabilir nesneler", href: "/configure" }}
               className="mb-12 md:mb-16"
             />
             <ConfiguratorShowcase product={configurable} />
@@ -331,24 +339,16 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* 06 — Alanına göre */}
+      {/* 05 — Alanına göre */}
       <SpaceShowcase scenes={spaceScenes} />
 
-      {/* 07 — Nasıl çalışır */}
-      <section className="adjy-container adjy-section" aria-label="Nasıl çalışır">
-        <SectionHeading
-          eyebrow="Süreç"
-          title="Sipariş sonrası"
-          className="mb-10 md:mb-14"
-        />
-        <HowItWorks />
-      </section>
+      {/* 06 — Dijitalden fiziksele */}
+      <DigitalToPhysical />
 
-      {/* 08 — Koleksiyonlar */}
-      <CollectionsStrip categories={categories} />
+      {/* 07 — Mağazaya geçiş */}
+      <ExploreShop products={shopTeaser.products} totalCount={shopTeaser.total} />
 
-      {/* 09 — Kendi modelini üret + kapanış */}
-      <CreateSection />
+      {/* 08 — Kapanış */}
       <FinalCTA />
     </>
   );

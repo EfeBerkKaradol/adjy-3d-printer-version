@@ -71,7 +71,7 @@ export function ConfiguratorShowcase({ product }: ConfiguratorShowcaseProps) {
     const qs = new URLSearchParams();
     for (const [key, value] of Object.entries(values)) qs.set(key, String(value));
     const query = qs.toString();
-    return `/customize/${product.id}${query ? `?${query}` : ""}`;
+    return `/configure/${product.id}${query ? `?${query}` : ""}`;
   }, [product.id, values]);
 
   if (sliders.length === 0) return null;

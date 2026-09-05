@@ -9,7 +9,7 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { ModeToggle } from "@/components/ui/mode-toggle";
-import { MAIN_NAV } from "@/lib/navigation";
+import { MAIN_NAV, SECONDARY_NAV } from "@/lib/navigation";
 import { ArrowUpRight, LogOut, MapPin, Package, Shield, User } from "lucide-react";
 
 // ==========================================
@@ -63,6 +63,25 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
                   </span>
                   <ArrowUpRight
                     className="h-4 w-4 shrink-0 text-muted-foreground"
+                    aria-hidden
+                  />
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          {/* İkincil bağlantılar — ana üç eylemin altında */}
+          <ul className="divide-y divide-border border-t border-border">
+            {SECONDARY_NAV.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  onClick={close}
+                  className="flex min-h-12 items-center justify-between gap-4 px-5 py-3 text-sm transition-colors active:bg-surface"
+                >
+                  {link.label}
+                  <ArrowUpRight
+                    className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
                     aria-hidden
                   />
                 </Link>

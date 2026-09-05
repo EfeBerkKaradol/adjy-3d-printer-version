@@ -37,7 +37,8 @@ async function getCategories(): Promise<HomeCategory[]> {
         slug: true,
         description: true,
         imageUrl: true,
-        _count: { select: { products: true } },
+        // Yalnızca aktif ürünler sayılır
+        _count: { select: { products: { where: { isActive: true } } } },
       },
     });
 

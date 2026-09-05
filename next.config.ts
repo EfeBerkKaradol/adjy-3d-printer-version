@@ -14,6 +14,18 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  // Konfigüratör /customize'tan /configure'a taşındı.
+  // Eski bağlantılar, yer imleri ve dış linkler kırılmasın diye kalıcı yönlendirme.
+  async redirects() {
+    return [
+      {
+        source: "/customize/:productId",
+        destination: "/configure/:productId",
+        permanent: true,
+      },
+    ];
+  },
+
   async headers() {
     return [
       // Guvenlik basiklari — tum route'lar

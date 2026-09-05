@@ -6,6 +6,7 @@ import { ProductFilters } from "@/components/product/ProductFilters";
 import { FilterDrawer } from "@/components/product/FilterDrawer";
 import { SortDropdown } from "@/components/product/SortDropdown";
 import { ActiveFilterChips } from "@/components/product/ActiveFilterChips";
+import { CategoryChips } from "@/components/product/CategoryChips";
 import { Pagination } from "@/components/ui/pagination";
 
 // ==========================================
@@ -92,10 +93,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   let totalCount = 0;
   let categories: { id: string; name: string; slug: string; productCount: number }[] = [];
   let materials: string[] = [];
+  let configurableCount = 0;
   let failed = false;
 
   async function loadProducts() {
-    const [rows, count, materialRows, categoryRows] = await Promise.all([
+    const [rows, count, materialRows, configurableCount, categoryRows] = await Promise.all([
       prisma.product.findMany({
         where,
         orderBy: buildOrderBy(params.sort),
@@ -119,6 +121,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         select: { materialType: true },
         distinct: ["materialType"],
       }),
+      prisma.product.count({
+        where: { isActive: true, parameters: { some: {} } },
+      }),
       prisma.category.findMany({
         where: { isActive: true, parentId: null },
         orderBy: { sortOrder: "asc" },
@@ -126,7 +131,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           id: true,
           name: true,
           slug: true,
-          _count: { select: { products: true } },
+          // Yalnızca aktif ürünler sayılır — aksi hâlde şeritteki sayı
+          // ile listedeki sonuç sayısı birbirini tutmuyor
+          _count: { select: { products: { where: { isActive: true } } } },
         },
       }),
     ]);
@@ -134,6 +141,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     return {
       products: rows.map((p) => ({ ...p, basePrice: Number(p.basePrice) })),
       count,
+      configurableCount,
       materials: materialRows
         .map((m) => m.materialType)
         .filter((m): m is string => Boolean(m))
@@ -155,6 +163,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     totalCount = data.count;
     materials = data.materials;
     categories = data.categories;
+    configurableCount = data.configurableCount;
   } catch (error) {
     console.error("Ürünler yüklenirken hata:", error);
     failed = true;
@@ -168,15 +177,24 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       <header className="max-w-2xl">
         <p className="adjy-eyebrow mb-4">Mağaza</p>
         <h1 className="adjy-display text-[clamp(2rem,4vw,3rem)]">
-          ADJY ürünlerini keşfet
+          Nesneleri keşfet
         </h1>
         <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
-          Ürünlerin çoğu parametrik: ölçüsünü kendi alanına göre değiştirip
-          üretime gönderebilirsin.
+          Üretime hazır ADJY nesneleri. Çoğu parametrik — beğendiğini kendi
+          ölçünde de ürettirebilirsin.
         </p>
       </header>
 
-      <div className="mt-10 grid gap-10 md:mt-14 lg:grid-cols-[248px_minmax(0,1fr)] lg:gap-14">
+      <div className="mt-10 md:mt-12">
+        <Suspense fallback={<div className="h-12" />}>
+          <CategoryChips
+            categories={categories}
+            configurableCount={configurableCount}
+          />
+        </Suspense>
+      </div>
+
+      <div className="mt-10 grid gap-10 lg:grid-cols-[248px_minmax(0,1fr)] lg:gap-14">
         {/* Kenar çubuğu — masaüstü */}
         <aside className="hidden lg:block" aria-label="Ürün filtreleri">
           <div className="sticky top-24">

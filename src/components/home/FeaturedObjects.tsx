@@ -121,7 +121,7 @@ export function FeaturedObjects({ products }: FeaturedObjectsProps) {
             <div className="mt-6 flex flex-wrap gap-3">
               {current.isCustomizable ? (
                 <Button asChild>
-                  <Link href={`/customize/${current.id}`}>
+                  <Link href={`/configure/${current.id}`}>
                     <Sliders className="h-4 w-4" aria-hidden />
                     Yapılandır
                   </Link>
