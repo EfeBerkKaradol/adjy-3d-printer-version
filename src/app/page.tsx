@@ -143,29 +143,35 @@ async function getHeroProduct(): Promise<HeroProduct | null> {
   }
 }
 
-async function getConfigurableProduct() {
+/** Ana sayfa konfigüratörü: ölçüsü değişebilen 4 nesne */
+async function getConfiguratorProducts() {
   try {
-    const product = await prisma.product.findFirst({
+    const rows = await prisma.product.findMany({
       where: {
         isActive: true,
-        parameters: { some: { minValue: { not: null }, maxValue: { not: null } } },
+        parameters: {
+          some: { type: "SLIDER", minValue: { not: null }, maxValue: { not: null } },
+        },
       },
       orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+      take: 4,
       select: {
         id: true,
         name: true,
         slug: true,
+        description: true,
         basePrice: true,
         thumbnailUrl: true,
+        modelFileUrl: true,
         materialType: true,
         category: { select: { name: true } },
         parameters: {
-          where: { minValue: { not: null }, maxValue: { not: null } },
           orderBy: { sortOrder: "asc" },
           select: {
             id: true,
             name: true,
             displayName: true,
+            type: true,
             minValue: true,
             maxValue: true,
             defaultValue: true,
@@ -176,10 +182,13 @@ async function getConfigurableProduct() {
       },
     });
 
-    if (!product || product.parameters.length === 0) return null;
-    return { ...product, basePrice: Number(product.basePrice) };
+    return rows.map((p) => ({
+      ...p,
+      basePrice: Number(p.basePrice),
+      productType: getProductType(p.slug),
+    }));
   } catch {
-    return null;
+    return [];
   }
 }
 
@@ -274,11 +283,11 @@ async function getShopTeaser(): Promise<{
 }
 
 export default async function HomePage() {
-  const [featuredObjects, heroProduct, configurable, spaceScenes, shopTeaser] =
+  const [featuredObjects, heroProduct, configuratorProducts, spaceScenes, shopTeaser] =
     await Promise.all([
       getFeaturedObjects(),
       getHeroProduct(),
-      getConfigurableProduct(),
+      getConfiguratorProducts(),
       getSpaceScenes(),
       getShopTeaser(),
     ]);
@@ -323,7 +332,7 @@ export default async function HomePage() {
       {featuredObjects.length > 0 && <FeaturedObjects products={featuredObjects} />}
 
       {/* 04 — Seninki yap */}
-      {configurable && (
+      {configuratorProducts.length > 0 && (
         <section
           className="border-y border-border bg-surface"
           aria-label="Nesneyi yapılandır"
@@ -332,11 +341,11 @@ export default async function HomePage() {
             <SectionHeading
               eyebrow="Yapılandır"
               title="Seninki yap."
-              description="Tek tasarım. Senin ölçülerin. Senin konfigürasyonun. Aşağıdan denemeye başla; 3D önizleme ve fiyat konfigüratörde devralır."
+              description="Kaydırıcıyı oynat, nesne gerçekten değişsin. Tek tasarım, senin ölçülerin."
               action={{ label: "Tüm yapılandırılabilir nesneler", href: "/configure" }}
               className="mb-12 md:mb-16"
             />
-            <ConfiguratorShowcase product={configurable} />
+            <ConfiguratorShowcase products={configuratorProducts} />
           </div>
         </section>
       )}

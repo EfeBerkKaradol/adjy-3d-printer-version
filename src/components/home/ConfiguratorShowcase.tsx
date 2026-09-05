@@ -1,27 +1,47 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
-import Image from "next/image";
+import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight } from "lucide-react";
+import { ParameterSlider } from "@/components/configure/ParameterSlider";
+import { useMediaQuery } from "@/hooks/useClientState";
+import { ArrowRight, RotateCcw } from "lucide-react";
+
+// 3D sahne yalnızca bölüm görünüme girdiğinde indirilir:
+// ana sayfanın ilk yükü three.js taşımaz.
+const ConfigScene = dynamic(() => import("@/components/configure/ConfigScene"), {
+  ssr: false,
+  loading: () => <div className="h-full w-full animate-pulse bg-surface-2" />,
+});
 
 // ==========================================
-// BÖLÜM 04 — PARAMETRİK KONFİGÜRATÖR
-// ADJY ürünlerinin sabit nesneler olmadığını anlatır.
-// Buradaki kaydırıcılar gerçek Parameter kayıtlarından
-// (min/max/step/birim) beslenir ve seçilen değerler
-// /customize sayfasına aktarılır — orada gerçek 3D
-// önizleme ve fiyat hesabı devralır.
-// Fiyat burada hesaplanmaz; tek fiyat kaynağı
-// konfigüratörün kendisidir.
+// BÖLÜM — SENİNKİ YAP (ana sayfa konfigüratörü)
+//
+// Buradaki kaydırıcılar dekoratif değil: gerçek
+// Parameter kayıtlarından beslenir ve değeri doğrudan
+// 3D modele verirler.
+//
+//   kaydırıcı / sayı kutusu
+//        ↓
+//   configuration state  { productId, values }
+//        ↓
+//   ConfigScene → GLB ölçeği veya prosedürel geometri
+//        ↓
+//   nesnenin görünümü değişir
+//
+// Fiyat burada HESAPLANMAZ. Tek fiyat kaynağı
+// konfigüratör sayfasıdır; burada uydurma bir tutar
+// göstermek yerine seçilen ölçüler oraya taşınır.
 // ==========================================
 
 export interface ShowcaseParameter {
   id: string;
   name: string;
   displayName: string;
+  type: string;
   minValue: number | null;
   maxValue: number | null;
   defaultValue: string;
@@ -33,156 +53,252 @@ export interface ConfiguratorShowcaseProduct {
   id: string;
   name: string;
   slug: string;
+  description: string | null;
   basePrice: number;
   thumbnailUrl: string | null;
+  modelFileUrl: string | null;
+  productType: string;
   materialType: string | null;
   category: { name: string };
   parameters: ShowcaseParameter[];
 }
 
 interface ConfiguratorShowcaseProps {
-  product: ConfiguratorShowcaseProduct;
+  products: ConfiguratorShowcaseProduct[];
 }
 
-export function ConfiguratorShowcase({ product }: ConfiguratorShowcaseProps) {
-  // Yalnızca gerçekten sürüklenebilir parametreler kaydırıcı olur:
-  // aralık tanımlı, max > min ve varsayılan değer sayısal olmalı.
-  // (Veritabanında min=max=0 gibi bozuk kayıtlar bulunabiliyor.)
-  const sliders = useMemo(
-    () =>
-      product.parameters
-        .filter((p) => {
-          const min = p.minValue;
-          const max = p.maxValue;
-          const def = Number(p.defaultValue);
-          return (
-            min !== null && max !== null && max > min && Number.isFinite(def)
-          );
-        })
-        .slice(0, 3),
-    [product.parameters]
+/** Sürüklenebilir parametreler: aralığı gerçek ve varsayılanı sayısal olanlar */
+function sliderParams(product: ConfiguratorShowcaseProduct) {
+  return product.parameters
+    .filter((p) => {
+      if (p.type === "COLOR" || p.type === "TEXT" || p.type === "DROPDOWN") return false;
+      const def = Number(p.defaultValue);
+      return (
+        p.minValue !== null &&
+        p.maxValue !== null &&
+        p.maxValue > p.minValue &&
+        Number.isFinite(def)
+      );
+    })
+    .slice(0, 3);
+}
+
+/**
+ * Ürünün başlangıç konfigürasyonu.
+ * Sürüklenebilir olmayan parametreler de (renk gibi) modele
+ * geçmeli, yoksa nesne varsayılan rengiyle çizilmez.
+ */
+function buildDefaults(
+  product: ConfiguratorShowcaseProduct
+): Record<string, number | string> {
+  const values: Record<string, number | string> = {};
+  for (const p of product.parameters) {
+    if (p.type === "COLOR" || p.type === "TEXT" || p.type === "DROPDOWN") {
+      values[p.name] = p.defaultValue;
+    } else {
+      const n = Number(p.defaultValue);
+      if (Number.isFinite(n)) values[p.name] = n;
+    }
+  }
+  return values;
+}
+
+export function ConfiguratorShowcase({ products }: ConfiguratorShowcaseProps) {
+  const reduceMotion = useReducedMotion();
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  const usable = useMemo(
+    () => products.filter((p) => sliderParams(p).length > 0).slice(0, 4),
+    [products]
   );
 
-  const [values, setValues] = useState<Record<string, number>>(() =>
-    Object.fromEntries(sliders.map((p) => [p.name, Number(p.defaultValue)]))
-  );
+  // Tek merkezi konfigürasyon state'i. Ürün değişince değerler
+  // olay içinde sıfırlanır — effect'te setState yok, eski ürünün
+  // ölçüleri yenisine sızmaz.
+  const [config, setConfig] = useState(() => ({
+    productId: usable[0]?.id ?? "",
+    values: usable[0] ? buildDefaults(usable[0]) : {},
+  }));
+
+  // Sahne görünene kadar three.js indirilmez; görünürken render eder
+  const [inView, setInView] = useState(false);
+  const [everSeen, setEverSeen] = useState(false);
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setInView(entry.isIntersecting);
+        // Bir kez görüldüyse sahne monte kalır; her scroll'da
+        // yeniden yüklenip yanıp sönmesin
+        if (entry.isIntersecting) setEverSeen(true);
+      },
+      { rootMargin: "200px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const product = usable.find((p) => p.id === config.productId) ?? usable[0];
+
+  // Prosedürel modellerde geometri her değerde yeniden kurulur.
+  // Etiket anında güncellenirken sahne bir adım geriden gelsin ki
+  // sürükleme akıcı kalsın.
+  const deferredValues = useDeferredValue(config.values);
+
+  const sliders = useMemo(() => (product ? sliderParams(product) : []), [product]);
 
   const customizeHref = useMemo(() => {
+    if (!product) return "/configure";
     const qs = new URLSearchParams();
-    for (const [key, value] of Object.entries(values)) qs.set(key, String(value));
+    for (const [key, value] of Object.entries(config.values)) {
+      if (typeof value === "number") qs.set(key, String(value));
+    }
     const query = qs.toString();
     return `/configure/${product.id}${query ? `?${query}` : ""}`;
-  }, [product.id, values]);
+  }, [product, config.values]);
 
-  if (sliders.length === 0) return null;
+  if (!product) return null;
+
+  function selectProduct(next: ConfiguratorShowcaseProduct) {
+    // Ürün değişince konfigürasyon tamamen yenilenir
+    setConfig({ productId: next.id, values: buildDefaults(next) });
+  }
+
+  function setValue(name: string, value: number) {
+    setConfig((prev) => ({ ...prev, values: { ...prev.values, [name]: value } }));
+  }
+
+  function resetValues() {
+    setConfig({ productId: product.id, values: buildDefaults(product) });
+  }
+
+  const isDirty = sliders.some(
+    (p) => config.values[p.name] !== Number(p.defaultValue)
+  );
+
+  // Seçilen ölçüler tek satırda: 320 × 240 mm
+  const dimensionSummary = sliders
+    .map((p) => config.values[p.name])
+    .filter((v) => typeof v === "number")
+    .join(" × ");
+  const summaryUnit = sliders[0]?.unit ?? "mm";
 
   return (
-    <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
-      {/* Görsel */}
-      <div className="relative aspect-square overflow-hidden bg-surface-2 lg:aspect-auto lg:min-h-[460px]">
-        {product.thumbnailUrl ? (
-          <Image
-            src={product.thumbnailUrl}
-            alt={product.name}
-            fill
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            className="object-cover"
+    <div ref={sectionRef} className="grid gap-10 lg:grid-cols-2 lg:gap-16">
+      {/* Canlı nesne */}
+      <div className="relative aspect-square overflow-hidden bg-surface-2 lg:aspect-auto lg:min-h-[520px]">
+        {everSeen ? (
+          <ConfigScene
+            parameters={deferredValues}
+            productType={product.productType}
+            modelFileUrl={product.modelFileUrl}
+            active={inView}
+            allowRotate={isDesktop}
           />
         ) : (
-          <div
-            className="h-full w-full"
-            style={{
-              backgroundImage:
-                "linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)",
-              backgroundSize: "32px 32px",
-            }}
-            aria-hidden
-          />
+          <div className="h-full w-full" aria-hidden />
         )}
 
-        <div className="absolute left-4 top-4">
+        <div className="pointer-events-none absolute left-4 top-4">
           <Badge variant="customizable" className="bg-background/90 backdrop-blur-sm">
-            Parametrik ürün
+            Canlı 3D · kaydırıcıyla değişir
           </Badge>
         </div>
+
+        {dimensionSummary && (
+          <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2">
+            <span className="bg-background/90 px-3 py-1.5 font-mono text-sm tabular-nums backdrop-blur-sm">
+              {dimensionSummary} {summaryUnit}
+            </span>
+          </div>
+        )}
+
+        {isDesktop && (
+          <span className="pointer-events-none absolute bottom-4 right-4 text-[11px] text-muted-foreground">
+            Sürükle: döndür
+          </span>
+        )}
       </div>
 
       {/* Kontroller */}
       <div className="flex flex-col justify-center">
-        <p className="adjy-eyebrow">{product.category.name}</p>
-        <h3 className="mt-3 text-2xl font-medium tracking-tight md:text-3xl">
-          {product.name}
-        </h3>
-
-        <dl className="mt-9 space-y-8">
-          {sliders.map((param) => {
-            const min = param.minValue as number;
-            const max = param.maxValue as number;
-            const value = values[param.name] ?? Number(param.defaultValue);
-            const percent = max > min ? ((value - min) / (max - min)) * 100 : 0;
-            const inputId = `showcase-${param.id}`;
-
-            return (
-              <div key={param.id}>
-                <div className="flex items-baseline justify-between">
-                  <dt>
-                    <label
-                      htmlFor={inputId}
-                      className="adjy-eyebrow cursor-pointer text-foreground"
-                    >
-                      {param.displayName}
-                    </label>
-                  </dt>
-                  <dd className="text-lg font-medium tabular-nums">
-                    {value}
-                    {param.unit && (
-                      <span className="ml-1 text-sm font-normal text-muted-foreground">
-                        {param.unit}
-                      </span>
-                    )}
-                  </dd>
-                </div>
-
-                <div className="relative mt-3.5">
-                  {/* Ray */}
-                  <div className="h-px w-full bg-border" aria-hidden />
-                  <div
-                    className="absolute left-0 top-0 h-px bg-foreground"
-                    style={{ width: `${percent}%` }}
-                    aria-hidden
-                  />
-                  <div
-                    className="pointer-events-none absolute top-0 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-foreground"
-                    style={{ left: `${percent}%` }}
-                    aria-hidden
-                  />
-                  <input
-                    id={inputId}
-                    type="range"
-                    min={min}
-                    max={max}
-                    step={param.step && param.step > 0 ? param.step : 1}
-                    value={value}
-                    onChange={(e) =>
-                      setValues((v) => ({ ...v, [param.name]: Number(e.target.value) }))
-                    }
-                    aria-label={`${param.displayName}${param.unit ? ` (${param.unit})` : ""}`}
-                    className="absolute inset-x-0 -top-3 h-6 w-full cursor-pointer appearance-none bg-transparent [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-transparent [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:bg-transparent"
-                  />
-                </div>
-
-                <div className="mt-2.5 flex justify-between">
-                  <span className="text-xs tabular-nums text-muted-foreground">
-                    {min}
+        {/* Ürün geçişi */}
+        {usable.length > 1 && (
+          <div
+            role="tablist"
+            aria-label="Yapılandırılabilir nesneler"
+            className="mb-8 flex flex-wrap gap-x-6 gap-y-2 border-b border-border pb-4"
+          >
+            {usable.map((p, i) => {
+              const active = p.id === product.id;
+              return (
+                <button
+                  key={p.id}
+                  role="tab"
+                  type="button"
+                  aria-selected={active}
+                  onClick={() => selectProduct(p)}
+                  className={`relative flex items-baseline gap-2 pb-1 text-sm transition-colors ${
+                    active
+                      ? "font-medium text-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <span className="font-mono text-[11px] tabular-nums">
+                    {String(i + 1).padStart(2, "0")}
                   </span>
-                  <span className="text-xs tabular-nums text-muted-foreground">
-                    {max} {param.unit}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </dl>
+                  <span className="max-w-[10rem] truncate">{p.name}</span>
+                  {active && (
+                    <motion.span
+                      layoutId={reduceMotion ? undefined : "config-tab"}
+                      className="absolute -bottom-[17px] left-0 h-px w-full bg-foreground"
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Ürün bilgisi — geçişte yumuşak değişim */}
+        {/* key ile anında değişir, sadece giriş animasyonu oynar:
+            çıkışı beklemediği için içerik hiçbir koşulda bayat kalmaz */}
+        <div>
+          <motion.div
+            key={product.id}
+            initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <p className="adjy-eyebrow">{product.category.name}</p>
+            <h3 className="mt-3 text-2xl font-medium tracking-tight md:text-3xl">
+              {product.name}
+            </h3>
+            {product.description && (
+              <p className="mt-3 line-clamp-2 text-[15px] leading-relaxed text-muted-foreground">
+                {product.description}
+              </p>
+            )}
+          </motion.div>
+        </div>
+
+        {/* Parametreler */}
+        <div className="mt-9 flex flex-col gap-8">
+          {sliders.map((param) => (
+            <ParameterSlider
+              key={param.id}
+              label={param.displayName}
+              value={Number(config.values[param.name] ?? param.defaultValue)}
+              min={param.minValue as number}
+              max={param.maxValue as number}
+              step={param.step && param.step > 0 ? param.step : 1}
+              unit={param.unit}
+              onChange={(v) => setValue(param.name, v)}
+            />
+          ))}
+        </div>
 
         {product.materialType && (
           <div className="mt-8 flex items-baseline justify-between border-t border-border pt-5">
@@ -191,17 +307,30 @@ export function ConfiguratorShowcase({ product }: ConfiguratorShowcaseProps) {
           </div>
         )}
 
-        <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="mt-9 flex flex-wrap items-center gap-3">
           <Button asChild size="lg">
             <Link href={customizeHref}>
-              Bu ürünü özelleştir
+              Bu ölçülerle devam et
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
           </Button>
-          <p className="text-xs leading-relaxed text-muted-foreground sm:max-w-[16rem]">
-            Fiyat, 3D önizleme ve AR konfigüratörde ölçüne göre hesaplanır.
-          </p>
+
+          {isDirty && (
+            <button
+              type="button"
+              onClick={resetValues}
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <RotateCcw className="h-3.5 w-3.5" aria-hidden />
+              Varsayılana dön
+            </button>
+          )}
         </div>
+
+        <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
+          Seçtiğin ölçüler konfigüratöre taşınır; fiyat, ağırlık ve baskı süresi
+          orada hesaplanır.
+        </p>
       </div>
     </div>
   );

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ProductImageFallback } from "@/components/product/ProductImageFallback";
 import { ScaleDiagram } from "./ScaleDiagram";
 import { ArrowRight } from "lucide-react";
@@ -101,12 +101,10 @@ export function SpaceShowcase({ scenes }: SpaceShowcaseProps) {
         {/* Sahne */}
         <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-14">
           <div className="relative aspect-[16/10] overflow-hidden bg-surface">
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
+            <motion.div
                 key={scene.categorySlug}
                 initial={reduceMotion ? false : { opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={reduceMotion ? undefined : { opacity: 0 }}
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                 className="absolute inset-0"
               >
@@ -122,7 +120,6 @@ export function SpaceShowcase({ scenes }: SpaceShowcaseProps) {
                   <ProductImageFallback slug={scene.product.slug} />
                 )}
               </motion.div>
-            </AnimatePresence>
           </div>
 
           <div className="flex flex-col justify-center">

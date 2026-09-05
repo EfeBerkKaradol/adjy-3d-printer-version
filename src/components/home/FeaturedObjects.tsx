@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ProductImageFallback } from "@/components/product/ProductImageFallback";
@@ -66,12 +66,10 @@ export function FeaturedObjects({ products }: FeaturedObjectsProps) {
       <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16 md:mt-16">
         {/* Büyük nesne */}
         <div className="relative aspect-[4/3] overflow-hidden bg-surface-2 lg:aspect-[5/4]">
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
+          <motion.div
               key={current.id}
               initial={reduceMotion ? false : { opacity: 0, scale: 1.02 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={reduceMotion ? undefined : { opacity: 0 }}
               transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
               className="absolute inset-0"
             >
@@ -87,7 +85,6 @@ export function FeaturedObjects({ products }: FeaturedObjectsProps) {
                 <ProductImageFallback slug={current.slug} />
               )}
             </motion.div>
-          </AnimatePresence>
 
           <span className="absolute left-4 top-4 font-mono text-xs tabular-nums text-muted-foreground">
             {String(active + 1).padStart(2, "0")} / {String(products.length).padStart(2, "0")}

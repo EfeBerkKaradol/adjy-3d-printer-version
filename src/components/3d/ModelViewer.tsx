@@ -9,10 +9,10 @@ import {
   AdaptiveDpr,
   AdaptiveEvents,
 } from "@react-three/drei";
-import { Suspense, Component, useRef, useLayoutEffect, type ReactNode } from "react";
-import * as THREE from "three";
+import { Suspense } from "react";
 import { ParametricModel } from "./ParametricModel";
 import { GLBModelViewer } from "./GLBModelViewer";
+import { GLBErrorBoundary, Grounded, shouldUseGLB } from "./sceneParts";
 import { Loader2 } from "lucide-react";
 
 // ==========================================
@@ -40,76 +40,8 @@ function LoadingFallback() {
   );
 }
 
-// GLB dosyasi gecerli mi kontrol et
-function isValidGLBUrl(url: string | null | undefined): url is string {
-  if (!url) return false;
-  return url.endsWith(".glb") || url.endsWith(".gltf");
-}
-
-// ==========================================
-// GLB ErrorBoundary
-// useGLTF hata verirse parametrik modele fallback yap
-// ==========================================
-interface GLBErrorBoundaryProps {
-  children: ReactNode;
-  fallback: ReactNode;
-}
-
-interface GLBErrorBoundaryState {
-  hasError: boolean;
-}
-
-class GLBErrorBoundary extends Component<GLBErrorBoundaryProps, GLBErrorBoundaryState> {
-  constructor(props: GLBErrorBoundaryProps) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(): GLBErrorBoundaryState {
-    return { hasError: true };
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return this.props.fallback;
-    }
-    return this.props.children;
-  }
-}
-
-// ==========================================
-// Grounded: içeriğini XZ'de merkezleyip alt yüzeyini
-// y=0'a (tabla seviyesi) oturtur. Parametrik modeller
-// orijin merkezli üretildiği için bu düzeltme gerekir.
-// ==========================================
-function Grounded({ children }: { children: ReactNode }) {
-  const ref = useRef<THREE.Group>(null);
-
-  useLayoutEffect(() => {
-    const group = ref.current;
-    if (!group) return;
-    group.position.set(0, 0, 0);
-    group.updateMatrixWorld(true);
-    const box = new THREE.Box3().setFromObject(group);
-    if (!box.isEmpty()) {
-      const center = box.getCenter(new THREE.Vector3());
-      group.position.set(-center.x, -box.min.y, -center.z);
-    }
-  });
-
-  return <group ref={ref}>{children}</group>;
-}
-
-// Gerçek parametrik modeli olan ürün tipleri — bu tipler için GLB yerine
-// prosedürel model kullanılır (parametre değişiklikleri anında yansır).
-const PARAMETRIC_TYPES = new Set([
-  "vase", "stand", "keychain", "lamp", "pencilHolder",
-  "bracelet", "gear",
-]);
-
 export function ModelViewer({ parameters, productType, modelFileUrl }: ModelViewerProps) {
-  const hasParametricModel = !!productType && PARAMETRIC_TYPES.has(productType);
-  const useGLB = isValidGLBUrl(modelFileUrl) && !hasParametricModel;
+  const useGLB = shouldUseGLB(modelFileUrl, productType);
 
   const parametricFallback = (
     <ParametricModel parameters={parameters} productType={productType} />
