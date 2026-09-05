@@ -22,6 +22,11 @@ export const MAIN_NAV: NavLink[] = [
     description: "Nesneyi kendi ölçünde ürettir",
   },
   {
+    label: "Üret",
+    href: "/3d-baski-fiyati-hesapla",
+    description: "Kendi modelini yükle, teklif al",
+  },
+  {
     label: "Koleksiyonlar",
     href: "/collections",
     description: "Kategorilere göre keşfet",
@@ -33,11 +38,6 @@ export const MAIN_NAV: NavLink[] = [
  * mobil menünün altında ve footer'da yer alırlar.
  */
 export const SECONDARY_NAV: NavLink[] = [
-  {
-    label: "Kendi modelini üret",
-    href: "/3d-baski-fiyati-hesapla",
-    description: "STL yükle, teklif al",
-  },
   { label: "Hakkımızda", href: "/about", description: "" },
   { label: "SSS", href: "/faq", description: "" },
   { label: "İletişim", href: "/contact", description: "" },

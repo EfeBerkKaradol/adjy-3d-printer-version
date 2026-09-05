@@ -1,12 +1,4 @@
-import Link from "next/link";
 import { Reveal } from "./Reveal";
-import { Button } from "@/components/ui/button";
-import {
-  ACCEPTED_EXTENSIONS,
-  MAX_FILE_SIZE_MB,
-  MAX_MODEL_DIMENSION_MM,
-} from "@/lib/slicer";
-import { Upload } from "lucide-react";
 
 // ==========================================
 // DİJİTALDEN FİZİKSELE
@@ -135,27 +127,6 @@ export function DigitalToPhysical() {
           ))}
         </ol>
 
-        {/* Kendi modeli olanlar bu hattın başına kendi dosyasıyla girer */}
-        <Reveal className="mt-4 flex flex-col gap-6 border-t border-border pt-10 sm:flex-row sm:items-center sm:justify-between">
-          <div className="max-w-lg">
-            <h3 className="text-lg font-medium tracking-tight md:text-xl">
-              Hattın başına kendi dosyanla gir
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Modelin hazırsa yükle, analiz edilsin ve fiyatını anında gör.{" "}
-              <span className="whitespace-nowrap">
-                {ACCEPTED_EXTENSIONS.join(", ")} · en fazla {MAX_FILE_SIZE_MB} MB ·
-                maks. kenar {MAX_MODEL_DIMENSION_MM} mm
-              </span>
-            </p>
-          </div>
-          <Button asChild size="lg" className="shrink-0">
-            <Link href="/3d-baski-fiyati-hesapla">
-              <Upload className="h-4 w-4" aria-hidden />
-              Üretim teklifi al
-            </Link>
-          </Button>
-        </Reveal>
       </div>
     </section>
   );

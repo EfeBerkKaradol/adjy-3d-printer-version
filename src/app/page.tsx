@@ -6,6 +6,7 @@ import { FeaturedObjects, type FeaturedObject } from "@/components/home/Featured
 import { ConfiguratorShowcase } from "@/components/home/ConfiguratorShowcase";
 import { SpaceShowcase, type SpaceScene } from "@/components/home/SpaceShowcase";
 import { DigitalToPhysical } from "@/components/home/DigitalToPhysical";
+import { CreateSection } from "@/components/home/CreateSection";
 import { ExploreShop, type ShopTeaserProduct } from "@/components/home/ExploreShop";
 import { FinalCTA } from "@/components/home/FinalCTA";
 import { SectionHeading } from "@/components/ui/section-heading";
@@ -33,8 +34,9 @@ export const revalidate = 300;
 //   04  Seninki yap — gerçek konfigüratör teaser'ı
 //   05  Alanına göre
 //   06  Dijitalden fiziksele
-//   07  Mağazaya geçiş
-//   08  Kapanış
+//   07  Üret — kendi modelini ürettir
+//   08  Mağazaya geçiş
+//   09  Kapanış
 //
 // Ana sayfa her şeyi göstermez: merak uyandırıp derinlere yollar.
 // Veritabanına ulaşılamazsa bölümler sessizce gizlenir.
@@ -345,10 +347,13 @@ export default async function HomePage() {
       {/* 06 — Dijitalden fiziksele */}
       <DigitalToPhysical />
 
-      {/* 07 — Mağazaya geçiş */}
+      {/* 07 — Üret: kendi modelini ürettir */}
+      <CreateSection />
+
+      {/* 08 — Mağazaya geçiş */}
       <ExploreShop products={shopTeaser.products} totalCount={shopTeaser.total} />
 
-      {/* 08 — Kapanış */}
+      {/* 09 — Kapanış */}
       <FinalCTA />
     </>
   );
