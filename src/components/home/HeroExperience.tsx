@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
 import {
+  AnimatePresence,
   motion,
   useMotionValueEvent,
   useReducedMotion,
@@ -227,22 +228,23 @@ export function HeroExperience({ product }: HeroExperienceProps) {
               <p className="adjy-eyebrow mb-6">Adaptive Design Joy</p>
 
               <div className="relative h-[clamp(7rem,15vw,13rem)]">
-                {STAGES.map((stage, i) => (
-                  <motion.h1
-                    key={stage.label}
-                    id={i === 0 ? "hero-title" : undefined}
-                    aria-hidden={stageIndex !== i}
-                    initial={false}
-                    animate={{
-                      opacity: stageIndex === i ? 1 : 0,
-                      y: stageIndex === i ? 0 : 14,
-                    }}
-                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                    className="adjy-display absolute inset-0 whitespace-pre-line text-[clamp(2.75rem,5.4vw,4.5rem)]"
-                  >
-                    {stage.headline}
-                  </motion.h1>
-                ))}
+                <h1
+                  id="hero-title"
+                  className="adjy-display absolute inset-0 whitespace-pre-line text-[clamp(2.75rem,5.4vw,4.5rem)]"
+                >
+                  <AnimatePresence mode="wait" initial={false}>
+                    <motion.span
+                      key={stageIndex}
+                      className="block"
+                      initial={{ opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      {STAGES[stageIndex].headline}
+                    </motion.span>
+                  </AnimatePresence>
+                </h1>
               </div>
 
               <p className="mt-6 max-w-sm text-base leading-relaxed text-muted-foreground">

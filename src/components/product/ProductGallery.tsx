@@ -2,8 +2,16 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { ProductImageFallback } from "./ProductImageFallback";
 import { cn } from "@/lib/utils";
+
+// Yalnızca fotoğrafsız ürünlerde mount edilir — three.js maliyeti
+// tüm ürün sayfaları için ödenmez.
+const ProductModelPreview = dynamic(() => import("./ProductModelPreview"), {
+  ssr: false,
+  loading: () => <div className="h-full w-full animate-pulse bg-surface-2" />,
+});
 
 // ==========================================
 // ÜRÜN GALERİSİ
@@ -16,15 +24,28 @@ interface ProductGalleryProps {
   slug: string;
   name: string;
   images: string[];
+  /** Fotoğraf yoksa ürünün kendi 3D modeli gösterilir */
+  modelFileUrl?: string | null;
+  productType?: string;
+  defaultParameters?: Record<string, number | string>;
 }
 
-export function ProductGallery({ slug, name, images }: ProductGalleryProps) {
+export function ProductGallery({
+  slug,
+  name,
+  images,
+  modelFileUrl,
+  productType,
+  defaultParameters,
+}: ProductGalleryProps) {
   const [index, setIndex] = useState(0);
   const [failed, setFailed] = useState<Record<number, boolean>>({});
 
   const usable = images.filter((_, i) => !failed[i]);
   const current = images[index];
   const showImage = Boolean(current) && !failed[index];
+  // Kullanılabilir tek bir fotoğraf bile yoksa 3D modele düş
+  const canShowModel = usable.length === 0 && Boolean(modelFileUrl) && Boolean(productType);
 
   return (
     <div>
@@ -38,6 +59,12 @@ export function ProductGallery({ slug, name, images }: ProductGalleryProps) {
             sizes="(max-width: 1024px) 100vw, 50vw"
             onError={() => setFailed((f) => ({ ...f, [index]: true }))}
             className="object-cover"
+          />
+        ) : canShowModel ? (
+          <ProductModelPreview
+            url={modelFileUrl as string}
+            productType={productType as string}
+            parameters={defaultParameters ?? {}}
           />
         ) : (
           <ProductImageFallback slug={slug} />

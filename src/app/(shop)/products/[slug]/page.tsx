@@ -17,6 +17,7 @@ import { ProductARButton } from "@/components/ar/ProductARButton";
 import { ProductReviews } from "@/components/product/ProductReviews";
 import { ProductJsonLd } from "@/components/seo/JsonLd";
 import { getAbsoluteUrl } from "@/lib/url";
+import { getProductType } from "@/lib/productType";
 import { AlertCircle, ArrowRight, CheckCircle, Sliders, Star } from "lucide-react";
 
 // ==========================================
@@ -176,6 +177,19 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
   const isCustomizable = product.parameters.length > 0;
   const inStock = product.stockQty > 0;
 
+  // Modelin (3D önizleme ve AR) varsayılan değerleri
+  const defaultParameters = product.parameters.reduce(
+    (acc, param) => {
+      if (param.type === "COLOR" || param.type === "TEXT" || param.type === "DROPDOWN") {
+        acc[param.name] = param.defaultValue;
+      } else {
+        acc[param.name] = Number(param.defaultValue);
+      }
+      return acc;
+    },
+    {} as Record<string, number | string>
+  );
+
   return (
     <div className="pb-20">
       <ProductJsonLd
@@ -223,7 +237,14 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
           {/* Galeri */}
           <div className="lg:sticky lg:top-24 lg:self-start">
-            <ProductGallery slug={product.slug} name={product.name} images={images} />
+            <ProductGallery
+              slug={product.slug}
+              name={product.name}
+              images={images}
+              modelFileUrl={product.modelFileUrl}
+              productType={getProductType(product.slug)}
+              defaultParameters={defaultParameters}
+            />
           </div>
 
           {/* Satın alma alanı */}
@@ -361,21 +382,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                   productName={product.name}
                   productSlug={product.slug}
                   modelFileUrl={product.modelFileUrl}
-                  defaultParameters={product.parameters.reduce(
-                    (acc, param) => {
-                      if (
-                        param.type === "COLOR" ||
-                        param.type === "TEXT" ||
-                        param.type === "DROPDOWN"
-                      ) {
-                        acc[param.name] = param.defaultValue;
-                      } else {
-                        acc[param.name] = Number(param.defaultValue);
-                      }
-                      return acc;
-                    },
-                    {} as Record<string, number | string>
-                  )}
+                  defaultParameters={defaultParameters}
                 />
               )}
             </div>
