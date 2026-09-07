@@ -197,17 +197,20 @@ export function HeroExperience({ product }: HeroExperienceProps) {
     </section>
   );
 
-  // Hareket azaltma açıkken masaüstünde de sabit sürüm gösterilir
-  if (reduceMotion) return renderStaticHero(true);
-
+  // Hareket azaltma açıkken masaüstünde de sabit sürüm gösterilir.
+  // Erken return YAPILMAZ: useScroll'un hedef ref'i her koşulda bir DOM
+  // düğümüne bağlı olmalı, yoksa motion "ref hydrate edilmedi" der.
   return (
     <>
-      {renderStaticHero(false)}
+      {renderStaticHero(Boolean(reduceMotion))}
 
       {/* Masaüstü: scroll ile sürülen hikâye */}
       <section
         ref={containerRef}
-        className="relative hidden md:block"
+        className={
+          reduceMotion ? "hidden" : "relative hidden md:block"
+        }
+        aria-hidden={reduceMotion || undefined}
         // 4 aşama için yeterli, kullanıcıyı yormayacak kadar kısa.
         // Anlatı zorunlu değil: sağ altta "Anlatıyı atla" var.
         style={{ height: "340vh" }}

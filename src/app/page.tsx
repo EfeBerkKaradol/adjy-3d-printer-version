@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { HeroExperience, type HeroProduct } from "@/components/home/HeroExperience";
 import { Hero } from "@/components/home/Hero";
-import { AdjyMethod } from "@/components/home/AdjyMethod";
+import { ObjectStory, type ObjectStoryProduct } from "@/components/home/ObjectStory";
 import { FeaturedObjects, type FeaturedObject } from "@/components/home/FeaturedObjects";
 import { ConfiguratorShowcase } from "@/components/home/ConfiguratorShowcase";
 import { SpaceShowcase, type SpaceScene } from "@/components/home/SpaceShowcase";
@@ -91,6 +91,33 @@ async function getFeaturedObjects(): Promise<FeaturedObject[]> {
     }));
   } catch {
     return [];
+  }
+}
+
+/**
+ * "Bir nesnenin üç hâli" anlatısının kahramanı.
+ * Delikli duvar paneli seçilir: modüler sistemi olan tek ürün,
+ * yani keşfet → yapılandır → üret hikâyesini tek başına taşıyabilen nesne.
+ */
+async function getStoryProduct(): Promise<ObjectStoryProduct | null> {
+  try {
+    const panel = await prisma.product.findFirst({
+      where: {
+        isActive: true,
+        OR: [{ slug: { contains: "delikli" } }, { slug: { contains: "panel" } }],
+      },
+      select: { id: true, name: true, slug: true, thumbnailUrl: true },
+    });
+    if (panel) return panel;
+
+    // Panel yoksa anlatı yine kurulsun diye görseli olan herhangi bir ürün
+    return await prisma.product.findFirst({
+      where: { isActive: true, thumbnailUrl: { not: null } },
+      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+      select: { id: true, name: true, slug: true, thumbnailUrl: true },
+    });
+  } catch {
+    return null;
   }
 }
 
@@ -283,10 +310,17 @@ async function getShopTeaser(): Promise<{
 }
 
 export default async function HomePage() {
-  const [featuredObjects, heroProduct, configuratorProducts, spaceScenes, shopTeaser] =
-    await Promise.all([
+  const [
+    featuredObjects,
+    heroProduct,
+    storyProduct,
+    configuratorProducts,
+    spaceScenes,
+    shopTeaser,
+  ] = await Promise.all([
       getFeaturedObjects(),
       getHeroProduct(),
+      getStoryProduct(),
       getConfiguratorProducts(),
       getSpaceScenes(),
       getShopTeaser(),
@@ -294,10 +328,6 @@ export default async function HomePage() {
 
   const baseUrl = getAbsoluteUrl();
   const withImage = featuredObjects.filter((p) => p.thumbnailUrl);
-
-  const methodProducts = (withImage.length >= 3 ? withImage : featuredObjects)
-    .slice(0, 3)
-    .map((p) => ({ name: p.name, slug: p.slug, thumbnailUrl: p.thumbnailUrl }));
 
   return (
     <>
@@ -325,8 +355,8 @@ export default async function HomePage() {
         />
       )}
 
-      {/* 02 — Keşfet / Yapılandır / Üret */}
-      {methodProducts.length > 0 && <AdjyMethod products={methodProducts} />}
+      {/* 02 — Bir nesnenin üç hâli: keşfet → yapılandır → üret */}
+      {storyProduct && <ObjectStory product={storyProduct} />}
 
       {/* 03 — Öne çıkan nesneler */}
       {featuredObjects.length > 0 && <FeaturedObjects products={featuredObjects} />}
