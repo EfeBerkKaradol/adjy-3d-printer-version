@@ -9,6 +9,7 @@ import { DigitalToPhysical } from "@/components/home/DigitalToPhysical";
 import { CreateSection } from "@/components/home/CreateSection";
 import { ExploreShop, type ShopTeaserProduct } from "@/components/home/ExploreShop";
 import { FinalCTA } from "@/components/home/FinalCTA";
+import { ProductRail, type RailProduct } from "@/components/product/ProductRail";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { WebSiteJsonLd } from "@/components/seo/JsonLd";
 import { getAbsoluteUrl } from "@/lib/url";
@@ -288,6 +289,111 @@ async function getSpaceScenes(): Promise<SpaceScene[]> {
   }
 }
 
+const RAIL_SELECT = {
+  id: true,
+  name: true,
+  slug: true,
+  basePrice: true,
+  thumbnailUrl: true,
+  createdAt: true,
+  category: { select: { name: true } },
+  _count: { select: { parameters: true } },
+} as const;
+
+/**
+ * Eski fiyatlar (compareAtPrice) ayrı sorguda okunur.
+ *
+ * Nedeni: bu kolon bir migration ile geliyor. Kolon henüz
+ * uygulanmamışsa onu SEÇEN her sorgu patlar ve öne çıkan
+ * ürünler, yeni gelenler gibi bölümler topluca boşalırdı.
+ * Ayrı tutulunca en kötü ihtimalle yalnızca indirim bilgisi
+ * eksik kalır; migration çalıştığı an kod değişmeden devreye girer.
+ */
+async function getCompareAtPrices(): Promise<Map<string, number>> {
+  try {
+    const rows = await prisma.product.findMany({
+      where: { isActive: true, compareAtPrice: { not: null } },
+      select: { id: true, compareAtPrice: true },
+    });
+    return new Map(
+      rows
+        .filter((r) => r.compareAtPrice !== null)
+        .map((r) => [r.id, Number(r.compareAtPrice)])
+    );
+  } catch {
+    // Kolon yok ya da erişilemedi — indirim gösterilmez, gerisi çalışır
+    return new Map();
+  }
+}
+
+/** Son 30 günde eklenen ürün "yeni" sayılır */
+const NEW_WINDOW_DAYS = 30;
+
+function toRailProduct(
+  p: {
+    id: string;
+    name: string;
+    slug: string;
+    basePrice: unknown;
+    thumbnailUrl: string | null;
+    createdAt: Date;
+    category: { name: string };
+    _count: { parameters: number };
+  },
+  markNew: boolean,
+  compareAt: number | null
+): RailProduct {
+  const cutoff = Date.now() - NEW_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+  return {
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    basePrice: Number(p.basePrice),
+    compareAtPrice: compareAt,
+    thumbnailUrl: p.thumbnailUrl,
+    category: p.category,
+    isNew: markNew && p.createdAt.getTime() > cutoff,
+    isCustomizable: p._count.parameters > 0,
+  };
+}
+
+/** Yeni gelenler — en son eklenen nesneler */
+async function getNewArrivals(compareAt: Map<string, number>): Promise<RailProduct[]> {
+  try {
+    const rows = await prisma.product.findMany({
+      where: { isActive: true },
+      orderBy: { createdAt: "desc" },
+      take: 8,
+      select: RAIL_SELECT,
+    });
+    return rows.map((p) => toRailProduct(p, true, compareAt.get(p.id) ?? null));
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Seçili ürünler — eski fiyatı güncel fiyattan yüksek olanlar.
+ * Hiç indirimli ürün yoksa bölüm kendini gizler; boş bir
+ * "İndirimler" başlığı göstermek güven kırar.
+ */
+async function getDiscounted(compareAt: Map<string, number>): Promise<RailProduct[]> {
+  if (compareAt.size === 0) return [];
+  try {
+    const rows = await prisma.product.findMany({
+      where: { isActive: true, id: { in: [...compareAt.keys()] } },
+      orderBy: { createdAt: "desc" },
+      take: 8,
+      select: RAIL_SELECT,
+    });
+    return rows
+      .filter((p) => (compareAt.get(p.id) ?? 0) > Number(p.basePrice))
+      .map((p) => toRailProduct(p, false, compareAt.get(p.id) ?? null));
+  } catch {
+    return [];
+  }
+}
+
 /** Mağaza geçişi: küçük vitrin + katalog büyüklüğü */
 async function getShopTeaser(): Promise<{
   products: ShopTeaserProduct[];
@@ -310,6 +416,10 @@ async function getShopTeaser(): Promise<{
 }
 
 export default async function HomePage() {
+  // Eski fiyatlar önce okunur: kolon yoksa boş harita döner ve
+  // yalnızca indirim bilgisi eksik kalır, diğer bölümler etkilenmez.
+  const compareAt = await getCompareAtPrices();
+
   const [
     featuredObjects,
     heroProduct,
@@ -317,6 +427,8 @@ export default async function HomePage() {
     configuratorProducts,
     spaceScenes,
     shopTeaser,
+    newArrivals,
+    discounted,
   ] = await Promise.all([
       getFeaturedObjects(),
       getHeroProduct(),
@@ -324,6 +436,8 @@ export default async function HomePage() {
       getConfiguratorProducts(),
       getSpaceScenes(),
       getShopTeaser(),
+      getNewArrivals(compareAt),
+      getDiscounted(compareAt),
     ]);
 
   const baseUrl = getAbsoluteUrl();
@@ -380,10 +494,42 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* 05 — Alanına göre */}
+      {/* 05 — Yeni gelenler */}
+      {newArrivals.length > 0 && (
+        <section className="adjy-container adjy-section" aria-label="Yeni gelenler">
+          <SectionHeading
+            eyebrow="Yeni"
+            title="Yeni gelenler"
+            description="Katalogdaki en son nesneler."
+            action={{ label: "Tüm nesneler", href: "/products?sort=newest" }}
+            className="mb-10 md:mb-12"
+          />
+          <ProductRail products={newArrivals} />
+        </section>
+      )}
+
+      {/* 06 — Alanına göre */}
       <SpaceShowcase scenes={spaceScenes} />
 
-      {/* 06 — Dijitalden fiziksele */}
+      {/* 07 — Seçili ürünler (indirimliler) */}
+      {discounted.length > 0 && (
+        <section
+          className="border-y border-border bg-surface"
+          aria-label="Seçili ürünler"
+        >
+          <div className="adjy-container adjy-section">
+            <SectionHeading
+              eyebrow="Seçili ürünler"
+              title="Şimdi daha uygun."
+              description="Eski fiyatı üstü çizili gösterilen nesneler."
+              className="mb-10 md:mb-12"
+            />
+            <ProductRail products={discounted} />
+          </div>
+        </section>
+      )}
+
+      {/* 08 — Dijitalden fiziksele */}
       <DigitalToPhysical />
 
       {/* 07 — Üret: kendi modelini ürettir */}

@@ -10,6 +10,7 @@ import { useCartStore } from "@/store/cartStore";
 import { Check, Plus, Sliders } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ProductImageFallback } from "./ProductImageFallback";
+import { getPriceInfo, formatPrice } from "@/lib/pricing";
 
 // ==========================================
 // ÜRÜN KARTI
@@ -27,6 +28,8 @@ export interface ProductCardProduct {
   slug: string;
   description?: string | null;
   basePrice: number;
+  /** Üstü çizili eski fiyat — indirim yoksa null */
+  compareAtPrice?: number | null;
   thumbnailUrl: string | null;
   featured?: boolean;
   category: { name: string; slug: string };
@@ -52,7 +55,8 @@ export function ProductCard({ product, index = 0, priority = false }: ProductCar
   const customizable =
     product.isCustomizable ?? (product._count?.parameters ?? 0) > 0;
   const showImage = product.thumbnailUrl && !imgError;
-  const price = Number(product.basePrice);
+  const priceInfo = getPriceInfo(product.basePrice, product.compareAtPrice);
+  const price = priceInfo.price;
 
   function handleQuickAction(e: React.MouseEvent) {
     e.preventDefault();
@@ -112,6 +116,11 @@ export function ProductCard({ product, index = 0, priority = false }: ProductCar
                 Özelleştirilebilir
               </Badge>
             )}
+            {priceInfo.hasDiscount && (
+              <Badge variant="tech" className="bg-background/90 backdrop-blur-sm">
+                %{priceInfo.percent}
+              </Badge>
+            )}
           </div>
 
           {/* Favori */}
@@ -157,11 +166,16 @@ export function ProductCard({ product, index = 0, priority = false }: ProductCar
           <h3 className="mt-2 text-[15px] font-medium leading-snug tracking-tight transition-colors group-hover:text-muted-foreground">
             {product.name}
           </h3>
-          <p className="mt-1.5 text-[15px] tabular-nums">
+          <p className="mt-1.5 flex items-baseline gap-2 text-[15px] tabular-nums">
             {customizable && (
-              <span className="text-muted-foreground">Başlangıç </span>
+              <span className="text-muted-foreground">Başlangıç</span>
             )}
-            <span className="font-medium">{price.toFixed(2)} TL</span>
+            <span className="font-medium">{formatPrice(price)}</span>
+            {priceInfo.compareAt !== null && (
+              <span className="text-[13px] text-muted-foreground line-through">
+                {formatPrice(priceInfo.compareAt)}
+              </span>
+            )}
           </p>
         </div>
       </Link>

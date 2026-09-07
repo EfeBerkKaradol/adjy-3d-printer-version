@@ -56,10 +56,32 @@ export async function PUT(
     name, slug, description, basePrice, categoryId,
     materialType, materialWeight, printTimeEst,
     thumbnailUrl, modelFileUrl, gallery,
-    isActive, featured, stockQty,
+    isActive, featured, stockQty, compareAtPrice,
   } = body;
 
   // Stok negatif olamaz ve tam sayı olmalı — yoksa alan hiç yazılmaz
+  // Eski fiyat: boş bırakılırsa indirim kalkar (null yazılır),
+  // dolu ve geçerliyse yazılır. 0 ya da negatif kabul edilmez.
+  let parsedCompareAt: number | null | undefined;
+  if (compareAtPrice === undefined) {
+    parsedCompareAt = undefined;
+  } else if (
+    compareAtPrice === null ||
+    compareAtPrice === "" ||
+    Number(compareAtPrice) <= 0
+  ) {
+    parsedCompareAt = null;
+  } else {
+    const n = Number(compareAtPrice);
+    if (!Number.isFinite(n)) {
+      return NextResponse.json(
+        { error: "Eski fiyat geçerli bir sayı olmalı" },
+        { status: 400 }
+      );
+    }
+    parsedCompareAt = n;
+  }
+
   const parsedStock =
     stockQty === undefined || stockQty === null || stockQty === ""
       ? undefined
@@ -102,6 +124,7 @@ export async function PUT(
         ...(isActive !== undefined && { isActive }),
         ...(featured !== undefined && { featured }),
         ...(parsedStock !== undefined && { stockQty: parsedStock }),
+        ...(parsedCompareAt !== undefined && { compareAtPrice: parsedCompareAt }),
       },
     });
 

@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
   const {
     name, slug, description, basePrice, categoryId,
     materialType, materialWeight, printTimeEst,
-    thumbnailUrl, modelFileUrl, stockQty,
+    thumbnailUrl, modelFileUrl, stockQty, compareAtPrice,
   } = body;
 
   if (!name || !slug || !basePrice || !categoryId) {
@@ -111,6 +111,9 @@ export async function POST(request: NextRequest) {
           stockQty !== "" && {
             stockQty: Math.max(0, Math.trunc(Number(stockQty))),
           }),
+        ...(compareAtPrice && Number(compareAtPrice) > 0
+          ? { compareAtPrice: Number(compareAtPrice) }
+          : {}),
       },
     });
 

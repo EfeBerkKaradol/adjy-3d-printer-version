@@ -127,6 +127,9 @@ model Product {
   sku            String?          @unique
   description    String?
   basePrice      Decimal          @db.Decimal(10, 2)
+  /// Üstü çizili "eski fiyat". basePrice'tan büyükse ürün indirimlidir.
+  /// NULL ise indirim yoktur — ayrı bir bayrak tutulmaz.
+  compareAtPrice Decimal?         @db.Decimal(10, 2)
   categoryId     String
   modelFileUrl   String?
   thumbnailUrl   String?

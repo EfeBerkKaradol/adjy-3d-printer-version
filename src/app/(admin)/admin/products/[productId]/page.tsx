@@ -37,6 +37,7 @@ export default function EditProductPage() {
     materialWeight: "",
     printTimeEst: "",
     stockQty: "",
+    compareAtPrice: "",
     thumbnailUrl: "",
     modelFileUrl: "",
     isActive: true,
@@ -60,6 +61,7 @@ export default function EditProductPage() {
           materialWeight: p.materialWeight ? String(p.materialWeight) : "",
           printTimeEst: p.printTimeEst ? String(p.printTimeEst) : "",
           stockQty: p.stockQty !== null && p.stockQty !== undefined ? String(p.stockQty) : "",
+          compareAtPrice: p.compareAtPrice ? String(p.compareAtPrice) : "",
           thumbnailUrl: p.thumbnailUrl || "",
           modelFileUrl: p.modelFileUrl || "",
           isActive: p.isActive ?? true,
@@ -85,6 +87,7 @@ export default function EditProductPage() {
           materialWeight: form.materialWeight ? Number(form.materialWeight) : null,
           printTimeEst: form.printTimeEst ? Number(form.printTimeEst) : null,
           stockQty: form.stockQty === "" ? undefined : Number(form.stockQty),
+          compareAtPrice: form.compareAtPrice === "" ? null : Number(form.compareAtPrice),
         }),
       });
 
@@ -248,6 +251,23 @@ export default function EditProductPage() {
             <div>
               <label className="text-sm font-medium mb-1.5 block">Baskı Süresi (dk)</label>
               <Input type="number" value={form.printTimeEst} onChange={(e) => setForm((p) => ({ ...p, printTimeEst: e.target.value }))} />
+            </div>
+            <div>
+              <label htmlFor="compareAtPrice" className="text-sm font-medium mb-1.5 block">
+                Eski Fiyat (TL)
+              </label>
+              <Input
+                id="compareAtPrice"
+                type="number"
+                step="0.01"
+                min={0}
+                value={form.compareAtPrice}
+                onChange={(e) => setForm((p) => ({ ...p, compareAtPrice: e.target.value }))}
+              />
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                Fiyattan yüksek bir değer girilirse ürün indirimli görünür ve bu
+                tutar üstü çizili gösterilir. Boş bırakılırsa indirim kalkar.
+              </p>
             </div>
             <div>
               <label htmlFor="stockQty" className="text-sm font-medium mb-1.5 block">
