@@ -3,34 +3,28 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import {
-  motion,
-  useMotionValueEvent,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from "framer-motion";
+import { motion, useMotionValueEvent, useReducedMotion, useScroll } from "framer-motion";
 import { useMediaQuery } from "@/hooks/useClientState";
 import { ProductImageFallback } from "@/components/product/ProductImageFallback";
-import { STORY_MODULES } from "./objectStoryModules";
+import { ScrollScrubVideo } from "./ScrollScrubVideo";
+import { STORY_ACTS, STORY_VIDEO, actIndexFor } from "./objectStoryTimeline";
 import { ArrowRight } from "lucide-react";
 
 // ==========================================
 // BÖLÜM — BİR NESNENİN ÜÇ HÂLİ
 //
-// Tek bir gerçek ürün fotoğrafı (delikli duvar paneli)
-// üzerinden kısa bir scroll anlatısı: keşfet →
-// yapılandır → üret.
+// Tek bir ürün — delikli duvar paneli — üzerinden
+// keşfet → yapılandır → üret anlatısı.
 //
-// Görsel dil bilinçli olarak sade: 3D sahne, parçacık
-// sistemi ya da tel kafes yok. Yalnızca CSS transform ve
-// opacity — hepsi GPU'da, scroll'a anında tepki veriyor.
-// Yay (spring) kullanılmıyor; kullanıcı hızlı kaydırınca
-// animasyon geriden gelmesin diye değerler doğrudan
-// ilerlemeye bağlı.
+// Anlatıyı taşıyan şey metin değil, nesnenin kendisi:
+// önceden render edilmiş sinematik bir ürün animasyonu
+// kullanıcının kaydırmasıyla kare kare sürülür. Kaydırma
+// kaçırılmaz, tekerlek ele geçirilmez; bölüm 200vh, yani
+// hikâye birkaç saniyede biter.
 //
-// Bölüm 200vh: birkaç tekerlek hareketinde üç hâl de
-// görülebilir.
+// Render henüz yokken bölüm ürünün gerçek fotoğrafına
+// düşer. Sahte bir sahne üretilmez; STORY_VIDEO'ya dosya
+// yolu yazıldığı anda animasyon devralır.
 // ==========================================
 
 export interface ObjectStoryProduct {
@@ -45,27 +39,6 @@ interface ObjectStoryProps {
   product: ObjectStoryProduct;
 }
 
-const ACTS = [
-  {
-    n: "01",
-    title: "Keşfet",
-    body: "Dijital olarak tasarlanmış nesnelere göz at. Her biri bir dosya olarak başlar.",
-    cta: { label: "Nesneleri gör", href: "/products" },
-  },
-  {
-    n: "02",
-    title: "Yapılandır",
-    body: "Ölçünü seç. Modüllerini belirle. Kendi sistemini kur.",
-    cta: { label: "Yapılandır", href: "/configure" },
-  },
-  {
-    n: "03",
-    title: "Üret",
-    body: "Sen seç, ADJY üretsin. Tasarladığın şey senin ölçünde üretilir.",
-    cta: { label: "Üret", href: "/3d-baski-fiyati-hesapla" },
-  },
-];
-
 export function ObjectStory({ product }: ObjectStoryProps) {
   const reduceMotion = useReducedMotion();
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -76,36 +49,37 @@ export function ObjectStory({ product }: ObjectStoryProps) {
     offset: ["start start", "end end"],
   });
 
-  // Ürün görseli: çok hafif yakınlaşma ve kayma.
-  // Kamera hissi verir ama dikkati üründen çalmaz.
-  const imageScale = useTransform(scrollYProgress, [0, 0.5, 1], [1.06, 1, 1.03]);
-  const imageY = useTransform(scrollYProgress, [0, 1], ["2%", "-2%"]);
-
   const [act, setAct] = useState(0);
-  useMotionValueEvent(scrollYProgress, "change", (v) => {
-    const next = v < 0.32 ? 0 : v < 0.72 ? 1 : 2;
+  useMotionValueEvent(scrollYProgress, "change", (value) => {
+    const next = actIndexFor(value);
     setAct((prev) => (prev === next ? prev : next));
   });
 
-  const current = ACTS[act];
-  const showStatic = Boolean(reduceMotion) || !isDesktop;
+  // Masaüstü ve mobil için ayrı dosyalar; biri yoksa diğeri kullanılır
+  const videoSrc = isDesktop
+    ? STORY_VIDEO.desktop ?? STORY_VIDEO.mobile
+    : STORY_VIDEO.mobile ?? STORY_VIDEO.desktop;
 
-  const panel =
+  // Render yokken mobilde 200vh boş kaydırma yaptırmanın anlamı yok
+  const showStatic = Boolean(reduceMotion) || (!videoSrc && !isDesktop);
+
+  const current = STORY_ACTS[act];
+
+  const stillImage =
     product.thumbnailUrl !== null ? (
       <Image
         src={product.thumbnailUrl}
         alt={product.name}
         fill
-        sizes="(max-width: 768px) 100vw, 60vw"
+        sizes="100vw"
         className="object-cover"
-        priority={false}
       />
     ) : (
       <ProductImageFallback slug={product.slug} />
     );
 
   // ------------------------------------------------------------------
-  // Mobil / hareket azaltma: aynı üç hâl, animasyonsuz
+  // Hareket azaltma / render'sız mobil: aynı üç hâl, animasyonsuz
   // ------------------------------------------------------------------
   const staticVersion = (
     <section className="adjy-container adjy-section" aria-label="Bir nesnenin üç hâli">
@@ -121,14 +95,14 @@ export function ObjectStory({ product }: ObjectStoryProps) {
       </div>
 
       <div className="relative mt-10 aspect-[4/3] overflow-hidden bg-surface-2">
-        {panel}
+        {stillImage}
         <span className="absolute bottom-4 left-4 bg-background/90 px-2.5 py-1 text-xs font-medium backdrop-blur-sm">
           {product.name}
         </span>
       </div>
 
       <ol className="mt-10 divide-y divide-border border-t border-border">
-        {ACTS.map((a) => (
+        {STORY_ACTS.map((a) => (
           <li key={a.n} className="py-6">
             <span className="font-mono text-xs tabular-nums text-muted-foreground">
               {a.n}
@@ -166,38 +140,43 @@ export function ObjectStory({ product }: ObjectStoryProps) {
         aria-label="Bir nesnenin üç hâli"
         aria-hidden={showStatic || undefined}
       >
-        <div className="sticky top-0 flex h-screen items-center overflow-hidden">
-          <div className="adjy-container grid w-full grid-cols-[minmax(0,4fr)_minmax(0,6fr)] items-center gap-12 lg:gap-20">
-            {/* Metin */}
-            <div>
-              <p className="adjy-eyebrow mb-5">ADJY nedir</p>
-              <h2 className="adjy-display text-[clamp(1.875rem,3.6vw,2.75rem)]">
-                Bir nesnenin üç hâli.
-              </h2>
-              <p className="mt-4 max-w-sm text-[15px] leading-relaxed text-muted-foreground">
-                ADJY&apos;de bir ürün rafta beklemez. Dosya olarak durur, sen
-                ölçüsünü verdiğinde üretilir.
-              </p>
+        <div className="sticky top-0 h-screen overflow-hidden bg-surface-2">
+          {/* Taban: ürünün gerçek fotoğrafı. Video çözülene kadar
+              görünen kare bu; render hiç yoksa bölüm buna dayanır. */}
+          <div className="absolute inset-0">{stillImage}</div>
 
-              <div className="mt-10 border-t border-border pt-7">
+          {videoSrc && (
+            <ScrollScrubVideo
+              src={videoSrc}
+              progress={scrollYProgress}
+              poster={product.thumbnailUrl ?? undefined}
+              className="absolute inset-0"
+            />
+          )}
+
+          {/* Metin, görüntünün alt kenarına yaslanır — ürünün
+              üstünü kapatmaz. Perde geçişleri ürünle aynı anda akar. */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-background via-background/80 to-transparent pt-24">
+            <div className="adjy-container pb-10 md:pb-14">
+              <div className="pointer-events-auto max-w-md">
                 <motion.div
                   key={current.n}
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
                 >
                   <span className="font-mono text-xs tabular-nums text-muted-foreground">
                     {current.n}
                   </span>
-                  <h3 className="adjy-display mt-2.5 text-[clamp(1.5rem,2.8vw,2.25rem)]">
+                  <h2 className="adjy-display mt-2 text-[clamp(1.75rem,3.4vw,2.75rem)]">
                     {current.title}
-                  </h3>
-                  <p className="mt-3 max-w-sm text-[15px] leading-relaxed text-muted-foreground">
+                  </h2>
+                  <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
                     {current.body}
                   </p>
                   <Link
                     href={current.cta.href}
-                    className="group mt-6 inline-flex items-center gap-2 border-b border-foreground pb-1 text-sm font-medium transition-colors hover:border-muted-foreground hover:text-muted-foreground"
+                    className="group mt-5 inline-flex items-center gap-2 border-b border-foreground pb-1 text-sm font-medium transition-colors hover:border-muted-foreground hover:text-muted-foreground"
                   >
                     {current.cta.label}
                     <ArrowRight
@@ -206,97 +185,27 @@ export function ObjectStory({ product }: ObjectStoryProps) {
                     />
                   </Link>
                 </motion.div>
+
+                {/* Perde göstergesi */}
+                <ol className="mt-8 flex gap-2" aria-hidden>
+                  {STORY_ACTS.map((a, i) => (
+                    <li
+                      key={a.n}
+                      className={`h-px transition-all duration-300 ${
+                        act === i ? "w-10 bg-foreground" : "w-5 bg-border"
+                      }`}
+                    />
+                  ))}
+                </ol>
               </div>
-
-              {/* Perde göstergesi */}
-              <ol className="mt-9 flex gap-2" aria-hidden>
-                {ACTS.map((a, i) => (
-                  <li
-                    key={a.n}
-                    className={`h-px transition-all duration-300 ${
-                      act === i ? "w-10 bg-foreground" : "w-5 bg-border"
-                    }`}
-                  />
-                ))}
-              </ol>
-            </div>
-
-            {/* Ürün — gerçek fotoğraf, üzerine modüller yerleşiyor */}
-            <div className="relative aspect-[4/3] overflow-hidden bg-surface-2">
-              <motion.div
-                style={{ scale: imageScale, y: imageY }}
-                className="absolute inset-0"
-              >
-                {panel}
-              </motion.div>
-
-              {STORY_MODULES.map((mod) => (
-                <ModuleOverlay
-                  key={mod.id}
-                  module={mod}
-                  progress={scrollYProgress}
-                />
-              ))}
-
-              <span className="pointer-events-none absolute bottom-4 left-4 bg-background/90 px-2.5 py-1 text-xs font-medium backdrop-blur-sm">
-                {product.name}
-              </span>
             </div>
           </div>
+
+          <span className="pointer-events-none absolute right-5 top-5 bg-background/90 px-2.5 py-1 text-xs font-medium backdrop-blur-sm md:right-8">
+            {product.name}
+          </span>
         </div>
       </section>
     </div>
-  );
-}
-
-// ==========================================
-// MODÜL — panele yerleşen parça
-//
-// Şeffaf ürün görseli varsa o çizilir; yoksa katalogda
-// karşılığı olmayan bir ürünün sahte fotoğrafını üretmek
-// yerine ince bir etiket işareti gösterilir.
-// ==========================================
-function ModuleOverlay({
-  module: mod,
-  progress,
-}: {
-  module: (typeof STORY_MODULES)[number];
-  progress: ReturnType<typeof useScroll>["scrollYProgress"];
-}) {
-  // Girişten oturmaya: yaklaşır, belirir, yerine oturur
-  const opacity = useTransform(
-    progress,
-    [mod.enterAt, mod.enterAt + (mod.settleAt - mod.enterAt) * 0.4, 1],
-    [0, 1, 1]
-  );
-  const offsetX = useTransform(progress, [mod.enterAt, mod.settleAt], [26, 0]);
-  const offsetY = useTransform(progress, [mod.enterAt, mod.settleAt], [-18, 0]);
-  const scale = useTransform(progress, [mod.enterAt, mod.settleAt], [0.9, 1]);
-
-  return (
-    <motion.div
-      style={{
-        opacity,
-        x: offsetX,
-        y: offsetY,
-        scale,
-        left: `${mod.x}%`,
-        top: `${mod.y}%`,
-        width: mod.image ? `${mod.widthPercent}%` : undefined,
-      }}
-      className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2"
-    >
-      {mod.image ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={mod.image} alt={mod.label} className="w-full" />
-      ) : (
-        <span className="flex items-center gap-2 whitespace-nowrap">
-          <span className="h-1.5 w-1.5 rounded-full bg-foreground" aria-hidden />
-          <span className="bg-background/90 px-2 py-1 text-[11px] font-medium backdrop-blur-sm">
-            {mod.label}
-          </span>
-        </span>
-      )}
-    </motion.div>
   );
 }
