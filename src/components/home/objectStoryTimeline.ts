@@ -18,12 +18,13 @@ export interface StoryVideoSources {
 }
 
 /**
- * Sahnenin kendisi: delikli duvar paneline modüllerin
- * tek tek takıldığı 6–8 saniyelik sinematik render.
+ * Sahnenin kendisi: delikli duvar paneline yavaşça
+ * yaklaşan 8 saniyelik sinematik ürün çekimi. Kaynağı
+ * ürünün kendi fotoğrafı, yani gösterilen nesne gerçekten
+ * satılan nesne — uydurma bir sahne değil.
  *
- * Dosya hazır olduğunda public/ altına konup yolu buraya
- * yazılır (ör. "/media/panel-story-desktop.mp4").
- * Bileşende hiçbir değişiklik gerekmez.
+ * Yenisi geldiğinde public/media/ altındaki dosya
+ * değiştirilir; bileşende hiçbir şey değişmez.
  *
  * ÖNEMLİ: Scroll ile kare kare sürülebilmesi için dosyanın
  * sık anahtar kareli (keyframe) kodlanması gerekir —
@@ -31,9 +32,12 @@ export interface StoryVideoSources {
  * Seyrek anahtar kareli bir mp4 hızlı kaydırmada takılır.
  */
 export const STORY_VIDEO: StoryVideoSources = {
-  desktop: null,
-  mobile: null,
+  desktop: "/media/panel-story-desktop.mp4",
+  mobile: "/media/panel-story-mobile.mp4",
 };
+
+/** Render'ın en-boy oranı — çerçeve buna göre kurulur */
+export const STORY_ASPECT = "4 / 5";
 
 export interface StoryAct {
   n: string;

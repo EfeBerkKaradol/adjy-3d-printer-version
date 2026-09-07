@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useMotionValueEvent, type MotionValue } from "framer-motion";
+import { type MotionValue } from "framer-motion";
 import { progressToTimeFraction } from "./objectStoryTimeline";
 
 // ==========================================
@@ -13,8 +13,9 @@ import { progressToTimeFraction } from "./objectStoryTimeline";
 // Neden requestAnimationFrame:
 // Scroll olayı saniyede yüzlerce kez gelebilir; her birinde
 // currentTime yazmak arama (seek) kuyruğunu tıkar ve görüntü
-// takılır. Bunun yerine son hedef bir ref'te tutulur, karede
-// bir kez yazılır. Bu bir yumuşatma değil — araya easing
+// takılır. Bunun yerine kare başına bir kez, o anki kaydırma
+// değeri doğrudan okunup yazılır — araya hiçbir ara değer
+// girmediği için hedef her zaman güncel. Bu bir yumuşatma değil — araya easing
 // girmiyor, yalnızca yazma sıklığı ekranın hızına eşitleniyor.
 // Kullanıcı hızlı kaydırdığında video hedef kareye atlar,
 // geriye kaydırdığında animasyon geri sarar.
@@ -45,7 +46,6 @@ export function ScrollScrubVideo({
   const videoRef = useRef<HTMLVideoElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
 
-  const targetFraction = useRef(0);
   const rafId = useRef<number | null>(null);
   const idleFrames = useRef(0);
 
@@ -93,13 +93,17 @@ export function ScrollScrubVideo({
       const duration = video.duration;
       if (!Number.isFinite(duration) || duration <= 0) return;
 
-      const wanted = targetFraction.current * duration;
+      // Tam süreye oturmak videoyu "bitti" durumuna sokar; son
+      // karenin hemen berisinde durulur, böylece geri sarma her
+      // tarayıcıda sorunsuz çalışır.
+      const last = Math.max(0, duration - FRAME);
+      const wanted = Math.min(progressToTimeFraction(progress.get()) * duration, last);
       const delta = Math.abs(video.currentTime - wanted);
 
       if (delta > FRAME) {
         idleFrames.current = 0;
-        // Devam eden bir arama varsa üstüne yazma; hedef ref'te
-        // duruyor, bir sonraki karede zaten yakalanacak.
+        // Devam eden bir arama varsa üstüne yazma; bir sonraki
+        // kare kaydırmayı yeniden okuyup zaten yakalayacak.
         if (!video.seeking) video.currentTime = wanted;
       } else {
         idleFrames.current += 1;
@@ -126,12 +130,6 @@ export function ScrollScrubVideo({
       rafId.current = null;
     };
   }, [ready, progress]);
-
-  // Hedef, video hazır olmasa da güncel tutulur: hazır olduğu
-  // anda doğru kareye oturur, baştan başlamaz.
-  useMotionValueEvent(progress, "change", (value) => {
-    targetFraction.current = progressToTimeFraction(value);
-  });
 
   return (
     <div ref={wrapRef} className={className}>
