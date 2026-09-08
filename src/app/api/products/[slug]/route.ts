@@ -16,15 +16,51 @@ export async function GET(
     const { searchParams } = new URL(request.url);
     const byId = searchParams.get("byId") === "true";
 
-    // Slug veya ID ile ürünü bul
+    // Slug veya ID ile ürünü bul.
+    //
+    // Alanlar tek tek sayılır, include kullanılmaz. include tabloda
+    // o an ne varsa hepsini çeker; bu yüzden şemaya eklenmiş ama
+    // veritabanına henüz uygulanmamış tek bir sütun bile bu ucu
+    // 500'e düşürüp özelleştirme sayfasını tamamen çalışmaz hâle
+    // getiriyordu. Burada dönen alanlar ProductDetailResponse
+    // sözleşmesiyle birebir; sözleşme büyümedikçe sorgu da büyümez.
     const product = await prisma.product.findFirst({
       where: byId ? { id: slug, isActive: true } : { slug, isActive: true },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        basePrice: true,
+        thumbnailUrl: true,
+        modelFileUrl: true,
+        gallery: true,
+        printTimeEst: true,
+        materialType: true,
+        materialWeight: true,
+        stockQty: true,
+        featured: true,
         category: {
           select: { id: true, name: true, slug: true },
         },
         parameters: {
           orderBy: { sortOrder: "asc" },
+          select: {
+            id: true,
+            name: true,
+            displayName: true,
+            type: true,
+            minValue: true,
+            maxValue: true,
+            defaultValue: true,
+            step: true,
+            unit: true,
+            affectsPrice: true,
+            priceFormula: true,
+            affectsGeometry: true,
+            validationRules: true,
+            sortOrder: true,
+          },
         },
         reviews: {
           select: { rating: true },
