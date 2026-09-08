@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/db";
 import { HeroExperience, type HeroProduct } from "@/components/home/HeroExperience";
 import { Hero } from "@/components/home/Hero";
-import { ObjectStory, type ObjectStoryProduct } from "@/components/home/ObjectStory";
+import { ProductCinemaLoader } from "@/components/home/cinema/ProductCinemaLoader";
+import type { CinemaProduct } from "@/components/home/cinema/ProductCinema";
 import { FeaturedObjects, type FeaturedObject } from "@/components/home/FeaturedObjects";
 import { ConfiguratorShowcase } from "@/components/home/ConfiguratorShowcase";
 import { SpaceShowcase, type SpaceScene } from "@/components/home/SpaceShowcase";
@@ -100,14 +101,14 @@ async function getFeaturedObjects(): Promise<FeaturedObject[]> {
  * Delikli duvar paneli seçilir: modüler sistemi olan tek ürün,
  * yani keşfet → yapılandır → üret hikâyesini tek başına taşıyabilen nesne.
  */
-async function getStoryProduct(): Promise<ObjectStoryProduct | null> {
+async function getStoryProduct(): Promise<CinemaProduct | null> {
   try {
     const panel = await prisma.product.findFirst({
       where: {
         isActive: true,
         OR: [{ slug: { contains: "delikli" } }, { slug: { contains: "panel" } }],
       },
-      select: { id: true, name: true, slug: true, thumbnailUrl: true },
+      select: { id: true, name: true, slug: true },
     });
     if (panel) return panel;
 
@@ -115,7 +116,7 @@ async function getStoryProduct(): Promise<ObjectStoryProduct | null> {
     return await prisma.product.findFirst({
       where: { isActive: true, thumbnailUrl: { not: null } },
       orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      select: { id: true, name: true, slug: true, thumbnailUrl: true },
+      select: { id: true, name: true, slug: true },
     });
   } catch {
     return null;
@@ -470,7 +471,7 @@ export default async function HomePage() {
       )}
 
       {/* 02 — Bir nesnenin üç hâli: keşfet → yapılandır → üret */}
-      {storyProduct && <ObjectStory product={storyProduct} />}
+      <ProductCinemaLoader product={storyProduct} />
 
       {/* 03 — Öne çıkan nesneler */}
       {featuredObjects.length > 0 && <FeaturedObjects products={featuredObjects} />}
