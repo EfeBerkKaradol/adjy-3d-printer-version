@@ -17,6 +17,32 @@ interface PriceParameter {
 }
 
 /**
+ * Formülde kullanılabilecek sayısal değişkenleri toplar.
+ *
+ * Bir ürünün formülü çoğu zaman tek bir parametreye değil,
+ * birkaçının birlikte belirlediği hacme bakar — en/boy gibi.
+ * Bu yüzden değerlendirme sırasında yalnızca o parametrenin
+ * kendi değeri değil, ürünün bütün sayısal parametreleri
+ * görünür olmalı.
+ *
+ * Sayıya çevrilemeyen değerler (renk, metin) dışarıda kalır;
+ * onlara atıf yapan bir formül sayısal bir ifadeye
+ * dönüşemeyeceği için zaten reddedilir.
+ */
+function numericVariables(
+  parameters: PriceParameter[],
+  values: Record<string, number | string>
+): Record<string, number> {
+  const vars: Record<string, number> = {};
+  for (const param of parameters) {
+    const raw = values[param.name] ?? param.defaultValue;
+    const n = Number(raw);
+    if (Number.isFinite(n)) vars[param.name] = n;
+  }
+  return vars;
+}
+
+/**
  * Parametrelere göre toplam fiyatı hesaplar.
  *
  * @param basePrice - Ürünün baz fiyatı
@@ -30,6 +56,7 @@ export function calculatePrice(
   values: Record<string, number | string>
 ): number {
   let totalPrice = basePrice;
+  const vars = numericVariables(parameters, values);
 
   for (const param of parameters) {
     if (!param.affectsPrice || !param.priceFormula) continue;
@@ -39,7 +66,7 @@ export function calculatePrice(
 
     try {
       // Formula'yı parse et: "base * (value / 200)" şeklinde
-      const result = evaluateFormula(param.priceFormula, basePrice, value);
+      const result = evaluateFormula(param.priceFormula, basePrice, value, vars);
       if (result !== null && isFinite(result)) {
         // Formula sonucu baz fiyatın yerine geçer (çarpan gibi)
         // Eğer formula "base * (value / 200)" ise:
@@ -60,27 +87,41 @@ export function calculatePrice(
 
 /**
  * Basit formula değerlendirici.
- * Desteklenen değişkenler: base, value
- * Desteklenen operatörler: +, -, *, /, (, )
+ *
+ * Tanınan değişkenler: `base` (ürünün baz fiyatı), `value`
+ * (formülün bağlı olduğu parametrenin değeri) ve ürünün
+ * sayısal parametrelerinin adları.
+ *
+ * Değişkenler tek geçişte, tanımlayıcı sınırlarına göre
+ * değiştirilir; böylece adı birbirinin içinde geçen iki
+ * parametre (`width` ve `width_top` gibi) birbirini bozmaz.
+ *
+ * Güvenlik: yerine konmamış bir ad kalırsa ifade sayısal
+ * olmaktan çıkar ve reddedilir. Yani formül, ürününde
+ * karşılığı olmayan bir değişkene atıf yapıyorsa fiyat
+ * sessizce değişmez — uydurma bir değerle hesaplanmaz.
  */
-function evaluateFormula(
+export function evaluateFormula(
   formula: string,
   base: number,
-  value: number
+  value: number,
+  variables: Record<string, number> = {}
 ): number | null {
   try {
-    // Değişkenleri değerlerle değiştir
-    const expression = formula
-      .replace(/\bbase\b/g, String(base))
-      .replace(/\bvalue\b/g, String(value));
+    const expression = formula.replace(/[a-zA-Z_]\w*/g, (name) => {
+      if (name === "base") return String(base);
+      if (name === "value") return String(value);
+      const v = variables[name];
+      return Number.isFinite(v) ? String(v) : name;
+    });
 
     // Sadece güvenli karakterlere izin ver: rakamlar, operatörler, parantezler, nokta, boşluk
     if (!/^[\d+\-*/().\s]+$/.test(expression)) {
       return null;
     }
 
-    // Hesapla
-    return Function(`"use strict"; return (${expression});`)() as number;
+    const result = Function(`"use strict"; return (${expression});`)() as number;
+    return typeof result === "number" && isFinite(result) ? result : null;
   } catch {
     return null;
   }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { evaluateFormula } from "@/lib/priceCalculator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -94,26 +95,20 @@ const TYPE_COLORS: Record<ParameterType, string> = {
 };
 
 // ===== Formula Tester =====
+//
+// Değerlendirme fiyat motorundan gelir; buradaki önizleme
+// ile müşterinin ödediği tutarın ayrışmaması için ikinci bir
+// kopya tutulmuyor.
+//
+// Test aracı yalnızca base ve value verebildiğinden, ürünün
+// başka parametrelerine atıf yapan bir formül burada
+// hesaplanamaz — bu durum hata değil, önizlenemez olarak
+// gösterilir.
 
-function evaluateFormula(
-  formula: string,
-  base: number,
-  value: number
-): number | null {
-  try {
-    const expression = formula
-      .replace(/\bbase\b/g, String(base))
-      .replace(/\bvalue\b/g, String(value));
-
-    if (!/^[\d+\-*/().\s]+$/.test(expression)) return null;
-
-    const fn = new Function(`"use strict"; return (${expression});`);
-    const result = fn();
-    if (typeof result !== "number" || !isFinite(result)) return null;
-    return Math.round(result * 100) / 100;
-  } catch {
-    return null;
-  }
+function referencesOtherVariables(formula: string): boolean {
+  return (formula.match(/[a-zA-Z_]\w*/g) ?? []).some(
+    (name) => name !== "base" && name !== "value"
+  );
 }
 
 // ===== Component =====
@@ -945,8 +940,9 @@ export function ParameterManager({ productId }: ParameterManagerProps) {
                       Number(testBase) || 0,
                       Number(testValue) || 0
                     );
-                    return result != null
-                      ? `${result} ₺`
+                    if (result != null) return `${Math.round(result * 100) / 100} ₺`;
+                    return referencesOtherVariables(form.priceFormula)
+                      ? "diğer parametrelere bağlı — burada önizlenemez"
                       : "Hata";
                   })()}
                 </span>
