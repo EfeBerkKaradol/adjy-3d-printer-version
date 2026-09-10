@@ -66,6 +66,23 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
                     aria-hidden
                   />
                 </Link>
+
+                {/* Alt yollar: Üret'in iki başlangıcı burada ayrışır */}
+                {link.children && (
+                  <ul className="border-t border-border bg-surface-2/60">
+                    {link.children.map((child) => (
+                      <li key={child.href}>
+                        <Link
+                          href={child.href}
+                          onClick={close}
+                          className="flex min-h-12 items-center px-5 py-3 pl-9 text-sm transition-colors active:bg-surface"
+                        >
+                          {child.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
           </ul>

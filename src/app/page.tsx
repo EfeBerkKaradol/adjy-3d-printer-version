@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { HeroExperience, type HeroProduct } from "@/components/home/HeroExperience";
 import { Hero } from "@/components/home/Hero";
 import { ProductCinemaLoader } from "@/components/home/cinema/ProductCinemaLoader";
+import { PhotoToProductTeaser } from "@/components/home/PhotoToProductTeaser";
 import type { CinemaProduct } from "@/components/home/cinema/ProductCinema";
 import { FeaturedObjects, type FeaturedObject } from "@/components/home/FeaturedObjects";
 import { ConfiguratorShowcase } from "@/components/home/ConfiguratorShowcase";
@@ -473,7 +474,10 @@ export default async function HomePage() {
       {/* 02 — Bir nesnenin üç hâli: keşfet → yapılandır → üret */}
       <ProductCinemaLoader product={storyProduct} />
 
-      {/* 03 — Öne çıkan nesneler */}
+      {/* 03 — Fotoğraftan ürüne */}
+      <PhotoToProductTeaser />
+
+      {/* 04 — Öne çıkan nesneler */}
       {featuredObjects.length > 0 && <FeaturedObjects products={featuredObjects} />}
 
       {/* 04 — Seninki yap */}

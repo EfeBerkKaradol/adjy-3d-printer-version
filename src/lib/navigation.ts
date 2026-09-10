@@ -8,6 +8,8 @@ export interface NavLink {
   label: string;
   href: string;
   description: string;
+  /** Mobil menüde ana başlığın altında açılan alt yollar */
+  children?: { label: string; href: string }[];
 }
 
 export const MAIN_NAV: NavLink[] = [
@@ -22,9 +24,16 @@ export const MAIN_NAV: NavLink[] = [
     description: "Nesneyi kendi ölçünde ürettir",
   },
   {
+    // Üret artık tek bir hesaplayıcı değil, iki başlangıcı olan
+    // bir bölüm: elinde model olan yükler, olmayan fotoğraftan
+    // başlar. Eski hesaplayıcı adresi çalışmaya devam ediyor.
     label: "Üret",
-    href: "/3d-baski-fiyati-hesapla",
-    description: "Kendi modelini yükle, teklif al",
+    href: "/uret",
+    description: "Modelini yükle ya da fotoğraftan oluştur",
+    children: [
+      { label: "Fotoğraftan Oluştur", href: "/uret/fotograftan-olustur" },
+      { label: "Kendi Modelini Yükle", href: "/uret/model-yukle" },
+    ],
   },
   {
     label: "Koleksiyonlar",
@@ -50,7 +59,8 @@ export const FOOTER_NAV: { title: string; links: { label: string; href: string }
       { label: "Mağaza", href: "/products" },
       { label: "Koleksiyonlar", href: "/collections" },
       { label: "Yapılandır", href: "/configure" },
-      { label: "Kendi modelini üret", href: "/3d-baski-fiyati-hesapla" },
+      { label: "Üret", href: "/uret" },
+      { label: "Fotoğraftan oluştur", href: "/uret/fotograftan-olustur" },
       { label: "Öne Çıkanlar", href: "/products?featured=true" },
     ],
   },
