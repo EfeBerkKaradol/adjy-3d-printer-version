@@ -7,6 +7,7 @@
 // ==========================================
 
 import { MAX_MODEL_DIMENSION_MM } from "@/lib/slicer";
+import { formatLength } from "@/lib/units";
 import type { ManufacturabilityResult, ModelDimensions } from "../types";
 
 /** Nozzle genişliğinin altındaki detay basılamaz */
@@ -23,7 +24,7 @@ export function checkManufacturability(
     return {
       level: "unsuitable",
       title: "Bu ölçü tablamıza sığmıyor",
-      detail: `En büyük kenar ${MAX_MODEL_DIMENSION_MM} mm'yi aşmamalı. Ölçüyü küçültürsen üretebiliriz.`,
+      detail: `En büyük kenar ${formatLength(MAX_MODEL_DIMENSION_MM)}'yi aşmamalı. Ölçüyü küçültürsen üretebiliriz.`,
     };
   }
 

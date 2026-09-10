@@ -11,6 +11,7 @@ import { exportSceneToGLB, exportSceneToUSDZ } from "@/lib/ar/glbExporter";
 import { useCartStore } from "@/store/cartStore";
 import { CUSTOM_PRINT_PRODUCT_ID } from "@/lib/customPrint";
 import { FILAMENT_COLORS, MATERIALS, formatTRY } from "@/lib/slicer";
+import { cmToMm, formatDimensions } from "@/lib/units";
 import type { GeneratedModel, PhotoAnalysis } from "../types";
 import { buildGeometry, measure, paramValue } from "../services/geometry";
 import { priceGeneratedModel } from "../services/pricing";
@@ -105,13 +106,14 @@ export function ResultWorkspace({ analysis, model, onRestart }: ResultWorkspaceP
    * kenar bilindiğinde geri kalanı oranla doğrulanabilir.
    */
   const applyKnownHeight = useCallback(() => {
-    const target = Number(knownHeight);
+    // Kullanıcı cm girer; içeride her şey mm
+    const target = cmToMm(Number(knownHeight.replace(",", ".")));
     if (!Number.isFinite(target) || target <= 0) return;
     const currentHeight = paramValue(parameters, "height", 1);
     const factor = target / currentHeight;
     setParameters((prev) =>
       prev.map((p) =>
-        p.unit === "mm"
+        p.unit === "cm" || p.unit === "mm"
           ? {
               ...p,
               value: Math.min(p.max, Math.max(p.min, Math.round(p.value * factor * 10) / 10)),
@@ -307,7 +309,7 @@ export function ResultWorkspace({ analysis, model, onRestart }: ResultWorkspaceP
           <span>ADJY 3D modeli</span>
           <ArrowRight className="h-3.5 w-3.5 shrink-0" aria-hidden />
           <span className="text-foreground">
-            {dimensions.widthMm} × {dimensions.depthMm} × {dimensions.heightMm} mm
+            {formatDimensions(dimensions.widthMm, dimensions.depthMm, dimensions.heightMm)}
           </span>
         </div>
       </div>
@@ -341,14 +343,15 @@ export function ResultWorkspace({ analysis, model, onRestart }: ResultWorkspaceP
                 <input
                   id="known-height"
                   type="number"
-                  min={10}
-                  max={300}
+                  min={1}
+                  max={30}
+                  step={0.1}
                   value={knownHeight}
                   onChange={(e) => setKnownHeight(e.target.value)}
-                  placeholder="180"
+                  placeholder="18"
                   className="w-28 rounded-md border border-border bg-background px-3 py-2 text-sm tabular-nums outline-none focus:border-foreground"
                 />
-                <span className="self-center text-sm text-muted-foreground">mm</span>
+                <span className="self-center text-sm text-muted-foreground">cm</span>
                 <Button type="button" size="sm" onClick={applyKnownHeight}>
                   Uygula
                 </Button>

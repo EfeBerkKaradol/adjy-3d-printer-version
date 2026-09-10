@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { SlidersHorizontal, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cmToMm, formatCmValue, mmToCm } from "@/lib/units";
 
 // ==========================================
 // PARAMETRE PANELİ
@@ -141,6 +142,25 @@ function ParameterControl({ param, value, onChange }: ParameterControlProps) {
   }
 }
 
+/**
+ * Ekranda gösterilecek birim ve değerler.
+ *
+ * Parametreler veritabanında mm tutulur; kullanıcıya cm
+ * gösterilir. Dönüşüm yalnızca burada yapılır, dışarıya
+ * bildirilen değer her zaman mm kalır — fiyat formülleri ve
+ * üretim tarafı bu yüzden hiç değişmedi.
+ */
+function display(param: Parameter) {
+  const isLength = param.unit === "mm";
+  return {
+    isLength,
+    unit: isLength ? "cm" : param.unit,
+    out: (shown: number) => (isLength ? cmToMm(shown) : shown),
+    num: (mm: number) => (isLength ? mmToCm(mm) : mm),
+    text: (mm: number) => (isLength ? formatCmValue(mm) : String(mm)),
+  };
+}
+
 // ==========================================
 // SLIDER KONTROLÜ
 // ==========================================
@@ -157,6 +177,7 @@ function SliderControl({
   const max = param.maxValue ?? 100;
   const step = param.step ?? 1;
   const percentage = ((value - min) / (max - min)) * 100;
+  const d = display(param);
 
   return (
     <div className="space-y-2">
@@ -164,10 +185,10 @@ function SliderControl({
         <Label className="text-sm font-medium">{param.displayName}</Label>
         <div className="flex items-center gap-1.5">
           <span className="text-sm font-mono font-semibold text-primary">
-            {value}
+            {d.text(value)}
           </span>
-          {param.unit && (
-            <span className="text-xs text-muted-foreground">{param.unit}</span>
+          {d.unit && (
+            <span className="text-xs text-muted-foreground">{d.unit}</span>
           )}
           {param.affectsPrice && (
             <Badge variant="outline" className="text-[9px] px-1.5 py-0 ml-1">
@@ -179,11 +200,12 @@ function SliderControl({
       <div className="relative">
         <input
           type="range"
-          min={min}
-          max={max}
-          step={step}
-          value={value}
-          onChange={(e) => onChange(Number(e.target.value))}
+          aria-label={param.displayName}
+          min={d.num(min)}
+          max={d.num(max)}
+          step={d.isLength ? Math.max(0.1, step / 10) : step}
+          value={d.num(value)}
+          onChange={(e) => onChange(d.out(Number(e.target.value)))}
           className="w-full h-2 rounded-full appearance-none cursor-pointer bg-muted
                      [&::-webkit-slider-thumb]:appearance-none
                      [&::-webkit-slider-thumb]:w-5
@@ -206,12 +228,12 @@ function SliderControl({
         />
         <div className="flex justify-between mt-1">
           <span className="text-[10px] text-muted-foreground">
-            {min}
-            {param.unit && ` ${param.unit}`}
+            {d.text(min)}
+            {d.unit && ` ${d.unit}`}
           </span>
           <span className="text-[10px] text-muted-foreground">
-            {max}
-            {param.unit && ` ${param.unit}`}
+            {d.text(max)}
+            {d.unit && ` ${d.unit}`}
           </span>
         </div>
       </div>

@@ -7,6 +7,7 @@ import {
   MAX_MODEL_DIMENSION_MM,
 } from "@/lib/slicer";
 import { ArrowRight, Upload } from "lucide-react";
+import { formatCmValue } from "@/lib/units";
 
 // ==========================================
 // ÜRET — KENDİ MODELİNİ ÜRETTİR
@@ -70,7 +71,7 @@ export function CreateSection() {
               <div className="flex items-baseline justify-between gap-6 py-5">
                 <dt className="text-sm text-muted-foreground">Maksimum kenar</dt>
                 <dd className="font-mono text-sm tabular-nums">
-                  {MAX_MODEL_DIMENSION_MM} mm
+                  {formatCmValue(MAX_MODEL_DIMENSION_MM)} cm
                 </dd>
               </div>
             </dl>

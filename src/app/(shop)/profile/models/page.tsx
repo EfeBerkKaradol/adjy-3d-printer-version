@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatTRY } from "@/lib/slicer";
+import { formatDimensions } from "@/lib/units";
 
 // ==========================================
 // MODELLERİM
@@ -121,7 +122,7 @@ export default function MyModelsPage() {
                   </p>
                   {d && (
                     <p className="mt-1 text-sm tabular-nums text-muted-foreground">
-                      {d.widthMm} × {d.depthMm} × {d.heightMm} mm
+                      {formatDimensions(d.widthMm, d.depthMm, d.heightMm)}
                     </p>
                   )}
                   {typeof m.parameters?.priceGross === "number" && (

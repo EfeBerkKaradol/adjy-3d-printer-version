@@ -63,6 +63,7 @@ import { useCartStore } from "@/store/cartStore";
 import { CUSTOM_PRINT_PRODUCT_ID } from "@/lib/customPrint";
 import { ARModal } from "@/components/ar/ARModal";
 import { exportSceneToGLB, exportSceneToUSDZ } from "@/lib/ar/glbExporter";
+import { formatCmValue, formatDimensions, formatLength } from "@/lib/units";
 
 // Canvas SSR'da çalışmaz — yalnızca istemcide yüklenir
 const StlViewer = dynamic(
@@ -209,8 +210,8 @@ export function PriceCalculator() {
       if (maxDimension > MAX_MODEL_DIMENSION_MM) {
         geometry.dispose();
         setError(
-          `Modelinizin en büyük boyutu ${maxDimension.toFixed(2)}mm. ` +
-            `Şu anda ${MAX_MODEL_DIMENSION_MM}mm'ye kadar hizmet verebilmekteyiz.`
+          `Modelinizin en büyük boyutu ${formatLength(maxDimension)}. ` +
+            `Şu anda ${formatLength(MAX_MODEL_DIMENSION_MM)}'ye kadar hizmet verebilmekteyiz.`
         );
         return;
       }
@@ -469,7 +470,7 @@ export function PriceCalculator() {
                 </Button>
                 <p className="mt-4 text-xs text-muted-foreground">
                   Yalnızca .stl · En fazla {MAX_FILE_SIZE_MB}MB · Maks.{" "}
-                  {MAX_MODEL_DIMENSION_MM}mm
+                  {formatCmValue(MAX_MODEL_DIMENSION_MM)} cm
                 </p>
                 <p className="mt-1.5 text-xs text-muted-foreground/80">
                   Dosyanız daha büyükse{" "}
@@ -555,8 +556,11 @@ export function PriceCalculator() {
                 <div className="min-w-0">
                   <p className="text-xs text-muted-foreground">Boyutlar</p>
                   <p className="truncate text-sm font-medium">
-                    {model.dimensions.x.toFixed(1)} × {model.dimensions.y.toFixed(1)} ×{" "}
-                    {model.dimensions.z.toFixed(1)} mm
+                    {formatDimensions(
+                      model.dimensions.x,
+                      model.dimensions.y,
+                      model.dimensions.z
+                    )}
                   </p>
                 </div>
               </div>

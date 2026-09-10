@@ -7,6 +7,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { ProductImageFallback } from "@/components/product/ProductImageFallback";
 import { ScaleDiagram } from "./ScaleDiagram";
 import { ArrowRight } from "lucide-react";
+import { formatCmValue } from "@/lib/units";
 
 // ==========================================
 // BÖLÜM 06 — ALANINA GÖRE
@@ -131,7 +132,7 @@ export function SpaceShowcase({ scenes }: SpaceShowcaseProps) {
             {scene.width ? (
               <div className="mt-7 border-t border-border pt-6">
                 <p className="adjy-eyebrow mb-4">
-                  {scene.width.label} · {scene.width.min}–{scene.width.max} mm
+                  {scene.width.label} · {formatCmValue(scene.width.min)}–{formatCmValue(scene.width.max)} cm
                 </p>
                 <ScaleDiagram
                   min={scene.width.min}

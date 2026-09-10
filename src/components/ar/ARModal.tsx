@@ -7,6 +7,7 @@ import { ARViewer } from "./ARViewer";
 import { useARSupport } from "@/hooks/useARSupport";
 import { Badge } from "@/components/ui/badge";
 import type { RealSizeDimensions } from "@/types/ar.types";
+import { formatDimensions } from "@/lib/units";
 
 interface ARModalProps {
   isOpen: boolean;
@@ -204,9 +205,11 @@ export function ARModal({
             </Badge>
             {dimensions && (
               <span className="text-xs text-muted-foreground">
-                {dimensions.widthMm.toFixed(0)} x{" "}
-                {dimensions.heightMm.toFixed(0)} x{" "}
-                {dimensions.depthMm.toFixed(0)} mm
+                {formatDimensions(
+                  dimensions.widthMm,
+                  dimensions.heightMm,
+                  dimensions.depthMm
+                )}
               </span>
             )}
           </div>

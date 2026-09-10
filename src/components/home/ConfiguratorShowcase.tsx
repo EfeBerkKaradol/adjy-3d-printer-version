@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { ParameterSlider } from "@/components/configure/ParameterSlider";
 import { useMediaQuery } from "@/hooks/useClientState";
 import { ArrowRight, RotateCcw } from "lucide-react";
+import { formatCmValue } from "@/lib/units";
 
 // 3D sahne yalnızca bölüm görünüme girdiğinde indirilir:
 // ana sayfanın ilk yükü three.js taşımaz.
@@ -178,12 +179,15 @@ export function ConfiguratorShowcase({ products }: ConfiguratorShowcaseProps) {
     (p) => config.values[p.name] !== Number(p.defaultValue)
   );
 
-  // Seçilen ölçüler tek satırda: 320 × 240 mm
+  // Seçilen ölçüler tek satırda: 32 × 24 cm
+  // Değerler mm saklanır, ekranda cm gösterilir.
+  const isLength = (sliders[0]?.unit ?? "mm") === "mm";
+  const summaryUnit = isLength ? "cm" : (sliders[0]?.unit ?? "");
   const dimensionSummary = sliders
     .map((p) => config.values[p.name])
-    .filter((v) => typeof v === "number")
+    .filter((v): v is number => typeof v === "number")
+    .map((v) => (isLength ? formatCmValue(v) : String(v)))
     .join(" × ");
-  const summaryUnit = sliders[0]?.unit ?? "mm";
 
   return (
     <div ref={sectionRef} className="grid gap-10 lg:grid-cols-2 lg:gap-16">

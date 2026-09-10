@@ -14,6 +14,8 @@
 // ürünün kendi mm değerleri ve ISO 216 A4 (210×297 mm).
 // ==========================================
 
+import { formatCmValue } from "@/lib/units";
+
 interface ScaleDiagramProps {
   /** Ürünün değiştirilebilir genişlik aralığı, mm */
   min: number;
@@ -49,7 +51,7 @@ export function ScaleDiagram({ min, max, current, label }: ScaleDiagramProps) {
         viewBox={`0 0 ${W} 176`}
         className="w-full"
         role="img"
-        aria-label={`${label} ${min} ile ${max} milimetre arasında üretilebilir; karşılaştırma için A4 kâğıt aynı ölçekte çizildi.`}
+        aria-label={`${label} ${formatCmValue(min)} ile ${formatCmValue(max)} santimetre arasında üretilebilir; karşılaştırma için A4 kâğıt aynı ölçekte çizildi.`}
       >
         {/* Cetvel */}
         <g stroke="var(--border)" strokeWidth="1">
@@ -70,7 +72,7 @@ export function ScaleDiagram({ min, max, current, label }: ScaleDiagramProps) {
               fill="var(--muted-foreground)"
               fontFamily="var(--font-geist-mono), monospace"
             >
-              {mm / 10} cm
+              {formatCmValue(mm)} cm
             </text>
           ))}
 
@@ -92,7 +94,7 @@ export function ScaleDiagram({ min, max, current, label }: ScaleDiagramProps) {
               fontSize="10"
               fill="var(--muted-foreground)"
             >
-              {ref.label} · {ref.mm} mm
+              {ref.label} · {formatCmValue(ref.mm)} cm
             </text>
           </g>
         ))}
@@ -115,7 +117,7 @@ export function ScaleDiagram({ min, max, current, label }: ScaleDiagramProps) {
           fill="var(--muted-foreground)"
           fontFamily="var(--font-geist-mono), monospace"
         >
-          en dar · {min} mm
+          en dar · {formatCmValue(min)} cm
         </text>
 
         {/* Ürünün en geniş hâli — dolu */}
@@ -127,7 +129,7 @@ export function ScaleDiagram({ min, max, current, label }: ScaleDiagramProps) {
           fill="var(--muted-foreground)"
           fontFamily="var(--font-geist-mono), monospace"
         >
-          en geniş · {max} mm
+          en geniş · {formatCmValue(max)} cm
         </text>
 
         {/* Varsayılan ölçü işareti */}
@@ -149,14 +151,14 @@ export function ScaleDiagram({ min, max, current, label }: ScaleDiagramProps) {
               fill="var(--brand-violet)"
               fontFamily="var(--font-geist-mono), monospace"
             >
-              varsayılan {current} mm
+              varsayılan {formatCmValue(current)} cm
             </text>
           </g>
         )}
       </svg>
 
       <figcaption className="mt-3 text-xs leading-relaxed text-muted-foreground">
-        Çizim gerçek oranlarda. A4 kâğıt ({REFERENCES[0].mm}×{REFERENCES[1].mm} mm)
+        Çizim gerçek oranlarda. A4 kâğıt ({formatCmValue(REFERENCES[0].mm)}×{formatCmValue(REFERENCES[1].mm)} cm)
         karşılaştırma için aynı ölçekte gösterildi.
       </figcaption>
     </figure>

@@ -15,6 +15,7 @@ import {
 import { useMediaQuery } from "@/hooks/useClientState";
 import { Button } from "@/components/ui/button";
 import { ArrowDown, ArrowRight, Sliders } from "lucide-react";
+import { formatCmValue } from "@/lib/units";
 
 // 3D sahne yalnızca tarayıcıda ve yalnızca gerektiğinde yüklenir.
 // Böylece three.js ilk HTML yükünün parçası olmaz.
@@ -174,7 +175,7 @@ export function HeroExperience({ product }: HeroExperienceProps) {
               {product.name}
             </span>
             <span className="bg-background/90 px-2.5 py-1 font-mono text-xs tabular-nums backdrop-blur-sm">
-              {min}–{max} mm
+              {formatCmValue(min)}–{formatCmValue(max)} cm
             </span>
           </div>
         </div>
@@ -308,7 +309,7 @@ export function HeroExperience({ product }: HeroExperienceProps) {
 
                 <div className="absolute bottom-[16%] left-1/2 -translate-x-1/2">
                   <span className="bg-background px-2 py-0.5 font-mono text-xs tabular-nums text-brand-violet">
-                    {width} mm
+                    {formatCmValue(width)} cm
                   </span>
                 </div>
               </motion.div>

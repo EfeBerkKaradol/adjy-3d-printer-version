@@ -393,12 +393,12 @@ export const silhouetteModelGeneration: ModelGenerationProvider = {
 
     const parameters: ModelParameter[] = [
       {
-        id: "height", label: "Yükseklik", unit: "mm",
+        id: "height", label: "Yükseklik", unit: "cm",
         min: 30, max: 300, step: 1,
         value: heightMm, defaultValue: heightMm,
       },
       {
-        id: "width", label: "Genişlik", unit: "mm",
+        id: "width", label: "Genişlik", unit: "cm",
         min: 20, max: 300, step: 1,
         value: widthMm, defaultValue: widthMm,
       },
@@ -406,7 +406,7 @@ export const silhouetteModelGeneration: ModelGenerationProvider = {
 
     if (kind === "extrude") {
       parameters.push({
-        id: "depth", label: "Derinlik", unit: "mm",
+        id: "depth", label: "Derinlik", unit: "cm",
         hint: "Tek fotoğraftan ölçülemez — tahmin",
         min: 5, max: 300, step: 1,
         value: depthMm, defaultValue: depthMm,

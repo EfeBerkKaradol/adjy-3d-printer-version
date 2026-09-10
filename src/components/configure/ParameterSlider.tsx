@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { cmToMm, formatCmValue, mmToCm } from "@/lib/units";
 
 // ==========================================
 // PARAMETRE KAYDIRICISI
@@ -13,6 +14,11 @@ import { useState } from "react";
 //
 // Değer iki yoldan değiştirilebilir — kaydırıcı ve
 // sayı kutusu — ikisi de aynı state'e bağlıdır.
+//
+// Birim dönüşümü burada, tek noktada yapılır. Parametre
+// mm tanımlıysa ekranda cm gösterilir ama dışarıya yine mm
+// bildirilir; böylece veritabanı, fiyat formülleri ve üretim
+// tarafı hiç değişmeden kalır.
 // ==========================================
 
 interface ParameterSliderProps {
@@ -50,18 +56,27 @@ export function ParameterSlider({
   // draft === null iken kutu doğrudan gerçek değeri gösterir.
   // Böylece kaydırıcı sürüklenirken kutu effect'e gerek kalmadan
   // kendiliğinden güncel kalır.
+  // mm tanımlı parametreler ekranda cm görünür
+  const isLength = unit === "mm";
+  const toShown = (mm: number) => (isLength ? mmToCm(mm) : mm);
+  const toStored = (shownValue: number) => (isLength ? cmToMm(shownValue) : shownValue);
+  const shownUnit = isLength ? "cm" : unit;
+  const shownStep = isLength ? step / 10 : step;
+  const label1 = (mm: number) => (isLength ? formatCmValue(mm) : String(mm));
+
   const [draft, setDraft] = useState<string | null>(null);
-  const shown = draft ?? String(value);
+  const shown = draft ?? label1(value);
 
   const percent = max > min ? ((value - min) / (max - min)) * 100 : 0;
   const inputId = `param-${label.replace(/\s+/g, "-").toLowerCase()}`;
 
   function commitDraft() {
     if (draft === null) return;
-    const parsed = Number(draft);
+    // Virgül de kabul edilir: cm gösterimi "6,9" biçiminde
+    const parsed = Number(draft.replace(",", "."));
     setDraft(null); // düzenleme bitti, kutu yine gerçek değeri gösterir
     if (!Number.isFinite(parsed)) return;
-    const next = clampToStep(parsed, min, max, step);
+    const next = clampToStep(toStored(parsed), min, max, step);
     if (next !== value) onChange(next);
   }
 
@@ -87,10 +102,10 @@ export function ParameterSlider({
                 (e.target as HTMLInputElement).blur();
               }
             }}
-            aria-label={`${label} değeri${unit ? ` (${unit})` : ""}`}
+            aria-label={`${label} değeri${shownUnit ? ` (${shownUnit})` : ""}`}
             className="w-16 border-b border-border bg-transparent pb-0.5 text-right font-mono text-base tabular-nums outline-none transition-colors focus:border-foreground"
           />
-          {unit && <span className="text-xs text-muted-foreground">{unit}</span>}
+          {shownUnit && <span className="text-xs text-muted-foreground">{shownUnit}</span>}
         </div>
       </div>
 
@@ -111,22 +126,24 @@ export function ParameterSlider({
         <input
           id={inputId}
           type="range"
-          min={min}
-          max={max}
-          step={step}
-          value={value}
-          onChange={(e) => onChange(Number(e.target.value))}
-          aria-valuetext={`${value}${unit ? ` ${unit}` : ""}`}
+          min={toShown(min)}
+          max={toShown(max)}
+          step={shownStep}
+          value={toShown(value)}
+          onChange={(e) => onChange(clampToStep(toStored(Number(e.target.value)), min, max, step))}
+          aria-valuetext={`${label1(value)}${shownUnit ? ` ${shownUnit}` : ""}`}
           // touch-action: yatay sürükleme sayfayı kaydırmasın
           className="absolute inset-0 w-full cursor-pointer appearance-none bg-transparent [touch-action:none] [&::-moz-range-thumb]:h-7 [&::-moz-range-thumb]:w-7 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-transparent [&::-webkit-slider-thumb]:h-7 [&::-webkit-slider-thumb]:w-7 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:bg-transparent"
         />
       </div>
 
       <div className="mt-2 flex justify-between">
-        <span className="font-mono text-[11px] tabular-nums text-muted-foreground">{min}</span>
         <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
-          {max}
-          {unit ? ` ${unit}` : ""}
+          {label1(min)}
+        </span>
+        <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
+          {label1(max)}
+          {shownUnit ? ` ${shownUnit}` : ""}
         </span>
       </div>
     </div>

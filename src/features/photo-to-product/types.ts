@@ -52,13 +52,21 @@ export interface PhotoAnalysis {
  */
 export type ShapeKind = "revolve" | "extrude";
 
-/** Kullanıcının değiştirebildiği tek bir ölçü */
+/**
+ * Kullanıcının değiştirebildiği tek bir ölçü.
+ *
+ * min/max/value her zaman MİLİMETRE cinsindendir; `unit`
+ * yalnızca ekranda hangi birimle gösterileceğini söyler.
+ * Ürün ölçüleri "cm" ile gösterilir, duvar kalınlığı gibi
+ * nozzle ölçeğindekiler "mm" kalır — 0,24 cm kimseye bir şey
+ * anlatmıyor.
+ */
 export interface ModelParameter {
   id: string;
   label: string;
   /** Kullanıcıya gösterilen açıklama — boş bırakılabilir */
   hint?: string;
-  unit: "mm" | "%";
+  unit: "mm" | "cm" | "%";
   min: number;
   max: number;
   step: number;
