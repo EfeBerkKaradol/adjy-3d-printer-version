@@ -26,28 +26,57 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * Koleksiyon kartlarının kapak görselleri.
+ *
+ * Kategorilerin kendi imageUrl'leri public/ altında karşılığı
+ * olmayan dosyalara işaret ediyor, bu yüzden kartlar soyut bir
+ * desenle çiziliyordu. Koleksiyonun içindeki ürünlerin gerçek
+ * fotoğrafları varken desen göstermek sayfayı yarım bırakıyor;
+ * kapak olarak koleksiyonun öne çıkan ürünü kullanılır.
+ */
+async function getCategoryCovers(): Promise<Map<string, string>> {
+  const products = await prisma.product.findMany({
+    where: { isActive: true, thumbnailUrl: { not: null } },
+    orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+    select: { categoryId: true, thumbnailUrl: true },
+  });
+
+  const covers = new Map<string, string>();
+  for (const p of products) {
+    if (p.thumbnailUrl && !covers.has(p.categoryId)) {
+      covers.set(p.categoryId, p.thumbnailUrl);
+    }
+  }
+  return covers;
+}
+
 async function getCategories(): Promise<HomeCategory[]> {
   try {
-    const categories = await prisma.category.findMany({
-      where: { isActive: true, parentId: null },
-      orderBy: { sortOrder: "asc" },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        imageUrl: true,
-        // Yalnızca aktif ürünler sayılır
-        _count: { select: { products: { where: { isActive: true } } } },
-      },
-    });
+    const [categories, covers] = await Promise.all([
+      prisma.category.findMany({
+        where: { isActive: true, parentId: null },
+        orderBy: { sortOrder: "asc" },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+          imageUrl: true,
+          // Yalnızca aktif ürünler sayılır
+          _count: { select: { products: { where: { isActive: true } } } },
+        },
+      }),
+      getCategoryCovers(),
+    ]);
 
     return categories.map((c) => ({
       id: c.id,
       name: c.name,
       slug: c.slug,
       description: c.description,
-      imageUrl: resolvePublicImage(c.imageUrl),
+      // Kategorinin kendi görseli varsa o, yoksa içindeki ürün
+      imageUrl: resolvePublicImage(c.imageUrl) ?? covers.get(c.id) ?? null,
       productCount: c._count.products,
     }));
   } catch {
@@ -110,7 +139,7 @@ export default async function CollectionsPage() {
             </p>
           </div>
           <Button asChild size="lg" className="shrink-0">
-            <Link href="/3d-baski-fiyati-hesapla">
+            <Link href="/uret">
               Üretim teklifi al
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>

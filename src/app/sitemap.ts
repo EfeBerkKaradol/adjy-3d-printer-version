@@ -20,55 +20,46 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
 
   // Statik sayfalar
-  const staticPages: MetadataRoute.Sitemap = [
-    {
-      url: BASE_URL,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 1,
-    },
-    {
-      url: `${BASE_URL}/products`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.9,
-    },
-    {
-      url: `${BASE_URL}/login`,
-      changeFrequency: "monthly",
-      priority: 0.3,
-    },
-    {
-      url: `${BASE_URL}/register`,
-      changeFrequency: "monthly",
-      priority: 0.3,
-    },
-    {
-      url: `${BASE_URL}/about`,
-      changeFrequency: "monthly",
-      priority: 0.5,
-    },
-    {
-      url: `${BASE_URL}/contact`,
-      changeFrequency: "monthly",
-      priority: 0.5,
-    },
-    {
-      url: `${BASE_URL}/faq`,
-      changeFrequency: "monthly",
-      priority: 0.4,
-    },
-    {
-      url: `${BASE_URL}/terms`,
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
-    {
-      url: `${BASE_URL}/privacy`,
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
+  //
+  // Liste elle tutulduğu için yeni bir bölüm eklendiğinde
+  // kolayca unutuluyordu: Üret bölümünün tamamı bir süre
+  // site haritasının dışında kaldı. Artık yollar öncelikleriyle
+  // birlikte tek bir tabloda; yeni sayfa buraya bir satır.
+  const ROUTES: Array<{
+    path: string;
+    priority: number;
+    changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"];
+  }> = [
+    { path: "", priority: 1, changeFrequency: "daily" },
+    { path: "/products", priority: 0.9, changeFrequency: "daily" },
+    { path: "/collections", priority: 0.8, changeFrequency: "weekly" },
+    { path: "/configure", priority: 0.8, changeFrequency: "weekly" },
+    { path: "/uret", priority: 0.8, changeFrequency: "weekly" },
+    { path: "/uret/fotograftan-olustur", priority: 0.8, changeFrequency: "weekly" },
+    { path: "/uret/model-yukle", priority: 0.7, changeFrequency: "weekly" },
+    { path: "/3d-baski-fiyati-hesapla", priority: 0.6, changeFrequency: "monthly" },
+    { path: "/about", priority: 0.5, changeFrequency: "monthly" },
+    { path: "/contact", priority: 0.5, changeFrequency: "monthly" },
+    { path: "/faq", priority: 0.4, changeFrequency: "monthly" },
+    { path: "/login", priority: 0.3, changeFrequency: "monthly" },
+    { path: "/register", priority: 0.3, changeFrequency: "monthly" },
+    // Yasal metinler: nadiren değişir ama aranabilir olmalı
+    { path: "/terms", priority: 0.3, changeFrequency: "yearly" },
+    { path: "/privacy", priority: 0.3, changeFrequency: "yearly" },
+    { path: "/kvkk", priority: 0.3, changeFrequency: "yearly" },
+    { path: "/cerez-politikasi", priority: 0.2, changeFrequency: "yearly" },
+    { path: "/iade-politikasi", priority: 0.3, changeFrequency: "yearly" },
+    { path: "/teslimat-politikasi", priority: 0.3, changeFrequency: "yearly" },
+    { path: "/mesafeli-satis-sozlesmesi", priority: 0.2, changeFrequency: "yearly" },
+    { path: "/on-bilgilendirme", priority: 0.2, changeFrequency: "yearly" },
   ];
+
+  const staticPages: MetadataRoute.Sitemap = ROUTES.map((r) => ({
+    url: `${BASE_URL}${r.path}`,
+    lastModified: new Date(),
+    changeFrequency: r.changeFrequency,
+    priority: r.priority,
+  }));
 
   // Kategori sayfaları
   const categoryPages: MetadataRoute.Sitemap = categories.map((cat) => ({

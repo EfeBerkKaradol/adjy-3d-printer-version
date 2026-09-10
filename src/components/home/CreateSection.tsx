@@ -43,7 +43,7 @@ export function CreateSection() {
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="xl">
-                <Link href="/3d-baski-fiyati-hesapla">
+                <Link href="/uret">
                   <Upload className="h-4 w-4" aria-hidden />
                   Üretim teklifi al
                 </Link>

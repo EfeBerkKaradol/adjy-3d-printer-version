@@ -298,7 +298,8 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
                     { label: "Tüm ürünler", href: "/products" },
                     { label: "Özelleştirilebilir ürünler", href: "/products?customizable=true" },
                     { label: "Öne çıkanlar", href: "/products?featured=true" },
-                    { label: "Kendi modelini üret", href: "/3d-baski-fiyati-hesapla" },
+                    { label: "Fotoğraftan oluştur", href: "/uret/fotograftan-olustur" },
+                    { label: "Kendi modelini üret", href: "/uret/model-yukle" },
                   ].map((s) => (
                     <button
                       key={s.href}

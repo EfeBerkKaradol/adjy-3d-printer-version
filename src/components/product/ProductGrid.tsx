@@ -54,7 +54,7 @@ export function ProductGrid({ products, isLoading, columns = 4 }: ProductGridPro
             <Link href="/products">Filtreleri temizle</Link>
           </Button>
           <Button asChild>
-            <Link href="/3d-baski-fiyati-hesapla">Kendi modelini üret</Link>
+            <Link href="/uret/model-yukle">Kendi modelini üret</Link>
           </Button>
         </div>
       </div>

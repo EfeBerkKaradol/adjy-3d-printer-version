@@ -199,7 +199,7 @@ export default async function ConfigurePage() {
               </p>
             </div>
             <Button asChild size="lg" className="shrink-0">
-              <Link href="/3d-baski-fiyati-hesapla">
+              <Link href="/uret">
                 <Upload className="h-4 w-4" aria-hidden />
                 Üretim teklifi al
               </Link>

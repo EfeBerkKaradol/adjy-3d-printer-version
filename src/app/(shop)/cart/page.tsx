@@ -45,7 +45,7 @@ export default function CartPage() {
               <Link href="/products">Ürünleri keşfet</Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link href="/3d-baski-fiyati-hesapla">Kendi modelini üret</Link>
+              <Link href="/uret/model-yukle">Kendi modelini üret</Link>
             </Button>
           </div>
         </div>

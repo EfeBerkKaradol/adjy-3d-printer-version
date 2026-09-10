@@ -52,7 +52,7 @@ export function Hero({ product }: HeroProps) {
                 </Link>
               </Button>
               <Button asChild size="xl" variant="outline">
-                <Link href="/3d-baski-fiyati-hesapla">
+                <Link href="/uret/model-yukle">
                   <Upload className="h-4 w-4" aria-hidden />
                   Kendi modelini üret
                 </Link>
