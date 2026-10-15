@@ -11,13 +11,13 @@
 //   ağırlık      = filamentHacmi × malzemeYoğunluğu × fireKatsayısı
 // ==========================================
 
-import { MARGIN, OVERHEAD, RAW } from "./production";
+import { BUILD, MARGIN, OVERHEAD, RAW, machineRateFor, setupFeeFor } from "./production";
 
 // --- Dosya ve boyut sınırları (referans servisle birebir) ---
 export const ACCEPTED_EXTENSIONS = [".stl"];
 export const MAX_FILE_SIZE_MB = 25;
 export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
-export const MAX_MODEL_DIMENSION_MM = 300;
+export const MAX_MODEL_DIMENSION_MM = BUILD.maxMm;
 
 // Dosya limitini aşan müşteriler için alternatif teklif kanalı
 export const BIG_FILE_CONTACT_EMAIL = "info@adjy3d.com";
@@ -45,8 +45,8 @@ const LAYER_OVERHEAD_SEC = 2; // katman başına hareket/geri çekme kaybı
 //   - Renk            → FILAMENT_COLORS[].priceMultiplier
 //   - Adet indirimi   → QUANTITY_DISCOUNTS
 // ==========================================
-const MACHINE_RATE_PER_HOUR = OVERHEAD.machinePerHour;
-const PREP_FEE = OVERHEAD.fdmSetup;
+// Makine ücreti ve hazırlık artık ölçüye göre:
+// bkz. machineRateFor / setupFeeFor
 const MIN_UNIT_PRICE = 40; // ₺ minimum birim fiyat
 export const VAT_RATE = 0.2; // KDV %20 (lib/production ile aynı)
 
@@ -271,6 +271,8 @@ export interface PriceOptions {
   layerHeight: number; // baskı kalitesi (mm)
   infillPercent: number;
   colorId?: string;
+  /** En uzun kenar (mm) — 25 cm üstü büyük formatlı makineye düşer */
+  largestMm?: number;
 }
 
 function round2(n: number): number {
@@ -285,7 +287,10 @@ export function calculatePrintPrice(
   const material = MATERIALS.find((m) => m.id === materialId) ?? MATERIALS[0];
 
   const materialCost = estimate.weightGrams * material.pricePerGram;
-  const machineCost = (estimate.printTimeMinutes / 60) * MACHINE_RATE_PER_HOUR;
+  // 25 cm'i geçen işler büyük formatlı makineye düşer: daha
+  // yavaş ve saat ücreti daha yüksek.
+  const enUzun = options.largestMm ?? 0;
+  const machineCost = (estimate.printTimeMinutes / 60) * machineRateFor(enUzun);
 
   // Seçenek çarpanları minimum fiyat tabanından SONRA uygulanır ki
   // küçük modellerde de kalite/doluluk/malzeme/renk seçimi fiyata yansısın
@@ -296,7 +301,7 @@ export function calculatePrintPrice(
     (colorId ? getColorPriceMultiplier(colorId) : 1);
 
   // Maliyete fire payı, sonra kâr marjı eklenir.
-  const cost = (materialCost + machineCost + PREP_FEE) * (1 + OVERHEAD.failureRate);
+  const cost = (materialCost + machineCost + setupFeeFor(enUzun)) * (1 + OVERHEAD.failureRate);
   const baseUnit = Math.max(MIN_UNIT_PRICE, cost / (1 - MARGIN)) * optionMultiplier;
 
   const discountRate = getDiscountRate(quantity);

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, Loader2, Save, Trash2 } from "lucide-react";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { ParameterManager } from "@/components/admin/ParameterManager";
+import { ProductModelUpload } from "@/components/admin/ProductModelUpload";
 import { toast } from "sonner";
 
 interface Category {
@@ -322,6 +323,18 @@ export default function EditProductPage() {
           <div>
             <label className="text-sm font-medium mb-1.5 block">3D Model URL (GLB/STL)</label>
             <Input value={form.modelFileUrl} onChange={(e) => setForm((p) => ({ ...p, modelFileUrl: e.target.value }))} />
+            <p className="mt-1.5 text-xs text-muted-foreground">
+              Elle de girilebilir; aşağıdan STL yüklerseniz bu alan ve ölçüler
+              dosyadan otomatik dolar.
+            </p>
+          </div>
+
+          <div className="sm:col-span-2">
+            <ProductModelUpload
+              productId={productId}
+              materialType={form.materialType || null}
+              onSaved={(url) => setForm((p) => ({ ...p, modelFileUrl: url }))}
+            />
           </div>
         </div>
 

@@ -70,6 +70,45 @@ export const MARGIN = 0.68;
 
 export const VAT_RATE = 0.2;
 
+/**
+ * Baskı tablası ve ölçü kademesi.
+ *
+ * İki farklı makine var: 25×25'e kadar olan hızlı makine,
+ * ondan büyüğü için büyük formatlı makine. Büyük makine hem
+ * daha yavaş basıyor hem de saat maliyeti daha yüksek — bu
+ * yüzden 25 cm'i geçen ölçülerde maliyet sıçrıyor. Tek bir
+ * saat ücreti kullanmak büyük ürünlerde zarar ettiriyordu.
+ */
+export const BUILD = {
+  /** Hızlı makinenin tabla sınırı (mm) */
+  standardMm: 250,
+  /** Üretilebilen en büyük kenar (mm) */
+  maxMm: 450,
+  /** Büyük formatlı makinenin saat maliyeti çarpanı */
+  largeMachineMultiplier: 2.2,
+  /** Büyük baskıda ek hazırlık/denetim (₺) */
+  largeSetupExtra: 40,
+} as const;
+
+/** Ölçüye göre makine saat ücreti */
+export function machineRateFor(largestMm: number): number {
+  return largestMm > BUILD.standardMm
+    ? OVERHEAD.machinePerHour * BUILD.largeMachineMultiplier
+    : OVERHEAD.machinePerHour;
+}
+
+/** Ölçüye göre hazırlık ücreti */
+export function setupFeeFor(largestMm: number): number {
+  return largestMm > BUILD.standardMm
+    ? OVERHEAD.fdmSetup + BUILD.largeSetupExtra
+    : OVERHEAD.fdmSetup;
+}
+
+/** Ölçü üretilebilir mi */
+export function fitsBuildVolume(largestMm: number): boolean {
+  return largestMm <= BUILD.maxMm;
+}
+
 export type ProductionRoute = "fdm" | "cast";
 
 export interface FdmInput {
@@ -78,6 +117,8 @@ export interface FdmInput {
   weightGrams: number;
   /** Baskı süresi (dakika) */
   printMinutes: number;
+  /** En uzun kenar (mm) — hangi makineye düştüğünü belirler */
+  largestMm?: number;
 }
 
 export interface CastInput {
@@ -128,9 +169,10 @@ export function productionCost(input: ProductionInput): CostBreakdown {
   let mouldCost = 0;
 
   if (input.route === "fdm") {
+    const enUzun = input.largestMm ?? 0;
     materialCost = input.weightGrams * (1 + OVERHEAD.wasteRate) * RAW.filament;
-    machineCost = (input.printMinutes / 60) * OVERHEAD.machinePerHour;
-    labourCost = OVERHEAD.fdmSetup;
+    machineCost = (input.printMinutes / 60) * machineRateFor(enUzun);
+    labourCost = setupFeeFor(enUzun);
   } else {
     materialCost = input.weightGrams * (1 + OVERHEAD.wasteRate) * RAW.plaster;
     labourCost = OVERHEAD.castLabourPerUnit;
