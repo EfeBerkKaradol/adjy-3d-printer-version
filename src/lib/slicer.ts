@@ -11,6 +11,8 @@
 //   ağırlık      = filamentHacmi × malzemeYoğunluğu × fireKatsayısı
 // ==========================================
 
+import { MARGIN, OVERHEAD, RAW } from "./production";
+
 // --- Dosya ve boyut sınırları (referans servisle birebir) ---
 export const ACCEPTED_EXTENSIONS = [".stl"];
 export const MAX_FILE_SIZE_MB = 25;
@@ -43,10 +45,10 @@ const LAYER_OVERHEAD_SEC = 2; // katman başına hareket/geri çekme kaybı
 //   - Renk            → FILAMENT_COLORS[].priceMultiplier
 //   - Adet indirimi   → QUANTITY_DISCOUNTS
 // ==========================================
-const MACHINE_RATE_PER_HOUR = 60; // ₺/saat makine amortismanı + elektrik
-const PREP_FEE = 25; // ₺ hazırlık/işçilik (dilimleme, tabla temizliği)
+const MACHINE_RATE_PER_HOUR = OVERHEAD.machinePerHour;
+const PREP_FEE = OVERHEAD.fdmSetup;
 const MIN_UNIT_PRICE = 40; // ₺ minimum birim fiyat
-export const VAT_RATE = 0.2; // KDV %20
+export const VAT_RATE = 0.2; // KDV %20 (lib/production ile aynı)
 
 // --- Malzemeler ---
 export interface Material {
@@ -58,8 +60,11 @@ export interface Material {
   description: string;
 }
 
-// Tüm malzemelerde sabit gram fiyatı
-const PRICE_PER_GRAM = 4;
+// Gram fiyatı tek kaynaktan: lib/production.
+// Burada 4 ₺/g yazıyordu, gerçeği 0,85 ₺/g (850 ₺/kg).
+// Aradaki fark kâr marjıydı ve ayarlanamıyordu; marj artık
+// ayrı bir sayı, ham madde ise gerçek fiyatı.
+const PRICE_PER_GRAM = RAW.filament;
 
 export const MATERIALS: Material[] = [
   { id: "pla", name: "PLA", density: 1.24, pricePerGram: PRICE_PER_GRAM, priceMultiplier: 1, description: "Genel kullanım, kolay baskı" },
@@ -290,8 +295,9 @@ export function calculatePrintPrice(
     material.priceMultiplier *
     (colorId ? getColorPriceMultiplier(colorId) : 1);
 
-  const baseUnit =
-    Math.max(MIN_UNIT_PRICE, materialCost + machineCost + PREP_FEE) * optionMultiplier;
+  // Maliyete fire payı, sonra kâr marjı eklenir.
+  const cost = (materialCost + machineCost + PREP_FEE) * (1 + OVERHEAD.failureRate);
+  const baseUnit = Math.max(MIN_UNIT_PRICE, cost / (1 - MARGIN)) * optionMultiplier;
 
   const discountRate = getDiscountRate(quantity);
   const unitPriceNet = round2(baseUnit * (1 - discountRate));

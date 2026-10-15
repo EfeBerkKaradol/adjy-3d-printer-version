@@ -413,7 +413,11 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 />
               )}
 
-              {product.parameters.length > 0 && (
+              {/* AR, parametrik ürünlere bağlıydı; katalogdaki
+                  ürünlerin çoğunun parametresi yok ve "Odanda Gör"
+                  hiç görünmüyordu. Oysa her ürünün kendi 3D modeli
+                  var — koşul model dosyasına bağlandı. */}
+              {product.modelFileUrl && (
                 <ProductARButton
                   productId={product.id}
                   productName={product.name}
