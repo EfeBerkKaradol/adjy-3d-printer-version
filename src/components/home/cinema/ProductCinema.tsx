@@ -24,8 +24,15 @@ import { ArrowRight } from "lucide-react";
 
 const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
 
-/** Sekansın nefes alması için gereken kaydırma payı */
-const SECTION_VH = 300;
+/**
+ * Sekansın kaydırma payı.
+ *
+ * 300vh'de modüllerin takıldığı perdeye varmak 124vh kaydırma
+ * istiyordu; bölümün asıl anlattığı şey oraya gelmeden önce
+ * izleyici bırakıyordu. Hem pay kısaldı hem de bekleme
+ * perdeleri sıkıştırıldı — aynı sekans, yarısı kadar yolda.
+ */
+const SECTION_VH = 220;
 
 export interface CinemaProduct {
   id: string;

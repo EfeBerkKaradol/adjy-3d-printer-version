@@ -27,10 +27,10 @@ export function ease(t: number): number {
 // ------------------------------------------------------------------
 export const CHAPTERS = [
   { n: "01", from: 0.0, title: "Sistem", body: "Delikli duvar paneli — tek parça değil, bir taşıyıcı sistem." },
-  { n: "02", from: 0.14, title: "Bileşenler", body: "Levha, yuvalar, J-kanca bağlantısı ve modüller." },
-  { n: "03", from: 0.44, title: "Bağlantı", body: "J-kanca yuvadan geçer, aşağı iner ve levhaya kilitlenir." },
-  { n: "04", from: 0.62, title: "Modüller", body: "Her modül aynı yuva ızgarasına, istediğin noktaya asılır." },
-  { n: "05", from: 0.9, title: "Senin kurgun", body: "Ölçüyü ve modülleri sen seç, ADJY üretsin." },
+  { n: "02", from: 0.12, title: "Bileşenler", body: "Levha, yuvalar, J-kanca bağlantısı ve modüller." },
+  { n: "03", from: 0.34, title: "Bağlantı", body: "J-kanca yuvadan geçer, aşağı iner ve levhaya kilitlenir." },
+  { n: "04", from: 0.5, title: "Modüller", body: "Her modül aynı yuva ızgarasına, istediğin noktaya asılır." },
+  { n: "05", from: 0.83, title: "Senin kurgun", body: "Ölçüyü ve modülleri sen seç, ADJY üretsin." },
 ] as const;
 
 export function chapterIndex(p: number): number {
@@ -46,17 +46,17 @@ export function chapterIndex(p: number): number {
 // tutucu bilerek ilk sırada: "modül nasıl takılıyor"
 // sorusunu tek başına yanıtlayan parça o.
 // ------------------------------------------------------------------
-const EXPLODE_FROM = 0.14;
-const EXPLODE_TO = 0.32;
+const EXPLODE_FROM = 0.12;
+const EXPLODE_TO = 0.26;
 
 const REASSEMBLE: Record<string, [number, number]> = {
-  phone: [0.62, 0.73],
-  hookA: [0.7, 0.78],
-  hookB: [0.72, 0.8],
-  tray: [0.75, 0.83],
-  shelf: [0.78, 0.86],
-  cup: [0.81, 0.88],
-  bin: [0.83, 0.91],
+  phone: [0.5, 0.62],
+  hookA: [0.59, 0.68],
+  hookB: [0.61, 0.7],
+  tray: [0.64, 0.74],
+  shelf: [0.68, 0.78],
+  cup: [0.72, 0.8],
+  bin: [0.74, 0.85],
 };
 
 /**
@@ -64,7 +64,7 @@ const REASSEMBLE: Record<string, [number, number]> = {
  * Aradaki değerler parçayı kendi montaj ekseni boyunca taşır.
  */
 export function attachAmount(mod: PanelModule, p: number): number {
-  const [rFrom, rTo] = REASSEMBLE[mod.id] ?? [0.8, 0.9];
+  const [rFrom, rTo] = REASSEMBLE[mod.id] ?? [0.7, 0.83];
 
   if (p <= EXPLODE_FROM) return 1;
   if (p < EXPLODE_TO) {
@@ -86,8 +86,8 @@ export function attachAmount(mod: PanelModule, p: number): number {
  * için geri sarmada da kendiliğinden doğru çalışır.
  */
 export function explodeScale(p: number): number {
-  const out = ease(seg(p, 0.36, 0.46));
-  const back = ease(seg(p, 0.58, 0.64));
+  const out = ease(seg(p, 0.29, 0.36));
+  const back = ease(seg(p, 0.46, 0.52));
   return 1 + 1.6 * (out - back);
 }
 
@@ -114,12 +114,12 @@ export const HOOK_DEMO = {
   // Izgaradaki gerçek bir yuvanın merkezi (satır 2, sütun 8).
   // Kanca boşluğa değil, levhada fiilen var olan bir deliğe girer.
   slot: [0.7, -0.52] as [number, number],
-  approachFrom: 0.44,
-  aligned: 0.51,
-  inserted: 0.56,
-  locked: 0.6,
+  approachFrom: 0.34,
+  aligned: 0.4,
+  inserted: 0.44,
+  locked: 0.48,
   /** Bu ilerlemeden sonra kanca sahnede kalır ama artık vurgulanmaz */
-  visibleFrom: 0.42,
+  visibleFrom: 0.33,
 };
 
 export function hookDemoTransform(p: number) {
@@ -158,17 +158,17 @@ const CAMERA: CamKey[] = [
   // Hiçbir kare tam karşıdan değil: düz karşıdan bakınca
   // açık kutular dolu levha gibi görünüyor, hacim kayboluyor.
   { p: 0.0, pos: [2.05, 0.8, 7.15], target: [0, 0.16, 0] },
-  { p: 0.14, pos: [1.7, 0.55, 6.2], target: [0, 0.12, 0] },
+  { p: 0.12, pos: [1.7, 0.55, 6.2], target: [0, 0.12, 0] },
   // Parçalar ayrılırken kamera geri çekilir: ayrık hâlin
   // tamamı kadraja sığmazsa patlatma bilgi vermez.
-  { p: 0.32, pos: [3.2, 1.15, 8.0], target: [-0.3, 0.22, 0.45] },
-  { p: 0.44, pos: [2.7, 0.45, 6.1], target: [0.2, -0.05, 0.3] },
+  { p: 0.26, pos: [3.2, 1.15, 8.0], target: [-0.3, 0.22, 0.45] },
+  { p: 0.34, pos: [2.7, 0.45, 6.1], target: [0.2, -0.05, 0.3] },
   // Yandan bakış: tırnağın yuvaya giriş derinliği ancak
   // profilden görülür, tam karşıdan düz bir plaka gibi durur.
-  { p: 0.56, pos: [2.35, -0.12, 1.95], target: [0.7, -0.52, 0.08] },
-  { p: 0.62, pos: [2.3, 0.1, 3.0], target: [0.6, -0.35, 0.1] },
-  { p: 0.73, pos: [2.5, 0.95, 4.9], target: [0.25, 0.6, 0.2] },
-  { p: 0.88, pos: [1.9, 0.6, 6.4], target: [0, 0.14, 0] },
+  { p: 0.44, pos: [2.35, -0.12, 1.95], target: [0.7, -0.52, 0.08] },
+  { p: 0.5, pos: [2.3, 0.1, 3.0], target: [0.6, -0.35, 0.1] },
+  { p: 0.62, pos: [2.5, 0.95, 4.9], target: [0.25, 0.6, 0.2] },
+  { p: 0.8, pos: [1.9, 0.6, 6.4], target: [0, 0.14, 0] },
   { p: 1.0, pos: [1.5, 0.45, 6.95], target: [0, 0.16, 0] },
 ];
 
@@ -217,8 +217,8 @@ export const CAMERA_FOV = { desktop: 34, mobile: 42 } as const;
  */
 export function compositionBias(p: number, isMobile: boolean): number {
   if (isMobile) return 0;
-  const opening = 1 - ease(seg(p, 0.06, 0.2));
-  const closing = ease(seg(p, 0.8, 0.9));
+  const opening = 1 - ease(seg(p, 0.05, 0.17));
+  const closing = ease(seg(p, 0.74, 0.84));
   return -0.5 * Math.max(opening, closing);
 }
 

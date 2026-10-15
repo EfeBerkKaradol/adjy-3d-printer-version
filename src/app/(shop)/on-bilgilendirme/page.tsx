@@ -31,7 +31,7 @@ export default function OnBilgilendirmePage() {
           <p>
             Sipariş verilen ürüne ilişkin temel özellikler (ürün adı, boyutlar, renk, malzeme türü ve
             özelleştirme parametreleri) ürün sayfasında ve sipariş özeti ekranında ayrıntılı olarak
-            gösterilmektedir. Ürünler 3D baskı teknolojisiyle PLA veya diğer uyumlu malzemelerle üretilmektedir.
+            gösterilmektedir. Ürünler, nesneye göre 3D baskı (PLA, PETG, ABS ve benzeri), seramik veya alçı ile üretilmektedir.
           </p>
         </section>
 

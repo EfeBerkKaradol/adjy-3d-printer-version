@@ -33,12 +33,19 @@ const orbitron = Orbitron({
 
 export const metadata: Metadata = {
   title: {
-    default: "ADJY - 3D Baskı E-Ticaret Platformu",
+    default: "ADJY — Tasarım Nesneleri ve Parametrik Üretim",
     template: "%s | ADJY",
   },
   description:
-    "3D modelleri parametrik olarak özelleştir, AR ile görüntüle ve satın al. Türkiye'nin ilk parametrik 3D baskı e-ticaret platformu.",
-  keywords: ["3D baskı", "3D print", "parametrik tasarım", "AR", "e-ticaret", "özelleştirilebilir ürünler"],
+    "3D baskı, seramik ve alçı dekoratif nesneler. Ölçüsünü kendi alanına göre değiştir, odanda gör, ürettir.",
+  keywords: [
+    "3D baskı",
+    "seramik dekoratif ürün",
+    "alçı dekoratif ürün",
+    "parametrik tasarım",
+    "AR",
+    "özelleştirilebilir ürünler",
+  ],
   authors: [{ name: "ADJY" }],
   creator: "ADJY",
   metadataBase: new URL(
@@ -49,13 +56,15 @@ export const metadata: Metadata = {
     type: "website",
     locale: "tr_TR",
     siteName: "ADJY",
-    title: "ADJY - 3D Baskı E-Ticaret Platformu",
-    description: "3D modelleri parametrik olarak özelleştir, AR ile görüntüle ve satın al.",
+    title: "ADJY — Tasarım Nesneleri ve Parametrik Üretim",
+    description:
+      "3D baskı, seramik ve alçı dekoratif nesneler. Ölçüsünü değiştir, odanda gör, ürettir.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "ADJY - 3D Baskı E-Ticaret Platformu",
-    description: "3D modelleri parametrik olarak özelleştir, AR ile görüntüle ve satın al.",
+    title: "ADJY — Tasarım Nesneleri ve Parametrik Üretim",
+    description:
+      "3D baskı, seramik ve alçı dekoratif nesneler. Ölçüsünü değiştir, odanda gör, ürettir.",
   },
   manifest: "/manifest.json",
   robots: {

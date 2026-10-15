@@ -13,7 +13,7 @@ import { ImageResponse } from "next/og";
 // üretilir; ayrıca bir dosya tutmaya gerek yok.
 // ==========================================
 
-export const alt = "ADJY — parametrik 3D baskı";
+export const alt = "ADJY — tasarım nesneleri ve parametrik üretim";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -84,8 +84,8 @@ export default function TwitterImage() {
               maxWidth: 760,
             }}
           >
-            Parametrik 3D baskı nesneleri. Bir fotoğraftan kendi ürününü
-            oluştur, odanda gör, ürettir.
+            3D baskı, seramik ve alçı dekoratif nesneler. Ölçüsünü değiştir,
+            odanda gör, ürettir.
           </div>
         </div>
 
