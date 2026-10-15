@@ -212,14 +212,14 @@ export function HeroExperience({ product }: HeroExperienceProps) {
           reduceMotion ? "hidden" : "relative hidden md:block"
         }
         aria-hidden={reduceMotion || undefined}
-        // 4 aşama × ~30vh. Önceden 340vh'ydi ve bir sonraki bölüme
+        // 4 aşama × ~20vh. Önceden 340vh'ydi ve bir sonraki bölüme
         // varmak 3,5 ekran kaydırma istiyordu; ürünü anlatan asıl
         // bölüm oraya gelmeden izleyici bırakıyordu. Aşamalar
         // ilerlemenin oranına bağlı olduğu için kısaltmak anlatıyı
         // bozmuyor, yalnızca hızlandırıyor — panel bölümüyle de
         // aynı tempoya geliyor.
         // Anlatı zorunlu değil: sağ altta "Anlatıyı atla" var.
-        style={{ height: "220vh" }}
+        style={{ height: "180vh" }}
         aria-labelledby="hero-title"
       >
         <div

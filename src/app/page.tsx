@@ -472,16 +472,34 @@ export default async function HomePage() {
         />
       )}
 
-      {/* 02 — Bir nesnenin üç hâli: keşfet → yapılandır → üret */}
-      <ProductCinemaLoader product={storyProduct} />
-
-      {/* 03 — Fotoğraftan ürüne */}
-      <PhotoToProductTeaser />
-
-      {/* 04 — Öne çıkan nesneler */}
+      {/* 02 — Ürünler. Anlatıdan önce gelirler.
+          Önceki sırada ana sayfanın ilk beş ekranı arka arkaya iki
+          kaydırma anlatısıydı; ziyaretçi satın alabileceği bir şey
+          görmeden sayfanın yarısını geçiyordu. Anlatı aşağıda duruyor,
+          önce ürün var. */}
       {featuredObjects.length > 0 && <FeaturedObjects products={featuredObjects} />}
 
-      {/* 04 — Seninki yap */}
+      {/* 03 — Yeni gelenler */}
+      {newArrivals.length > 0 && (
+        <section className="adjy-container adjy-section" aria-label="Yeni gelenler">
+          <SectionHeading
+            eyebrow="Yeni"
+            title="Yeni gelenler"
+            description="Katalogdaki en son nesneler."
+            action={{ label: "Tüm nesneler", href: "/products?sort=newest" }}
+            className="mb-10 md:mb-12"
+          />
+          <ProductRail products={newArrivals} />
+        </section>
+      )}
+
+      {/* 04 — Bir nesnenin üç hâli: keşfet → yapılandır → üret */}
+      <ProductCinemaLoader product={storyProduct} />
+
+      {/* 05 — Fotoğraftan ürüne */}
+      <PhotoToProductTeaser />
+
+      {/* 06 — Seninki yap */}
       {configuratorProducts.length > 0 && (
         <section
           className="border-y border-border bg-surface"
@@ -497,20 +515,6 @@ export default async function HomePage() {
             />
             <ConfiguratorShowcase products={configuratorProducts} />
           </div>
-        </section>
-      )}
-
-      {/* 05 — Yeni gelenler */}
-      {newArrivals.length > 0 && (
-        <section className="adjy-container adjy-section" aria-label="Yeni gelenler">
-          <SectionHeading
-            eyebrow="Yeni"
-            title="Yeni gelenler"
-            description="Katalogdaki en son nesneler."
-            action={{ label: "Tüm nesneler", href: "/products?sort=newest" }}
-            className="mb-10 md:mb-12"
-          />
-          <ProductRail products={newArrivals} />
         </section>
       )}
 

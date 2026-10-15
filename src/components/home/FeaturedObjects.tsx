@@ -43,10 +43,16 @@ export function FeaturedObjects({ products }: FeaturedObjectsProps) {
   const current = products[active];
 
   return (
-    <section className="adjy-container adjy-section" aria-label="Öne çıkan nesneler">
+    <section
+      // Üst boşluk bilerek dar: bu bölüm hero'nun hemen ardından
+      // geliyor ve ziyaretçinin gördüğü ilk ürün burada. Standart
+      // bölüm boşluğu ürünü bir ekran daha aşağı itiyordu.
+      className="adjy-container pt-10 pb-16 md:pt-12 md:pb-24"
+      aria-label="Öne çıkan nesneler"
+    >
       <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-xl">
-          <p className="adjy-eyebrow mb-5">Öne çıkan nesneler</p>
+          <p className="adjy-eyebrow mb-3">Öne çıkan nesneler</p>
           <h2 className="adjy-display text-[clamp(2rem,4.2vw,3.25rem)]">
             Seçilmiş parçalar.
           </h2>
