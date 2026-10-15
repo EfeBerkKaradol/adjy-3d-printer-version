@@ -8,6 +8,7 @@ import { SortDropdown } from "@/components/product/SortDropdown";
 import { ActiveFilterChips } from "@/components/product/ActiveFilterChips";
 import { CategoryChips } from "@/components/product/CategoryChips";
 import { Pagination } from "@/components/ui/pagination";
+import { materialFilterValues, materialOptions, type MaterialOption } from "@/lib/materialFamily";
 
 // ==========================================
 // MAĞAZA (Server Component)
@@ -72,9 +73,10 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   if (params.inStock === "true") where.stockQty = { gt: 0 };
   // Parametrik ürün = en az bir Parameter kaydı olan ürün
   if (params.customizable === "true") where.parameters = { some: {} };
-  if (params.material) {
-    where.materialType = { equals: params.material, mode: "insensitive" };
-  }
+  // Malzeme filtresi aile bazlı çalışır: "seramik" seçildiğinde
+  // o aileye giren bütün malzeme adları eşleşir. Tekil bir
+  // malzeme adı verilirse (eski bağlantılar) o da çalışır.
+  const selectedMaterial = params.material ?? null;
   if (params.minPrice || params.maxPrice) {
     where.basePrice = {};
     const min = Number(params.minPrice);
@@ -92,12 +94,30 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   let products: Awaited<ReturnType<typeof loadProducts>>["products"] = [];
   let totalCount = 0;
   let categories: { id: string; name: string; slug: string; productCount: number }[] = [];
-  let materials: string[] = [];
+  let materialChoices: MaterialOption[] = [];
   let configurableCount = 0;
   let failed = false;
 
   async function loadProducts() {
-    const [rows, count, materialRows, configurableCount, categoryRows] = await Promise.all([
+    // Aile filtresi için önce hangi malzemeler var, onu bilmek
+    // gerekiyor: "seramik" seçimi, o aileye giren bütün malzeme
+    // adlarına çevrilerek sorguya giriyor.
+    const materialRows = await prisma.product.findMany({
+      where: { isActive: true, materialType: { not: null } },
+      select: { materialType: true },
+      distinct: ["materialType"],
+    });
+    const materialTypes = materialRows
+      .map((m) => m.materialType)
+      .filter((m): m is string => Boolean(m))
+      .sort();
+
+    if (selectedMaterial) {
+      const values = materialFilterValues(selectedMaterial, materialTypes);
+      where.materialType = values.length === 1 ? { equals: values[0], mode: "insensitive" } : { in: values };
+    }
+
+    const [rows, count, configurableCount, categoryRows] = await Promise.all([
       prisma.product.findMany({
         where,
         orderBy: buildOrderBy(params.sort),
@@ -116,11 +136,6 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         },
       }),
       prisma.product.count({ where }),
-      prisma.product.findMany({
-        where: { isActive: true, materialType: { not: null } },
-        select: { materialType: true },
-        distinct: ["materialType"],
-      }),
       prisma.product.count({
         where: { isActive: true, parameters: { some: {} } },
       }),
@@ -142,10 +157,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       products: rows.map((p) => ({ ...p, basePrice: Number(p.basePrice) })),
       count,
       configurableCount,
-      materials: materialRows
-        .map((m) => m.materialType)
-        .filter((m): m is string => Boolean(m))
-        .sort(),
+      materialTypes,
       categories: categoryRows
         .filter((c) => c._count.products > 0)
         .map((c) => ({
@@ -161,7 +173,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     const data = await loadProducts();
     products = data.products;
     totalCount = data.count;
-    materials = data.materials;
+    materialChoices = materialOptions(data.materialTypes);
     categories = data.categories;
     configurableCount = data.configurableCount;
   } catch (error) {
@@ -199,7 +211,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         <aside className="hidden lg:block" aria-label="Ürün filtreleri">
           <div className="sticky top-24">
             <Suspense fallback={<div className="h-96" />}>
-              <ProductFilters categories={categories} materials={materials} />
+              <ProductFilters categories={categories} materials={materialChoices} />
             </Suspense>
           </div>
         </aside>
@@ -251,7 +263,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       <Suspense fallback={null}>
         <FilterDrawer
           categories={categories}
-          materials={materials}
+          materials={materialChoices}
           resultCount={totalCount}
         />
       </Suspense>

@@ -26,7 +26,7 @@ import { ArrowDownUp, Check, SlidersHorizontal } from "lucide-react";
 
 interface FilterDrawerProps {
   categories: FilterCategory[];
-  materials: string[];
+  materials: { value: string; label: string }[];
   resultCount: number;
 }
 

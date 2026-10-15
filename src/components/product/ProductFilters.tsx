@@ -34,7 +34,7 @@ export interface FilterCategory {
 
 export interface ProductFiltersProps {
   categories: FilterCategory[];
-  materials: string[];
+  materials: { value: string; label: string }[];
   /** Çekmece içinde kullanıldığında seçim sonrası kapanır */
   onNavigate?: () => void;
   /** Çekmecenin kendi başlığı olduğu için orada gizlenir */
@@ -296,20 +296,22 @@ export function ProductFilters({
           </AccordionContent>
         </AccordionItem>
 
-        {/* Malzeme */}
+        {/* Üretim — 3D baskı, seramik, alçı.
+            Tekil filament adı değil aile gösterilir; PLA ile PETG
+            farkı alıcıyı listede değil ürün künyesinde ilgilendirir. */}
         {materials.length > 0 && (
           <AccordionItem value="malzeme" className="border-b border-border">
             <AccordionTrigger className="py-4 text-sm hover:no-underline">
-              Malzeme
+              Üretim
             </AccordionTrigger>
             <AccordionContent className="pb-4">
               {materials.map((mat) => (
                 <CheckRow
-                  key={mat}
-                  id={`f-mat-${mat}`}
-                  label={mat}
-                  checked={current.material === mat}
-                  onChange={(v) => update({ material: v ? mat : null })}
+                  key={mat.value}
+                  id={`f-mat-${mat.value}`}
+                  label={mat.label}
+                  checked={current.material === mat.value}
+                  onChange={(v) => update({ material: v ? mat.value : null })}
                 />
               ))}
             </AccordionContent>

@@ -242,7 +242,28 @@ export default function EditProductPage() {
           <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="text-sm font-medium mb-1.5 block">Materyal</label>
-              <Input value={form.materialType} onChange={(e) => setForm((p) => ({ ...p, materialType: e.target.value }))} />
+              <Input
+                value={form.materialType}
+                onChange={(e) => setForm((p) => ({ ...p, materialType: e.target.value }))}
+                list="materyal-onerileri"
+                placeholder="PLA"
+              />
+              {/* Mağaza filtresi bu değere göre gruplar: filament adları
+                  3D Baskı altında toplanır, "Seramik" ve "Alçı" kendi
+                  başlıklarını açar. Büyük/küçük harf ve Türkçe karakter
+                  farkı önemli değil. */}
+              <datalist id="materyal-onerileri">
+                <option value="PLA" />
+                <option value="PETG" />
+                <option value="ABS" />
+                <option value="TPU" />
+                <option value="Seramik" />
+                <option value="Alçı" />
+              </datalist>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                Seramik ve alçı ürünler için &quot;Seramik&quot; ya da &quot;Alçı&quot; yazın.
+              </p>
+
             </div>
             <div>
               <label className="text-sm font-medium mb-1.5 block">Ağırlık (g)</label>

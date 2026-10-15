@@ -5,6 +5,7 @@ import { CategoryGrid, type HomeCategory } from "@/components/home/CategoryGrid"
 import { Button } from "@/components/ui/button";
 import { resolvePublicImage } from "@/lib/publicAsset";
 import { ArrowRight } from "lucide-react";
+import { MATERIAL_FAMILIES, familyFor } from "@/lib/materialFamily";
 
 // Kategoriler ve ürün sayıları yarım saatte bir tazelenir
 export const revalidate = 1800;
@@ -84,8 +85,41 @@ async function getCategories(): Promise<HomeCategory[]> {
   }
 }
 
+/**
+ * Üretim türüne göre gezinme.
+ *
+ * Kategoriler kullanıma göre ("Ev & Dekorasyon"); ADJY ise üç
+ * ayrı şekilde üretiyor. Alıcı bazen "seramik bir şey" diye
+ * arıyor, bu yüzden üretim türü kenardaki filtrede saklı
+ * kalmamalı — koleksiyonlarla aynı sayfada, görünür olmalı.
+ */
+async function getMaterialFamilies() {
+  try {
+    const rows = await prisma.product.findMany({
+      where: { isActive: true, materialType: { not: null } },
+      select: { materialType: true },
+    });
+
+    const counts = new Map<string, number>();
+    for (const r of rows) {
+      const f = familyFor(r.materialType);
+      if (f) counts.set(f, (counts.get(f) ?? 0) + 1);
+    }
+
+    return MATERIAL_FAMILIES.filter((f) => (counts.get(f.id) ?? 0) > 0).map((f) => ({
+      ...f,
+      count: counts.get(f.id) ?? 0,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export default async function CollectionsPage() {
-  const categories = await getCategories();
+  const [categories, families] = await Promise.all([
+    getCategories(),
+    getMaterialFamilies(),
+  ]);
   const withProducts = categories.filter((c) => c.productCount > 0);
 
   return (
@@ -126,6 +160,45 @@ export default async function CollectionsPage() {
             .map((c) => c.name)
             .join(", ")}
         </p>
+      )}
+
+      {families.length > 0 && (
+        <section className="mt-20 border-t border-border pt-12 md:mt-28">
+          <h2 className="text-xl font-medium tracking-tight md:text-2xl">
+            Üretim türüne göre
+          </h2>
+          <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-muted-foreground">
+            Aynı nesne farklı malzemeyle başka bir şey olur. Dokusunu ve
+            ağırlığını seçerek de gezebilirsin.
+          </p>
+
+          <div className="mt-8 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-3">
+            {families.map((f) => (
+              <Link
+                key={f.id}
+                href={`/products?material=${f.id}`}
+                className="group bg-background p-6 transition-colors hover:bg-surface-2"
+              >
+                <div className="flex items-baseline justify-between gap-3">
+                  <h3 className="text-[15px] font-medium tracking-tight">{f.label}</h3>
+                  <span className="font-mono text-xs tabular-nums text-muted-foreground">
+                    {f.count}
+                  </span>
+                </div>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {f.description}
+                </p>
+                <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium">
+                  Göz at
+                  <ArrowRight
+                    className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
+                    aria-hidden
+                  />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
       )}
 
       <section className="mt-20 border-t border-border pt-12 md:mt-28">
