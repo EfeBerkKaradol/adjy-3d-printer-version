@@ -1,108 +1,127 @@
-"use client";
-
+import type { Metadata } from "next";
+import Link from "next/link";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { HelpCircle, RefreshCcw, Truck, Printer } from "lucide-react";
+import { FaqJsonLd, type FaqEntry } from "@/components/seo/JsonLd";
+
+// ==========================================
+// SIKÇA SORULAN SORULAR
+//
+// Sorular veri olarak tutuluyor: aynı kaynaktan hem sayfa
+// hem de arama motorlarının okuduğu yapısal veri üretiliyor.
+// İkisi birebir aynı olmak zorunda — metin sayfada farklı
+// görünürse Google yapısal veriyi yok sayıyor.
+//
+// İçerik ayrıca güncellendi: eski hâli "model yükleme
+// kapalıdır" diyordu, oysa hem model yükleme hem fotoğraftan
+// üretim çalışıyor. Seramik ve alçıdan da hiç söz edilmiyordu.
+// ==========================================
+
+export const metadata: Metadata = {
+  title: "Sıkça Sorulan Sorular",
+  description:
+    "Ölçü değiştirme, 3D baskı, seramik ve alçı üretim, kargo, iade ve sipariş takibi hakkında merak edilenler.",
+  alternates: { canonical: "/faq" },
+};
+
+const FAQ: FaqEntry[] = [
+  {
+    question: "Ürünlerin ölçüsünü değiştirebilir miyim?",
+    answer:
+      "Evet. Ürünlerin çoğu parametrik: genişlik, yükseklik gibi ölçüleri kendi alanına göre santimetre cinsinden ayarlayabilirsin. Ölçüyü değiştirdiğinde fiyat da anında güncellenir, çünkü fiyat harcanan malzemeye göre hesaplanır.",
+  },
+  {
+    question: "Hangi malzemelerle üretim yapıyorsunuz?",
+    answer:
+      "Üç şekilde üretiyoruz: 3D baskı, seramik ve alçı. 3D baskıda genel kullanım için PLA, dayanıklılık gereken yerlerde PETG, ABS veya esnek TPU kullanılıyor. Seramik ve alçı ürünler kalıpla üretilip elden geçiriliyor. Mağazada üretim türüne göre filtreleyebilirsin.",
+  },
+  {
+    question: "Kendi 3D modelimi yükleyip bastırabilir miyim?",
+    answer:
+      "Evet. Üret bölümünden STL dosyanı yükleyebilirsin; sistem modeli ölçüp malzeme, kalite ve adet seçimine göre fiyatı anında gösterir. En büyük kenar 30 santimetreye kadar olan modelleri üretebiliyoruz.",
+  },
+  {
+    question: "Elimde 3D model yok, sadece fotoğrafım var. Ne yapabilirim?",
+    answer:
+      "Beğendiğin bir objenin fotoğrafını yükleyebilirsin. ADJY fotoğraftan düzenlenebilir bir 3D model çıkarır; ölçüsünü değiştirip fiyatını görebilir, odanda AR ile bakabilir ve üretime gönderebilirsin.",
+  },
+  {
+    question: "Ürünü satın almadan odamda görebilir miyim?",
+    answer:
+      "Evet. Ürün sayfasındaki “AR’da Gör” ile nesneyi telefonunun kamerasından kendi odanda, seçtiğin gerçek ölçüsünde görüntüleyebilirsin.",
+  },
+  {
+    question: "Üye olmadan sipariş verebilir miyim?",
+    answer:
+      "Evet. Ad, e-posta ve telefon bilgilerini girip şifre belirlemeden sipariş verebilirsin. Sipariş onayı e-posta ile gönderilir. İstersen hesap açarak siparişlerini tek yerden takip edebilirsin.",
+  },
+  {
+    question: "Siparişim ne kadar sürede hazırlanır?",
+    answer:
+      "Ortalama bir sipariş 2-5 iş günü içinde üretilir. Ölçü büyüdükçe baskı süresi uzar; ürün sayfasında seçtiğin ölçüye göre tahmini üretim süresi gösterilir. Üretim bittikten sonra kargoya verilir.",
+  },
+  {
+    question: "Kargo ücreti ne kadar, ne zaman ücretsiz?",
+    answer:
+      "500 TL ve üzeri siparişlerde kargo ücretsizdir. Altındaki siparişlerde kargo ücreti ödeme adımında seçtiğin gönderim şekline göre hesaplanır. Tüm Türkiye'ye gönderim yapılıyor.",
+  },
+  {
+    question: "İade ve değişim nasıl işliyor?",
+    answer:
+      "Hazır ürünlerde teslim tarihinden itibaren 14 gün içinde iade hakkın var. Sana özel ölçüde üretilmiş ürünlerde, Tüketici Hakları Kanunu gereği iade kabul edilmiyor. Ancak üretim hatası (katman kayması, kırık, eksik parça) olursa ürün ücretsiz yeniden üretilir.",
+  },
+  {
+    question: "Faturamı nasıl alırım?",
+    answer:
+      "Ödeme adımında bireysel ya da kurumsal fatura seçebilirsin. Bireysel faturada TC Kimlik numaran, kurumsalda ticaret unvanı, vergi dairesi ve vergi numarası isteniyor. Fatura siparişinle birlikte düzenlenir.",
+  },
+  {
+    question: "Toplu siparişlerde indirim var mı?",
+    answer:
+      "Evet. Adet arttıkça birim fiyat düşer ve indirim ödeme ekranında otomatik uygulanır. Kurumsal promosyon, etkinlik ya da toptan talepler için iletişim formundan yazabilirsin.",
+  },
+];
 
 export default function FAQPage() {
   return (
-    <div className="container py-12 md:py-24 px-4 max-w-5xl mx-auto">
-      <div className="text-center mb-16">
-        <h1 className="text-3xl md:text-5xl font-bold font-[var(--font-orbitron)] tracking-wider mb-6 leading-tight">
-          Sıkça Sorulan Sorular
+    <div className="adjy-container adjy-section">
+      <FaqJsonLd items={FAQ} />
+
+      <header className="max-w-2xl">
+        <p className="adjy-eyebrow mb-5">Yardım</p>
+        <h1 className="adjy-display text-[clamp(1.9rem,4.2vw,3rem)]">
+          Sıkça sorulan sorular
         </h1>
-        <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto">
-          3D baskı, sipariş süreçleri ve teslimat hakkında aklınıza takılan soruların yanıtlarını burada bulabilirsiniz.
+        <p className="mt-5 text-base leading-relaxed text-muted-foreground">
+          Ölçü değiştirme, üretim, kargo ve iade hakkında en çok sorulanlar.
+          Aradığını bulamazsan{" "}
+          <Link href="/contact" className="underline underline-offset-4">
+            bize yazabilirsin
+          </Link>
+          .
         </p>
-      </div>
+      </header>
 
-      <div className="grid md:grid-cols-2 gap-8 mb-16">
-        {/* Quick Info Cards */}
-        <Card className="bg-primary/5 border-primary/20 transition-all hover:bg-primary/10">
-          <CardHeader>
-            <Printer className="h-8 w-8 text-primary mb-2" />
-            <CardTitle>Baskı Süreci</CardTitle>
-            <CardDescription>Ortalama bir siparişin hazırlanma süresi 2-5 iş günüdür.</CardDescription>
-          </CardHeader>
-        </Card>
-
-        <Card className="bg-primary/5 border-primary/20 transition-all hover:bg-primary/10">
-          <CardHeader>
-            <Truck className="h-8 w-8 text-primary mb-2" />
-            <CardTitle>Kargo Teslimatı</CardTitle>
-            <CardDescription>Baskı tamamlandıktan sonra tüm Türkiye'ye Yurtiçi Kargo ile gönderim sağlanır.</CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-
-      <div className="max-w-3xl mx-auto">
-        <Accordion type="single" collapsible className="w-full space-y-4">
-          <AccordionItem value="item-1" className="border px-6 rounded-lg bg-card shadow-sm">
-            <AccordionTrigger className="text-left font-medium hover:no-underline py-4">
-              <span className="flex items-center gap-3">
-                <HelpCircle className="h-5 w-5 text-primary shrink-0" />
-                Kendi modelimi yükleyip bastırabilir miyim?
-              </span>
+      <Accordion type="single" collapsible className="mt-12 border-t border-border">
+        {FAQ.map((item, i) => (
+          <AccordionItem
+            key={item.question}
+            value={`q-${i}`}
+            className="border-b border-border"
+          >
+            <AccordionTrigger className="py-5 text-left text-[15px] font-medium hover:no-underline">
+              {item.question}
             </AccordionTrigger>
-            <AccordionContent className="text-muted-foreground pb-4 pt-1">
-              Şu anki sistemimizde doğrudan 3D model (.stl / .obj) yükleme özelliği kapalıdır. Yalnızca sunduğumuz parametrik ürünleri (renk, ebat, eklenti seçerek) özelleştirebilirsiniz. Özel baskı talepleriniz için "Bize Ulaşın" sayfasından mesaj gönderebilirsiniz.
+            <AccordionContent className="pb-5 text-[15px] leading-relaxed text-muted-foreground">
+              {item.answer}
             </AccordionContent>
           </AccordionItem>
-
-          <AccordionItem value="item-2" className="border px-6 rounded-lg bg-card shadow-sm">
-            <AccordionTrigger className="text-left font-medium hover:no-underline py-4">
-              <span className="flex items-center gap-3">
-                <RefreshCcw className="h-5 w-5 text-primary shrink-0" />
-                Kişiselleştirilmiş ürünlerde iade/değişim mümkün mü?
-              </span>
-            </AccordionTrigger>
-            <AccordionContent className="text-muted-foreground pb-4 pt-1">
-              Tüketici Hakları Kanunu gereği size özel üretilmiş (isim kazınmış, özel ölçüde basılmış) 3D baskılarda iade kabul edilmemektedir. Ancak baskı hatası (katman kayması, eksik parça vb.) tespit edilirse yenisi ücretsiz olarak üretilip gönderilir.
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="item-3" className="border px-6 rounded-lg bg-card shadow-sm">
-            <AccordionTrigger className="text-left font-medium hover:no-underline py-4">
-              <span className="flex items-center gap-3">
-                <Printer className="h-5 w-5 text-primary shrink-0" />
-                Hangi malzemeleri (materyalleri) kullanıyorsunuz?
-              </span>
-            </AccordionTrigger>
-            <AccordionContent className="text-muted-foreground pb-4 pt-1">
-              Genel kullanım için PLA (Polilaktik Asit) ve PLA+ kullanılmaktadır. Darbeye dayanıklı mekanik parçalar için PETG veya TPU (Esnek) seçeneklerimiz de sipariş verirken tercih edilebilir. Listede bulunmayan özel materyaller (Carbon Fiber vb.) için iletişime geçebilirsiniz.
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="item-4" className="border px-6 rounded-lg bg-card shadow-sm">
-            <AccordionTrigger className="text-left font-medium hover:no-underline py-4">
-              <span className="flex items-center gap-3">
-                <Truck className="h-5 w-5 text-primary shrink-0" />
-                Siparişimin durumunu nasıl takip edebilirim?
-              </span>
-            </AccordionTrigger>
-            <AccordionContent className="text-muted-foreground pb-4 pt-1">
-              Giriş yaptıktan sonra &quot;Profil -&gt; Siparişlerim&quot; sayfasından baskının hangi aşamada olduğunu anlık görebilirsiniz (Baskıda, Kalite Kontrol, Kargoda vb.). Ürün kargoya verildiğinde e-posta ile kargo takip numaranız ayrıca iletilecektir.
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="item-5" className="border px-6 rounded-lg bg-card shadow-sm">
-            <AccordionTrigger className="text-left font-medium hover:no-underline py-4">
-              <span className="flex items-center gap-3">
-                <HelpCircle className="h-5 w-5 text-primary shrink-0" />
-                Toplu siparişlerde indirim yapıyor musunuz?
-              </span>
-            </AccordionTrigger>
-            <AccordionContent className="text-muted-foreground pb-4 pt-1">
-              Evet! Şirket promosyonları, etkinlikler veya toptan satışlar için bizimle e-posta veya iletişim formu üzerinden iletişime geçtiğinizde, adet sayısına ve baskı süresine göre özel fiyatlandırma yapabiliyoruz.
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      </div>
+        ))}
+      </Accordion>
     </div>
   );
 }

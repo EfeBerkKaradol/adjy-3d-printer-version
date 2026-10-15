@@ -13,7 +13,7 @@ import { ExploreShop, type ShopTeaserProduct } from "@/components/home/ExploreSh
 import { FinalCTA } from "@/components/home/FinalCTA";
 import { ProductRail, type RailProduct } from "@/components/product/ProductRail";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { WebSiteJsonLd } from "@/components/seo/JsonLd";
+import { OrganizationJsonLd, WebSiteJsonLd } from "@/components/seo/JsonLd";
 import { getAbsoluteUrl } from "@/lib/url";
 import { getProductType } from "@/lib/productType";
 
@@ -447,6 +447,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <OrganizationJsonLd url={getAbsoluteUrl()} />
       <WebSiteJsonLd
         name="ADJY — Dijital tasarlanmış, senin ölçünde üretilen nesneler"
         url={baseUrl}

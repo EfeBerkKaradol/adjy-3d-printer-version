@@ -12,6 +12,7 @@ import { WishlistProvider } from "@/components/wishlist-provider";
 import { Toaster } from "sonner";
 import { CookieConsent } from "@/components/layout/CookieConsent";
 import "./globals.css";
+import { getAbsoluteUrl } from "@/lib/url";
 
 const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID;
 
@@ -48,10 +49,10 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "ADJY" }],
   creator: "ADJY",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://v0-adjy-3d-printer-version.vercel.app")
-  ),
+  // Tek kaynaktan: canonical, og:url ve og:image hep sitenin
+  // gerçekten sunulduğu adresten üretilsin. Eski yedek adres
+  // artık kullanılmayan bir önizleme alan adına işaret ediyordu.
+  metadataBase: new URL(getAbsoluteUrl()),
   openGraph: {
     type: "website",
     locale: "tr_TR",

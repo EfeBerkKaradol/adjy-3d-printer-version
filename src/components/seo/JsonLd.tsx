@@ -145,3 +145,151 @@ export function WebSiteJsonLd({ name, url, description }: WebSiteJsonLdProps) {
     />
   );
 }
+
+// ==========================================
+// KURULUŞ / İŞLETME
+//
+// Marka aramalarında ("adjy", "adjy shopping") Google'ın
+// işletmeyi tanıması ve bilgi panelini doğru kurması için.
+// Adres verildiği için Store tipi kullanılır — yerel aramada
+// da karşılığı olur.
+//
+// Çalışma saatleri bilerek yazılmadı: doğrulanmamış bir
+// saat bilgisini yapısal veriye koymak, kapalıyken açık
+// görünmek demektir.
+// ==========================================
+
+interface OrganizationJsonLdProps {
+  url: string;
+  logo?: string;
+}
+
+export function OrganizationJsonLd({ url, logo }: OrganizationJsonLdProps) {
+  const jsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Store",
+    "@id": `${url}#organization`,
+    name: "ADJY",
+    alternateName: "ADJY Shopping",
+    url,
+    ...(logo && { logo, image: logo }),
+    description:
+      "3D baskı, seramik ve alçı ile üretilen dekoratif ve işlevsel tasarım nesneleri. Ölçüsü değiştirilebilen parametrik ürünler.",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Cihannüma Mahallesi, Salihefendi Sokak, Bıyıkoğlu İşhanı No: 19, Kat 5 Daire 3",
+      addressLocality: "Beşiktaş",
+      addressRegion: "İstanbul",
+      postalCode: "34351",
+      addressCountry: "TR",
+    },
+    areaServed: { "@type": "Country", name: "Türkiye" },
+    currenciesAccepted: "TRY",
+    paymentAccepted: "Kredi Kartı, Banka Kartı",
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}
+
+// ==========================================
+// KIRINTI YOLU
+//
+// Arama sonucunda çıplak URL yerine "Mağaza › Ev & Dekorasyon ›
+// Eriyen Duvar Rafı" görünmesini sağlar. Sayfada görsel olarak
+// zaten vardı ama Google'ın okuyabileceği biçimde değildi.
+// ==========================================
+
+export interface Crumb {
+  name: string;
+  url: string;
+}
+
+export function BreadcrumbJsonLd({ items }: { items: Crumb[] }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}
+
+// ==========================================
+// SORU–CEVAP
+//
+// SSS sayfasındaki cevapların arama sonucunda doğrudan
+// açılabilmesi için. Sayfada görünen metinle birebir aynı
+// olmalı; farklı olursa Google yapısal veriyi yok sayar.
+// ==========================================
+
+export interface FaqEntry {
+  question: string;
+  answer: string;
+}
+
+export function FaqJsonLd({ items }: { items: FaqEntry[] }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}
+
+// ==========================================
+// ÜRÜN LİSTESİ
+//
+// Mağaza ve koleksiyon sayfalarındaki sıranın Google
+// tarafından liste olarak anlaşılmasını sağlar.
+// ==========================================
+
+export interface ListEntry {
+  name: string;
+  url: string;
+}
+
+export function ItemListJsonLd({ items }: { items: ListEntry[] }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    numberOfItems: items.length,
+    itemListElement: items.map((item, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: item.name,
+      url: item.url,
+    })),
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}

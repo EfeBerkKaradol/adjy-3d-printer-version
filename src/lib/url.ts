@@ -16,11 +16,26 @@ export function getBaseUrl(): string {
 }
 
 /**
+ * Site hangi adresten sunuluyorsa canonical de o olmalı.
+ *
+ * Alan adı www'ye yönlendiriyor ama yapılandırmada apex hâli
+ * duruyordu; canonical etiketleri yönlenen bir adrese işaret
+ * ediyordu. Arama motoru bunu kendi çözüyor ama tarama bütçesi
+ * boşa gidiyor ve sinyaller iki adrese bölünüyor.
+ *
+ * Yapılandırma düzeltilirse burası da kendiliğinden devre dışı
+ * kalır — normalleştirme yalnızca apex hâlini www'ye çevirir.
+ */
+function canonicalHost(url: string): string {
+  return url.replace(/^https:\/\/adjyshopping\.com/, "https://www.adjyshopping.com");
+}
+
+/**
  * Mutlaka absolute URL döndürür (SEO, meta, payment callback gibi durumlar için).
  * Client tarafında bile absolute URL verir.
  */
 export function getAbsoluteUrl(): string {
-  if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL;
+  if (process.env.NEXT_PUBLIC_APP_URL) return canonicalHost(process.env.NEXT_PUBLIC_APP_URL);
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
   return "http://localhost:3000";
 }

@@ -9,6 +9,8 @@ import { ActiveFilterChips } from "@/components/product/ActiveFilterChips";
 import { CategoryChips } from "@/components/product/CategoryChips";
 import { Pagination } from "@/components/ui/pagination";
 import { materialFilterValues, materialOptions, type MaterialOption } from "@/lib/materialFamily";
+import { ItemListJsonLd } from "@/components/seo/JsonLd";
+import { getAbsoluteUrl } from "@/lib/url";
 
 // ==========================================
 // MAĞAZA (Server Component)
@@ -185,6 +187,17 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
   return (
     <div className="adjy-container py-10 pb-24 md:py-14 lg:pb-14">
+      {/* Listedeki sıranın arama motorunca liste olarak
+          anlaşılması için — çıplak bağlantı yığını değil. */}
+      {products.length > 0 && (
+        <ItemListJsonLd
+          items={products.map((p) => ({
+            name: p.name,
+            url: `${getAbsoluteUrl()}/products/${p.slug}`,
+          }))}
+        />
+      )}
+
       {/* Başlık */}
       <header className="max-w-2xl">
         <p className="adjy-eyebrow mb-4">Mağaza</p>

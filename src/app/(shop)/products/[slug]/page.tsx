@@ -15,7 +15,8 @@ import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { ProductARButton } from "@/components/ar/ProductARButton";
 import { ProductReviews } from "@/components/product/ProductReviews";
-import { ProductJsonLd } from "@/components/seo/JsonLd";
+import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
+import { productDescription, productKeywords, productTitle } from "@/lib/seo";
 import { getAbsoluteUrl } from "@/lib/url";
 import { getProductType } from "@/lib/productType";
 import { AlertCircle, ArrowRight, CheckCircle, Sliders, Star } from "lucide-react";
@@ -132,17 +133,42 @@ export async function generateMetadata({
 
   if (!product) return { title: "Ürün bulunamadı" };
 
-  const description =
-    product.description ||
-    `${product.name} — ${product.category.name} kategorisinde 3D baskı ürünü. ${product.basePrice.toFixed(2)} TL`;
+  // Başlık ve açıklama ürünün kendi verisinden üretilir:
+  // ölçü aralığı, üretim türü ve fiyat aranan ifadelerdir.
+  const seoInput = {
+    name: product.name,
+    description: product.description,
+    basePrice: product.basePrice,
+    categoryName: product.category.name,
+    materialType: product.materialType ?? null,
+    dimensions: product.parameters
+      .filter(
+        (p) =>
+          p.unit === "mm" &&
+          p.minValue !== null &&
+          p.maxValue !== null &&
+          p.maxValue > p.minValue
+      )
+      .map((p) => ({
+        label: p.displayName,
+        minMm: p.minValue as number,
+        maxMm: p.maxValue as number,
+      })),
+  };
+
+  const title = productTitle(seoInput);
+  const description = productDescription(seoInput);
 
   return {
-    title: product.name,
+    title,
     description,
+    keywords: productKeywords(seoInput),
     alternates: { canonical: `/products/${product.slug}` },
     openGraph: {
-      title: `${product.name} | ADJY`,
+      type: "website",
+      title: `${title} | ADJY`,
       description,
+      url: `/products/${product.slug}`,
       ...(product.thumbnailUrl && { images: [{ url: product.thumbnailUrl }] }),
     },
   };
@@ -192,6 +218,17 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
   return (
     <div className="pb-20">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Mağaza", url: `${baseUrl}/products` },
+          {
+            name: product.category.name,
+            url: `${baseUrl}/products?category=${product.category.slug}`,
+          },
+          { name: product.name, url: `${baseUrl}/products/${product.slug}` },
+        ]}
+      />
+
       <ProductJsonLd
         name={product.name}
         description={product.description || ""}
