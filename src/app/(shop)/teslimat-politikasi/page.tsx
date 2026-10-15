@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Teslimat Politikası | ADJY",
+  title: "Teslimat Politikası",
   description: "ADJY 3D baskı ürünleri kargo, teslimat süresi ve gönderim bilgileri.",
 };
 

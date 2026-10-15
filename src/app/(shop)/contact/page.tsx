@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, MapPin, Phone, Send } from "lucide-react";
+import { COMPANY, formatAddress } from "@/lib/company";
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -61,46 +62,86 @@ export default function ContactPage() {
       <div className="grid md:grid-cols-3 gap-8 items-start">
         {/* Contact Info Cards */}
         <div className="md:col-span-1 space-y-6">
-          <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
-            <CardContent className="flex items-center gap-4 p-6">
-              <div className="p-3 bg-primary/10 rounded-full text-primary">
-                <MapPin className="h-6 w-6" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg">Adres</h3>
-                <p className="text-muted-foreground mt-1 text-sm">
-                  Teknoloji Geliştirme Bölgesi<br />
-                  3D Inovasyon Merkezi, İstanbul
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Bilgiler tek kaynaktan gelir; verilmemiş olan kart
+              hiç çizilmez. Daha önce burada kurgusal bir telefon
+              numarası duruyordu — yoksa göstermemek, yanlış
+              göstermekten iyidir. */}
+          {COMPANY.address && (
+            <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+              <CardContent className="flex items-center gap-4 p-6">
+                <div className="p-3 bg-primary/10 rounded-full text-primary">
+                  <MapPin className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg">Adres</h3>
+                  <p className="text-muted-foreground mt-1 text-sm">
+                    {COMPANY.address.line1}
+                    <br />
+                    {COMPANY.address.line2}
+                    <br />
+                    {COMPANY.address.postalCode} {COMPANY.address.district}/
+                    {COMPANY.address.city}
+                  </p>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                      formatAddress(COMPANY.address)
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-block text-sm text-primary hover:underline"
+                  >
+                    Haritada aç
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-          <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
-            <CardContent className="flex items-center gap-4 p-6">
-              <div className="p-3 bg-primary/10 rounded-full text-primary">
-                <Mail className="h-6 w-6" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg">E-posta</h3>
-                <p className="text-muted-foreground mt-1 text-sm">info@adjy3d.com</p>
-                <p className="text-muted-foreground text-sm">destek@adjy3d.com</p>
-              </div>
-            </CardContent>
-          </Card>
+          {COMPANY.email && (
+            <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+              <CardContent className="flex items-center gap-4 p-6">
+                <div className="p-3 bg-primary/10 rounded-full text-primary">
+                  <Mail className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg">E-posta</h3>
+                  <p className="text-muted-foreground mt-1 text-sm">
+                    <a href={`mailto:${COMPANY.email}`} className="hover:underline">
+                      {COMPANY.email}
+                    </a>
+                  </p>
+                  {COMPANY.supportEmail && (
+                    <p className="text-muted-foreground text-sm">
+                      <a href={`mailto:${COMPANY.supportEmail}`} className="hover:underline">
+                        {COMPANY.supportEmail}
+                      </a>
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-          <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
-            <CardContent className="flex items-center gap-4 p-6">
-              <div className="p-3 bg-primary/10 rounded-full text-primary">
-                <Phone className="h-6 w-6" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg">Telefon</h3>
-                <p className="text-muted-foreground mt-1 text-sm">+90 (212) 555 0123</p>
-                <p className="text-muted-foreground text-sm">Pzt - Cuma, 09:00 - 18:00</p>
-              </div>
-            </CardContent>
-          </Card>
+          {COMPANY.phone && (
+            <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+              <CardContent className="flex items-center gap-4 p-6">
+                <div className="p-3 bg-primary/10 rounded-full text-primary">
+                  <Phone className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg">Telefon</h3>
+                  <p className="text-muted-foreground mt-1 text-sm">
+                    <a href={`tel:${COMPANY.phone.replace(/[^+\d]/g, "")}`} className="hover:underline">
+                      {COMPANY.phone}
+                    </a>
+                  </p>
+                  {COMPANY.workingHours && (
+                    <p className="text-muted-foreground text-sm">{COMPANY.workingHours}</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Contact Form */}

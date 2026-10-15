@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { COMPANY, formatAddress, sellerName } from "@/lib/company";
 
 export const metadata: Metadata = {
-  title: "Mesafeli Satış Sözleşmesi | ADJY",
+  title: "Mesafeli Satış Sözleşmesi",
   description: "ADJY mesafeli satış sözleşmesi. Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği kapsamında düzenlenmiştir.",
 };
 
@@ -17,7 +18,16 @@ export default function MesafeliSatisSozlesmesiPage() {
 
         <section>
           <h2 className="text-lg font-semibold text-foreground">Madde 1 — Taraflar</h2>
-          <p><strong className="text-foreground">Satıcı:</strong> ADJY — 3D Baskı E-Ticaret Platformu</p>
+          <p>
+            <strong className="text-foreground">Satıcı:</strong> {sellerName()}
+            {COMPANY.address ? ` — ${formatAddress(COMPANY.address)}` : ""}
+          </p>
+          {COMPANY.phone && (
+            <p><strong className="text-foreground">Telefon:</strong> {COMPANY.phone}</p>
+          )}
+          {COMPANY.email && (
+            <p><strong className="text-foreground">E-posta:</strong> {COMPANY.email}</p>
+          )}
           <p><strong className="text-foreground">Alıcı:</strong> Sipariş esnasında kayıt edilen müşteri bilgileri.</p>
         </section>
 

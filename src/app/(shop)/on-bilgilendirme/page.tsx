@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { COMPANY, formatAddress, sellerName } from "@/lib/company";
 
 export const metadata: Metadata = {
-  title: "Ön Bilgilendirme Formu | ADJY",
+  title: "Ön Bilgilendirme Formu",
   description: "ADJY ön bilgilendirme formu. Ürün, fiyat, teslimat ve cayma hakkına ilişkin bilgileri içerir.",
 };
 
@@ -18,8 +19,39 @@ export default function OnBilgilendirmePage() {
 
         <section>
           <h2 className="text-lg font-semibold text-foreground">1. Satıcı Bilgileri</h2>
-          <p><strong className="text-foreground">Ticaret Unvanı:</strong> ADJY</p>
-          <p><strong className="text-foreground">Web Sitesi:</strong> adjy.com</p>
+          <p>
+            <strong className="text-foreground">Ticaret Unvanı:</strong> {sellerName()}
+          </p>
+          {COMPANY.address && (
+            <p>
+              <strong className="text-foreground">Adres:</strong>{" "}
+              {formatAddress(COMPANY.address)}
+            </p>
+          )}
+          {COMPANY.phone && (
+            <p>
+              <strong className="text-foreground">Telefon:</strong> {COMPANY.phone}
+            </p>
+          )}
+          {COMPANY.email && (
+            <p>
+              <strong className="text-foreground">E-posta:</strong> {COMPANY.email}
+            </p>
+          )}
+          {COMPANY.mersisNumber && (
+            <p>
+              <strong className="text-foreground">MERSİS No:</strong> {COMPANY.mersisNumber}
+            </p>
+          )}
+          {COMPANY.taxOffice && COMPANY.taxNumber && (
+            <p>
+              <strong className="text-foreground">Vergi Dairesi / No:</strong>{" "}
+              {COMPANY.taxOffice} / {COMPANY.taxNumber}
+            </p>
+          )}
+          <p>
+            <strong className="text-foreground">Web Sitesi:</strong> {COMPANY.website}
+          </p>
           <p>
             <strong className="text-foreground">İletişim:</strong>{" "}
             <a href="/contact" className="text-primary hover:underline">İletişim Formu</a>

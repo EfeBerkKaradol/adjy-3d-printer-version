@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Çerez Politikası | ADJY",
+  title: "Çerez Politikası",
   description: "ADJY çerez politikası. Hangi çerezleri kullandığımız ve nasıl yönetebileceğiniz hakkında bilgi.",
 };
 
