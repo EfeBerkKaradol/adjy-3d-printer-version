@@ -8,20 +8,7 @@ import { getAbsoluteUrl } from "@/lib/url";
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: "Giriş yapmanız gerekiyor" },
-        { status: 401 }
-      );
-    }
-
-    // Rate limit: 5 odeme/dk per user
-    const { success } = await rateLimit(`payment:${session.user.id}`, { windowMs: 60_000, max: 5 });
-    if (!success) {
-      return NextResponse.json({ error: "Cok fazla istek. Lutfen bekleyin." }, { status: 429 });
-    }
-
-    const { orderId } = await request.json();
+    const { orderId, guestToken } = await request.json();
 
     if (!orderId) {
       return NextResponse.json(
@@ -30,12 +17,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // ==========================================
+    // YETKİ
+    //
+    // Üye siparişinde sahiplik oturumdan doğrulanır.
+    // Misafir siparişinde oturum yoktur; sipariş oluşturulurken
+    // verilen tek kullanımlık anahtar istenir. Aksi hâlde
+    // sipariş kimliğini tahmin eden biri başkasının siparişi
+    // için ödeme başlatabilirdi.
+    // ==========================================
+    if (!session?.user?.id && !guestToken) {
+      return NextResponse.json(
+        { error: "Giriş yapmanız gerekiyor" },
+        { status: 401 }
+      );
+    }
+
+    // Hız sınırı: oturum varsa kullanıcıya, yoksa siparişe bağlanır
+    const limitKey = session?.user?.id ? `payment:${session.user.id}` : `payment:order:${orderId}`;
+    const { success } = await rateLimit(limitKey, { windowMs: 60_000, max: 5 });
+    if (!success) {
+      return NextResponse.json({ error: "Cok fazla istek. Lutfen bekleyin." }, { status: 429 });
+    }
+
     // Siparişi bul
     const order = await prisma.order.findFirst({
-      where: {
-        id: orderId,
-        userId: session.user.id,
-      },
+      where: session?.user?.id
+        ? { id: orderId, userId: session.user.id }
+        : { id: orderId, isGuest: true, guestToken: String(guestToken) },
       include: {
         items: {
           include: {

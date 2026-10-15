@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { randomUUID } from "node:crypto";
 import { createOrderSchema } from "@/lib/validations/order";
 import { calculatePrice } from "@/lib/priceCalculator";
 import { getShippingPrice } from "@/lib/shipping";
@@ -78,15 +79,70 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: "Giris yapmaniz gerekiyor" },
-        { status: 401 }
-      );
-    }
-
     const body = await request.json();
     const validatedData = createOrderSchema.parse(body);
+
+    // ==========================================
+    // ALICIYI BELİRLE
+    //
+    // Sipariş her zaman bir kullanıcıya bağlanır; misafir
+    // siparişinde de şifresiz bir kayıt açılır. Müşteri
+    // açısından üyelik adımı yoktur, veri tarafında ise
+    // siparişin sahibi bellidir.
+    //
+    // Güvenlik kuralı: e-posta ŞİFRESİ OLAN bir hesaba aitse
+    // misafir siparişi o hesaba bağlanmaz. Aksi hâlde birinin
+    // e-postasını bilen herkes o hesaba sipariş iliştirebilirdi.
+    // ==========================================
+    let buyerId: string;
+    let buyerEmail: string;
+    let buyerName: string;
+    let isGuest = false;
+    let guestToken: string | null = null;
+
+    if (session?.user?.id) {
+      buyerId = session.user.id;
+      buyerEmail = session.user.email ?? "";
+      buyerName = session.user.name ?? "Müşteri";
+    } else {
+      const guest = validatedData.guest;
+      if (!guest) {
+        return NextResponse.json(
+          { error: "Giriş yapın ya da iletişim bilgilerinizi girin" },
+          { status: 401 }
+        );
+      }
+
+      const email = guest.email.trim().toLowerCase();
+      const existing = await prisma.user.findUnique({
+        where: { email },
+        select: { id: true, passwordHash: true, fullName: true },
+      });
+
+      if (existing?.passwordHash) {
+        return NextResponse.json(
+          {
+            error:
+              "Bu e-posta ile kayıtlı bir hesap var. Siparişi tamamlamak için giriş yapın.",
+            code: "ACCOUNT_EXISTS",
+          },
+          { status: 409 }
+        );
+      }
+
+      const buyer =
+        existing ??
+        (await prisma.user.create({
+          data: { email, fullName: guest.fullName.trim(), phone: guest.phone.trim() },
+          select: { id: true, passwordHash: true, fullName: true },
+        }));
+
+      buyerId = buyer.id;
+      buyerEmail = email;
+      buyerName = guest.fullName.trim();
+      isGuest = true;
+      guestToken = randomUUID();
+    }
 
     // Sipariş numarası üret
     const orderNumber = `ADJ-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
@@ -246,7 +302,9 @@ export async function POST(request: NextRequest) {
       // Order oluştur
       const newOrder = await tx.order.create({
         data: {
-          userId: session.user!.id!,
+          userId: buyerId,
+          isGuest,
+          guestToken,
           orderNumber,
           totalAmount,
           discountAmount,
@@ -270,6 +328,28 @@ export async function POST(request: NextRequest) {
               billingState: billingAddress.state,
               billingZip: billingAddress.postalCode,
               billingCountry: billingAddress.country,
+              // Fatura bilgisi sipariş anındaki hâliyle saklanır;
+              // müşteri sonradan değiştirse bile kesilen fatura
+              // bu kayda dayanır.
+              invoiceType: validatedData.invoice?.type ?? "BIREYSEL",
+              identityNumber:
+                validatedData.invoice?.type === "KURUMSAL"
+                  ? null
+                  : validatedData.invoice?.identityNumber?.trim() ||
+                    validatedData.billingAddress?.identityNumber ||
+                    null,
+              invoiceTitle:
+                validatedData.invoice?.type === "KURUMSAL"
+                  ? validatedData.invoice.title?.trim() || null
+                  : null,
+              invoiceTaxOffice:
+                validatedData.invoice?.type === "KURUMSAL"
+                  ? validatedData.invoice.taxOffice?.trim() || null
+                  : null,
+              invoiceTaxNumber:
+                validatedData.invoice?.type === "KURUMSAL"
+                  ? validatedData.invoice.taxNumber?.trim() || null
+                  : null,
             },
           },
           history: {
@@ -290,10 +370,10 @@ export async function POST(request: NextRequest) {
     });
 
     // E-posta bildirimi gönder (async, response'u bekletmez)
-    if (session.user?.email) {
+    if (buyerEmail) {
       sendOrderConfirmation(
-        session.user.email,
-        session.user.name || "Müşteri",
+        buyerEmail,
+        buyerName || "Müşteri",
         orderNumber,
         order.items.map((i) => ({
           name: i.productName,

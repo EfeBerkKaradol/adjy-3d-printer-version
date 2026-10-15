@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { CheckoutSteps } from "@/components/checkout/CheckoutSteps";
 import { CartSummaryStep } from "@/components/checkout/CartSummaryStep";
 import { AddressStep } from "@/components/checkout/AddressStep";
+import { BuyerDetailsStep } from "@/components/checkout/BuyerDetailsStep";
 import type { SavedAddress } from "@/components/checkout/AddressStep";
 import { ShippingStep } from "@/components/checkout/ShippingStep";
 import { PaymentStep } from "@/components/checkout/PaymentStep";
@@ -19,7 +20,7 @@ import {
 } from "@/lib/shipping";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Loader2, ShoppingBag, LogIn } from "lucide-react";
+import { Loader2, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import type {
   ShippingAddressInput,
@@ -43,6 +44,23 @@ export default function CheckoutPage() {
   const [step, setStep] = useState(1);
   const [creatingOrder, setCreatingOrder] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [guestToken, setGuestToken] = useState<string | null>(null);
+
+  // Hesap açmadan sipariş verenin iletişim bilgileri
+  const [guest, setGuest] = useState({ fullName: "", email: "", phone: "" });
+
+  // Fatura bilgileri — bireysel/kurumsal
+  const [invoice, setInvoice] = useState<{
+    type: "BIREYSEL" | "KURUMSAL";
+    identityNumber: string;
+    title: string;
+    taxOffice: string;
+    taxNumber: string;
+  }>({ type: "BIREYSEL", identityNumber: "", title: "", taxOffice: "", taxNumber: "" });
+
+  // Giriş zorunlu değil: oturum yoksa iletişim bilgileriyle
+  // devam edilir, arkada şifresiz bir kayıt açılır.
+  const isGuestCheckout = !session?.user;
 
   // Kayıtlı adresler
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
@@ -195,6 +213,8 @@ export default function CheckoutPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          guest: isGuestCheckout ? guest : undefined,
+          invoice,
           shippingAddress,
           billingAddress: useSameAddress ? undefined : billingAddress,
           useSameAddress,
@@ -212,6 +232,7 @@ export default function CheckoutPage() {
       }
 
       setOrderId(data.order.id);
+      setGuestToken(data.order.guestToken ?? null);
       setStep(4);
     } catch {
       toast.error("Siparis olusturulurken bir hata olustu");
@@ -230,6 +251,9 @@ export default function CheckoutPage() {
     shippingAddressTitle,
     billingAddressTitle,
     savedAddresses.length,
+    isGuestCheckout,
+    guest,
+    invoice,
   ]);
 
   // Auth yükleniyor
@@ -237,29 +261,6 @@ export default function CheckoutPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  // Giriş yapılmamış
-  if (!session?.user) {
-    return (
-      <div className="container mx-auto max-w-7xl px-4 py-16 text-center">
-        <LogIn className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-        <h1 className="text-2xl font-bold mb-2">Giriş Yapmanız Gerekiyor</h1>
-        <p className="text-muted-foreground mb-6">
-          Ödeme yapabilmek için lütfen giriş yapın veya hesap oluşturun.
-        </p>
-        <div className="flex gap-3 justify-center">
-          <Button asChild>
-            <Link href="/login?callbackUrl=/checkout">Giriş Yap</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/register?callbackUrl=/checkout">
-              Hesap Oluştur
-            </Link>
-          </Button>
-        </div>
       </div>
     );
   }
@@ -309,6 +310,14 @@ export default function CheckoutPage() {
           )}
 
           {step === 2 && (
+            <div className="space-y-6">
+              <BuyerDetailsStep
+                isGuest={isGuestCheckout}
+                guest={guest}
+                invoice={invoice}
+                onGuestChange={setGuest}
+                onInvoiceChange={setInvoice}
+              />
             <AddressStep
               shippingAddress={shippingAddress}
               billingAddress={billingAddress}
@@ -328,6 +337,7 @@ export default function CheckoutPage() {
               onNext={() => setStep(3)}
               onBack={() => setStep(1)}
             />
+            </div>
           )}
 
           {step === 3 && (
@@ -354,6 +364,7 @@ export default function CheckoutPage() {
           {step === 4 && (
             <PaymentStep
               orderId={orderId}
+              guestToken={guestToken}
               onBack={() => router.push("/cart")}
             />
           )}

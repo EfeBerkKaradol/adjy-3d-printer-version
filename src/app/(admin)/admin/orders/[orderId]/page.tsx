@@ -14,6 +14,7 @@ import {
   AlertCircle,
   ArrowRight,
   Printer,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -557,8 +558,100 @@ export default function AdminOrderDetailPage() {
               </div>
             </div>
           )}
+
+          {/* Fatura — e-arşiv/e-fatura düzenlemek için gereken her şey.
+              Bilgiler sipariş anında dondurulur; müşteri profilini
+              sonradan değiştirse bile kesilen fatura bu kayda dayanır. */}
+          {address && (
+            <div className="bg-card border border-border/40 rounded-xl p-5">
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <h3 className="font-semibold flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Fatura Bilgileri
+                </h3>
+                <span className="text-[11px] px-2 py-0.5 rounded border border-border/60 text-muted-foreground">
+                  {address.invoiceType === "KURUMSAL" ? "Kurumsal" : "Bireysel"}
+                </span>
+              </div>
+
+              <div className="text-sm space-y-1.5">
+                {address.invoiceType === "KURUMSAL" ? (
+                  <>
+                    <Row label="Ticaret unvanı" value={address.invoiceTitle} />
+                    <Row label="Vergi dairesi" value={address.invoiceTaxOffice} />
+                    <Row label="Vergi no" value={address.invoiceTaxNumber} />
+                  </>
+                ) : (
+                  <>
+                    <Row label="Ad soyad" value={user?.fullName ?? null} />
+                    <Row label="TC Kimlik No" value={address.identityNumber} />
+                  </>
+                )}
+                <Row label="E-posta" value={user?.email ?? null} />
+                <Row label="Telefon" value={user?.phone ?? null} />
+                <Row
+                  label="Fatura adresi"
+                  value={[
+                    address.billingLine1,
+                    address.billingLine2,
+                    [address.billingCity, address.billingZip].filter(Boolean).join(" "),
+                  ]
+                    .filter(Boolean)
+                    .join(", ")}
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const satirlar =
+                    address.invoiceType === "KURUMSAL"
+                      ? [
+                          `Unvan: ${address.invoiceTitle ?? "-"}`,
+                          `Vergi dairesi: ${address.invoiceTaxOffice ?? "-"}`,
+                          `Vergi no: ${address.invoiceTaxNumber ?? "-"}`,
+                        ]
+                      : [
+                          `Ad soyad: ${user?.fullName ?? "-"}`,
+                          `TC Kimlik No: ${address.identityNumber ?? "-"}`,
+                        ];
+                  navigator.clipboard?.writeText(
+                    [
+                      `Sipariş: ${String(o.orderNumber)}`,
+                      ...satirlar,
+                      `E-posta: ${user?.email ?? "-"}`,
+                      `Telefon: ${user?.phone ?? "-"}`,
+                      `Adres: ${[address.billingLine1, address.billingCity, address.billingZip]
+                        .filter(Boolean)
+                        .join(", ")}`,
+                    ].join("\n")
+                  );
+                }}
+                className="mt-4 text-xs text-muted-foreground hover:text-foreground underline underline-offset-4"
+              >
+                Fatura bilgilerini kopyala
+              </button>
+
+              {!address.identityNumber && address.invoiceType === "BIREYSEL" && (
+                <p className="mt-3 text-xs text-amber-600 dark:text-amber-500">
+                  TC Kimlik No girilmemiş — e-arşiv fatura için gerekebilir.
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Fatura blogundaki tek satir — degeri olmayan alan cizilmez */
+function Row({ label, value }: { label: string; value: string | null | undefined }) {
+  if (!value) return null;
+  return (
+    <div className="flex gap-2">
+      <span className="text-muted-foreground shrink-0">{label}:</span>
+      <span className="break-words">{value}</span>
     </div>
   );
 }

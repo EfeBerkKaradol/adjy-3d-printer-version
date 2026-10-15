@@ -13,10 +13,12 @@ import Link from "next/link";
 
 interface PaymentStepProps {
   orderId: string | null;
+  /** Misafir siparişinde ödemeyi başlatma yetkisi — oturum yerine geçer */
+  guestToken?: string | null;
   onBack: () => void;
 }
 
-export function PaymentStep({ orderId, onBack }: PaymentStepProps) {
+export function PaymentStep({ orderId, guestToken, onBack }: PaymentStepProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [checkoutContent, setCheckoutContent] = useState<string | null>(null);
@@ -39,7 +41,7 @@ export function PaymentStep({ orderId, onBack }: PaymentStepProps) {
         const res = await fetch("/api/payments/initialize", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orderId }),
+          body: JSON.stringify({ orderId, guestToken: guestToken ?? undefined }),
         });
 
         const data = await res.json();
@@ -59,7 +61,7 @@ export function PaymentStep({ orderId, onBack }: PaymentStepProps) {
     }
 
     initializePayment();
-  }, [orderId, bothChecked]);
+  }, [orderId, guestToken, bothChecked]);
 
   // iyzico checkout form content'i render et
   useEffect(() => {
