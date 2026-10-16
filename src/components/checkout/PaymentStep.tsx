@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Loader2, CreditCard, AlertCircle } from "lucide-react";
+import { ArrowLeft, Loader2, CreditCard, AlertCircle, RefreshCw } from "lucide-react";
 import Link from "next/link";
 
 // ==========================================
@@ -13,15 +13,19 @@ import Link from "next/link";
 
 interface PaymentStepProps {
   orderId: string | null;
+  /** Müşteriye gösterilen sipariş numarası — ödeme başlamazsa tek dayanağı budur */
+  orderNumber?: string | null;
   /** Misafir siparişinde ödemeyi başlatma yetkisi — oturum yerine geçer */
   guestToken?: string | null;
   onBack: () => void;
 }
 
-export function PaymentStep({ orderId, guestToken, onBack }: PaymentStepProps) {
+export function PaymentStep({ orderId, orderNumber, guestToken, onBack }: PaymentStepProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [checkoutContent, setCheckoutContent] = useState<string | null>(null);
+  // Artırılınca ödeme başlatma yeniden çalışır
+  const [deneme, setDeneme] = useState(0);
   const [agreementChecked, setAgreementChecked] = useState(false);
   const [preliminaryChecked, setPreliminaryChecked] = useState(false);
   const iframeContainerRef = useRef<HTMLDivElement>(null);
@@ -61,7 +65,7 @@ export function PaymentStep({ orderId, guestToken, onBack }: PaymentStepProps) {
     }
 
     initializePayment();
-  }, [orderId, guestToken, bothChecked]);
+  }, [orderId, guestToken, bothChecked, deneme]);
 
   // iyzico checkout form content'i render et
   useEffect(() => {
@@ -110,18 +114,46 @@ export function PaymentStep({ orderId, guestToken, onBack }: PaymentStepProps) {
     );
   }
 
+  // ==========================================
+  // ÖDEME BAŞLAMADIĞINDA
+  //
+  // Bu noktada sipariş veritabanına çoktan yazılmıştır; müşteri
+  // sepetini yeniden kurmak zorunda değildir. Eski ekran bunu
+  // söylemediği için "siparişim gitti mi?" sorusunu yanıtsız
+  // bırakıyor, elinde tek bir dayanak kalmıyordu. Sipariş
+  // numarası, tekrar deneme ve bize ulaşma yolu burada durur.
+  // ==========================================
   if (error) {
     return (
-      <div className="text-center py-12">
-        <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
-        <p className="text-destructive font-medium mb-2">{error}</p>
-        <p className="text-sm text-muted-foreground mb-4">
-          Lütfen daha sonra tekrar deneyin.
+      <div className="py-10 text-center">
+        <AlertCircle className="mx-auto mb-4 h-12 w-12 text-destructive" />
+        <p className="mb-2 font-medium text-destructive">{error}</p>
+        <p className="mx-auto mb-6 max-w-md text-sm text-muted-foreground">
+          Siparişiniz kaydedildi, kartınızdan <strong>herhangi bir çekim
+          yapılmadı</strong>. Ödeme adımını birazdan yeniden deneyebilir ya da
+          bize yazabilirsiniz; siparişinizi numarasıyla bulup tamamlarız.
         </p>
-        <Button variant="outline" onClick={onBack} className="gap-2">
-          <ArrowLeft className="h-4 w-4" />
-          Geri Dön
-        </Button>
+
+        {orderNumber && (
+          <p className="mb-6 text-sm">
+            <span className="text-muted-foreground">Sipariş numaranız: </span>
+            <span className="font-mono font-medium">{orderNumber}</span>
+          </p>
+        )}
+
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <Button onClick={() => setDeneme((d) => d + 1)} className="gap-2">
+            <RefreshCw className="h-4 w-4" />
+            Tekrar dene
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/contact">Bize ulaşın</Link>
+          </Button>
+          <Button variant="ghost" onClick={onBack} className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Geri Dön
+          </Button>
+        </div>
       </div>
     );
   }

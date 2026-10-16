@@ -160,7 +160,14 @@ export async function POST(request: NextRequest) {
     });
 
     if (result.status !== "success") {
-      console.error("iyzico error:", result.errorMessage);
+      // Hata kodu olmadan günlükten ayırt edilemiyordu: 9000 (üye
+      // işyeri ödeme almaya yetkili değil) ile sepet/alıcı
+      // doğrulama hataları aynı satıra düşüyordu.
+      console.error(
+        `iyzico initialize başarısız — sipariş ${order.orderNumber}, kod ${
+          (result as { errorCode?: string }).errorCode ?? "?"
+        }: ${result.errorMessage ?? "mesaj yok"}`
+      );
       return NextResponse.json(
         {
           error: "Ödeme başlatılamadı",

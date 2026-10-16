@@ -44,6 +44,7 @@ export default function CheckoutPage() {
   const [step, setStep] = useState(1);
   const [creatingOrder, setCreatingOrder] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [orderNumber, setOrderNumber] = useState<string | null>(null);
   const [guestToken, setGuestToken] = useState<string | null>(null);
 
   // Hesap açmadan sipariş verenin iletişim bilgileri
@@ -232,6 +233,7 @@ export default function CheckoutPage() {
       }
 
       setOrderId(data.order.id);
+      setOrderNumber(data.order.orderNumber ?? null);
       setGuestToken(data.order.guestToken ?? null);
       setStep(4);
     } catch {
@@ -364,6 +366,7 @@ export default function CheckoutPage() {
           {step === 4 && (
             <PaymentStep
               orderId={orderId}
+              orderNumber={orderNumber}
               guestToken={guestToken}
               onBack={() => router.push("/cart")}
             />
