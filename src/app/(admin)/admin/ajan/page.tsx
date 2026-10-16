@@ -49,6 +49,11 @@ export default function AgentPanelPage() {
     }
   }, [fetchData]);
 
+  // Her yükleme iframe'i baştan kurar. Aynı panel yeniden geldiğinde
+  // srcdoc metni birebir aynı olduğu için yeniden atamak tek başına
+  // yeniden yükleme başlatmıyor; "Yenile" bu sayede çalışır.
+  const [nesil, setNesil] = useState(0);
+
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -61,6 +66,7 @@ export default function AgentPanelPage() {
       const flag = "<script>window.ADJY_SITE=true;</script>";
       const html = String(body.html);
       setSrcDoc(/<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, (m) => m + flag) : flag + html);
+      setNesil((n) => n + 1);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Panel yüklenemedi");
     } finally {
@@ -71,6 +77,18 @@ export default function AgentPanelPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  // ==========================================
+  // PANEL HTML'İNİ IFRAME'E YAZMA
+  //
+  // srcdoc'u iframe'e daha oluşturulurken vermek güvenilir değil:
+  // belge about:blank'te kalıyor, panelin betikleri hiç çalışmıyor
+  // ve admin boş bir çerçeve görüyordu. Iframe önce boş kurulur,
+  // ancak DOM'a girdikten sonra içerik yazılır.
+  // ==========================================
+  useEffect(() => {
+    if (frame.current && srcDoc) frame.current.srcdoc = srcDoc;
+  }, [srcDoc, nesil]);
 
   useEffect(() => {
     async function onMessage(e: MessageEvent) {
@@ -141,8 +159,13 @@ export default function AgentPanelPage() {
       {srcDoc && (
         <iframe
           ref={frame}
+          key={nesil}
           title="ADJY Ürün Ajanı paneli"
-          srcDoc={srcDoc}
+          // Panel yüklenir yüklenmez veriyi gönderiyoruz. Eskiden yalnızca
+          // panelin "adjy:ready" mesajı beklenirdi; o mesaj iframe hazır
+          // olmadan ya da dinleyici yeniden kurulurken gelebildiği için
+          // kaçıyor ve panel boş bir çerçeve olarak kalıyordu.
+          onLoad={() => void sendState()}
           sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
           referrerPolicy="no-referrer"
           className="min-h-0 w-full flex-1 rounded-lg border bg-background"
