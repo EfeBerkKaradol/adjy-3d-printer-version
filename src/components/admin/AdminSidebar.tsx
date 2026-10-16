@@ -13,6 +13,7 @@ import {
   FolderTree,
   ArrowLeft,
   Mail,
+  Bot,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +29,7 @@ const navItems = [
   { href: "/admin/print-queue", label: "Baskı Kuyruğu", icon: Printer },
   { href: "/admin/reports", label: "Raporlar", icon: BarChart3 },
   { href: "/admin/messages", label: "Mesajlar", icon: Mail },
+  { href: "/admin/ajan", label: "Ürün Ajanı", icon: Bot },
 ];
 
 function ConditionalSheetClose({ isMobile, children }: { isMobile?: boolean; children: React.ReactNode }) {

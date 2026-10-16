@@ -501,3 +501,33 @@ enum PrintStatus {
   DONE
   FAILED
 }
+
+// ---------------------------------------------------------------------------
+// ADJY Ürün Ajanı paneli (admin). Ajan (yerel ADJY-Agent) panelin son halini
+// gizli anahtarla gönderir; admin sayfasındaki kararlar kuyruğa yazılır ve
+// ajan tarafından çekilip uygulanır.
+// ---------------------------------------------------------------------------
+model AgentSnapshot {
+  id          String   @id
+  html        String
+  stateGz     Bytes
+  stateBytes  Int
+  generatedAt DateTime
+  updatedAt   DateTime @updatedAt
+
+  @@map("agent_snapshots")
+}
+
+model AgentAction {
+  id        String    @id @default(cuid())
+  kind      String
+  payload   Json
+  userId    String?
+  userEmail String?
+  createdAt DateTime  @default(now())
+  appliedAt DateTime?
+  result    String?
+
+  @@index([appliedAt, createdAt])
+  @@map("agent_actions")
+}
