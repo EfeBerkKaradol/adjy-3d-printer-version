@@ -32,8 +32,7 @@ import {
 
 // ==========================================
 // ADJY HEADER
-// Sol: logo · Orta: Mağaza / Özelleştir / Üret / Koleksiyonlar
-// Sağ: arama, hesap, sepet.
+// Sol: logo · Orta: MAIN_NAV · Sağ: arama, hesap, sepet.
 // Sayfa kaydırıldığında yükseklik daralır, ince bir
 // ayraç ve hafif bulanıklık devreye girer.
 // ==========================================

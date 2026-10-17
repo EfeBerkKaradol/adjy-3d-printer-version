@@ -40,6 +40,15 @@ export const MAIN_NAV: NavLink[] = [
     href: "/collections",
     description: "Kategorilere göre keşfet",
   },
+  {
+    // Ana sayfadaki anlatı buraya taşındığından beri Hakkımızda
+    // yalnızca bir kurumsal sayfa değil: nasıl ürettiğimizi,
+    // ölçünün neden değiştiğini ve nesnelerin mekâna nasıl
+    // oturduğunu burası anlatıyor. Altbilgiden bulunması zordu.
+    label: "Hakkımızda",
+    href: "/about",
+    description: "Nasıl ürettiğimiz ve ölçünün neden değiştiği",
+  },
 ];
 
 /**
@@ -47,7 +56,8 @@ export const MAIN_NAV: NavLink[] = [
  * mobil menünün altında ve footer'da yer alırlar.
  */
 export const SECONDARY_NAV: NavLink[] = [
-  { label: "Hakkımızda", href: "/about", description: "" },
+  // Hakkımızda ana navigasyona alındı; burada da kalsaydı mobil
+  // çekmecede iki kez görünürdü.
   { label: "SSS", href: "/faq", description: "" },
   { label: "İletişim", href: "/contact", description: "" },
 ];
