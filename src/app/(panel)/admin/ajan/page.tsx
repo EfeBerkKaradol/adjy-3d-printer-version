@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Bot, Loader2, RefreshCw } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, Bot, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -49,9 +50,9 @@ export default function AgentPanelPage() {
     }
   }, [fetchData]);
 
-  // Her yükleme iframe'i baştan kurar. Aynı panel yeniden geldiğinde
-  // srcdoc metni birebir aynı olduğu için yeniden atamak tek başına
-  // yeniden yükleme başlatmıyor; "Yenile" bu sayede çalışır.
+  // Ajan aynı paneli gönderdiğinde srcDoc metni değişmez ve React
+  // yeniden çizmez; bu sayaç "Yenile"nin yine de yeni bir yükleme
+  // başlatmasını sağlar.
   const [nesil, setNesil] = useState(0);
 
   const load = useCallback(async () => {
@@ -79,15 +80,27 @@ export default function AgentPanelPage() {
   }, [load]);
 
   // ==========================================
-  // PANEL HTML'İNİ IFRAME'E YAZMA
+  // PANEL HTML'İNİ IFRAME'E VERME
   //
-  // srcdoc'u iframe'e daha oluşturulurken vermek güvenilir değil:
-  // belge about:blank'te kalıyor, panelin betikleri hiç çalışmıyor
-  // ve admin boş bir çerçeve görüyordu. Iframe önce boş kurulur,
-  // ancak DOM'a girdikten sonra içerik yazılır.
+  // Panel srcdoc ile yüklenmiyordu: belge about:blank'te kalıyor,
+  // içindeki hiçbir betik çalışmıyor, panel "hazırım" diyemediği
+  // için beklediği veri hiç gelmiyor ve admin boş bir çerçeve
+  // görüyordu. İçeriği sonradan yazmak da kurtarmadı.
+  //
+  // Bunun yerine HTML bir blob'a yazılıp iframe'e src olarak
+  // verilir — bu yol her seferinde çalışır. Her yüklemede yeni bir
+  // blob adresi üretildiği için ajan birebir aynı paneli gönderse
+  // bile "Yenile" gerçekten yeniden yükler.
+  //
+  // Güvenlik değişmez: sandbox'ta allow-same-origin olmadığı için
+  // blob belgesi de opak kökendedir, admin oturumuna erişemez.
   // ==========================================
   useEffect(() => {
-    if (frame.current && srcDoc) frame.current.srcdoc = srcDoc;
+    const el = frame.current;
+    if (!el || !srcDoc) return;
+    const adres = URL.createObjectURL(new Blob([srcDoc], { type: "text/html" }));
+    el.src = adres;
+    return () => URL.revokeObjectURL(adres);
   }, [srcDoc, nesil]);
 
   useEffect(() => {
@@ -129,25 +142,39 @@ export default function AgentPanelPage() {
   const fmt = (s?: string) => (s ? new Date(s).toLocaleString("tr-TR", { dateStyle: "medium", timeStyle: "short" }) : "—");
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] flex-col gap-3 lg:h-[calc(100vh-2rem)]">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Bot className="h-6 w-6" />
-          <div>
-            <h1 className="text-2xl font-bold">Ürün Ajanı</h1>
-            <p className="text-sm text-muted-foreground">
-              Ajan verisi: {fmt(meta?.generatedAt)} · siteye gönderim: {fmt(meta?.updatedAt)}
-              {pendingCount > 0 && ` · ajana iletilmeyi bekleyen ${pendingCount} işlem`}
-            </p>
+    <div className="flex h-screen flex-col">
+      {/* Panelin kendi gezinmesi var; buradaki şerit yalnızca
+          admin paneline dönüş ve tazeleme için ince tutuldu. */}
+      <header className="flex items-center justify-between gap-3 border-b border-border/60 px-3 py-2">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <Button variant="ghost" size="sm" asChild className="gap-2">
+            <Link href="/admin">
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Admin paneli</span>
+              <span className="sr-only sm:hidden">Admin paneline dön</span>
+            </Link>
+          </Button>
+          <span className="hidden h-5 w-px bg-border sm:block" aria-hidden />
+          <div className="flex min-w-0 items-center gap-2">
+            <Bot className="hidden h-5 w-5 shrink-0 sm:block" />
+            <div className="min-w-0 leading-tight">
+              <h1 className="text-sm font-semibold">Ürün Ajanı</h1>
+              {/* Tarih satırı dar ekranda şeridi üç satıra yayıyordu */}
+              <p className="hidden truncate text-xs text-muted-foreground md:block">
+                Ajan verisi: {fmt(meta?.generatedAt)} · siteye gönderim: {fmt(meta?.updatedAt)}
+                {pendingCount > 0 && ` · ajana iletilmeyi bekleyen ${pendingCount} işlem`}
+              </p>
+            </div>
           </div>
         </div>
-        <Button variant="outline" size="sm" onClick={load} disabled={loading}>
+        <Button variant="outline" size="sm" className="shrink-0" onClick={load} disabled={loading}>
           {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
           Yenile
         </Button>
-      </div>
+      </header>
+
       {error && (
-        <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm">
+        <div className="border-b border-destructive/40 bg-destructive/10 px-4 py-3 text-sm">
           {error}
           {error.includes("senkron") && (
             <span className="block text-muted-foreground">
@@ -156,10 +183,10 @@ export default function AgentPanelPage() {
           )}
         </div>
       )}
+
       {srcDoc && (
         <iframe
           ref={frame}
-          key={nesil}
           title="ADJY Ürün Ajanı paneli"
           // Panel yüklenir yüklenmez veriyi gönderiyoruz. Eskiden yalnızca
           // panelin "adjy:ready" mesajı beklenirdi; o mesaj iframe hazır
@@ -168,7 +195,7 @@ export default function AgentPanelPage() {
           onLoad={() => void sendState()}
           sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
           referrerPolicy="no-referrer"
-          className="min-h-0 w-full flex-1 rounded-lg border bg-background"
+          className="min-h-0 w-full flex-1 border-0 bg-background"
         />
       )}
     </div>

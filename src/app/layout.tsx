@@ -5,6 +5,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { SiteShell } from "@/components/layout/SiteShell";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "@/components/session-provider";
 import { CartSyncProvider } from "@/components/cart-sync-provider";
@@ -110,15 +111,14 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              <div className="flex min-h-screen flex-col">
-                <Header />
-                <main id="main" className="flex-1">
-                  {children}
-                </main>
-                <Footer />
-              </div>
+              <SiteShell
+                header={<Header />}
+                footer={<Footer />}
+                cookieConsent={<CookieConsent />}
+              >
+                {children}
+              </SiteShell>
               <Toaster richColors position="top-right" />
-              <CookieConsent />
               <SpeedInsights />
               <Analytics />
             </ThemeProvider>
