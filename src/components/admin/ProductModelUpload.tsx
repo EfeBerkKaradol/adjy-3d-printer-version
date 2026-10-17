@@ -100,11 +100,18 @@ interface Parca {
   geometri: THREE.BufferGeometry;
 }
 
-/** Montajlı dış ölçü — operatörün onayladığı, müşteriye gösterilen ölçü */
-interface Montaj {
-  x: string;
-  y: string;
-  z: string;
+/**
+ * "235 x 120 x 246" biçimindeki montajlı ölçüyü ayrıştırır.
+ * Ayraç olarak x, X, × ve * kabul edilir; ondalık ayırıcı nokta
+ * ya da virgül olabilir.
+ */
+function olcuAyristir(metin: string): [number, number, number] | null {
+  const parcalar = metin
+    .replace(/,/g, ".")
+    .split(/[x×*]/i)
+    .map((p) => Number(p.trim()))
+    .filter((n) => Number.isFinite(n) && n > 0);
+  return parcalar.length === 3 ? [parcalar[0], parcalar[1], parcalar[2]] : null;
 }
 
 /** Seramik alçısının döküm yoğunluğu (g/cm³) */
@@ -120,7 +127,8 @@ export function ProductModelUpload({ productId, materialType, onSaved }: Props) 
   const inputRef = useRef<HTMLInputElement>(null);
   const [parcalar, setParcalar] = useState<Parca[]>([]);
   const [anaParca, setAnaParca] = useState(0);
-  const [montaj, setMontaj] = useState<Montaj>({ x: "", y: "", z: "" });
+  const [montaj, setMontaj] = useState("");
+  const [ayrinti, setAyrinti] = useState(false);
   const [durum, setDurum] = useState<"bos" | "okunuyor" | "hazir" | "yukleniyor" | "bitti">("bos");
   const [hata, setHata] = useState<string | null>(null);
   const [ozellestir, setOzellestir] = useState(true);
@@ -192,11 +200,11 @@ export function ProductModelUpload({ productId, materialType, onSaved }: Props) 
 
       setParcalar(okunan);
       setAnaParca(ana);
-      setMontaj({
-        x: enBuyuk((o) => o.xMm).toFixed(1),
-        y: enBuyuk((o) => o.yMm).toFixed(1),
-        z: enBuyuk((o) => o.zMm).toFixed(1),
-      });
+      setMontaj(
+        [enBuyuk((o) => o.xMm), enBuyuk((o) => o.yMm), enBuyuk((o) => o.zMm)]
+          .map((v) => Math.round(v))
+          .join(" x ")
+      );
       setDurum("hazir");
     } catch {
       setHata("Dosyalar okunamadı. Yalnızca STL destekleniyor.");
@@ -237,16 +245,11 @@ export function ProductModelUpload({ productId, materialType, onSaved }: Props) 
         ).unitPriceGross
       : null;
 
-  const montajMm = {
-    x: Number(montaj.x.replace(",", ".")),
-    y: Number(montaj.y.replace(",", ".")),
-    z: Number(montaj.z.replace(",", ".")),
-  };
-  const montajGecerli =
-    [montajMm.x, montajMm.y, montajMm.z].every((v) => Number.isFinite(v) && v > 0);
+  const olculer = olcuAyristir(montaj);
+  const montajGecerli = olculer !== null;
 
   const kaydet = useCallback(async () => {
-    if (!parcalar.length || !toplam || !montajGecerli) return;
+    if (!parcalar.length || !toplam || !olculer) return;
     setDurum("yukleniyor");
     setHata(null);
     try {
@@ -292,7 +295,7 @@ export function ProductModelUpload({ productId, materialType, onSaved }: Props) 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           modelFileUrl: glbUrl,
-          dimensions: { xMm: montajMm.x, yMm: montajMm.y, zMm: montajMm.z },
+          dimensions: { xMm: olculer[0], yMm: olculer[1], zMm: olculer[2] },
           weightGrams: toplam.agirlikG,
           printMinutes: Math.round(toplam.sureDk),
           enableCustomization: ozellestir && !dokum,
@@ -306,7 +309,7 @@ export function ProductModelUpload({ productId, materialType, onSaved }: Props) 
       setHata(e instanceof Error ? e.message : "Kaydedilemedi");
       setDurum("hazir");
     }
-  }, [parcalar, toplam, anaParca, montajGecerli, montajMm.x, montajMm.y, montajMm.z, productId, ozellestir, dokum, onSaved]);
+  }, [parcalar, toplam, anaParca, olculer, productId, ozellestir, dokum, onSaved]);
 
   const sigmayan = parcalar.filter((p) => !fitsBuildVolume(p.olcu.enUzunMm));
   const buyukFormat = toplam ? toplam.enUzunMm > BUILD.standardMm : false;
@@ -352,153 +355,172 @@ export function ProductModelUpload({ productId, materialType, onSaved }: Props) 
 
       {toplam && (
         <>
-          <table className="mt-4 w-full text-sm">
-            <thead>
-              <tr className="border-b border-border/60 text-left text-xs text-muted-foreground">
-                <th className="pb-1 font-normal">Parça</th>
-                <th className="pb-1 font-normal">Ölçü (cm)</th>
-                <th className="pb-1 text-right font-normal">Hacim</th>
-                <th className="pb-1 text-right font-normal">{dokum ? "Alçı" : "Ağırlık"}</th>
-                {!dokum && <th className="pb-1 text-right font-normal">Süre</th>}
-                <th className="pb-1 text-center font-normal">AR</th>
-              </tr>
-            </thead>
-            <tbody>
-              {parcalar.map((p, i) => (
-                <tr key={p.ad} className="border-b border-border/30">
-                  <td className="py-1.5 pr-2">{p.ad}</td>
-                  <td className="py-1.5 pr-2 tabular-nums">
-                    {formatCmValue(p.olcu.xMm)} × {formatCmValue(p.olcu.yMm)} ×{" "}
-                    {formatCmValue(p.olcu.zMm)}
-                    {!fitsBuildVolume(p.olcu.enUzunMm) && (
-                      <AlertTriangle className="ml-1 inline h-3.5 w-3.5 text-destructive" />
-                    )}
-                  </td>
-                  <td className="py-1.5 text-right tabular-nums">
-                    {p.olcu.hacimCm3.toFixed(1)} cm³
-                  </td>
-                  <td className="py-1.5 text-right tabular-nums">
-                    {p.olcu.agirlikG.toFixed(0)} g
-                  </td>
-                  {!dokum && (
-                    <td className="py-1.5 text-right tabular-nums">
-                      {formatPrintTime(p.olcu.sureDk)}
-                    </td>
-                  )}
-                  <td className="py-1.5 text-center">
-                    <input
-                      type="radio"
-                      name="ana-parca"
-                      checked={anaParca === i}
-                      onChange={() => setAnaParca(i)}
-                      className="h-3.5 w-3.5"
-                    />
-                  </td>
-                </tr>
-              ))}
-              <tr className="font-medium">
-                <td className="pt-2">Toplam ({parcalar.length} parça)</td>
-                <td className="pt-2 text-xs font-normal text-muted-foreground">
-                  en uzun kenar {formatCmValue(toplam.enUzunMm)} cm
-                </td>
-                <td className="pt-2 text-right tabular-nums">{toplam.hacimCm3.toFixed(1)} cm³</td>
-                <td className="pt-2 text-right tabular-nums">{toplam.agirlikG.toFixed(0)} g</td>
-                {!dokum && (
-                  <td className="pt-2 text-right tabular-nums">{formatPrintTime(toplam.sureDk)}</td>
-                )}
-                <td />
-              </tr>
-            </tbody>
-          </table>
+          {/* Özet: operatörün karar vermek için bakması gereken tek satır.
+              Parça parça döküm isteyene ayrıntı açılır. */}
+          <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:grid-cols-4">
+            <Satir etiket="Parça" deger={`${parcalar.length} adet`} />
+            <Satir
+              etiket={dokum ? "Dökülen alçı" : "Filament"}
+              deger={`${toplam.agirlikG.toFixed(0)} g`}
+            />
+            {!dokum && <Satir etiket="Baskı süresi" deger={formatPrintTime(toplam.sureDk)} />}
+            {fiyat !== null && <Satir etiket="Tahmini fiyat" deger={formatTRY(fiyat)} />}
+            {dokum && <Satir etiket="Hacim" deger={`${toplam.hacimCm3.toFixed(0)} cm³`} />}
+          </dl>
 
-          <p className="mt-2 text-xs text-muted-foreground">
-            Üçgen {toplam.ucgen.toLocaleString("tr-TR")} · AR modeli seçili parçadan
-            üretilir
-            {fiyat !== null && <> · Tahmini fiyat {formatTRY(fiyat)}</>}
-          </p>
-
-          <div className="mt-4">
-            <p className="text-sm font-medium">Montajlı dış ölçü</p>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              Parçalar tablaya ayrı yatırıldığı için dosyalardan okunamaz. Ölçülen
-              en büyük değerler dolduruldu; ürünün gerçek montajlı ölçüsünü yazın.
-            </p>
-            <div className="mt-2 flex items-center gap-2">
-              {(["x", "y", "z"] as const).map((eksen, i) => (
-                <div key={eksen} className="flex items-center gap-2">
-                  {i > 0 && <span className="text-muted-foreground">×</span>}
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={montaj[eksen]}
-                    onChange={(e) => setMontaj((m) => ({ ...m, [eksen]: e.target.value }))}
-                    aria-label={`Montajlı ${eksen === "x" ? "genişlik" : eksen === "y" ? "derinlik" : "yükseklik"} (mm)`}
-                    className="w-20 rounded-md border border-border/60 bg-background px-2 py-1 text-sm tabular-nums"
-                  />
-                </div>
-              ))}
-              <span className="text-sm text-muted-foreground">
-                mm
-                {montajGecerli && (
-                  <> = {formatCmValue(montajMm.x)} × {formatCmValue(montajMm.y)} ×{" "}
-                  {formatCmValue(montajMm.z)} cm</>
-                )}
+          <div className="mt-4 space-y-3 rounded-md bg-muted/40 p-3">
+            <label className="block">
+              <span className="text-sm font-medium">Montajlı ölçü</span>
+              <span className="mt-0.5 block text-xs text-muted-foreground">
+                Parçalar tablaya ayrı yatırıldığı için dosyalardan okunamaz.
+                Ölçülen en büyük değerler yazıldı; ürünün gerçek ölçüsünü girin.
               </span>
-            </div>
+              <span className="mt-2 flex items-center gap-2">
+                <input
+                  type="text"
+                  value={montaj}
+                  onChange={(e) => setMontaj(e.target.value)}
+                  placeholder="en x derinlik x yükseklik"
+                  aria-label="Montajlı ölçü (mm)"
+                  className="w-56 rounded-md border border-border/60 bg-background px-2.5 py-1.5 text-sm tabular-nums"
+                />
+                <span className="text-sm text-muted-foreground">
+                  mm
+                  {olculer && (
+                    <> · {formatCmValue(olculer[0])} × {formatCmValue(olculer[1])} ×{" "}
+                    {formatCmValue(olculer[2])} cm</>
+                  )}
+                </span>
+              </span>
+              {montaj.trim() !== "" && !olculer && (
+                <span className="mt-1 block text-xs text-destructive">
+                  Üç ölçüyü x ile ayırarak yazın: 235 x 120 x 246
+                </span>
+              )}
+            </label>
+
+            {dokum ? (
+              <p className="text-sm text-muted-foreground">
+                Döküm ürün (alçı/seramik) — kalıp tek ölçü olduğu için
+                özelleştirme açılmaz.
+              </p>
+            ) : (
+              <label className="flex items-start gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={ozellestir}
+                  onChange={(e) => setOzellestir(e.target.checked)}
+                  className="mt-0.5 h-4 w-4"
+                />
+                <span>
+                  Özelleştirmeyi aç
+                  <span className="block text-xs text-muted-foreground">
+                    Müşteri ölçüyü {formatCmValue((olculer?.[0] ?? 0) * 0.6)}–
+                    {formatCmValue(Math.min(BUILD.maxMm, (olculer?.[0] ?? 0) * 1.6))} cm
+                    arasında değiştirebilir, fiyat ölçüyle birlikte güncellenir.
+                  </span>
+                </span>
+              </label>
+            )}
           </div>
 
           {sigmayan.length > 0 && (
             <p className="mt-3 flex items-start gap-2 text-sm text-destructive">
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-              {sigmayan.length} parça tabla sınırını ({formatCmValue(BUILD.maxMm)} cm)
-              aşıyor: {sigmayan.map((p) => p.ad).join(", ")}. Bu ölçü üretilemez.
+              Tabla sınırını ({formatCmValue(BUILD.maxMm)} cm) aşan{" "}
+              {sigmayan.length} parça var: {sigmayan.map((p) => p.ad).join(", ")}.
             </p>
           )}
           {sigmayan.length === 0 && buyukFormat && (
             <p className="mt-3 text-sm text-amber-600 dark:text-amber-500">
-              {formatCmValue(BUILD.standardMm)} cm üstü: büyük formatlı makineye düşer,
-              saat maliyeti daha yüksek.
+              En uzun kenar {formatCmValue(toplam.enUzunMm)} cm —{" "}
+              {formatCmValue(BUILD.standardMm)} cm üstü büyük formatlı makineye
+              düşer, saat maliyeti daha yüksek.
             </p>
-          )}
-
-          {dokum ? (
-            <p className="mt-4 text-sm text-muted-foreground">
-              Bu ürün döküm (alçı/seramik). Kalıp tek ölçü olduğu için
-              özelleştirme açılmaz.
-            </p>
-          ) : (
-            <label className="mt-4 flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={ozellestir}
-                onChange={(e) => setOzellestir(e.target.checked)}
-                className="h-4 w-4"
-              />
-              Özelleştirmeyi aç — ölçü aralığı montajlı ölçüye göre kurulur
-            </label>
           )}
 
           {hata && <p className="mt-3 text-sm text-destructive">{hata}</p>}
 
-          <Button
-            type="button"
-            className="mt-4"
-            onClick={kaydet}
-            disabled={
-              sigmayan.length > 0 ||
-              !montajGecerli ||
-              durum === "yukleniyor" ||
-              durum === "bitti"
-            }
-          >
-            {durum === "yukleniyor" && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {durum === "bitti" && <Check className="mr-2 h-4 w-4" />}
-            {durum === "bitti" ? "Kaydedildi" : "Modeli kaydet"}
-          </Button>
+          <div className="mt-4 flex items-center gap-3">
+            <Button
+              type="button"
+              onClick={kaydet}
+              disabled={
+                sigmayan.length > 0 ||
+                !montajGecerli ||
+                durum === "yukleniyor" ||
+                durum === "bitti"
+              }
+            >
+              {durum === "yukleniyor" && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {durum === "bitti" && <Check className="mr-2 h-4 w-4" />}
+              {durum === "bitti" ? "Kaydedildi" : "Modeli kaydet"}
+            </Button>
+            <button
+              type="button"
+              onClick={() => setAyrinti((a) => !a)}
+              className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+            >
+              {ayrinti ? "Parça ayrıntısını gizle" : "Parça ayrıntısı"}
+            </button>
+          </div>
+
+          {ayrinti && (
+            <table className="mt-3 w-full text-sm">
+              <thead>
+                <tr className="border-b border-border/60 text-left text-xs text-muted-foreground">
+                  <th className="pb-1 font-normal">Parça</th>
+                  <th className="pb-1 font-normal">Ölçü (cm)</th>
+                  <th className="pb-1 text-right font-normal">Hacim</th>
+                  <th className="pb-1 text-right font-normal">{dokum ? "Alçı" : "Ağırlık"}</th>
+                  <th className="pb-1 text-center font-normal">AR</th>
+                </tr>
+              </thead>
+              <tbody>
+                {parcalar.map((p, i) => (
+                  <tr key={p.ad} className="border-b border-border/30">
+                    <td className="py-1.5 pr-2">{p.ad}</td>
+                    <td className="py-1.5 pr-2 tabular-nums">
+                      {formatCmValue(p.olcu.xMm)} × {formatCmValue(p.olcu.yMm)} ×{" "}
+                      {formatCmValue(p.olcu.zMm)}
+                      {!fitsBuildVolume(p.olcu.enUzunMm) && (
+                        <AlertTriangle className="ml-1 inline h-3.5 w-3.5 text-destructive" />
+                      )}
+                    </td>
+                    <td className="py-1.5 text-right tabular-nums">
+                      {p.olcu.hacimCm3.toFixed(1)} cm³
+                    </td>
+                    <td className="py-1.5 text-right tabular-nums">
+                      {p.olcu.agirlikG.toFixed(0)} g
+                    </td>
+                    <td className="py-1.5 text-center">
+                      <input
+                        type="radio"
+                        name="ana-parca"
+                        checked={anaParca === i}
+                        onChange={() => setAnaParca(i)}
+                        aria-label={`${p.ad} AR modeli olsun`}
+                        className="h-3.5 w-3.5"
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </>
       )}
 
       {hata && !toplam && <p className="mt-3 text-sm text-destructive">{hata}</p>}
+    </div>
+  );
+}
+
+function Satir({ etiket, deger }: { etiket: string; deger: string }) {
+  return (
+    <div>
+      <dt className="text-xs text-muted-foreground">{etiket}</dt>
+      <dd className="mt-0.5 font-medium tabular-nums">{deger}</dd>
     </div>
   );
 }

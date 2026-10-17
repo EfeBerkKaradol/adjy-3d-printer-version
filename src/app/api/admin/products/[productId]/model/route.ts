@@ -74,35 +74,69 @@ export async function POST(
   let olusan = 0;
 
   if (enableCustomization && rota === "fdm") {
-    const alanlar = [
+    // ==========================================
+    // ÖLÇÜ PARAMETRELERİ VE FİYAT FORMÜLÜ
+    //
+    // Her eksen slider olamaz: 5 mm kalınlığındaki bir süsün
+    // kalınlığı tablaya göre anlamlı bir aralık vermiyor, o
+    // parametre hiç oluşturulmuyor.
+    //
+    // Formül bu yüzden oluşturulan parametrelere göre yazılır.
+    // Önceden iki eksen varsayılıyordu; tek eksenli üründe
+    // formül olmayan bir değişkene atıf yapıyor, fiyat
+    // motoru da onu haklı olarak reddediyordu — müşteri
+    // ölçüyü büyütüyor, fiyat yerinde duruyordu.
+    // ==========================================
+    const adaylar = [
       { name: "width", displayName: "Genişlik", mm: dimensions.xMm, sort: 1 },
       { name: "height", displayName: "Yükseklik", mm: dimensions.zMm, sort: 2 },
     ];
 
-    for (const a of alanlar) {
-      const { min, max, varsayilan } = araliklar(a.mm);
-      if (max <= min) continue;
+    const kurulacak = adaylar
+      .map((a) => ({ ...a, ...araliklar(a.mm) }))
+      .filter((a) => a.max > a.min);
+
+    // Malzeme alanla büyür. İki eksen varsa alan ikisinin
+    // çarpımı; tek eksen kaldıysa düzlemde büyüme kareseldir.
+    const carpanlar =
+      kurulacak.length >= 2
+        ? [kurulacak[0], kurulacak[1]]
+        : kurulacak.length === 1
+          ? [kurulacak[0], kurulacak[0]]
+          : [];
+
+    const formul =
+      carpanlar.length === 2
+        ? `base * (${carpanlar[0].name} * ${carpanlar[1].name}) / (${carpanlar[0].varsayilan} * ${carpanlar[1].varsayilan})`
+        : null;
+
+    // Formül tek parametrede durur; iki yerde olursa çarpan iki
+    // kez uygulanır.
+    const formulSahibi = kurulacak[0]?.name;
+
+    for (const a of kurulacak) {
       await prisma.parameter.upsert({
         where: { productId_name: { productId, name: a.name } },
-        update: { minValue: min, maxValue: max, defaultValue: String(varsayilan), unit: "mm" },
+        update: {
+          minValue: a.min,
+          maxValue: a.max,
+          defaultValue: String(a.varsayilan),
+          unit: "mm",
+          affectsPrice: a.name === formulSahibi && formul !== null,
+          priceFormula: a.name === formulSahibi ? formul : null,
+        },
         create: {
           productId,
           name: a.name,
           displayName: a.displayName,
           type: "SLIDER",
-          minValue: min,
-          maxValue: max,
-          defaultValue: String(varsayilan),
+          minValue: a.min,
+          maxValue: a.max,
+          defaultValue: String(a.varsayilan),
           step: 5,
           unit: "mm",
-          // Ölçü değişince fiyat da değişmeli; formül tek
-          // parametrede durur, iki yerde olursa çarpan iki kez
-          // uygulanıyor.
-          affectsPrice: a.name === "width",
-          priceFormula:
-            a.name === "width"
-              ? `base * (width * height) / (${varsayilan} * ${Math.round(dimensions.zMm)})`
-              : null,
+          affectsPrice: a.name === formulSahibi && formul !== null,
+          priceFormula: a.name === formulSahibi ? formul : null,
           affectsGeometry: true,
           sortOrder: a.sort,
         },
