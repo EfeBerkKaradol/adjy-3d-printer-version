@@ -1,295 +1,40 @@
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/db";
-import { HeroExperience, type HeroProduct } from "@/components/home/HeroExperience";
-import { Hero } from "@/components/home/Hero";
-import { ProductCinemaLoader } from "@/components/home/cinema/ProductCinemaLoader";
-import { PhotoToProductTeaser } from "@/components/home/PhotoToProductTeaser";
-import type { CinemaProduct } from "@/components/home/cinema/ProductCinema";
-import { FeaturedObjects, type FeaturedObject } from "@/components/home/FeaturedObjects";
-import { ConfiguratorShowcase } from "@/components/home/ConfiguratorShowcase";
-import { SpaceShowcase, type SpaceScene } from "@/components/home/SpaceShowcase";
-import { DigitalToPhysical } from "@/components/home/DigitalToPhysical";
+import { StoreHero, type HeroCard } from "@/components/home/StoreHero";
+import { TrustRow } from "@/components/home/TrustRow";
+import { CategoryGrid, type HomeCategory } from "@/components/home/CategoryGrid";
 import { CreateSection } from "@/components/home/CreateSection";
-import { ExploreShop, type ShopTeaserProduct } from "@/components/home/ExploreShop";
-import { FinalCTA } from "@/components/home/FinalCTA";
 import { ProductRail, type RailProduct } from "@/components/product/ProductRail";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { OrganizationJsonLd, WebSiteJsonLd } from "@/components/seo/JsonLd";
 import { getAbsoluteUrl } from "@/lib/url";
-import { getProductType } from "@/lib/productType";
 
 // Vitrin veritabanından beslenir; statik kalırsa yeni ürünler ancak
 // yeni bir deploy ile görünür. 5 dakikada bir tazelenir.
 export const revalidate = 300;
 
 // ==========================================
-// ANA SAYFA — KATALOG DEĞİL, HİKÂYE
+// ANA SAYFA — MAĞAZA
 //
-// Ziyaretçi sırayla şunu düşünmeli:
-//   "İlginç nesneler." →
-//   "Bunları değiştirebiliyor muyum?" →
-//   "Ben de bir tane yapılandırayım." →
-//   "Benimki kaça gelir?"
+// Burası önce bir manifestoydu: "Nesneler, yeniden" ve altında
+// sayfalarca anlatı. Güzeldi ama ilk ekranda tek bir ürün, tek
+// bir fiyat yoktu; gelen kişi burasının bir mağaza olduğunu
+// anlamadan ayrılıyordu. O anlatı artık Hakkımızda'da duruyor —
+// bizi merak edene orada anlatılır.
 //
-// Yerleşim:
-//   01  Hero + scroll anlatısı (gerçek parametrik model)
-//   02  Keşfet / Yapılandır / Üret
-//   03  Öne çıkan nesneler (3-4 tane, katalog değil)
-//   04  Seninki yap — gerçek konfigüratör teaser'ı
-//   05  Alanına göre
-//   06  Dijitalden fiziksele
-//   07  Üret — kendi modelini ürettir
-//   08  Mağazaya geçiş
-//   09  Kapanış
+// Yerleşim, ziyaretçinin sırayla sorduğu sorulara göre:
+//   Ne satıyorsunuz?   → karşılama, üç gerçek ürün ve fiyatları
+//   Size niye güveneyim? → güven şeridi
+//   Nelerin var?       → kategoriler (kataloğun genişliği)
+//   En iyileri?        → öne çıkanlar
+//   Sizi ayıran ne?    → ölçüsü değişen nesneler
+//   Yeni ne var?       → yeni gelenler
+//   Kendi modelim?     → üret
 //
-// Ana sayfa her şeyi göstermez: merak uyandırıp derinlere yollar.
-// Veritabanına ulaşılamazsa bölümler sessizce gizlenir.
+// Veritabanına ulaşılamazsa bölümler sessizce gizlenir; yarım
+// bir sayfa, hata sayfasından iyidir.
 // ==========================================
-
-const CARD_SELECT = {
-  id: true,
-  name: true,
-  slug: true,
-  description: true,
-  basePrice: true,
-  thumbnailUrl: true,
-  featured: true,
-  category: { select: { id: true, name: true, slug: true } },
-  _count: { select: { reviews: true, parameters: true } },
-} as const;
-
-/** Öne çıkan nesneler — ana sayfada yalnızca 4 tane */
-async function getFeaturedObjects(): Promise<FeaturedObject[]> {
-  try {
-    const featured = await prisma.product.findMany({
-      where: { isActive: true, featured: true },
-      take: 4,
-      orderBy: { createdAt: "desc" },
-      select: CARD_SELECT,
-    });
-
-    let rows = featured;
-    if (rows.length < 4) {
-      const fillers = await prisma.product.findMany({
-        where: {
-          isActive: true,
-          thumbnailUrl: { not: null },
-          id: { notIn: rows.map((p) => p.id) },
-        },
-        take: 4 - rows.length,
-        orderBy: { createdAt: "desc" },
-        select: CARD_SELECT,
-      });
-      rows = [...rows, ...fillers];
-    }
-
-    return rows.map((p) => ({
-      id: p.id,
-      name: p.name,
-      slug: p.slug,
-      description: p.description,
-      basePrice: Number(p.basePrice),
-      thumbnailUrl: p.thumbnailUrl,
-      category: { name: p.category.name },
-      isCustomizable: p._count.parameters > 0,
-    }));
-  } catch {
-    return [];
-  }
-}
-
-/**
- * "Bir nesnenin üç hâli" anlatısının kahramanı.
- * Delikli duvar paneli seçilir: modüler sistemi olan tek ürün,
- * yani keşfet → yapılandır → üret hikâyesini tek başına taşıyabilen nesne.
- */
-async function getStoryProduct(): Promise<CinemaProduct | null> {
-  try {
-    const panel = await prisma.product.findFirst({
-      where: {
-        isActive: true,
-        OR: [{ slug: { contains: "delikli" } }, { slug: { contains: "panel" } }],
-      },
-      select: { id: true, name: true, slug: true },
-    });
-    if (panel) return panel;
-
-    // Panel yoksa anlatı yine kurulsun diye görseli olan herhangi bir ürün
-    return await prisma.product.findFirst({
-      where: { isActive: true, thumbnailUrl: { not: null } },
-      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      select: { id: true, name: true, slug: true },
-    });
-  } catch {
-    return null;
-  }
-}
-
-/** Hero: scroll ile sürülebilmesi için "width" parametresi olan bir ürün */
-async function getHeroProduct(): Promise<HeroProduct | null> {
-  try {
-    const product = await prisma.product.findFirst({
-      where: {
-        isActive: true,
-        parameters: {
-          some: { name: "width", minValue: { not: null }, maxValue: { not: null } },
-        },
-      },
-      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        thumbnailUrl: true,
-        category: { select: { name: true } },
-        parameters: {
-          where: { name: "width" },
-          select: { minValue: true, maxValue: true, defaultValue: true },
-          take: 1,
-        },
-      },
-    });
-
-    const width = product?.parameters[0];
-    if (!product || !width || width.minValue === null || width.maxValue === null) {
-      return null;
-    }
-    if (width.maxValue <= width.minValue) return null;
-
-    return {
-      id: product.id,
-      name: product.name,
-      slug: product.slug,
-      thumbnailUrl: product.thumbnailUrl,
-      productType: getProductType(product.slug),
-      category: product.category,
-      widthRange: {
-        min: width.minValue,
-        max: width.maxValue,
-        default: Number(width.defaultValue) || width.minValue,
-      },
-    };
-  } catch {
-    return null;
-  }
-}
-
-/** Ana sayfa konfigüratörü: ölçüsü değişebilen 4 nesne */
-async function getConfiguratorProducts() {
-  try {
-    const rows = await prisma.product.findMany({
-      where: {
-        isActive: true,
-        parameters: {
-          some: { type: "SLIDER", minValue: { not: null }, maxValue: { not: null } },
-        },
-      },
-      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      take: 4,
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        basePrice: true,
-        thumbnailUrl: true,
-        modelFileUrl: true,
-        materialType: true,
-        category: { select: { name: true } },
-        parameters: {
-          orderBy: { sortOrder: "asc" },
-          select: {
-            id: true,
-            name: true,
-            displayName: true,
-            type: true,
-            minValue: true,
-            maxValue: true,
-            defaultValue: true,
-            step: true,
-            unit: true,
-          },
-        },
-      },
-    });
-
-    return rows.map((p) => ({
-      ...p,
-      basePrice: Number(p.basePrice),
-      productType: getProductType(p.slug),
-    }));
-  } catch {
-    return [];
-  }
-}
-
-/** "Alanına göre" sekmeleri: her kategoriden görseli olan bir ürün */
-async function getSpaceScenes(): Promise<SpaceScene[]> {
-  try {
-    const rows = await prisma.product.findMany({
-      where: { isActive: true, thumbnailUrl: { not: null } },
-      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      select: {
-        name: true,
-        slug: true,
-        thumbnailUrl: true,
-        category: { select: { name: true, slug: true } },
-        parameters: {
-          where: {
-            type: "SLIDER",
-            minValue: { not: null },
-            maxValue: { not: null },
-          },
-          orderBy: { sortOrder: "asc" },
-          select: {
-            displayName: true,
-            minValue: true,
-            maxValue: true,
-            defaultValue: true,
-          },
-          take: 1,
-        },
-      },
-    });
-
-    const seen = new Set<string>();
-    const scenes: SpaceScene[] = [];
-    for (const row of rows) {
-      if (seen.has(row.category.slug)) continue;
-      seen.add(row.category.slug);
-
-      // Ölçek çizimi yalnızca gerçek bir aralık varsa çizilir
-      const param = row.parameters[0];
-      const width =
-        param &&
-        param.minValue !== null &&
-        param.maxValue !== null &&
-        param.maxValue > param.minValue
-          ? {
-              min: param.minValue,
-              max: param.maxValue,
-              default: Number(param.defaultValue) || param.minValue,
-              label: param.displayName,
-            }
-          : null;
-
-      scenes.push({
-        label: row.category.name,
-        categoryName: row.category.name,
-        categorySlug: row.category.slug,
-        product: {
-          name: row.name,
-          slug: row.slug,
-          thumbnailUrl: row.thumbnailUrl,
-        },
-        width,
-      });
-      if (scenes.length === 4) break;
-    }
-    return scenes;
-  } catch {
-    return [];
-  }
-}
 
 const RAIL_SELECT = {
   id: true,
@@ -302,6 +47,9 @@ const RAIL_SELECT = {
   _count: { select: { parameters: true } },
 } as const;
 
+/** Son 30 günde eklenen ürün "yeni" sayılır */
+const NEW_WINDOW_DAYS = 30;
+
 /**
  * Eski fiyatlar (compareAtPrice) ayrı sorguda okunur.
  *
@@ -309,7 +57,7 @@ const RAIL_SELECT = {
  * uygulanmamışsa onu SEÇEN her sorgu patlar ve öne çıkan
  * ürünler, yeni gelenler gibi bölümler topluca boşalırdı.
  * Ayrı tutulunca en kötü ihtimalle yalnızca indirim bilgisi
- * eksik kalır; migration çalıştığı an kod değişmeden devreye girer.
+ * eksik kalır.
  */
 async function getCompareAtPrices(): Promise<Map<string, number>> {
   try {
@@ -323,13 +71,9 @@ async function getCompareAtPrices(): Promise<Map<string, number>> {
         .map((r) => [r.id, Number(r.compareAtPrice)])
     );
   } catch {
-    // Kolon yok ya da erişilemedi — indirim gösterilmez, gerisi çalışır
     return new Map();
   }
 }
-
-/** Son 30 günde eklenen ürün "yeni" sayılır */
-const NEW_WINDOW_DAYS = 30;
 
 function toRailProduct(
   p: {
@@ -359,11 +103,112 @@ function toRailProduct(
   };
 }
 
-/** Yeni gelenler — en son eklenen nesneler */
+/** Karşılamadaki üç kare: görseli olan, öne çıkarılmış nesneler */
+async function getHeroCards(): Promise<{ products: HeroCard[]; total: number }> {
+  try {
+    const [featured, total] = await Promise.all([
+      prisma.product.findMany({
+        where: { isActive: true, thumbnailUrl: { not: null } },
+        orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+        take: 3,
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          basePrice: true,
+          thumbnailUrl: true,
+          category: { select: { name: true } },
+          _count: { select: { parameters: true } },
+        },
+      }),
+      prisma.product.count({ where: { isActive: true } }),
+    ]);
+    return {
+      products: featured.map((p) => ({
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        basePrice: Number(p.basePrice),
+        thumbnailUrl: p.thumbnailUrl,
+        category: p.category,
+        isCustomizable: p._count.parameters > 0,
+      })),
+      total,
+    };
+  } catch {
+    return { products: [], total: 0 };
+  }
+}
+
+/**
+ * Kategoriler — kataloğun genişliğini ilk ekranda göstermek için.
+ *
+ * Tek ürünlü kategoriler dışarıda bırakılır: tıklayıp boş bir
+ * raf bulmak, o kategoriyi hiç görmemekten kötü.
+ */
+const MIN_KATEGORI_URUN = 3;
+
+async function getCategories(): Promise<HomeCategory[]> {
+  try {
+    const rows = await prisma.category.findMany({
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        imageUrl: true,
+        _count: { select: { products: { where: { isActive: true } } } },
+      },
+    });
+    return rows
+      .filter((c) => c._count.products >= MIN_KATEGORI_URUN)
+      .sort((a, b) => b._count.products - a._count.products)
+      .map((c) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        description: c.description,
+        imageUrl: c.imageUrl,
+        productCount: c._count.products,
+      }));
+  } catch {
+    return [];
+  }
+}
+
+async function getFeaturedRail(compareAt: Map<string, number>): Promise<RailProduct[]> {
+  try {
+    const rows = await prisma.product.findMany({
+      where: { isActive: true, thumbnailUrl: { not: null } },
+      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+      take: 8,
+      select: RAIL_SELECT,
+    });
+    return rows.map((p) => toRailProduct(p, true, compareAt.get(p.id) ?? null));
+  } catch {
+    return [];
+  }
+}
+
+/** Bizi ayıran raf: ölçüsü müşteriye göre değişen nesneler */
+async function getCustomizableRail(compareAt: Map<string, number>): Promise<RailProduct[]> {
+  try {
+    const rows = await prisma.product.findMany({
+      where: { isActive: true, thumbnailUrl: { not: null }, parameters: { some: {} } },
+      orderBy: { createdAt: "desc" },
+      take: 8,
+      select: RAIL_SELECT,
+    });
+    return rows.map((p) => toRailProduct(p, false, compareAt.get(p.id) ?? null));
+  } catch {
+    return [];
+  }
+}
+
 async function getNewArrivals(compareAt: Map<string, number>): Promise<RailProduct[]> {
   try {
     const rows = await prisma.product.findMany({
-      where: { isActive: true },
+      where: { isActive: true, thumbnailUrl: { not: null } },
       orderBy: { createdAt: "desc" },
       take: 8,
       select: RAIL_SELECT,
@@ -374,182 +219,109 @@ async function getNewArrivals(compareAt: Map<string, number>): Promise<RailProdu
   }
 }
 
-/**
- * Seçili ürünler — eski fiyatı güncel fiyattan yüksek olanlar.
- * Hiç indirimli ürün yoksa bölüm kendini gizler; boş bir
- * "İndirimler" başlığı göstermek güven kırar.
- */
-async function getDiscounted(compareAt: Map<string, number>): Promise<RailProduct[]> {
-  if (compareAt.size === 0) return [];
-  try {
-    const rows = await prisma.product.findMany({
-      where: { isActive: true, id: { in: [...compareAt.keys()] } },
-      orderBy: { createdAt: "desc" },
-      take: 8,
-      select: RAIL_SELECT,
-    });
-    return rows
-      .filter((p) => (compareAt.get(p.id) ?? 0) > Number(p.basePrice))
-      .map((p) => toRailProduct(p, false, compareAt.get(p.id) ?? null));
-  } catch {
-    return [];
-  }
-}
-
-/** Mağaza geçişi: küçük vitrin + katalog büyüklüğü */
-async function getShopTeaser(): Promise<{
-  products: ShopTeaserProduct[];
-  total: number;
-}> {
-  try {
-    const [rows, total] = await Promise.all([
-      prisma.product.findMany({
-        where: { isActive: true },
-        take: 6,
-        orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-        select: { id: true, name: true, slug: true, thumbnailUrl: true },
-      }),
-      prisma.product.count({ where: { isActive: true } }),
-    ]);
-    return { products: rows, total };
-  } catch {
-    return { products: [], total: 0 };
-  }
-}
-
 export default async function HomePage() {
-  // Eski fiyatlar önce okunur: kolon yoksa boş harita döner ve
-  // yalnızca indirim bilgisi eksik kalır, diğer bölümler etkilenmez.
   const compareAt = await getCompareAtPrices();
-
-  const [
-    featuredObjects,
-    heroProduct,
-    storyProduct,
-    configuratorProducts,
-    spaceScenes,
-    shopTeaser,
-    newArrivals,
-    discounted,
-  ] = await Promise.all([
-      getFeaturedObjects(),
-      getHeroProduct(),
-      getStoryProduct(),
-      getConfiguratorProducts(),
-      getSpaceScenes(),
-      getShopTeaser(),
-      getNewArrivals(compareAt),
-      getDiscounted(compareAt),
-    ]);
-
-  const baseUrl = getAbsoluteUrl();
-  const withImage = featuredObjects.filter((p) => p.thumbnailUrl);
+  const [hero, categories, featured, customizable, newArrivals] = await Promise.all([
+    getHeroCards(),
+    getCategories(),
+    getFeaturedRail(compareAt),
+    getCustomizableRail(compareAt),
+    getNewArrivals(compareAt),
+  ]);
 
   return (
     <>
       <OrganizationJsonLd url={getAbsoluteUrl()} />
       <WebSiteJsonLd
-        name="ADJY — Dijital tasarlanmış, senin ölçünde üretilen nesneler"
-        url={baseUrl}
-        description="Hazır nesneleri satın al ya da ölçüsünü kendin belirleyip ürettir. Dijital olarak tasarlandı, senin tarafından yapılandırıldı, alanına göre üretildi."
+        name="ADJY"
+        url={getAbsoluteUrl()}
+        description="Ölçüsünü senin seçtiğin tasarım nesneleri: vazo, saksı, aydınlatma, masa düzeni ve dekoratif figürler. 3D baskı, seramik ve alçı."
       />
 
-      {/* 01 — Hero ve scroll anlatısı */}
-      {heroProduct ? (
-        <HeroExperience product={heroProduct} />
-      ) : (
-        <Hero
-          product={
-            withImage[0]
-              ? {
-                  name: withImage[0].name,
-                  slug: withImage[0].slug,
-                  thumbnailUrl: withImage[0].thumbnailUrl,
-                  category: withImage[0].category,
-                }
-              : null
-          }
-        />
-      )}
+      <StoreHero products={hero.products} totalCount={hero.total} />
+      <TrustRow />
 
-      {/* 02 — Ürünler. Anlatıdan önce gelirler.
-          Önceki sırada ana sayfanın ilk beş ekranı arka arkaya iki
-          kaydırma anlatısıydı; ziyaretçi satın alabileceği bir şey
-          görmeden sayfanın yarısını geçiyordu. Anlatı aşağıda duruyor,
-          önce ürün var. */}
-      {featuredObjects.length > 0 && <FeaturedObjects products={featuredObjects} />}
-
-      {/* 03 — Yeni gelenler */}
-      {newArrivals.length > 0 && (
-        <section className="adjy-container adjy-section" aria-label="Yeni gelenler">
+      {categories.length > 0 && (
+        <section className="adjy-container adjy-section">
           <SectionHeading
-            eyebrow="Yeni"
-            title="Yeni gelenler"
-            description="Katalogdaki en son nesneler."
-            action={{ label: "Tüm nesneler", href: "/products?sort=newest" }}
-            className="mb-10 md:mb-12"
+            eyebrow="Kategoriler"
+            title="Neye bakıyorsun?"
+            action={{ label: "Tüm nesneler", href: "/products" }}
           />
-          <ProductRail products={newArrivals} />
-        </section>
-      )}
-
-      {/* 04 — Bir nesnenin üç hâli: keşfet → yapılandır → üret */}
-      <ProductCinemaLoader product={storyProduct} />
-
-      {/* 05 — Fotoğraftan ürüne */}
-      <PhotoToProductTeaser />
-
-      {/* 06 — Seninki yap */}
-      {configuratorProducts.length > 0 && (
-        <section
-          className="border-y border-border bg-surface"
-          aria-label="Nesneyi yapılandır"
-        >
-          <div className="adjy-container adjy-section">
-            <SectionHeading
-              eyebrow="Yapılandır"
-              title="Seninki yap."
-              description="Kaydırıcıyı oynat, nesne gerçekten değişsin. Tek tasarım, senin ölçülerin."
-              action={{ label: "Tüm yapılandırılabilir nesneler", href: "/configure" }}
-              className="mb-12 md:mb-16"
-            />
-            <ConfiguratorShowcase products={configuratorProducts} />
+          <div className="mt-8">
+            <CategoryGrid categories={categories} />
           </div>
         </section>
       )}
 
-      {/* 06 — Alanına göre */}
-      <SpaceShowcase scenes={spaceScenes} />
-
-      {/* 07 — Seçili ürünler (indirimliler) */}
-      {discounted.length > 0 && (
-        <section
-          className="border-y border-border bg-surface"
-          aria-label="Seçili ürünler"
-        >
-          <div className="adjy-container adjy-section">
-            <SectionHeading
-              eyebrow="Seçili ürünler"
-              title="Şimdi daha uygun."
-              description="Eski fiyatı üstü çizili gösterilen nesneler."
-              className="mb-10 md:mb-12"
-            />
-            <ProductRail products={discounted} />
+      {featured.length > 0 && (
+        <section className="adjy-container adjy-section border-t border-border/60">
+          <SectionHeading
+            eyebrow="Öne çıkanlar"
+            title="Çok sevilen nesneler"
+            action={{ label: "Hepsini gör", href: "/products" }}
+          />
+          <div className="mt-8">
+            <ProductRail products={featured} />
           </div>
         </section>
       )}
 
-      {/* 08 — Dijitalden fiziksele */}
-      <DigitalToPhysical />
+      {customizable.length > 0 && (
+        <section className="adjy-container adjy-section border-t border-border/60">
+          <SectionHeading
+            eyebrow="Ölçüsü sana göre"
+            title="Rafına, masana, pencerene göre"
+            action={{ label: "Yapılandır", href: "/configure" }}
+          />
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            Bu nesnelerin enini ve boyunu sen seçiyorsun. Ölçüyü değiştirdiğinde
+            fiyat da anında güncellenir — sürprizle karşılaşmazsın.
+          </p>
+          <div className="mt-8">
+            <ProductRail products={customizable} />
+          </div>
+        </section>
+      )}
 
-      {/* 07 — Üret: kendi modelini ürettir */}
+      {newArrivals.length > 0 && (
+        <section className="adjy-container adjy-section border-t border-border/60">
+          <SectionHeading
+            eyebrow="Yeni gelenler"
+            title="Atölyeden yeni çıkanlar"
+            action={{ label: "Tümü", href: "/products?sort=newest" }}
+          />
+          <div className="mt-8">
+            <ProductRail products={newArrivals} />
+          </div>
+        </section>
+      )}
+
       <CreateSection />
 
-      {/* 08 — Mağazaya geçiş */}
-      <ExploreShop products={shopTeaser.products} totalCount={shopTeaser.total} />
-
-      {/* 09 — Kapanış */}
-      <FinalCTA />
+      <section className="border-t border-border/60">
+        <div className="adjy-container flex flex-col gap-5 py-14 sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-xl">
+            <h2 className="adjy-display text-[clamp(1.4rem,2.6vw,2rem)]">
+              ADJY nasıl çalışır?
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              Nesneleri nasıl tasarladığımızı, hangi malzemeyle ürettiğimizi ve
+              ölçünün neden değişebildiğini anlattık.
+            </p>
+          </div>
+          <Link
+            href="/about"
+            className="group inline-flex shrink-0 items-center gap-2 border-b border-foreground pb-1 text-sm font-medium transition-colors hover:border-muted-foreground hover:text-muted-foreground"
+          >
+            Hakkımızda
+            <ArrowRight
+              className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
+              aria-hidden
+            />
+          </Link>
+        </div>
+      </section>
     </>
   );
 }

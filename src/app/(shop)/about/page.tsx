@@ -1,6 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { prisma } from "@/lib/db";
+import { HeroExperience, type HeroProduct } from "@/components/home/HeroExperience";
+import { Hero } from "@/components/home/Hero";
+import { ProductCinemaLoader } from "@/components/home/cinema/ProductCinemaLoader";
+import type { CinemaProduct } from "@/components/home/cinema/ProductCinema";
+import { ConfiguratorShowcase } from "@/components/home/ConfiguratorShowcase";
+import { SpaceShowcase, type SpaceScene } from "@/components/home/SpaceShowcase";
+import { DigitalToPhysical } from "@/components/home/DigitalToPhysical";
+import { PhotoToProductTeaser } from "@/components/home/PhotoToProductTeaser";
+import { SectionHeading } from "@/components/ui/section-heading";
+import { getProductType } from "@/lib/productType";
+
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Hakkımızda",
@@ -15,6 +28,12 @@ export const metadata: Metadata = {
 // alçı dekoratif ürünler de üretiyor. Metin bu yüzden
 // malzemeye değil, yapılan işe göre yazıldı — teknoloji
 // değişse bile doğru kalır.
+//
+// Ana sayfadaki anlatı bölümleri de buraya taşındı. Orada
+// mağazanın önünü kapatıyorlardı: gelen kişi ürün görmeden
+// sayfalarca kaydırıyor, burasının bir mağaza olduğunu
+// anlamadan ayrılıyordu. Bizi merak eden buraya geliyor —
+// anlatının yeri burası.
 //
 // Tipografi ve hitap sitenin geri kalanıyla aynı: sola
 // hizalı editoryal düzen, "sen" dili.
@@ -46,8 +65,216 @@ const STEPS = [
   { n: "04", title: "Teslimat", body: "Kırılabilir parçalar ayrı korumayla paketlenir." },
 ];
 
-export default function AboutPage() {
+/**
+ * "Bir nesnenin üç hâli" anlatısının kahramanı.
+ * Delikli duvar paneli seçilir: modüler sistemi olan tek ürün,
+ * yani keşfet → yapılandır → üret hikâyesini tek başına taşıyabilen nesne.
+ */
+async function getStoryProduct(): Promise<CinemaProduct | null> {
+  try {
+    const panel = await prisma.product.findFirst({
+      where: {
+        isActive: true,
+        OR: [{ slug: { contains: "delikli" } }, { slug: { contains: "panel" } }],
+      },
+      select: { id: true, name: true, slug: true },
+    });
+    if (panel) return panel;
+
+    // Panel yoksa anlatı yine kurulsun diye görseli olan herhangi bir ürün
+    return await prisma.product.findFirst({
+      where: { isActive: true, thumbnailUrl: { not: null } },
+      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+      select: { id: true, name: true, slug: true },
+    });
+  } catch {
+    return null;
+  }
+}
+
+
+
+/** Hero: scroll ile sürülebilmesi için "width" parametresi olan bir ürün */
+async function getHeroProduct(): Promise<HeroProduct | null> {
+  try {
+    const product = await prisma.product.findFirst({
+      where: {
+        isActive: true,
+        parameters: {
+          some: { name: "width", minValue: { not: null }, maxValue: { not: null } },
+        },
+      },
+      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        thumbnailUrl: true,
+        category: { select: { name: true } },
+        parameters: {
+          where: { name: "width" },
+          select: { minValue: true, maxValue: true, defaultValue: true },
+          take: 1,
+        },
+      },
+    });
+
+    const width = product?.parameters[0];
+    if (!product || !width || width.minValue === null || width.maxValue === null) {
+      return null;
+    }
+    if (width.maxValue <= width.minValue) return null;
+
+    return {
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      thumbnailUrl: product.thumbnailUrl,
+      productType: getProductType(product.slug),
+      category: product.category,
+      widthRange: {
+        min: width.minValue,
+        max: width.maxValue,
+        default: Number(width.defaultValue) || width.minValue,
+      },
+    };
+  } catch {
+    return null;
+  }
+}
+
+
+
+/** Ana sayfa konfigüratörü: ölçüsü değişebilen 4 nesne */
+async function getConfiguratorProducts() {
+  try {
+    const rows = await prisma.product.findMany({
+      where: {
+        isActive: true,
+        parameters: {
+          some: { type: "SLIDER", minValue: { not: null }, maxValue: { not: null } },
+        },
+      },
+      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+      take: 4,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        basePrice: true,
+        thumbnailUrl: true,
+        modelFileUrl: true,
+        materialType: true,
+        category: { select: { name: true } },
+        parameters: {
+          orderBy: { sortOrder: "asc" },
+          select: {
+            id: true,
+            name: true,
+            displayName: true,
+            type: true,
+            minValue: true,
+            maxValue: true,
+            defaultValue: true,
+            step: true,
+            unit: true,
+          },
+        },
+      },
+    });
+
+    return rows.map((p) => ({
+      ...p,
+      basePrice: Number(p.basePrice),
+      productType: getProductType(p.slug),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+
+
+/** "Alanına göre" sekmeleri: her kategoriden görseli olan bir ürün */
+async function getSpaceScenes(): Promise<SpaceScene[]> {
+  try {
+    const rows = await prisma.product.findMany({
+      where: { isActive: true, thumbnailUrl: { not: null } },
+      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+      select: {
+        name: true,
+        slug: true,
+        thumbnailUrl: true,
+        category: { select: { name: true, slug: true } },
+        parameters: {
+          where: {
+            type: "SLIDER",
+            minValue: { not: null },
+            maxValue: { not: null },
+          },
+          orderBy: { sortOrder: "asc" },
+          select: {
+            displayName: true,
+            minValue: true,
+            maxValue: true,
+            defaultValue: true,
+          },
+          take: 1,
+        },
+      },
+    });
+
+    const seen = new Set<string>();
+    const scenes: SpaceScene[] = [];
+    for (const row of rows) {
+      if (seen.has(row.category.slug)) continue;
+      seen.add(row.category.slug);
+
+      // Ölçek çizimi yalnızca gerçek bir aralık varsa çizilir
+      const param = row.parameters[0];
+      const width =
+        param &&
+        param.minValue !== null &&
+        param.maxValue !== null &&
+        param.maxValue > param.minValue
+          ? {
+              min: param.minValue,
+              max: param.maxValue,
+              default: Number(param.defaultValue) || param.minValue,
+              label: param.displayName,
+            }
+          : null;
+
+      scenes.push({
+        label: row.category.name,
+        categoryName: row.category.name,
+        categorySlug: row.category.slug,
+        product: {
+          name: row.name,
+          slug: row.slug,
+          thumbnailUrl: row.thumbnailUrl,
+        },
+        width,
+      });
+      if (scenes.length === 4) break;
+    }
+    return scenes;
+  } catch {
+    return [];
+  }
+}
+
+export default async function AboutPage() {
+  const [heroProduct, storyProduct, configuratorProducts, spaceScenes] = await Promise.all([
+    getHeroProduct(),
+    getStoryProduct(),
+    getConfiguratorProducts(),
+    getSpaceScenes(),
+  ]);
+
   return (
+    <>
     <div className="adjy-container adjy-section">
       <header className="max-w-2xl">
         <p className="adjy-eyebrow mb-5">Hakkımızda</p>
@@ -108,5 +335,30 @@ export default function AboutPage() {
         </div>
       </section>
     </div>
+
+      {/* Anlatı: bir nesnenin keşiften üretime yolculuğu */}
+      <section className="mt-20 border-t border-border/60 pt-4">
+        {heroProduct ? <HeroExperience product={heroProduct} /> : <Hero product={null} />}
+      </section>
+
+      <ProductCinemaLoader product={storyProduct} />
+
+      {configuratorProducts.length > 0 && (
+        <section className="adjy-container adjy-section border-t border-border/60">
+          <SectionHeading
+            eyebrow="Seninki"
+            title="Ölçüsünü sen seç"
+            action={{ label: "Yapılandır", href: "/configure" }}
+          />
+          <div className="mt-8">
+            <ConfiguratorShowcase products={configuratorProducts} />
+          </div>
+        </section>
+      )}
+
+      <SpaceShowcase scenes={spaceScenes} />
+      <DigitalToPhysical />
+      <PhotoToProductTeaser />
+    </>
   );
 }
