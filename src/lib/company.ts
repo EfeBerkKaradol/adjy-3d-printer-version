@@ -52,9 +52,7 @@ export const COMPANY: CompanyInfo = {
     postalCode: "34351",
   },
 
-  // TODO(sahibi doldurmalı): gerçek numara verilmedi.
-  // Önceki "+90 (212) 555 0123" kurgusal bir numaraydı, kaldırıldı.
-  phone: null,
+  phone: "+90 552 788 47 57",
 
   // Sahibinin bildirdiği adres. Site alan adıyla aynı değil
   // (adjyshopping.com), ama okunan kutu bu.

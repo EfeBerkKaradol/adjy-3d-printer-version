@@ -28,6 +28,9 @@ model User {
   sessions            Session[]
   wishlists           Wishlist[]
   passwordResetTokens PasswordResetToken[]
+  crmNotes            CustomerNote[]
+  /// Müşteri panelinde elle verilen etiketler (VIP, toptan, dikkat…)
+  crmTags             String[]             @default([])
 
   @@map("users")
 }
@@ -535,4 +538,47 @@ model AgentAction {
 
   @@index([appliedAt, createdAt])
   @@map("agent_actions")
+}
+
+/// Sayfa görüntülemesi.
+///
+/// Çerez kullanılmaz: oturum anahtarı sekme kapanınca silinen
+/// sessionStorage'da durur, yani ziyaretçi oturumlar arasında
+/// izlenmez. IP saklanmaz. Amaç tek bir kişiyi takip etmek değil,
+/// hangi sayfanın çalıştığını görmek.
+model PageView {
+  id        String   @id @default(cuid())
+  /// Sorgu dizesi atılmış yol — /products/eriyen-duvar-rafi
+  path      String
+  /// Siteye nereden gelindiği (dış alan adı) — yoksa doğrudan
+  referrer  String?
+  /// Sekme ömrü boyunca sabit, kalıcı olmayan anahtar
+  sessionId String
+  /// Oturum açmışsa kim — CRM'de müşterinin gezintisi görünür
+  userId    String?
+  /// mobile | tablet | desktop
+  device    String?
+  /// Ürün sayfasıysa hangi ürün
+  productId String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([path, createdAt])
+  @@index([userId, createdAt])
+  @@index([sessionId])
+  @@map("page_views")
+}
+
+/// Müşteri hakkında elle yazılan not — CRM'in defteri.
+model CustomerNote {
+  id          String   @id @default(cuid())
+  userId      String
+  body        String
+  /// Notu yazan yönetici
+  authorEmail String?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("customer_notes")
 }

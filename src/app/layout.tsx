@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Orbitron } from "next/font/google";
 import Script from "next/script";
@@ -6,6 +7,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { SiteShell } from "@/components/layout/SiteShell";
+import { VisitTracker } from "@/components/analytics/VisitTracker";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "@/components/session-provider";
 import { CartSyncProvider } from "@/components/cart-sync-provider";
@@ -119,6 +121,11 @@ export default function RootLayout({
                 {children}
               </SiteShell>
               <Toaster richColors position="top-right" />
+              {/* useSearchParams Suspense sınırı ister; ölçüm
+                  sayfanın çizilmesini bekletmemeli. */}
+              <Suspense fallback={null}>
+                <VisitTracker />
+              </Suspense>
               <SpeedInsights />
               <Analytics />
             </ThemeProvider>

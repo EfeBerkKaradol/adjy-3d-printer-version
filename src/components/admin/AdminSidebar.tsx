@@ -14,6 +14,8 @@ import {
   ArrowLeft,
   Mail,
   Bot,
+  Activity,
+  UserCog,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -25,7 +27,9 @@ const navItems = [
   { href: "/admin/products", label: "Ürünler", icon: Package },
   { href: "/admin/categories", label: "Kategoriler", icon: FolderTree },
   { href: "/admin/coupons", label: "Kuponlar", icon: Ticket },
-  { href: "/admin/users", label: "Kullanıcılar", icon: Users },
+  { href: "/admin/musteriler", label: "Müşteriler", icon: Users },
+  { href: "/admin/ziyaretler", label: "Ziyaretler", icon: Activity },
+  { href: "/admin/users", label: "Kullanıcılar", icon: UserCog },
   { href: "/admin/print-queue", label: "Baskı Kuyruğu", icon: Printer },
   { href: "/admin/reports", label: "Raporlar", icon: BarChart3 },
   { href: "/admin/messages", label: "Mesajlar", icon: Mail },
