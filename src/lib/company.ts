@@ -33,6 +33,8 @@ export interface CompanyInfo {
   mersisNumber: string | null;
   /** Çalışma saatleri — iletişim sayfasında telefonun altında */
   workingHours: string | null;
+  /** Google İşletme profili bağlantısı; yoksa adresten üretilir */
+  mapsUrl: string | null;
 }
 
 export const COMPANY: CompanyInfo = {
@@ -54,12 +56,22 @@ export const COMPANY: CompanyInfo = {
   // Önceki "+90 (212) 555 0123" kurgusal bir numaraydı, kaldırıldı.
   phone: null,
 
-  // TODO(sahibi doldurmalı): hangi alan adının kullanılacağı netleşmedi
-  // (adjy3d.com ile adjyshopping.com karışık kullanılıyordu).
-  email: null,
-  supportEmail: null,
+  // Sahibinin bildirdiği adres. Site alan adıyla aynı değil
+  // (adjyshopping.com), ama okunan kutu bu.
+  email: "ahbe@adjy.com.tr",
+  supportEmail: "ahbe@adjy.com.tr",
 
   website: "adjyshopping.com",
+
+  /**
+   * Google Haritalar bağlantısı.
+   *
+   * mapsUrl doldurulmazsa adresten bir arama bağlantısı
+   * üretilir — her zaman çalışır ama işletme kaydına değil,
+   * noktaya gider. Google İşletme profilinin bağlantısı
+   * buraya yazılınca yorumlar ve fotoğraflarla birlikte açılır.
+   */
+  mapsUrl: null,
 
   taxOffice: null,
   taxNumber: null,
@@ -76,4 +88,24 @@ export function formatAddress(a: NonNullable<CompanyInfo["address"]>): string {
 /** Sözleşmelerde kullanılan satıcı adı: unvan varsa o, yoksa marka */
 export function sellerName(): string {
   return COMPANY.legalName ?? COMPANY.brand;
+}
+
+/**
+ * Haritaya giden bağlantı. İşletme profili bağlantısı varsa o,
+ * yoksa adresten üretilen arama bağlantısı.
+ */
+export function mapsLink(): string | null {
+  if (COMPANY.mapsUrl) return COMPANY.mapsUrl;
+  if (!COMPANY.address) return null;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    formatAddress(COMPANY.address)
+  )}`;
+}
+
+/** Gömülü harita adresi — kullanıcı istediğinde yüklenir */
+export function mapsEmbedUrl(): string | null {
+  if (!COMPANY.address) return null;
+  return `https://maps.google.com/maps?q=${encodeURIComponent(
+    formatAddress(COMPANY.address)
+  )}&z=16&output=embed`;
 }
