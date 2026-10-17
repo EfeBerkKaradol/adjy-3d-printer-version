@@ -61,11 +61,11 @@ export function ParameterPanel({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <SlidersHorizontal className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold text-lg">Ozellestirme</h3>
+          <h3 className="font-semibold text-lg">Özelleştirme</h3>
         </div>
         <Button variant="ghost" size="sm" onClick={onReset} className="text-xs gap-1.5">
           <RotateCcw className="h-3.5 w-3.5" />
-          Sifirla
+          Sıfırla
         </Button>
       </div>
 

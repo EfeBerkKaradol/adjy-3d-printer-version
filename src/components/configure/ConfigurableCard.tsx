@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ProductImageFallback } from "@/components/product/ProductImageFallback";
 import { ArrowRight } from "lucide-react";
+import { formatCmValue } from "@/lib/units";
 
 // ==========================================
 // YAPILANDIRILABİLİR NESNE KARTI
@@ -43,9 +44,11 @@ function RangeBar({ param }: { param: ConfigurableParameter }) {
     <div>
       <div className="flex items-baseline justify-between gap-3">
         <span className="text-xs text-muted-foreground">{param.displayName}</span>
+        {/* Sitenin her yerinde cm kullanılıyor; burası mm'de kalmıştı */}
         <span className="font-mono text-xs tabular-nums">
-          {param.min}–{param.max}
-          {param.unit ? ` ${param.unit}` : ""}
+          {param.unit === "mm"
+            ? `${formatCmValue(param.min)}–${formatCmValue(param.max)} cm`
+            : `${param.min}–${param.max}${param.unit ? ` ${param.unit}` : ""}`}
         </span>
       </div>
       <div className="relative mt-2 h-px w-full bg-border">

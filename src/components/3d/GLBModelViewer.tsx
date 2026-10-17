@@ -29,9 +29,14 @@ interface GLBModelViewerProps {
   url: string;
   parameters: Record<string, number | string>;
   productType?: string;
+  /**
+   * Parametrelerin varsayılan değerleri. Ölçek bunlara göre
+   * hesaplanır: slider varsayılanındayken model 1 katıdır.
+   */
+  defaults?: Record<string, number>;
 }
 
-export function GLBModelViewer({ url, parameters, productType }: GLBModelViewerProps) {
+export function GLBModelViewer({ url, parameters, productType, defaults }: GLBModelViewerProps) {
   const { scene } = useGLTF(url);
 
   const color   = (parameters.color as string) || "#ffffff";
@@ -77,9 +82,21 @@ export function GLBModelViewer({ url, parameters, productType }: GLBModelViewerP
     scaleY = ((parameters.height as number) || 300) / 300;
     scaleZ = 1;
   } else {
-    scaleX = ((parameters.width  as number) || 100) / 100;
-    scaleY = ((parameters.height as number) || 100) / 100;
-    scaleZ = ((parameters.depth  as number) || 100) / 100;
+    // Genel ürünler: ölçek parametrenin kendi varsayılanına göre.
+    //
+    // Eskiden her eksen sabit 100'e bölünüyordu; 135 mm'lik bir
+    // saksı 1.35 kat büyütülüp kadraja sığmıyor, 50 mm'lik bir
+    // figür yarı boyuna iniyordu. Varsayılan ölçüdeyken model
+    // tam 1 katı olmalı.
+    const oran = (ad: "width" | "height" | "depth") => {
+      const simdi = parameters[ad];
+      const varsayilan = defaults?.[ad];
+      if (typeof simdi !== "number" || !varsayilan || varsayilan <= 0) return 1;
+      return simdi / varsayilan;
+    };
+    scaleX = oran("width");
+    scaleY = oran("height");
+    scaleZ = oran("depth");
   }
 
   // Scene'i klonla, materyal ata ve olcekle — her parametre degisikliginde guncelle

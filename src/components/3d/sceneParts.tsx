@@ -46,12 +46,23 @@ export function isValidGLBUrl(url: string | null | undefined): url is string {
  * Bu ürün için GLB mi yoksa prosedürel model mi kullanılmalı?
  * Tek karar noktası — iki sahne de bunu çağırır.
  */
+/**
+ * Ürünün kendi modeli varsa o gösterilir.
+ *
+ * Eskiden ürün tipi "parametrik" sayılıyorsa gerçek dosya yok
+ * sayılır, yerine o tipin prosedürel kopyası çizilirdi. Tip
+ * slug'dan tahmin ediliyor ve tanınmayan her ürün "vase"
+ * sayılıyordu: fındıkkıran asker, tütsülük ve köklendirme
+ * istasyonu konfigüratörde birer vazo olarak görünüyordu.
+ *
+ * Prosedürel model artık yalnızca yedek: ürünün dosyası yoksa
+ * ya da yüklenemezse (GLBErrorBoundary) devreye girer.
+ */
 export function shouldUseGLB(
   modelFileUrl: string | null | undefined,
-  productType: string | undefined
+  _productType?: string
 ): modelFileUrl is string {
-  const hasParametric = !!productType && PARAMETRIC_TYPES.has(productType);
-  return isValidGLBUrl(modelFileUrl) && !hasParametric;
+  return isValidGLBUrl(modelFileUrl);
 }
 
 // ==========================================

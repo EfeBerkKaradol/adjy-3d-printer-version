@@ -27,6 +27,8 @@ interface ModelViewerProps {
   parameters: Record<string, number | string>;
   productType?: string;
   modelFileUrl?: string | null;
+  /** Parametrelerin varsayılan değerleri — ölçek bunlara göre hesaplanır */
+  defaults?: Record<string, number>;
 }
 
 function LoadingFallback() {
@@ -40,7 +42,7 @@ function LoadingFallback() {
   );
 }
 
-export function ModelViewer({ parameters, productType, modelFileUrl }: ModelViewerProps) {
+export function ModelViewer({ parameters, productType, modelFileUrl, defaults }: ModelViewerProps) {
   const useGLB = shouldUseGLB(modelFileUrl, productType);
 
   const parametricFallback = (
@@ -77,7 +79,7 @@ export function ModelViewer({ parameters, productType, modelFileUrl }: ModelView
           <Grounded>
             {useGLB ? (
               <GLBErrorBoundary fallback={parametricFallback}>
-                <GLBModelViewer url={modelFileUrl} parameters={parameters} productType={productType} />
+                <GLBModelViewer url={modelFileUrl} parameters={parameters} productType={productType} defaults={defaults} />
               </GLBErrorBoundary>
             ) : (
               parametricFallback
@@ -113,7 +115,7 @@ export function ModelViewer({ parameters, productType, modelFileUrl }: ModelView
 
       {/* Kontrol ipucu */}
       <div className="absolute bottom-3 left-3 text-[10px] text-muted-foreground/50 select-none pointer-events-none">
-        Surukle: Dondur · Scroll: Zoom
+        Sürükle: döndür · Tekerlek: yakınlaştır
       </div>
     </div>
   );

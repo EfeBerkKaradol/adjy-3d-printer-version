@@ -306,6 +306,14 @@ export default function CustomizePage() {
   const priceChange = calculatePriceChange(basePrice, currentPrice);
   const productType = getProductType(product.slug);
 
+  // Modelin ölçeği parametrenin varsayılanına göre hesaplanır:
+  // slider varsayılandayken model gerçek boyutunda durur.
+  const paramDefaults = Object.fromEntries(
+    product.parameters
+      .map((p) => [p.name, Number(p.defaultValue)] as const)
+      .filter(([, v]) => Number.isFinite(v) && v > 0)
+  );
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -317,7 +325,7 @@ export default function CustomizePage() {
             </Button>
             <div>
               <h1 className="font-semibold text-base">{product.name}</h1>
-              <p className="text-xs text-muted-foreground">3D Ozellestirme</p>
+              <p className="text-xs text-muted-foreground">3D özelleştirme</p>
             </div>
           </div>
 
@@ -366,6 +374,7 @@ export default function CustomizePage() {
               parameters={paramValues}
               productType={productType}
               modelFileUrl={product.modelFileUrl}
+              defaults={paramDefaults}
             />
           </div>
 
@@ -441,7 +450,7 @@ export default function CustomizePage() {
                 ) : (
                   <>
                     <ShoppingCart className="h-5 w-5" />
-                    Ozellesmis Urunu Sepete Ekle
+                    Özelleşmiş ürünü sepete ekle
                   </>
                 )}
               </Button>
@@ -467,7 +476,7 @@ export default function CustomizePage() {
                   ) : (
                     <>
                       <Save className="h-4 w-4" />
-                      Tasarimimi Kaydet
+                      Tasarımımı kaydet
                     </>
                   )}
                 </Button>
@@ -488,7 +497,7 @@ export default function CustomizePage() {
               />
 
               <p className="text-[11px] text-muted-foreground text-center">
-                Ozellestirme parametreleri siparisinizle birlikte kaydedilir
+                Özelleştirme ayarların siparişinle birlikte kaydedilir
               </p>
             </div>
           </div>

@@ -30,6 +30,8 @@ interface ConfigSceneProps {
   parameters: Record<string, number | string>;
   productType: string;
   modelFileUrl: string | null;
+  /** Parametrelerin varsayılan değerleri — ölçek bunlara göre hesaplanır */
+  defaults?: Record<string, number>;
   /** Görünür değilse render döngüsü durur */
   active: boolean;
   /** Fareyle döndürmeye izin ver (masaüstü) */
@@ -40,6 +42,7 @@ export default function ConfigScene({
   parameters,
   productType,
   modelFileUrl,
+  defaults,
   active,
   allowRotate,
 }: ConfigSceneProps) {
@@ -71,6 +74,7 @@ export default function ConfigScene({
                 url={modelFileUrl as string}
                 parameters={parameters}
                 productType={productType}
+                defaults={defaults}
               />
             </GLBErrorBoundary>
           ) : (

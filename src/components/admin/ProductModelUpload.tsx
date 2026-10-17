@@ -253,20 +253,33 @@ export function ProductModelUpload({ productId, materialType, onSaved }: Props) 
     setDurum("yukleniyor");
     setHata(null);
     try {
-      // AR için GLB — ana parçadan, sadeleştirilmiş, gerçek ölçekte (mm → m)
-      // ~2500 üçgen: telefonda hızlı açılan, biçimi koruyan boyut
+      // AR ve konfigüratör için GLB — ana parçadan, sadeleştirilmiş,
+      // gerçek ölçekte (mm → m). ~2500 üçgen: telefonda hızlı açılan,
+      // biçimi koruyan boyut.
+      //
+      // Baskı STL'leri Z yukarı gelir (tabla konvansiyonu); glTF ise
+      // Y yukarı kabul eder. Geometri bu yüzden çevrilir — çevrilmeyen
+      // modeller konfigüratörde ve AR'da yan yatıyordu.
       const arGeo = sadelestir(parcalar[anaParca].geometri.clone(), 2500);
-      const scene = new THREE.Scene();
-      const mesh = new THREE.Mesh(
-        arGeo,
-        new THREE.MeshStandardMaterial({ color: "#ded9d1", roughness: 0.7 })
-      );
+      arGeo.rotateX(-Math.PI / 2);
+      arGeo.computeBoundingBox();
+
+      // Yatayda ortalanır, tabanı orijine oturur: AR'da zemine düzgün
+      // yerleşsin, sahnede de kaide hizasından başlasın. Dönüşüm
+      // geometriye işlenir — mesh'e verilseydi konum ölçeklenmeden
+      // uygulanır, model merkezden kayardı.
       const bb = arGeo.boundingBox!;
       const c = bb.getCenter(new THREE.Vector3());
-      mesh.position.sub(c);
-      mesh.position.y += (bb.max.y - bb.min.y) / 2;
-      mesh.scale.setScalar(0.001);
-      scene.add(mesh);
+      arGeo.translate(-c.x, -bb.min.y, -c.z);
+      arGeo.scale(0.001, 0.001, 0.001);
+
+      const scene = new THREE.Scene();
+      scene.add(
+        new THREE.Mesh(
+          arGeo,
+          new THREE.MeshStandardMaterial({ color: "#ded9d1", roughness: 0.7 })
+        )
+      );
 
       const glb: ArrayBuffer = await new Promise((res, rej) =>
         new GLTFExporter().parse(scene, (r) => res(r as ArrayBuffer), (e) => rej(e), { binary: true })
