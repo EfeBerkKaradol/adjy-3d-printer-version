@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { CustomerNotes } from "@/components/admin/CustomerNotes";
+import { CustomerTasks } from "@/components/admin/CustomerTasks";
+import { CustomerTimeline, type Olay } from "@/components/admin/CustomerTimeline";
 import { segmentBelirle, uykuGunu, uykudaMi } from "@/lib/crm";
 import { formatTRY } from "@/lib/slicer";
 import { ArrowLeft, Mail, Phone } from "lucide-react";
@@ -36,6 +38,10 @@ export default async function MusteriPage({
       isActive: true,
       crmTags: true,
       crmNotes: { orderBy: { createdAt: "desc" }, select: { id: true, body: true, authorEmail: true, createdAt: true } },
+      crmTasks: {
+        orderBy: [{ doneAt: "asc" }, { dueAt: "asc" }, { createdAt: "desc" }],
+        select: { id: true, title: true, dueAt: true, doneAt: true, createdBy: true },
+      },
       orders: {
         orderBy: { createdAt: "desc" },
         select: {
@@ -71,7 +77,7 @@ export default async function MusteriPage({
     prisma.pageView.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
-      take: 20,
+      take: 200,
       select: { id: true, path: true, createdAt: true, device: true },
     }),
     prisma.contactMessage.findMany({
@@ -81,6 +87,57 @@ export default async function MusteriPage({
       select: { id: true, subject: true, message: true, createdAt: true },
     }).catch(() => []),
   ]);
+
+  // ==========================================
+  // Tek akış: sipariş, ziyaret, mesaj ve not tarihe göre.
+  // Ziyaretler aynı güne toplanır; on sayfa gezen biri akışı
+  // doldurmasın.
+  // ==========================================
+  const gunlukZiyaret = new Map<string, { tarih: Date; adet: number; ornek: string[] }>();
+  for (const z of ziyaretler) {
+    const anahtar = z.createdAt.toISOString().slice(0, 10);
+    const mevcut = gunlukZiyaret.get(anahtar);
+    if (mevcut) {
+      mevcut.adet += 1;
+      if (mevcut.ornek.length < 4 && !mevcut.ornek.includes(z.path)) mevcut.ornek.push(z.path);
+    } else {
+      gunlukZiyaret.set(anahtar, { tarih: z.createdAt, adet: 1, ornek: [z.path] });
+    }
+  }
+
+  const olaylar: Olay[] = [
+    ...musteri.orders.map((o) => ({
+      id: o.id,
+      tur: "order" as const,
+      tarih: o.createdAt,
+      baslik: `Sipariş ${o.orderNumber}`,
+      ayrinti:
+        o.items.map((i) => `${i.quantity}× ${i.productName}`).join(", ") || null,
+      href: `/admin/orders/${o.id}`,
+      tutar: Number(o.grandTotal),
+    })),
+    ...[...gunlukZiyaret.values()].map((g) => ({
+      id: g.tarih.toISOString(),
+      tur: "visit" as const,
+      tarih: g.tarih,
+      baslik: `${g.adet} sayfa gezdi`,
+      ayrinti: g.ornek.join(" · "),
+    })),
+    ...mesajlar.map((m) => ({
+      id: m.id,
+      tur: "message" as const,
+      tarih: m.createdAt,
+      baslik: m.subject,
+      ayrinti: m.message,
+    })),
+    ...musteri.crmNotes.map((n) => ({
+      id: n.id,
+      tur: "note" as const,
+      tarih: n.createdAt,
+      baslik: n.authorEmail ? `Not — ${n.authorEmail}` : "Not",
+      ayrinti: n.body,
+    })),
+  ].sort((a, b) => b.tarih.getTime() - a.tarih.getTime());
 
   const kartlar = [
     { label: "Toplam harcama", deger: toplamHarcama > 0 ? formatTRY(toplamHarcama) : "—" },
@@ -207,53 +264,14 @@ export default async function MusteriPage({
           </section>
 
           <section>
-            <h2 className="text-sm font-medium">Sitede gezdikleri</h2>
+            <h2 className="text-sm font-medium">Zaman çizelgesi</h2>
             <p className="mt-1 text-xs text-muted-foreground">
-              Yalnızca oturum açıkken gezdiği sayfalar — ölçüm çerezsiz olduğu
-              için çıkış yapmışken gezdikleri kimseye bağlanmaz.
+              Sipariş, ziyaret, mesaj ve not tek akışta. Ziyaretler yalnızca
+              oturum açıkken kaydedilir — ölçüm çerezsiz olduğu için çıkış
+              yapmışken gezdikleri kimseye bağlanmaz.
             </p>
-            {ziyaretler.length === 0 ? (
-              <p className="mt-3 text-sm text-muted-foreground">Kayıt yok.</p>
-            ) : (
-              <ul className="mt-3 divide-y divide-border/40 overflow-hidden rounded-xl border border-border/40 bg-card">
-                {ziyaretler.map((z) => (
-                  <li
-                    key={z.id}
-                    className="flex items-center justify-between gap-4 px-4 py-2.5 text-sm"
-                  >
-                    <span className="truncate">{z.path}</span>
-                    <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
-                      {z.createdAt.toLocaleString("tr-TR", {
-                        day: "numeric",
-                        month: "short",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <CustomerTimeline olaylar={olaylar.slice(0, 40)} />
           </section>
-
-          {mesajlar.length > 0 && (
-            <section>
-              <h2 className="text-sm font-medium">İletişim formundan yazdıkları</h2>
-              <ul className="mt-3 space-y-3">
-                {mesajlar.map((m) => (
-                  <li key={m.id} className="rounded-xl border border-border/40 bg-card p-4">
-                    <p className="text-sm font-medium">{m.subject}</p>
-                    <p className="mt-1.5 whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
-                      {m.message}
-                    </p>
-                    <p className="mt-3 text-xs text-muted-foreground">
-                      {m.createdAt.toLocaleString("tr-TR")}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
 
           {musteri.addresses.length > 0 && (
             <section>
@@ -271,7 +289,15 @@ export default async function MusteriPage({
           )}
         </div>
 
-        <aside>
+        <aside className="space-y-10">
+          <CustomerTasks
+            userId={musteri.id}
+            tasks={musteri.crmTasks.map((t) => ({
+              ...t,
+              dueAt: t.dueAt?.toISOString() ?? null,
+              doneAt: t.doneAt?.toISOString() ?? null,
+            }))}
+          />
           <CustomerNotes
             userId={musteri.id}
             tags={musteri.crmTags}

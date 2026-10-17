@@ -2,7 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { SEGMENTLER, segmentBelirle, uykudaMi, type SegmentId } from "@/lib/crm";
 import { formatTRY } from "@/lib/slicer";
-import { ArrowRight, Search } from "lucide-react";
+import { ArrowRight, Download, Search } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -63,9 +63,21 @@ export default async function MusterilerPage({
         select: { grandTotal: true, createdAt: true },
       },
       _count: { select: { crmNotes: true } },
+      crmTasks: { where: { doneAt: null }, select: { id: true, dueAt: true } },
     },
     take: 500,
   });
+
+  // Son görülme: ölçüm çerezsiz olduğu için yalnızca oturum
+  // açıkken gezilen sayfalar kişiye bağlanabiliyor.
+  const sonGorulmeler = await prisma.pageView.groupBy({
+    by: ["userId"],
+    where: { userId: { in: kullanicilar.map((u) => u.id) } },
+    _max: { createdAt: true },
+  });
+  const sonGorulme = new Map(
+    sonGorulmeler.map((g) => [g.userId, g._max.createdAt])
+  );
 
   const satirlar = kullanicilar
     .map((u) => {
@@ -75,7 +87,18 @@ export default async function MusterilerPage({
         null
       );
       const olcu = { siparisSayisi: u.orders.length, toplamHarcama, sonSiparis };
-      return { ...u, ...olcu, segment: segmentBelirle(olcu), uykuda: uykudaMi(sonSiparis) };
+      const gecikmisGorev = u.crmTasks.filter(
+        (t) => t.dueAt && t.dueAt.getTime() < Date.now()
+      ).length;
+      return {
+        ...u,
+        ...olcu,
+        segment: segmentBelirle(olcu),
+        uykuda: uykudaMi(sonSiparis),
+        acikGorev: u.crmTasks.length,
+        gecikmisGorev,
+        sonGorulme: sonGorulme.get(u.id) ?? null,
+      };
     })
     .filter((r) => !segment || r.segment.id === segment)
     .sort((a, b) => {
@@ -108,16 +131,25 @@ export default async function MusterilerPage({
             {satirlar.length} kişi · {alanlar.length} tanesi en az bir sipariş verdi
           </p>
         </div>
-        <Link
-          href="/admin/ziyaretler"
-          className="group inline-flex items-center gap-2 text-sm font-medium"
-        >
-          Ziyaretler
-          <ArrowRight
-            className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
-            aria-hidden
-          />
-        </Link>
+        <div className="flex items-center gap-4">
+          <a
+            href="/api/admin/customers/export"
+            className="inline-flex items-center gap-2 rounded-lg border border-border/60 px-3.5 py-2 text-sm font-medium transition-colors hover:bg-muted"
+          >
+            <Download className="h-4 w-4" aria-hidden />
+            CSV indir
+          </a>
+          <Link
+            href="/admin/ziyaretler"
+            className="group inline-flex items-center gap-2 text-sm font-medium"
+          >
+            Ziyaretler
+            <ArrowRight
+              className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
+              aria-hidden
+            />
+          </Link>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -203,13 +235,14 @@ export default async function MusterilerPage({
                 <th className="px-4 py-3 text-right font-medium">Sipariş</th>
                 <th className="px-4 py-3 text-right font-medium">Harcama</th>
                 <th className="px-4 py-3 font-medium">Son sipariş</th>
+                <th className="px-4 py-3 font-medium">Son görülme</th>
                 <th className="px-4 py-3 font-medium">Etiket</th>
               </tr>
             </thead>
             <tbody>
               {satirlar.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-14 text-center text-muted-foreground">
+                  <td colSpan={7} className="py-14 text-center text-muted-foreground">
                     Eşleşen müşteri yok.
                   </td>
                 </tr>
@@ -247,6 +280,14 @@ export default async function MusterilerPage({
                           })
                         : "—"}
                     </td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {r.sonGorulme
+                        ? r.sonGorulme.toLocaleDateString("tr-TR", {
+                            day: "numeric",
+                            month: "short",
+                          })
+                        : "—"}
+                    </td>
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap gap-1">
                         {r.crmTags.map((t) => (
@@ -260,6 +301,19 @@ export default async function MusterilerPage({
                         {r._count.crmNotes > 0 && (
                           <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
                             {r._count.crmNotes} not
+                          </span>
+                        )}
+                        {r.acikGorev > 0 && (
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-xs ${
+                              r.gecikmisGorev > 0
+                                ? "bg-destructive/15 font-medium text-destructive"
+                                : "bg-muted text-muted-foreground"
+                            }`}
+                          >
+                            {r.gecikmisGorev > 0
+                              ? `${r.gecikmisGorev} gecikmiş`
+                              : `${r.acikGorev} takip`}
                           </span>
                         )}
                       </div>

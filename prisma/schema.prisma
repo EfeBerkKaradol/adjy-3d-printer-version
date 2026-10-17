@@ -29,6 +29,7 @@ model User {
   wishlists           Wishlist[]
   passwordResetTokens PasswordResetToken[]
   crmNotes            CustomerNote[]
+  crmTasks            CustomerTask[]
   /// Müşteri panelinde elle verilen etiketler (VIP, toptan, dikkat…)
   crmTags             String[]             @default([])
 
@@ -581,4 +582,25 @@ model CustomerNote {
 
   @@index([userId, createdAt])
   @@map("customer_notes")
+}
+
+/// Müşteriyle ilgili yapılacak iş: "cuma ara", "numune gönder".
+///
+/// CRM'i bir kayıt defterinden takip aracına çeviren parça:
+/// bir şey söz verildiyse unutulmasın diye tarihi olur ve
+/// yapılana kadar listede durur.
+model CustomerTask {
+  id          String    @id @default(cuid())
+  userId      String
+  title       String
+  /// Son tarih — geçmişse listede gecikmiş görünür
+  dueAt       DateTime?
+  doneAt      DateTime?
+  createdBy   String?
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, doneAt])
+  @@index([doneAt, dueAt])
+  @@map("customer_tasks")
 }

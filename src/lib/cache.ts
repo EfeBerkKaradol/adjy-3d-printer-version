@@ -14,7 +14,7 @@ export const CACHE_TTL = {
   PRODUCTS: 5 * 60,       // 5 dakika
   CATEGORIES: 10 * 60,    // 10 dakika
   ADMIN_STATS: 2 * 60,    // 2 dakika
-  ADMIN_ANALYTICS: 10 * 60, // 10 dakika (Vercel API rate limit dostu)
+  ADMIN_ANALYTICS: 10 * 60, // 10 dakika
   PRODUCT_DETAIL: 5 * 60, // 5 dakika
 } as const;
 

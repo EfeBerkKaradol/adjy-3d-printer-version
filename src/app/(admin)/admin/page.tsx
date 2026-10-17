@@ -39,6 +39,10 @@ interface Charts {
 }
 
 interface VisitStats {
+  todayPageviews: number;
+  todayVisitors: number;
+  live: number;
+  liveWindowMinutes: number;
   totalPageviews: number;
   totalVisitors: number;
   daily: Array<{ date: string; pageviews: number; visitors: number }>;
@@ -294,25 +298,51 @@ export default function AdminDashboard() {
         </Link>
       </div>
 
-      {/* Site Ziyaretleri (Vercel Web Analytics) */}
-      {analytics?.configured && analytics.visits && (
+      {/* Site Ziyaretleri — kendi ölçümümüz */}
+      {analytics?.visits && (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Site Ziyaretleri</h2>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-lg font-semibold">Site Ziyaretleri</h2>
+            <Link
+              href="/admin/ziyaretler"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Ayrıntı →
+            </Link>
+          </div>
           <div className="bg-card border border-border/40 rounded-xl p-5">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-              <h3 className="text-sm font-medium text-muted-foreground">
-                Son 30 Gün — Vercel Web Analytics
-              </h3>
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                {/* "Şu an sitede" — Vercel'in vermediği, kendi
+                    ölçümümüzden gelen tek canlı sayı. */}
+                <span className="relative flex h-2 w-2">
+                  {analytics.visits.live > 0 && (
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-70" />
+                  )}
+                  <span
+                    className={`relative inline-flex h-2 w-2 rounded-full ${
+                      analytics.visits.live > 0 ? "bg-emerald-500" : "bg-muted-foreground/40"
+                    }`}
+                  />
+                </span>
+                <p className="text-sm font-medium">
+                  Şu an sitede: {analytics.visits.live}
+                </p>
+                <span className="text-xs text-muted-foreground">
+                  (son {analytics.visits.liveWindowMinutes} dk)
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-6">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                     <Globe className="h-4 w-4 text-primary" />
                   </div>
                   <div>
-                    <p className="text-lg font-bold leading-none">
-                      {analytics.visits.totalVisitors.toLocaleString("tr-TR")}
+                    <p className="text-lg font-bold leading-none tabular-nums">
+                      {analytics.visits.todayVisitors.toLocaleString("tr-TR")}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Ziyaretçi</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Bugün oturum</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -320,30 +350,25 @@ export default function AdminDashboard() {
                     <Eye className="h-4 w-4 text-purple-500" />
                   </div>
                   <div>
-                    <p className="text-lg font-bold leading-none">
+                    <p className="text-lg font-bold leading-none tabular-nums">
+                      {analytics.visits.todayPageviews.toLocaleString("tr-TR")}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Bugün görüntüleme</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div>
+                    <p className="text-lg font-bold leading-none tabular-nums">
                       {analytics.visits.totalPageviews.toLocaleString("tr-TR")}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Görüntülenme</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">30 günde görüntüleme</p>
                   </div>
                 </div>
               </div>
             </div>
             <VisitorsChart data={analytics.visits.daily} />
-          </div>
-        </div>
-      )}
-
-      {/* Analytics yapılandırılmamışsa kurulum ipucu */}
-      {analytics && !analytics.configured && (
-        <div className="border border-dashed border-border/60 rounded-xl p-5 flex items-start gap-3">
-          <Globe className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-          <div className="text-sm">
-            <p className="font-medium">Site ziyaret istatistikleri yapılandırılmamış</p>
-            <p className="text-muted-foreground mt-1">
-              Ziyaretçi sayılarını burada görmek için{" "}
-              <code className="text-xs bg-muted px-1.5 py-0.5 rounded">VERCEL_API_TOKEN</code> ve{" "}
-              <code className="text-xs bg-muted px-1.5 py-0.5 rounded">VERCEL_PROJECT_ID</code>{" "}
-              env değişkenlerini ekleyin, Vercel panelinden Web Analytics&apos;i etkinleştirin.
+            <p className="mt-3 text-xs text-muted-foreground">
+              Çerezsiz ölçüm · oturum = sekme, kişi değil · yönetim sayfaları sayılmaz
             </p>
           </div>
         </div>
