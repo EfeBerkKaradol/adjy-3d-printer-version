@@ -19,6 +19,7 @@ import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import { productDescription, productKeywords, productTitle } from "@/lib/seo";
 import { getAbsoluteUrl } from "@/lib/url";
 import { getProductType } from "@/lib/productType";
+import { formatCmValue } from "@/lib/units";
 import { AlertCircle, ArrowRight, CheckCircle, Sliders, Star } from "lucide-react";
 
 // ==========================================
@@ -55,6 +56,9 @@ async function getProduct(slug: string) {
       printTimeEst: true,
       materialType: true,
       materialWeight: true,
+      widthMm: true,
+      depthMm: true,
+      heightMm: true,
       stockQty: true,
       featured: true,
       category: { select: { id: true, name: true, slug: true } },
@@ -201,6 +205,17 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
       p.type !== "DROPDOWN"
   );
   const isCustomizable = product.parameters.length > 0;
+  const ozellestirilebilir = isCustomizable;
+
+  // Montajlı dış ölçü. Derinlik her üründe kayıtlı değil;
+  // olmayan eksen yazılmaz.
+  const olcuEksenleri = [product.widthMm, product.depthMm, product.heightMm].filter(
+    (v): v is number => typeof v === "number" && v > 0
+  );
+  const olcuMetni =
+    olcuEksenleri.length >= 2
+      ? `${olcuEksenleri.map((v) => formatCmValue(v)).join(" × ")} cm`
+      : null;
   const inStock = product.stockQty > 0;
 
   // Modelin (3D önizleme ve AR) varsayılan değerleri
@@ -457,6 +472,14 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 </AccordionTrigger>
                 <AccordionContent className="pb-5">
                   <dl className="divide-y divide-border text-sm">
+                    {olcuMetni && (
+                      <div className="flex justify-between gap-4 py-2.5">
+                        <dt className="text-muted-foreground">
+                          {ozellestirilebilir ? "Varsayılan ölçü" : "Ölçü"}
+                        </dt>
+                        <dd className="tabular-nums">{olcuMetni}</dd>
+                      </div>
+                    )}
                     {product.materialType && (
                       <div className="flex justify-between gap-4 py-2.5">
                         <dt className="text-muted-foreground">Malzeme</dt>

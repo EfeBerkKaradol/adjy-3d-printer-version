@@ -11,6 +11,7 @@ import { Check, Plus, Sliders } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ProductImageFallback } from "./ProductImageFallback";
 import { getPriceInfo, formatPrice } from "@/lib/pricing";
+import { formatCmValue } from "@/lib/units";
 
 // ==========================================
 // ÜRÜN KARTI
@@ -37,6 +38,10 @@ export interface ProductCardProduct {
   _count?: { reviews: number; parameters?: number };
   /** Parametrik ürün mü — ölçüsü değiştirilebiliyor mu */
   isCustomizable?: boolean;
+  /** Montajlı dış ölçü (mm) — kartta cm olarak gösterilir */
+  widthMm?: number | null;
+  depthMm?: number | null;
+  heightMm?: number | null;
 }
 
 interface ProductCardProps {
@@ -57,6 +62,17 @@ export function ProductCard({ product, index = 0, priority = false }: ProductCar
   const showImage = product.thumbnailUrl && !imgError;
   const priceInfo = getPriceInfo(product.basePrice, product.compareAtPrice);
   const price = priceInfo.price;
+
+  // Ölçü, "bu rafıma sığar mı?" sorusunun cevabı — karttan
+  // ürün sayfasına gitmeden görülebilmeli. Derinlik her üründe
+  // kayıtlı değil; olmayan eksen yazılmaz, uydurulmaz.
+  const eksenler = [product.widthMm, product.depthMm, product.heightMm].filter(
+    (v): v is number => typeof v === "number" && v > 0
+  );
+  const olcu =
+    eksenler.length >= 2
+      ? `${eksenler.map((v) => formatCmValue(v)).join(" × ")} cm`
+      : null;
 
   function handleQuickAction(e: React.MouseEvent) {
     e.preventDefault();
@@ -177,6 +193,12 @@ export function ProductCard({ product, index = 0, priority = false }: ProductCar
               </span>
             )}
           </p>
+          {olcu && (
+            <p className="mt-1 text-[13px] tabular-nums text-muted-foreground">
+              {olcu}
+              {customizable && " · ölçüsü değişir"}
+            </p>
+          )}
         </div>
       </Link>
     </article>

@@ -137,6 +137,11 @@ model Product {
   printTimeEst   Int?
   materialType   String?
   materialWeight Decimal?         @db.Decimal(8, 2)
+  /// Montajlı dış ölçü (mm). Parçalar tablaya ayrı yatırıldığı için
+  /// dosyalardan okunamaz; panelde operatör onaylar.
+  widthMm        Float?
+  depthMm        Float?
+  heightMm       Float?
   stockQty       Int              @default(999)
   isActive       Boolean          @default(true)
   featured       Boolean          @default(false)

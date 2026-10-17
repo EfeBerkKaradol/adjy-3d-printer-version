@@ -67,6 +67,12 @@ export async function POST(
       modelFileUrl,
       materialWeight: weightGrams,
       printTimeEst: Math.round(printMinutes),
+      // Montajlı ölçü ürünün üstünde durur: mağaza kartı ve ürün
+      // sayfası bunu gösterir. Döküm ürünlerde slider açılmadığı
+      // için ölçünün tek kaydı burasıdır.
+      widthMm: dimensions.xMm,
+      depthMm: dimensions.yMm,
+      heightMm: dimensions.zMm,
     },
   });
 
