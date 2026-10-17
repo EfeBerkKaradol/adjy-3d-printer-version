@@ -4,12 +4,10 @@ import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { HeroExperience, type HeroProduct } from "@/components/home/HeroExperience";
 import { Hero } from "@/components/home/Hero";
-import { ProductCinemaLoader } from "@/components/home/cinema/ProductCinemaLoader";
-import type { CinemaProduct } from "@/components/home/cinema/ProductCinema";
 import { ConfiguratorShowcase } from "@/components/home/ConfiguratorShowcase";
 import { SpaceShowcase, type SpaceScene } from "@/components/home/SpaceShowcase";
 import { DigitalToPhysical } from "@/components/home/DigitalToPhysical";
-import { PhotoToProductTeaser } from "@/components/home/PhotoToProductTeaser";
+import { ARShowcase, type ARProduct } from "@/components/home/ARShowcase";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { getProductType } from "@/lib/productType";
 
@@ -24,25 +22,31 @@ export const metadata: Metadata = {
 // ==========================================
 // HAKKIMIZDA
 //
-// Sayfa yalnızca 3D baskıdan söz ediyordu; ADJY seramik ve
-// alçı dekoratif ürünler de üretiyor. Metin bu yüzden
-// malzemeye değil, yapılan işe göre yazıldı — teknoloji
-// değişse bile doğru kalır.
+// Burası iki ayrı sayfanın üst üste yığılmış hâliydi: önce
+// kurumsal bir tanıtım, altında ana sayfadan taşınmış anlatı
+// bölümleri. İkisi birbirine bağlanmıyordu.
 //
-// Ana sayfadaki anlatı bölümleri de buraya taşındı. Orada
-// mağazanın önünü kapatıyorlardı: gelen kişi ürün görmeden
-// sayfalarca kaydırıyor, burasının bir mağaza olduğunu
-// anlamadan ayrılıyordu. Bizi merak eden buraya geliyor —
-// anlatının yeri burası.
+// Sayfa tek bir anlatıya göre yeniden dizildi:
 //
-// Tipografi ve hitap sitenin geri kalanıyla aynı: sola
-// hizalı editoryal düzen, "sen" dili.
+//   01  Nesneler, yeniden   — markanın fikri, kaydırmalı anlatı
+//   02  Biz kimiz           — neden başladık + hemen bir çıkış kapısı
+//   03  Ölçüsü sana göre    — konfigüratör, burada çalışıyor
+//   04  Mekâna göre         — aynı nesne, farklı alanlar
+//   05  Odanda gör          — AR, anlatılmıyor, açılıyor
+//   06  Dijitalden fiziksele— nesnenin yolculuğu
+//   07  Nasıl üretiyoruz    — malzeme ve atölye, somut
+//   08  Neden ADJY          — dört madde
+//   09  Kapanış
+//
+// Özellikler madde madde sayılmıyor, çalışır hâlde gösteriliyor:
+// konfigüratör sürüklenebiliyor, AR telefonda açılıyor. Okunan
+// bir vaat yerine denenen bir şey.
 // ==========================================
 
 const REASONS = [
   {
     title: "Ölçüsü sana göre",
-    body: "Çoğu nesnenin ölçüsünü kendi alanına göre değiştirip ürettirebilirsin.",
+    body: "Çoğu nesnenin enini ve boyunu kendi alanına göre değiştirip ürettirebilirsin; fiyat da ölçüyle birlikte güncellenir.",
   },
   {
     title: "Almadan önce gör",
@@ -64,34 +68,6 @@ const STEPS = [
   { n: "03", title: "Kontrol", body: "Her parça elden geçer, kusurlu olan yola çıkmaz." },
   { n: "04", title: "Teslimat", body: "Kırılabilir parçalar ayrı korumayla paketlenir." },
 ];
-
-/**
- * "Bir nesnenin üç hâli" anlatısının kahramanı.
- * Delikli duvar paneli seçilir: modüler sistemi olan tek ürün,
- * yani keşfet → yapılandır → üret hikâyesini tek başına taşıyabilen nesne.
- */
-async function getStoryProduct(): Promise<CinemaProduct | null> {
-  try {
-    const panel = await prisma.product.findFirst({
-      where: {
-        isActive: true,
-        OR: [{ slug: { contains: "delikli" } }, { slug: { contains: "panel" } }],
-      },
-      select: { id: true, name: true, slug: true },
-    });
-    if (panel) return panel;
-
-    // Panel yoksa anlatı yine kurulsun diye görseli olan herhangi bir ürün
-    return await prisma.product.findFirst({
-      where: { isActive: true, thumbnailUrl: { not: null } },
-      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      select: { id: true, name: true, slug: true },
-    });
-  } catch {
-    return null;
-  }
-}
-
 
 
 /** Hero: scroll ile sürülebilmesi için "width" parametresi olan bir ürün */
@@ -265,31 +241,197 @@ async function getSpaceScenes(): Promise<SpaceScene[]> {
   }
 }
 
+/**
+ * AR gösterimi için nesne: modeli olan, ölçüsü kayıtlı ve
+ * görseli olan bir ürün. Üçü birden yoksa bölüm gizlenir —
+ * çalışmayan bir "Odanda Gör" düğmesi, hiç olmamasından kötü.
+ */
+async function getArProduct(): Promise<ARProduct | null> {
+  try {
+    const p = await prisma.product.findFirst({
+      where: {
+        isActive: true,
+        modelFileUrl: { not: null },
+        thumbnailUrl: { not: null },
+        widthMm: { not: null },
+      },
+      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        thumbnailUrl: true,
+        modelFileUrl: true,
+        widthMm: true,
+        depthMm: true,
+        heightMm: true,
+        category: { select: { name: true } },
+        parameters: { select: { name: true, defaultValue: true } },
+      },
+    });
+    if (!p) return null;
+
+    return {
+      ...p,
+      defaultParameters: Object.fromEntries(
+        p.parameters.map((q) => {
+          const sayi = Number(q.defaultValue);
+          return [q.name, Number.isFinite(sayi) ? sayi : q.defaultValue];
+        })
+      ),
+    };
+  } catch {
+    return null;
+  }
+}
+
+/** Katalog büyüklüğü — "33 nesne" gibi somut bir sayı soyut bir vaatten iyidir */
+async function getCatalogStats() {
+  try {
+    const [urun, ozellestirilebilir] = await Promise.all([
+      prisma.product.count({ where: { isActive: true } }),
+      prisma.product.count({ where: { isActive: true, parameters: { some: {} } } }),
+    ]);
+    return { urun, ozellestirilebilir };
+  } catch {
+    return { urun: 0, ozellestirilebilir: 0 };
+  }
+}
+
 export default async function AboutPage() {
-  const [heroProduct, storyProduct, configuratorProducts, spaceScenes] = await Promise.all([
-    getHeroProduct(),
-    getStoryProduct(),
-    getConfiguratorProducts(),
-    getSpaceScenes(),
-  ]);
+  const [heroProduct, configuratorProducts, spaceScenes, arProduct, stats] =
+    await Promise.all([
+      getHeroProduct(),
+      getConfiguratorProducts(),
+      getSpaceScenes(),
+      getArProduct(),
+      getCatalogStats(),
+    ]);
 
   return (
     <>
-    <div className="adjy-container adjy-section">
-      <header className="max-w-2xl">
-        <p className="adjy-eyebrow mb-5">Hakkımızda</p>
-        <h1 className="adjy-display text-[clamp(1.9rem,4.2vw,3rem)]">
-          Tasarımı nesneye çeviriyoruz.
-        </h1>
-        <p className="mt-5 text-base leading-relaxed text-muted-foreground">
-          ADJY; 3D baskı, seramik ve alçı ile dekoratif ve işlevsel nesneler üretir.
-          Çoğunu hazır alabilir, bir kısmının ölçüsünü kendi alanına göre
-          değiştirip ürettirebilirsin.
-        </p>
-      </header>
+      {/* 01 — Nesneler, yeniden */}
+      {heroProduct ? <HeroExperience product={heroProduct} /> : <Hero product={null} />}
 
-      <section className="mt-16 border-t border-border pt-12">
-        <h2 className="text-xl font-medium tracking-tight">Neden ADJY?</h2>
+      {/* 02 — Biz kimiz. Çıkış kapısı sayfanın sonunu beklemez. */}
+      <section className="border-t border-border/60">
+        <div className="adjy-container grid gap-10 py-16 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-16 lg:py-24">
+          <div>
+            <p className="adjy-eyebrow mb-5">Hakkımızda</p>
+            {/* Sayfanın h1'i yukarıdaki anlatıda ("Nesneler, yeniden.");
+                burada ikinci bir h1 olursa sayfada iki başlık olur. */}
+            <h2 className="adjy-display text-[clamp(1.9rem,4vw,2.9rem)] leading-[1.08]">
+              Tasarımı nesneye çeviriyoruz.
+            </h2>
+            <div className="mt-6 space-y-4 text-base leading-relaxed text-muted-foreground">
+              <p>
+                ADJY bir soruyla başladı: güzel bulduğun bir nesne neden tam da
+                senin rafına göre olmuyor? Katalogda beğendiğin raf ya iki
+                santim uzun geliyor ya da tam oturduğu yerde başka bir şey
+                eksik kalıyor.
+              </p>
+              <p>
+                Biz nesneleri sabit birer ürün olarak değil, ölçüsü
+                değiştirilebilen tasarımlar olarak kuruyoruz. Kendi
+                atölyemizde 3D baskı, seramik ve alçı ile üretiyoruz; sipariş
+                gelmeden hiçbir şey basılmıyor, tek parçalık iş de aynı
+                özenle yapılıyor.
+              </p>
+            </div>
+
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <Link
+                href="/products"
+                className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background transition-opacity hover:opacity-90"
+              >
+                Nesneleri gör
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </Link>
+              <Link
+                href="/configure"
+                className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium transition-colors hover:bg-muted"
+              >
+                Kendi ölçünde ürettir
+              </Link>
+            </div>
+          </div>
+
+          {stats.urun > 0 && (
+            <dl className="grid grid-cols-2 gap-px self-start overflow-hidden rounded-xl border border-border bg-border">
+              <div className="bg-background p-6">
+                <dt className="text-xs text-muted-foreground">Katalogdaki nesne</dt>
+                <dd className="mt-1.5 text-2xl font-medium tabular-nums">{stats.urun}</dd>
+              </div>
+              <div className="bg-background p-6">
+                <dt className="text-xs text-muted-foreground">Ölçüsü değişen</dt>
+                <dd className="mt-1.5 text-2xl font-medium tabular-nums">
+                  {stats.ozellestirilebilir}
+                </dd>
+              </div>
+              <div className="bg-background p-6">
+                <dt className="text-xs text-muted-foreground">Malzeme</dt>
+                <dd className="mt-1.5 text-2xl font-medium">3</dd>
+                <dd className="mt-1 text-xs text-muted-foreground">
+                  3D baskı · seramik · alçı
+                </dd>
+              </div>
+              <div className="bg-background p-6">
+                <dt className="text-xs text-muted-foreground">Üretim</dt>
+                <dd className="mt-1.5 text-2xl font-medium">Kendi atölyemiz</dd>
+                <dd className="mt-1 text-xs text-muted-foreground">Beşiktaş, İstanbul</dd>
+              </div>
+            </dl>
+          )}
+        </div>
+      </section>
+
+      {/* 03 — Ölçüsü sana göre: burada çalışan bir konfigüratör */}
+      {configuratorProducts.length > 0 && (
+        <section className="adjy-container adjy-section border-t border-border/60">
+          <SectionHeading
+            eyebrow="Ölçüsü sana göre"
+            title="Kaydırıcıyı sen çek."
+            description="Ölçüyü değiştir, nesne anında onunla değişsin. Fiyat da ölçüye göre güncellenir — ürettirmeden önce ne ödeyeceğini görürsün."
+            action={{ label: "Yapılandır", href: "/configure" }}
+          />
+          <div className="mt-8">
+            <ConfiguratorShowcase products={configuratorProducts} />
+          </div>
+        </section>
+      )}
+
+      {/* 04 — Aynı nesne, farklı alanlar */}
+      <SpaceShowcase scenes={spaceScenes} />
+
+      {/* 05 — Odanda gör */}
+      <ARShowcase product={arProduct} />
+
+      {/* 06 — Nesnenin yolculuğu */}
+      <DigitalToPhysical />
+
+      {/* 07 — Nasıl üretiyoruz */}
+      <section className="adjy-container adjy-section border-t border-border/60">
+        <SectionHeading
+          eyebrow="Üretim"
+          title="Nasıl üretiyoruz?"
+          description="Sipariş gelmeden hiçbir şey basılmaz; her parça yola çıkmadan elden geçer."
+        />
+        <ol className="mt-8 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
+          {STEPS.map((s) => (
+            <li key={s.n} className="bg-background p-6">
+              <span className="font-mono text-xs tabular-nums text-muted-foreground">
+                {s.n}
+              </span>
+              <h3 className="mt-6 text-[15px] font-medium tracking-tight">{s.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.body}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* 08 — Neden ADJY */}
+      <section className="adjy-container adjy-section border-t border-border/60">
+        <SectionHeading eyebrow="Neden ADJY" title="Bizi ayıran dört şey" />
         <div className="mt-8 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2">
           {REASONS.map((r) => (
             <div key={r.title} className="bg-background p-6">
@@ -300,65 +442,35 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <section className="mt-16 border-t border-border pt-12">
-        <h2 className="text-xl font-medium tracking-tight">Nasıl üretiyoruz?</h2>
-        <ol className="mt-8 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
-          {STEPS.map((s) => (
-            <li key={s.n} className="bg-background p-6">
-              <span className="font-mono text-xs tabular-nums text-muted-foreground">{s.n}</span>
-              <h3 className="mt-6 text-[15px] font-medium tracking-tight">{s.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.body}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      <section className="mt-16 border-t border-border pt-12">
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+      {/* 09 — Kapanış */}
+      <section className="border-t border-border/60">
+        <div className="adjy-container flex flex-col gap-6 py-14 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-xl">
-            <h2 className="text-xl font-medium tracking-tight">Aklında bir şey mi var?</h2>
-            <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
-              Kendi modelini ürettirebilir ya da bir fotoğraftan yeni bir nesne
-              oluşturabilirsin.
+            <h2 className="adjy-display text-[clamp(1.4rem,2.6vw,2rem)]">
+              Aklında bir şey mi var?
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              Kendi modelini ürettirebilir, bir fotoğraftan yeni bir nesne
+              oluşturabilir ya da aklındakini bize yazabilirsin.
             </p>
           </div>
-          <Link
-            href="/uret"
-            className="group inline-flex shrink-0 items-center gap-2 border-b border-foreground pb-1 text-sm font-medium transition-colors hover:border-muted-foreground hover:text-muted-foreground"
-          >
-            Üret
-            <ArrowRight
-              className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
-              aria-hidden
-            />
-          </Link>
+          <div className="flex shrink-0 flex-wrap gap-3">
+            <Link
+              href="/uret"
+              className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background transition-opacity hover:opacity-90"
+            >
+              Üret
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium transition-colors hover:bg-muted"
+            >
+              Bize yaz
+            </Link>
+          </div>
         </div>
       </section>
-    </div>
-
-      {/* Anlatı: bir nesnenin keşiften üretime yolculuğu */}
-      <section className="mt-20 border-t border-border/60 pt-4">
-        {heroProduct ? <HeroExperience product={heroProduct} /> : <Hero product={null} />}
-      </section>
-
-      <ProductCinemaLoader product={storyProduct} />
-
-      {configuratorProducts.length > 0 && (
-        <section className="adjy-container adjy-section border-t border-border/60">
-          <SectionHeading
-            eyebrow="Seninki"
-            title="Ölçüsünü sen seç"
-            action={{ label: "Yapılandır", href: "/configure" }}
-          />
-          <div className="mt-8">
-            <ConfiguratorShowcase products={configuratorProducts} />
-          </div>
-        </section>
-      )}
-
-      <SpaceShowcase scenes={spaceScenes} />
-      <DigitalToPhysical />
-      <PhotoToProductTeaser />
     </>
   );
 }
