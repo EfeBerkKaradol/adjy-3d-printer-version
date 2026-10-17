@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { CategoryGrid, type HomeCategory } from "@/components/home/CategoryGrid";
+import { CollectionRow, type Collection } from "@/components/collections/CollectionRow";
 import { Button } from "@/components/ui/button";
 import { resolvePublicImage } from "@/lib/publicAsset";
 import { ArrowRight } from "lucide-react";
@@ -50,6 +51,77 @@ async function getCategoryCovers(): Promise<Map<string, string>> {
     }
   }
   return covers;
+}
+
+/**
+ * Koleksiyon başına vitrin: ilk dört ürün, toplam sayı ve
+ * başlangıç fiyatı. Sayfa yalnızca kategori adları yerine
+ * gerçek nesneler göstersin diye.
+ */
+async function getCollections(): Promise<Collection[]> {
+  try {
+    const categories = await prisma.category.findMany({
+      where: { isActive: true, parentId: null },
+      orderBy: { sortOrder: "asc" },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        imageUrl: true,
+        _count: { select: { products: { where: { isActive: true } } } },
+        products: {
+          where: { isActive: true },
+          orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+          take: 4,
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            basePrice: true,
+            thumbnailUrl: true,
+            featured: true,
+            widthMm: true,
+            depthMm: true,
+            heightMm: true,
+            category: { select: { name: true, slug: true } },
+            _count: { select: { reviews: true, parameters: true } },
+          },
+        },
+      },
+    });
+
+    // Başlangıç fiyatı kategori genelinden okunur; vitrindeki
+    // dört üründen biri en ucuzu olmayabilir.
+    const enUcuz = await prisma.product.groupBy({
+      by: ["categoryId"],
+      where: { isActive: true },
+      _min: { basePrice: true },
+    });
+    const fiyatlar = new Map(
+      enUcuz.map((r) => [r.categoryId, r._min.basePrice ? Number(r._min.basePrice) : null])
+    );
+
+    return categories
+      .filter((c) => c._count.products > 0)
+      .map((c) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        description: c.description,
+        coverUrl:
+          resolvePublicImage(c.imageUrl) ?? c.products[0]?.thumbnailUrl ?? null,
+        productCount: c._count.products,
+        fromPrice: fiyatlar.get(c.id) ?? null,
+        products: c.products.map((p) => ({
+          ...p,
+          basePrice: Number(p.basePrice),
+          isCustomizable: p._count.parameters > 0,
+        })),
+      }));
+  } catch {
+    return [];
+  }
 }
 
 async function getCategories(): Promise<HomeCategory[]> {
@@ -116,7 +188,8 @@ async function getMaterialFamilies() {
 }
 
 export default async function CollectionsPage() {
-  const [categories, families] = await Promise.all([
+  const [collections, categories, families] = await Promise.all([
+    getCollections(),
     getCategories(),
     getMaterialFamilies(),
   ]);
@@ -135,8 +208,33 @@ export default async function CollectionsPage() {
         </p>
       </header>
 
+      {collections.length > 0 && (
+        <div className="mt-6 flex flex-wrap gap-2 md:mt-8">
+          {collections.map((c) => (
+            <Link
+              key={c.id}
+              href={`#${c.slug}`}
+              className="rounded-full border border-border px-3.5 py-1.5 text-sm transition-colors hover:bg-muted"
+            >
+              {c.name}
+              <span className="ml-1.5 tabular-nums text-muted-foreground">
+                {c.productCount}
+              </span>
+            </Link>
+          ))}
+        </div>
+      )}
+
       <div className="mt-12 md:mt-16">
-        {withProducts.length > 0 ? (
+        {collections.length > 0 ? (
+          <div>
+            {collections.map((c) => (
+              <div key={c.id} id={c.slug} className="scroll-mt-24">
+                <CollectionRow collection={c} />
+              </div>
+            ))}
+          </div>
+        ) : withProducts.length > 0 ? (
           <CategoryGrid categories={withProducts} />
         ) : (
           <div className="border border-dashed border-border px-6 py-20 text-center">
