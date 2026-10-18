@@ -32,10 +32,9 @@ export interface HeroCard {
 interface Props {
   /** İlki büyük karede, sonraki ikisi altta */
   products: HeroCard[];
-  totalCount: number;
 }
 
-export function HomeHero({ products, totalCount }: Props) {
+export function HomeHero({ products }: Props) {
   const [kahraman, ...digerleri] = products;
   const yan = digerleri.slice(0, 2);
 
@@ -43,18 +42,16 @@ export function HomeHero({ products, totalCount }: Props) {
     <section className="adjy-container pb-10 pt-8 lg:pb-16 lg:pt-12">
       <div className="grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-center lg:gap-14">
         <div>
-          <p className="adjy-eyebrow mb-5">Tasarım nesneleri · Kendi atölyemizden</p>
+          <p className="adjy-eyebrow mb-5">Tasarım ürünleri · Kendi atölyemizden</p>
           <h1 className="adjy-display text-[clamp(2.2rem,5vw,3.8rem)] leading-[1.02]">
-            Ölçüsünü
+            İstediğiniz ölçüde
             <br />
-            senin seçtiğin
-            <br />
-            <span className="text-muted-foreground">tasarım nesneleri</span>
+            <span className="text-muted-foreground">tasarım ürünleri</span>
           </h1>
           <p className="mt-6 max-w-md text-base leading-relaxed text-muted-foreground">
-            Vazo, saksı, aydınlatma, masa düzeni ve dekoratif figürler. 3D baskı,
-            seramik ve alçı ile tek tek üretiyoruz — çoğunun ölçüsünü kendi
-            alanına göre değiştirebilirsin.
+            Vazo, saksı, aydınlatma, masa düzeni ve dekoratif figürler. Her biri
+            kendi atölyemizde, siparişe göre üretiliyor — çoğunun ölçüsünü
+            alanınıza göre belirleyebilirsiniz.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -62,7 +59,7 @@ export function HomeHero({ products, totalCount }: Props) {
               href="/products"
               className="inline-flex items-center gap-2 rounded-full bg-foreground px-7 py-3.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
             >
-              {totalCount > 0 ? `${totalCount} nesneyi keşfet` : "Mağazayı keşfet"}
+              Ürünleri keşfet
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
             <Link
@@ -70,7 +67,7 @@ export function HomeHero({ products, totalCount }: Props) {
               className="inline-flex items-center gap-2 rounded-full border border-border px-7 py-3.5 text-sm font-medium transition-colors hover:bg-muted"
             >
               <Ruler className="h-4 w-4" aria-hidden />
-              Kendi ölçünde ürettir
+              Özel ölçüde üretim
             </Link>
           </div>
         </div>

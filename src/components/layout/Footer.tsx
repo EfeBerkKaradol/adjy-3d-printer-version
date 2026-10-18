@@ -20,8 +20,9 @@ export function Footer() {
               ADJY
             </span>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-              Adaptive Design Joy. Dijitalden fiziksele geçen ürünler: hazır al,
-              ölçünü değiştir ya da kendi modelini ürettir.
+              Adaptive Design Joy. Kendi atölyemizde üretilen tasarım ürünleri:
+              hazır alın, ölçüyü kendinize göre belirleyin ya da kendi modelinizi
+              ürettirin.
             </p>
           </div>
 

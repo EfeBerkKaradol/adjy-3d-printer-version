@@ -19,7 +19,7 @@
 
 const MADDELER = [
   "Kendi atölyemizde üretiyoruz",
-  "Çoğu nesnenin ölçüsünü sen seçiyorsun",
+  "Çoğu üründe ölçüyü siz belirliyorsunuz",
   "14 gün içinde cayma hakkı",
   "3D Secure ile güvenli ödeme",
   "Kırılabilir parçalar ayrı korumayla paketlenir",

@@ -341,18 +341,18 @@ export default async function HomePage() {
       <WebSiteJsonLd
         name="ADJY"
         url={getAbsoluteUrl()}
-        description="Ölçüsünü senin seçtiğin tasarım nesneleri: vazo, saksı, aydınlatma, masa düzeni ve dekoratif figürler. 3D baskı, seramik ve alçı."
+        description="İstediğiniz ölçüde tasarım ürünleri: vazo, saksı, aydınlatma, masa düzeni ve dekoratif figürler. Kendi atölyemizde 3D baskı, seramik ve alçı ile üretiyoruz."
       />
 
-      <HomeHero products={hero.products} totalCount={hero.total} />
+      <HomeHero products={hero.products} />
       <TrustRow />
 
       {categories.length > 0 && (
         <section className="adjy-container adjy-section">
           <SectionHeading
             eyebrow="Kategoriler"
-            title="Neye bakıyorsun?"
-            action={{ label: "Tüm nesneler", href: "/products" }}
+            title="Ne arıyorsunuz?"
+            action={{ label: "Tüm ürünler", href: "/products" }}
           />
           <div className="mt-8">
             <CategoryGrid categories={categories} />
@@ -364,7 +364,7 @@ export default async function HomePage() {
         <section className="adjy-container adjy-section border-t border-border/60">
           <SectionHeading
             eyebrow="Öne çıkanlar"
-            title="Çok sevilen nesneler"
+            title="Çok sevilen ürünler"
             action={{ label: "Hepsini gör", href: "/products" }}
           />
           <div className="mt-8">
@@ -378,8 +378,8 @@ export default async function HomePage() {
       {customizable.length > 0 && (
         <section className="adjy-container adjy-section">
           <SectionHeading
-            eyebrow="Ölçüsü değişen nesneler"
-            title="Rafına, masana, pencerene göre"
+            eyebrow="Özel ölçüde üretim"
+            title="Rafınıza, masanıza, pencerenize göre"
             action={{ label: "Hepsini gör", href: "/products?customizable=true" }}
           />
           <div className="mt-8">

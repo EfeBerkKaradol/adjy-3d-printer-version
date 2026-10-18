@@ -11,23 +11,23 @@ import { Ruler, Scan, Hammer, ShieldCheck } from "lucide-react";
 const MADDELER = [
   {
     icon: Ruler,
-    title: "Ölçüsü sana göre",
-    body: "Çoğu nesnenin enini ve boyunu kendi alanına göre ayarla.",
+    title: "Ölçü size göre",
+    body: "Çoğu ürünün enini ve boyunu kendi alanınıza göre ayarlayın.",
   },
   {
     icon: Scan,
-    title: "Almadan önce gör",
-    body: "Telefonunla kendi odanda, gerçek ölçüsünde görüntüle.",
+    title: "Almadan önce görün",
+    body: "Telefonunuzla kendi odanızda, gerçek ölçüsünde görüntüleyin.",
   },
   {
     icon: Hammer,
     title: "Kendi atölyemiz",
-    body: "3D baskı, seramik ve alçı — tek parçalık sipariş de yapılır.",
+    body: "3D baskı, seramik ve alçı — tek parçalık sipariş de üretilir.",
   },
   {
     icon: ShieldCheck,
     title: "Güvenli ödeme",
-    body: "Kart bilgin bize ulaşmaz; 14 gün içinde cayma hakkın var.",
+    body: "Kart bilginiz bize ulaşmaz; 14 gün içinde cayma hakkınız var.",
   },
 ];
 

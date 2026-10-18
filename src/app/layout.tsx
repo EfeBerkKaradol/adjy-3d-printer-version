@@ -38,18 +38,20 @@ const orbitron = Orbitron({
 
 export const metadata: Metadata = {
   title: {
-    default: "ADJY — Tasarım Nesneleri ve Parametrik Üretim",
+    default: "ADJY — Özel Ölçüde Tasarım Ürünleri",
     template: "%s | ADJY",
   },
   description:
-    "3D baskı, seramik ve alçı dekoratif nesneler. Ölçüsünü kendi alanına göre değiştir, odanda gör, ürettir.",
+    "Vazo, saksı, aydınlatma ve dekoratif ürünler; kendi atölyemizde 3D baskı, seramik ve alçı ile üretiliyor. Çoğunun ölçüsünü kendinize göre belirleyebilirsiniz.",
   keywords: [
-    "3D baskı",
+    "dekoratif ürünler",
+    "tasarım vazo",
+    "dekoratif saksı",
+    "özel ölçü üretim",
+    "3D baskı dekorasyon",
     "seramik dekoratif ürün",
     "alçı dekoratif ürün",
-    "parametrik tasarım",
-    "AR",
-    "özelleştirilebilir ürünler",
+    "kişiye özel hediye",
   ],
   authors: [{ name: "ADJY" }],
   creator: "ADJY",
@@ -61,15 +63,15 @@ export const metadata: Metadata = {
     type: "website",
     locale: "tr_TR",
     siteName: "ADJY",
-    title: "ADJY — Tasarım Nesneleri ve Parametrik Üretim",
+    title: "ADJY — Özel Ölçüde Tasarım Ürünleri",
     description:
-      "3D baskı, seramik ve alçı dekoratif nesneler. Ölçüsünü değiştir, odanda gör, ürettir.",
+      "Vazo, saksı, aydınlatma ve dekoratif ürünler. Kendi atölyemizde üretiliyor; çoğunda ölçüyü siz belirliyorsunuz.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "ADJY — Tasarım Nesneleri ve Parametrik Üretim",
+    title: "ADJY — Özel Ölçüde Tasarım Ürünleri",
     description:
-      "3D baskı, seramik ve alçı dekoratif nesneler. Ölçüsünü değiştir, odanda gör, ürettir.",
+      "Vazo, saksı, aydınlatma ve dekoratif ürünler. Kendi atölyemizde üretiliyor; çoğunda ölçüyü siz belirliyorsunuz.",
   },
   manifest: "/manifest.json",
   robots: {

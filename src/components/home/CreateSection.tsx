@@ -26,7 +26,7 @@ export function CreateSection() {
   return (
     <section
       className="border-y border-border bg-surface-2"
-      aria-label="Kendi modelini ürettir"
+      aria-label="Kendi modelinizi ürettirin"
     >
       <div className="adjy-container adjy-section">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-20">

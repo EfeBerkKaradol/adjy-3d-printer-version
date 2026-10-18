@@ -203,8 +203,8 @@ export default async function CollectionsPage() {
           Her koleksiyon bir kullanım için.
         </h1>
         <p className="mt-5 text-base leading-relaxed text-muted-foreground">
-          Masandan duvarına, teknik parçadan hediyeye. Koleksiyonlardaki ürünlerin
-          çoğu parametrik — ölçüsünü kendi alanına göre değiştirebilirsin.
+          Masanızdan duvarınıza, teknik parçadan hediyeye. Koleksiyonlardaki
+          ürünlerin çoğunda ölçüyü kendi alanınıza göre belirleyebilirsiniz.
         </p>
       </header>
 
@@ -266,8 +266,8 @@ export default async function CollectionsPage() {
             Üretim türüne göre
           </h2>
           <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-muted-foreground">
-            Aynı nesne farklı malzemeyle başka bir şey olur. Dokusunu ve
-            ağırlığını seçerek de gezebilirsin.
+            Aynı ürün farklı malzemeyle başka bir şey olur. Dokusuna ve
+            ağırlığına göre de gezebilirsiniz.
           </p>
 
           <div className="mt-8 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-3">
@@ -306,7 +306,7 @@ export default async function CollectionsPage() {
               Aradığın koleksiyonda değil mi?
             </h2>
             <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
-              Kendi 3D modelini yükle, üretim teklifini dakikalar içinde al.
+              Kendi 3D modelinizi yükleyin, üretim teklifinizi dakikalar içinde alın.
             </p>
           </div>
           <Button asChild size="lg" className="shrink-0">

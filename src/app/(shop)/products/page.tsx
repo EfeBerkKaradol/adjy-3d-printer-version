@@ -220,11 +220,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       <header className="max-w-2xl">
         <p className="adjy-eyebrow mb-4">Mağaza</p>
         <h1 className="adjy-display text-[clamp(2rem,4vw,3rem)]">
-          Nesneleri keşfet
+          Ürünler
         </h1>
         <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
-          Üretime hazır ADJY nesneleri. Çoğu parametrik — beğendiğini kendi
-          ölçünde de ürettirebilirsin.
+          Kendi atölyemizde üretilen ADJY ürünleri. Çoğunun ölçüsünü kartın
+          altındaki kaydırıcıdan kendinize göre ayarlayabilirsiniz.
         </p>
       </header>
 

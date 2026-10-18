@@ -33,16 +33,16 @@ export function PromoBand({ product, count }: Props) {
     <section className="border-y border-border/60 bg-muted/30">
       <div className="adjy-container grid items-center gap-8 py-14 lg:grid-cols-2 lg:gap-16 lg:py-20">
         <div className="order-2 lg:order-1">
-          <p className="adjy-eyebrow mb-5">Ölçüsü sana göre</p>
+          <p className="adjy-eyebrow mb-5">Özel ölçüde üretim</p>
           <h2 className="adjy-display text-[clamp(1.7rem,3.4vw,2.6rem)] leading-[1.1]">
-            Rafına göre değil,
+            Rafınıza göre değil,
             <br />
-            rafın ölçüsüne göre.
+            rafınızın ölçüsüne göre.
           </h2>
           <p className="mt-5 max-w-md text-base leading-relaxed text-muted-foreground">
-            {count} nesnenin enini ve boyunu sen belirliyorsun. Kaydırıcıyı
-            çektiğinde model de fiyat da anında değişir — ürettirmeden önce ne
-            alacağını ve ne ödeyeceğini görürsün.
+            {count} üründe eni ve boyu siz belirliyorsunuz. Kaydırıcıyı
+            çektiğinizde ölçü de fiyat da anında güncellenir — sipariş vermeden
+            önce ne alacağınızı ve ne ödeyeceğinizi görürsünüz.
           </p>
 
           <div className="mt-6 inline-flex items-baseline gap-3 rounded-full border border-border bg-background px-5 py-2.5">
@@ -57,7 +57,7 @@ export function PromoBand({ product, count }: Props) {
               href="/products?customizable=true"
               className="group inline-flex items-center gap-2 rounded-full bg-foreground px-7 py-3.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
             >
-              Ölçüsünü sen seç
+              Özel ölçülü ürünler
               <ArrowRight
                 className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
                 aria-hidden
