@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/db";
-import { StoreHero, type HeroCard } from "@/components/home/StoreHero";
+import { HomeHero, type HeroCard } from "@/components/home/HomeHero";
+import { PromoBand } from "@/components/home/PromoBand";
+import { CustomerVoices, type Soz } from "@/components/home/CustomerVoices";
 import { TrustRow } from "@/components/home/TrustRow";
 import { CategoryGrid, type HomeCategory } from "@/components/home/CategoryGrid";
 import { CreateSection } from "@/components/home/CreateSection";
@@ -104,9 +106,13 @@ function toRailProduct(
 }
 
 /** Karşılamadaki üç kare: görseli olan, öne çıkarılmış nesneler */
-async function getHeroCards(): Promise<{ products: HeroCard[]; total: number }> {
+async function getHeroCards(): Promise<{
+  products: HeroCard[];
+  total: number;
+  customizableCount: number;
+}> {
   try {
-    const [featured, total] = await Promise.all([
+    const [featured, total, customizableCount] = await Promise.all([
       prisma.product.findMany({
         where: { isActive: true, thumbnailUrl: { not: null } },
         orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
@@ -122,6 +128,7 @@ async function getHeroCards(): Promise<{ products: HeroCard[]; total: number }> 
         },
       }),
       prisma.product.count({ where: { isActive: true } }),
+      prisma.product.count({ where: { isActive: true, parameters: { some: {} } } }),
     ]);
     return {
       products: featured.map((p) => ({
@@ -134,9 +141,10 @@ async function getHeroCards(): Promise<{ products: HeroCard[]; total: number }> 
         isCustomizable: p._count.parameters > 0,
       })),
       total,
+      customizableCount,
     };
   } catch {
-    return { products: [], total: 0 };
+    return { products: [], total: 0, customizableCount: 0 };
   }
 }
 
@@ -219,15 +227,113 @@ async function getNewArrivals(compareAt: Map<string, number>): Promise<RailProdu
   }
 }
 
+/**
+ * Ara banttaki nesne: ölçü aralığı en geniş olan. Aralığı dar
+ * bir üründe "ölçüsünü sen seç" sözü zayıf kalıyor.
+ */
+async function getPromoProduct() {
+  try {
+    const rows = await prisma.product.findMany({
+      where: {
+        isActive: true,
+        thumbnailUrl: { not: null },
+        parameters: { some: { name: "width", minValue: { not: null }, maxValue: { not: null } } },
+      },
+      select: {
+        name: true,
+        slug: true,
+        thumbnailUrl: true,
+        parameters: {
+          where: { name: "width" },
+          select: { minValue: true, maxValue: true },
+          take: 1,
+        },
+      },
+      take: 40,
+    });
+
+    const uygun = rows
+      .map((p) => ({
+        name: p.name,
+        slug: p.slug,
+        thumbnailUrl: p.thumbnailUrl,
+        minMm: p.parameters[0]?.minValue ?? 0,
+        maxMm: p.parameters[0]?.maxValue ?? 0,
+      }))
+      .filter((p) => p.maxMm > p.minMm && p.minMm > 0)
+      .sort((a, b) => b.maxMm - b.minMm - (a.maxMm - a.minMm));
+
+    return uygun[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Müşteri sözleri — yalnızca gerçekten sipariş vermiş kişilerden.
+ *
+ * Veritabanında kurulum sırasında bırakılmış deneme yorumları
+ * var; bunlar ürünü satın almamış hesaplardan geliyor ve artık
+ * katalogda olmayan ürünlere yazılmış. Sahte övgü yayımlamamak
+ * için koşul yoruma değil, siparişe bakıyor.
+ */
+async function getCustomerVoices(): Promise<{ sozler: Soz[]; ortalama: number }> {
+  try {
+    const rows = await prisma.review.findMany({
+      where: {
+        rating: { gte: 4 },
+        comment: { not: null },
+        product: { isActive: true },
+        user: { orders: { some: { status: { not: "CANCELLED" } } } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 3,
+      select: {
+        id: true,
+        rating: true,
+        title: true,
+        comment: true,
+        user: { select: { fullName: true, email: true } },
+        product: { select: { name: true, slug: true } },
+      },
+    });
+
+    const sozler: Soz[] = rows.map((r) => ({
+      id: r.id,
+      rating: r.rating,
+      title: r.title,
+      comment: r.comment ?? "",
+      // Soyadı kısaltılır: değerlendirme gerçek ama kimlik değil
+      author: (r.user.fullName ?? r.user.email.split("@")[0])
+        .split(" ")
+        .map((p, i, a) => (i === a.length - 1 && a.length > 1 ? `${p[0]}.` : p))
+        .join(" "),
+      productName: r.product.name,
+      productSlug: r.product.slug,
+    }));
+
+    const ortalama =
+      sozler.length > 0
+        ? sozler.reduce((t, s) => t + s.rating, 0) / sozler.length
+        : 0;
+    return { sozler, ortalama };
+  } catch {
+    return { sozler: [], ortalama: 0 };
+  }
+}
+
 export default async function HomePage() {
   const compareAt = await getCompareAtPrices();
-  const [hero, categories, featured, customizable, newArrivals] = await Promise.all([
-    getHeroCards(),
-    getCategories(),
-    getFeaturedRail(compareAt),
-    getCustomizableRail(compareAt),
-    getNewArrivals(compareAt),
-  ]);
+  const [hero, categories, featured, customizable, newArrivals, promo, sesler] =
+    await Promise.all([
+      getHeroCards(),
+      getCategories(),
+      getFeaturedRail(compareAt),
+      getCustomizableRail(compareAt),
+      getNewArrivals(compareAt),
+      getPromoProduct(),
+      getCustomerVoices(),
+    ]);
 
   return (
     <>
@@ -238,7 +344,7 @@ export default async function HomePage() {
         description="Ölçüsünü senin seçtiğin tasarım nesneleri: vazo, saksı, aydınlatma, masa düzeni ve dekoratif figürler. 3D baskı, seramik ve alçı."
       />
 
-      <StoreHero products={hero.products} totalCount={hero.total} />
+      <HomeHero products={hero.products} totalCount={hero.total} />
       <TrustRow />
 
       {categories.length > 0 && (
@@ -267,17 +373,15 @@ export default async function HomePage() {
         </section>
       )}
 
+      <PromoBand product={promo} count={customizable.length > 0 ? hero.customizableCount : 0} />
+
       {customizable.length > 0 && (
-        <section className="adjy-container adjy-section border-t border-border/60">
+        <section className="adjy-container adjy-section">
           <SectionHeading
-            eyebrow="Ölçüsü sana göre"
+            eyebrow="Ölçüsü değişen nesneler"
             title="Rafına, masana, pencerene göre"
-            action={{ label: "Yapılandır", href: "/configure" }}
+            action={{ label: "Hepsini gör", href: "/configure" }}
           />
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            Bu nesnelerin enini ve boyunu sen seçiyorsun. Ölçüyü değiştirdiğinde
-            fiyat da anında güncellenir — sürprizle karşılaşmazsın.
-          </p>
           <div className="mt-8">
             <ProductRail products={customizable} />
           </div>
@@ -296,6 +400,8 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      <CustomerVoices sozler={sesler.sozler} ortalama={sesler.ortalama} />
 
       <CreateSection />
 

@@ -7,6 +7,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { SiteShell } from "@/components/layout/SiteShell";
+import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { VisitTracker } from "@/components/analytics/VisitTracker";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "@/components/session-provider";
@@ -114,6 +115,7 @@ export default function RootLayout({
               disableTransitionOnChange
             >
               <SiteShell
+                announcement={<AnnouncementBar />}
                 header={<Header />}
                 footer={<Footer />}
                 cookieConsent={<CookieConsent />}

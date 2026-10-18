@@ -17,13 +17,15 @@ import { usePathname } from "next/navigation";
 const TAM_EKRAN = ["/admin/ajan"];
 
 interface Props {
+  /** Üstteki hizmet şeridi — tam ekran sayfalarda da gösterilmez */
+  announcement?: React.ReactNode;
   header: React.ReactNode;
   footer: React.ReactNode;
   cookieConsent: React.ReactNode;
   children: React.ReactNode;
 }
 
-export function SiteShell({ header, footer, cookieConsent, children }: Props) {
+export function SiteShell({ announcement, header, footer, cookieConsent, children }: Props) {
   const yol = usePathname() ?? "";
   const tamEkran = TAM_EKRAN.some((p) => yol === p || yol.startsWith(`${p}/`));
 
@@ -32,6 +34,7 @@ export function SiteShell({ header, footer, cookieConsent, children }: Props) {
   return (
     <>
       <div className="flex min-h-screen flex-col">
+        {announcement}
         {header}
         <main id="main" className="flex-1">
           {children}
