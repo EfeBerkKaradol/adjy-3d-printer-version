@@ -232,7 +232,7 @@ export function ConfiguratorShowcase({ products }: ConfiguratorShowcaseProps) {
         {usable.length > 1 && (
           <div
             role="tablist"
-            aria-label="Yapılandırılabilir nesneler"
+            aria-label="Özel ölçüde üretilebilen ürünler"
             className="mb-8 flex flex-wrap gap-x-6 gap-y-2 border-b border-border pb-4"
           >
             {usable.map((p, i) => {

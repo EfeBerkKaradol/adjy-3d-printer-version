@@ -12,7 +12,7 @@ import { formatCmValue } from "@/lib/units";
 // ==========================================
 // BÖLÜM 06 — ALANINA GÖRE
 //
-// "Bu nesne benim alanımda nasıl durur?" sorusunu
+// "Bu ürün benim alanımda nasıl durur?" sorusunu
 // yanıtlar. Kullanım senaryoları gerçek kategorilere
 // bağlıdır; her sekme o kategoriden gerçek bir ürün
 // gösterir ve kategoriye götürür.
@@ -64,8 +64,8 @@ export function SpaceShowcase({ scenes }: SpaceShowcaseProps) {
             mekân nesneye değil.
           </h2>
           <p className="mt-5 text-base leading-relaxed text-muted-foreground">
-            Rafın duvarına, standın masana, kutun rafına göre üretilir. Ölçüyü
-            sen verirsin; hazır bir boyuta razı olmazsın.
+            Raf duvarınıza, stand masanıza, kutu rafınıza göre üretilir.
+            Ölçüyü siz verirsiniz; hazır bir boyuta razı olmazsınız.
           </p>
         </div>
 

@@ -51,9 +51,9 @@ export function ARShowcase({ product }: { product: ARProduct | null }) {
             kendi odanda gör.
           </h2>
           <p className="mt-5 max-w-md text-base leading-relaxed text-muted-foreground">
-            Nesneyi telefonunun kamerasıyla masanın üstüne, rafın yanına ya da
-            pencerenin önüne koy. Ekranda gördüğün boy, kargodan çıkacak boyun
-            aynısı — ölçeklenmiş bir önizleme değil.
+            Ürünü telefonunuzun kamerasıyla masanın üstüne, rafın yanına ya da
+            pencerenin önüne koyun. Ekranda gördüğünüz boy, kargodan çıkacak
+            boyun aynısıdır — ölçeklenmiş bir önizleme değil.
           </p>
 
           <dl className="mt-8 grid max-w-md gap-x-6 gap-y-4 sm:grid-cols-2">
@@ -62,7 +62,7 @@ export function ARShowcase({ product }: { product: ARProduct | null }) {
               <div>
                 <dt className="text-sm font-medium">Uygulama yok</dt>
                 <dd className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                  Telefonun tarayıcısında açılır, hiçbir şey kurmazsın.
+                  Telefonun tarayıcısında açılır, uygulama kurmanız gerekmez.
                 </dd>
               </div>
             </div>
@@ -71,7 +71,7 @@ export function ARShowcase({ product }: { product: ARProduct | null }) {
               <div>
                 <dt className="text-sm font-medium">Gerçek ölçekte</dt>
                 <dd className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                  Ölçüyü değiştirirsen odandaki görüntü de onunla büyür.
+                  Ölçüyü değiştirdiğinizde odadaki görüntü de onunla büyür.
                 </dd>
               </div>
             </div>
@@ -89,7 +89,7 @@ export function ARShowcase({ product }: { product: ARProduct | null }) {
               href={`/products/${product.slug}`}
               className="group inline-flex items-center gap-2 border-b border-foreground pb-1 text-sm font-medium transition-colors hover:border-muted-foreground hover:text-muted-foreground"
             >
-              Bu nesneyi incele
+              Bu ürünü inceleyin
               <ArrowRight
                 className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
                 aria-hidden

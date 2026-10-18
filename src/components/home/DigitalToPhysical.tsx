@@ -23,7 +23,7 @@ const STAGES = [
   },
   {
     title: "Üretim",
-    body: "Senin konfigürasyonun katman katman basılır.",
+    body: "Verdiğiniz ölçü katman katman basılır.",
   },
   {
     title: "Fiziksel nesne",
@@ -100,8 +100,8 @@ export function DigitalToPhysical() {
             Dijitalden fiziksele.
           </h2>
           <p className="mt-5 text-base leading-relaxed text-muted-foreground">
-            Bir ADJY nesnesi dosya olarak doğar, senin ölçünle şekillenir ve
-            ancak sipariş verdiğinde fiziksel hâle gelir.
+            Bir ADJY ürünü dosya olarak doğar, sizin verdiğiniz ölçüyle
+            şekillenir ve ancak sipariş verildiğinde fiziksel hâle gelir.
           </p>
         </Reveal>
 

@@ -154,7 +154,7 @@ export function HeroExperience({ product }: HeroExperienceProps) {
           yeniden.
         </h1>
         <p className="mt-6 max-w-sm text-base leading-relaxed text-muted-foreground">
-          Dijital olarak tasarlandı. Ölçüsünü sen belirle. Alanına göre üretildi.
+          Dijital olarak tasarlandı. Ölçüsünü siz belirleyin. Alanınıza göre üretildi.
         </p>
 
         <div className="relative mt-10 aspect-square overflow-hidden bg-surface-2">

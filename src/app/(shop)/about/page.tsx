@@ -16,7 +16,7 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   title: "Hakkımızda",
   description:
-    "ADJY; 3D baskı, seramik ve alçı dekoratif ürünler üretir. Ölçüsünü değiştirebildiğin nesneler, kendi atölyemizden.",
+    "ADJY; 3D baskı, seramik ve alçı ile dekoratif ürünler üretir. Ölçüsünü kendinize göre belirleyebileceğiniz ürünler, kendi atölyemizden.",
 };
 
 // ==========================================
@@ -46,11 +46,11 @@ export const metadata: Metadata = {
 const REASONS = [
   {
     title: "Ölçüsü sana göre",
-    body: "Çoğu nesnenin enini ve boyunu kendi alanına göre değiştirip ürettirebilirsin; fiyat da ölçüyle birlikte güncellenir.",
+    body: "Çoğu ürünün enini ve boyunu kendi alanınıza göre belirleyebilirsiniz; fiyat da ölçüyle birlikte güncellenir.",
   },
   {
     title: "Almadan önce gör",
-    body: "Nesneyi telefonunla kendi odanda, gerçek ölçüsünde görüntüleyebilirsin.",
+    body: "Ürünü telefonunuzla kendi odanızda, gerçek ölçüsünde görüntüleyebilirsiniz.",
   },
   {
     title: "Birden fazla malzeme",
@@ -63,8 +63,8 @@ const REASONS = [
 ];
 
 const STEPS = [
-  { n: "01", title: "Seç ya da kur", body: "Hazır bir nesneyi al ya da ölçüsünü kendin belirle." },
-  { n: "02", title: "Üretim", body: "Nesneye göre 3D baskı, seramik ya da alçı ile üretiyoruz." },
+  { n: "01", title: "Seç ya da kur", body: "Hazır bir ürünü seçin ya da ölçüsünü kendiniz belirleyin." },
+  { n: "02", title: "Üretim", body: "Ürüne göre 3D baskı, seramik ya da alçı ile üretiyoruz." },
   { n: "03", title: "Kontrol", body: "Her parça elden geçer, kusurlu olan yola çıkmaz." },
   { n: "04", title: "Teslimat", body: "Kırılabilir parçalar ayrı korumayla paketlenir." },
 ];
@@ -321,21 +321,20 @@ export default async function AboutPage() {
             {/* Sayfanın h1'i yukarıdaki anlatıda ("Nesneler, yeniden.");
                 burada ikinci bir h1 olursa sayfada iki başlık olur. */}
             <h2 className="adjy-display text-[clamp(1.9rem,4vw,2.9rem)] leading-[1.08]">
-              Tasarımı nesneye çeviriyoruz.
+              Tasarımı ürüne çeviriyoruz.
             </h2>
             <div className="mt-6 space-y-4 text-base leading-relaxed text-muted-foreground">
               <p>
-                ADJY bir soruyla başladı: güzel bulduğun bir nesne neden tam da
-                senin rafına göre olmuyor? Katalogda beğendiğin raf ya iki
-                santim uzun geliyor ya da tam oturduğu yerde başka bir şey
-                eksik kalıyor.
+                ADJY bir soruyla başladı: beğendiğiniz bir ürün neden tam da
+                sizin rafınıza göre olmuyor? Katalogdaki raf ya iki santim uzun
+                geliyor ya da tam oturduğu yerde başka bir şey eksik kalıyor.
               </p>
               <p>
-                Biz nesneleri sabit birer ürün olarak değil, ölçüsü
-                değiştirilebilen tasarımlar olarak kuruyoruz. Kendi
-                atölyemizde 3D baskı, seramik ve alçı ile üretiyoruz; sipariş
-                gelmeden hiçbir şey basılmıyor, tek parçalık iş de aynı
-                özenle yapılıyor.
+                Biz ürünleri sabit ölçülü parçalar olarak değil, ölçüsü
+                belirlenebilen tasarımlar olarak kuruyoruz. Kendi atölyemizde
+                3D baskı, seramik ve alçı ile üretiyoruz; sipariş gelmeden
+                hiçbir şey basılmıyor, tek parçalık iş de aynı özenle
+                yapılıyor.
               </p>
             </div>
 
@@ -344,14 +343,14 @@ export default async function AboutPage() {
                 href="/products"
                 className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background transition-opacity hover:opacity-90"
               >
-                Nesneleri gör
+                Ürünleri görün
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </Link>
               <Link
                 href="/products?customizable=true"
                 className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium transition-colors hover:bg-muted"
               >
-                Kendi ölçünde ürettir
+                Özel ölçüde üretim
               </Link>
             </div>
           </div>
@@ -359,7 +358,7 @@ export default async function AboutPage() {
           {stats.urun > 0 && (
             <dl className="grid grid-cols-2 gap-px self-start overflow-hidden rounded-xl border border-border bg-border">
               <div className="bg-background p-6">
-                <dt className="text-xs text-muted-foreground">Katalogdaki nesne</dt>
+                <dt className="text-xs text-muted-foreground">Katalogdaki ürün</dt>
                 <dd className="mt-1.5 text-2xl font-medium tabular-nums">{stats.urun}</dd>
               </div>
               <div className="bg-background p-6">
@@ -390,8 +389,8 @@ export default async function AboutPage() {
         <section className="adjy-container adjy-section border-t border-border/60">
           <SectionHeading
             eyebrow="Ölçüsü sana göre"
-            title="Kaydırıcıyı sen çek."
-            description="Ölçüyü değiştir, nesne anında onunla değişsin. Fiyat da ölçüye göre güncellenir — ürettirmeden önce ne ödeyeceğini görürsün."
+            title="Ölçüyü siz belirleyin."
+            description="Ölçüyü değiştirdiğinizde ürün de anında onunla değişir. Fiyat da ölçüye göre güncellenir — sipariş vermeden önce ne ödeyeceğinizi görürsünüz."
             action={{ label: "Ölçüsü değişenler", href: "/products?customizable=true" }}
           />
           <div className="mt-8">
@@ -450,8 +449,8 @@ export default async function AboutPage() {
               Aklında bir şey mi var?
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Kendi modelini ürettirebilir, bir fotoğraftan yeni bir nesne
-              oluşturabilir ya da aklındakini bize yazabilirsin.
+              Kendi modelinizi ürettirebilir, bir fotoğraftan yeni bir ürün
+              oluşturabilir ya da aklınızdakini bize yazabilirsiniz.
             </p>
           </div>
           <div className="flex shrink-0 flex-wrap gap-3">
