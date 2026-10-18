@@ -66,7 +66,7 @@ export function HomeHero({ products, totalCount }: Props) {
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
             <Link
-              href="/configure"
+              href="/products?customizable=true"
               className="inline-flex items-center gap-2 rounded-full border border-border px-7 py-3.5 text-sm font-medium transition-colors hover:bg-muted"
             >
               <Ruler className="h-4 w-4" aria-hidden />

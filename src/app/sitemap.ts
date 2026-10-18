@@ -33,7 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "", priority: 1, changeFrequency: "daily" },
     { path: "/products", priority: 0.9, changeFrequency: "daily" },
     { path: "/collections", priority: 0.8, changeFrequency: "weekly" },
-    { path: "/configure", priority: 0.8, changeFrequency: "weekly" },
+    
     { path: "/uret", priority: 0.8, changeFrequency: "weekly" },
     { path: "/uret/fotograftan-olustur", priority: 0.8, changeFrequency: "weekly" },
     { path: "/uret/model-yukle", priority: 0.7, changeFrequency: "weekly" },

@@ -380,7 +380,7 @@ export default async function HomePage() {
           <SectionHeading
             eyebrow="Ölçüsü değişen nesneler"
             title="Rafına, masana, pencerene göre"
-            action={{ label: "Hepsini gör", href: "/configure" }}
+            action={{ label: "Hepsini gör", href: "/products?customizable=true" }}
           />
           <div className="mt-8">
             <ProductRail products={customizable} />

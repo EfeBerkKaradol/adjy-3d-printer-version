@@ -136,6 +136,21 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           widthMm: true,
           depthMm: true,
           heightMm: true,
+          // Ölçü kaydırıcıları kartın altında çalışıyor
+          parameters: {
+            orderBy: { sortOrder: "asc" },
+            select: {
+              name: true,
+              displayName: true,
+              minValue: true,
+              maxValue: true,
+              defaultValue: true,
+              step: true,
+              unit: true,
+              affectsPrice: true,
+              priceFormula: true,
+            },
+          },
           category: { select: { id: true, name: true, slug: true } },
           _count: { select: { reviews: true, parameters: true } },
         },

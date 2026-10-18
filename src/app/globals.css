@@ -316,3 +316,55 @@
 .adjy-rise {
   animation: adjy-rise var(--dur-slow) var(--ease-out-soft) both;
 }
+
+/* ==========================================
+   KART İÇİ ÖLÇÜ KAYDIRICISI
+   Ürün kartının altında duran ince kaydırıcı. Tarayıcıların
+   varsayılan görünümü kartın tipografisiyle uyuşmuyor; dolu
+   kısım --dolu değişkeniyle boyanır.
+   ========================================== */
+.adjy-mini-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(
+    to right,
+    var(--foreground) 0%,
+    var(--foreground) var(--dolu, 50%),
+    var(--border) var(--dolu, 50%),
+    var(--border) 100%
+  );
+  cursor: pointer;
+}
+
+.adjy-mini-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: var(--background);
+  border: 2px solid var(--foreground);
+  cursor: grab;
+  transition: transform var(--dur-fast, 120ms) ease;
+}
+
+.adjy-mini-range::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.15);
+}
+
+.adjy-mini-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: var(--background);
+  border: 2px solid var(--foreground);
+  cursor: grab;
+}
+
+.adjy-mini-range:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 4px;
+}

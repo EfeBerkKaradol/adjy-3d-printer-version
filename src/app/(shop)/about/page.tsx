@@ -348,7 +348,7 @@ export default async function AboutPage() {
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </Link>
               <Link
-                href="/configure"
+                href="/products?customizable=true"
                 className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium transition-colors hover:bg-muted"
               >
                 Kendi ölçünde ürettir
@@ -392,7 +392,7 @@ export default async function AboutPage() {
             eyebrow="Ölçüsü sana göre"
             title="Kaydırıcıyı sen çek."
             description="Ölçüyü değiştir, nesne anında onunla değişsin. Fiyat da ölçüye göre güncellenir — ürettirmeden önce ne ödeyeceğini görürsün."
-            action={{ label: "Yapılandır", href: "/configure" }}
+            action={{ label: "Ölçüsü değişenler", href: "/products?customizable=true" }}
           />
           <div className="mt-8">
             <ConfiguratorShowcase products={configuratorProducts} />

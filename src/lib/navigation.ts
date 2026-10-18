@@ -1,6 +1,11 @@
 // ==========================================
 // ADJY ANA NAVİGASYON
-// Üç eylem etrafında kurulu: SATIN AL · ÖZELLEŞTİR · ÜRET.
+//
+// "Yapılandır" ayrı bir bölümdü: ölçüsü değişen ürünleri
+// listeleyip oradan ayarlamaya götürüyordu. Ölçü ayarı artık
+// mağazadaki kartların altında olduğu için o adım gereksiz —
+// insan ölçüyü ürünü gördüğü yerde değiştiriyor.
+//
 // Header, mobil çekmece ve footer aynı kaynaktan beslenir.
 // ==========================================
 
@@ -17,11 +22,6 @@ export const MAIN_NAV: NavLink[] = [
     label: "Mağaza",
     href: "/products",
     description: "Üretime hazır ADJY nesneleri",
-  },
-  {
-    label: "Yapılandır",
-    href: "/configure",
-    description: "Nesneyi kendi ölçünde ürettir",
   },
   {
     // Üret artık tek bir hesaplayıcı değil, iki başlangıcı olan
@@ -68,7 +68,6 @@ export const FOOTER_NAV: { title: string; links: { label: string; href: string }
     links: [
       { label: "Mağaza", href: "/products" },
       { label: "Koleksiyonlar", href: "/collections" },
-      { label: "Yapılandır", href: "/configure" },
       { label: "Üret", href: "/uret" },
       { label: "Fotoğraftan oluştur", href: "/uret/fotograftan-olustur" },
       { label: "Öne Çıkanlar", href: "/products?featured=true" },

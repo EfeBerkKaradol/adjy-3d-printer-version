@@ -140,7 +140,7 @@ export function ProductCinema({ product }: { product?: CinemaProduct | null }) {
           ))}
         </ol>
         <Link
-          href="/configure"
+          href="/products?customizable=true"
           className="group mt-8 inline-flex items-center gap-2 border-b border-foreground pb-1 text-sm font-medium transition-colors hover:border-muted-foreground hover:text-muted-foreground"
         >
           Kendi sistemini kur
@@ -189,7 +189,7 @@ export function ProductCinema({ product }: { product?: CinemaProduct | null }) {
               </div>
               {chapter === CHAPTERS.length - 1 && (
                 <Link
-                  href="/configure"
+                  href="/products?customizable=true"
                   className="group mt-5 inline-flex items-center gap-2 border-b border-foreground pb-1 text-sm font-medium transition-colors hover:border-muted-foreground hover:text-muted-foreground"
                 >
                   Kendi sistemini kur

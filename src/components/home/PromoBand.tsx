@@ -54,7 +54,7 @@ export function PromoBand({ product, count }: Props) {
 
           <div className="mt-8">
             <Link
-              href="/configure"
+              href="/products?customizable=true"
               className="group inline-flex items-center gap-2 rounded-full bg-foreground px-7 py-3.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
             >
               Ölçüsünü sen seç
@@ -67,7 +67,7 @@ export function PromoBand({ product, count }: Props) {
         </div>
 
         <Link
-          href={`/configure`}
+          href="/products?customizable=true"
           className="group order-1 block overflow-hidden rounded-2xl bg-background lg:order-2"
         >
           <div className="relative aspect-[5/4]">

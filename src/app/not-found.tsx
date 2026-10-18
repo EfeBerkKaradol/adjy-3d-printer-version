@@ -15,7 +15,7 @@ import { ArrowRight } from "lucide-react";
 const EXITS = [
   { label: "Mağaza", href: "/products", description: "Üretime hazır ADJY nesneleri" },
   { label: "Koleksiyonlar", href: "/collections", description: "Kullanıma göre keşfet" },
-  { label: "Yapılandır", href: "/configure", description: "Nesneyi kendi ölçünde ürettir" },
+  { label: "Ölçüsü değişenler", href: "/products?customizable=true", description: "Ölçüsünü kendin belirlediğin nesneler" },
   { label: "Üret", href: "/uret", description: "Fotoğraftan ya da kendi modelinden" },
 ];
 

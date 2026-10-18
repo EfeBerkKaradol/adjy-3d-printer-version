@@ -151,7 +151,7 @@ export function ConfiguratorShowcase({ products }: ConfiguratorShowcaseProps) {
   const sliders = useMemo(() => (product ? sliderParams(product) : []), [product]);
 
   const customizeHref = useMemo(() => {
-    if (!product) return "/configure";
+    if (!product) return "/products?customizable=true";
     const qs = new URLSearchParams();
     for (const [key, value] of Object.entries(config.values)) {
       if (typeof value === "number") qs.set(key, String(value));

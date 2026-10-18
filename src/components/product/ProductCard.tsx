@@ -7,20 +7,22 @@ import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { WishlistButton } from "./WishlistButton";
 import { useCartStore } from "@/store/cartStore";
-import { Check, Plus, Sliders } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ProductImageFallback } from "./ProductImageFallback";
 import { getPriceInfo, formatPrice } from "@/lib/pricing";
 import { formatCmValue } from "@/lib/units";
+import { CardSizeControls, type KartParametre } from "./CardSizeControls";
 
 // ==========================================
 // ÜRÜN KARTI
 // Görsel kartın çoğunu kaplar; çerçeve yok, bilgi
 // görselin altında sabit durur. Hover'da yalnızca
 // görsel yakınlaşır ve hızlı eylem çubuğu belirir.
-// Parametrik ürünlerde hızlı ekleme yerine
-// "Özelleştir" gösterilir — yanlış ölçüyle sepete
-// ürün eklenmesini önler.
+// Ölçüsü değişen ürünlerde kaydırıcı kartın altında
+// durur: ölçü burada seçilir, sepete o ölçüyle girer.
+// Önceden ayrı bir "Yapılandır" sayfasına gitmek
+// gerekiyordu.
 // ==========================================
 
 export interface ProductCardProduct {
@@ -38,6 +40,8 @@ export interface ProductCardProduct {
   _count?: { reviews: number; parameters?: number };
   /** Parametrik ürün mü — ölçüsü değiştirilebiliyor mu */
   isCustomizable?: boolean;
+  /** Ölçü kaydırıcıları — kartın altında, çalışır hâlde */
+  parameters?: KartParametre[];
   /** Montajlı dış ölçü (mm) — kartta cm olarak gösterilir */
   widthMm?: number | null;
   depthMm?: number | null;
@@ -61,7 +65,13 @@ export function ProductCard({ product, index = 0, priority = false }: ProductCar
     product.isCustomizable ?? (product._count?.parameters ?? 0) > 0;
   const showImage = product.thumbnailUrl && !imgError;
   const priceInfo = getPriceInfo(product.basePrice, product.compareAtPrice);
-  const price = priceInfo.price;
+  // Kaydırıcı çekildiğinde fiyat ve seçilen ölçü burada tutulur;
+  // sepete eklenen de bu olur.
+  const [secim, setSecim] = useState<{
+    values: Record<string, number | string>;
+    price: number;
+  } | null>(null);
+  const price = secim?.price ?? priceInfo.price;
 
   // Ölçü, "bu rafıma sığar mı?" sorusunun cevabı — karttan
   // ürün sayfasına gitmeden görülebilmeli. Derinlik her üründe
@@ -78,10 +88,15 @@ export function ProductCard({ product, index = 0, priority = false }: ProductCar
     e.preventDefault();
     e.stopPropagation();
 
-    if (customizable) {
-      router.push(`/configure/${product.id}`);
-      return;
-    }
+    // Ölçüsü değişen ürün de buradan sepete girer: kaydırıcı
+    // çekilmediyse varsayılan ölçü, çekildiyse seçilen ölçü.
+    const varsayilanlar: Record<string, number | string> = Object.fromEntries(
+      (product.parameters ?? []).map((q) => {
+        const sayi = Number(q.defaultValue);
+        return [q.name, Number.isFinite(sayi) && q.defaultValue.trim() !== "" ? sayi : q.defaultValue];
+      })
+    );
+    const secilen = secim?.values ?? varsayilanlar;
 
     addItem({
       product: {
@@ -90,7 +105,10 @@ export function ProductCard({ product, index = 0, priority = false }: ProductCar
         basePrice: price,
         thumbnailUrl: product.thumbnailUrl,
       },
-      customization: null,
+      customization:
+        customizable && Object.keys(secilen).length > 0
+          ? { id: null, parameters: secilen }
+          : null,
       quantity: 1,
       calculatedPrice: price,
     });
@@ -156,12 +174,7 @@ export function ProductCard({ product, index = 0, priority = false }: ProductCar
                   : "bg-background/95 text-foreground backdrop-blur-sm hover:bg-background"
               )}
             >
-              {customizable ? (
-                <>
-                  <Sliders className="h-4 w-4" aria-hidden />
-                  Özelleştir
-                </>
-              ) : added ? (
+              {added ? (
                 <>
                   <Check className="h-4 w-4" aria-hidden />
                   Sepete eklendi
@@ -169,7 +182,9 @@ export function ProductCard({ product, index = 0, priority = false }: ProductCar
               ) : (
                 <>
                   <Plus className="h-4 w-4" aria-hidden />
-                  Hızlı ekle
+                  {/* Ölçüsü değişen üründe de buradan eklenir:
+                      kaydırıcıda seçilen ölçüyle. */}
+                  {customizable ? "Bu ölçüde ekle" : "Hızlı ekle"}
                 </>
               )}
             </button>
@@ -193,11 +208,19 @@ export function ProductCard({ product, index = 0, priority = false }: ProductCar
               </span>
             )}
           </p>
-          {olcu && (
+          {olcu && !(customizable && (product.parameters?.length ?? 0) > 0) && (
             <p className="mt-1 text-[13px] tabular-nums text-muted-foreground">
               {olcu}
               {customizable && " · ölçüsü değişir"}
             </p>
+          )}
+
+          {customizable && (product.parameters?.length ?? 0) > 0 && (
+            <CardSizeControls
+              basePrice={product.basePrice}
+              parameters={product.parameters!}
+              onChange={setSecim}
+            />
           )}
         </div>
       </Link>
