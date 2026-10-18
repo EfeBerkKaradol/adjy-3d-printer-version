@@ -11,7 +11,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { AddToCartButton } from "@/components/product/AddToCartButton";
-import { ProductGallery } from "@/components/product/ProductGallery";
+import { ProductExperience } from "@/components/product/ProductExperience";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { ProductARButton } from "@/components/ar/ProductARButton";
 import { ProductReviews } from "@/components/product/ProductReviews";
@@ -59,6 +59,7 @@ async function getProduct(slug: string) {
       widthMm: true,
       depthMm: true,
       heightMm: true,
+      customMouldFee: true,
       stockQty: true,
       featured: true,
       category: { select: { id: true, name: true, slug: true } },
@@ -75,6 +76,7 @@ async function getProduct(slug: string) {
           step: true,
           unit: true,
           affectsPrice: true,
+          priceFormula: true,
         },
       },
       reviews: { select: { rating: true } },
@@ -188,9 +190,16 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
   const baseUrl = getAbsoluteUrl();
 
   const gallery = readGallery(product.gallery);
-  const images = [product.thumbnailUrl, ...gallery].filter(
-    (src): src is string => Boolean(src)
-  );
+  // Kapak karesi galerinin de ilk öğesi olduğu için liste
+  // tekilleştirilir; aynı adres iki kez gelince React aynı
+  // anahtarla iki çocuk uyarısı veriyordu.
+  const images = [
+    ...new Set(
+      [product.thumbnailUrl, ...gallery].filter(
+        (src): src is string => Boolean(src)
+      )
+    ),
+  ];
 
   // Yalnızca gerçek ölçü parametreleri: sayısal aralığı olan ve
   // renk/metin/seçim tipinde olmayanlar. (COLOR parametreleri
@@ -286,163 +295,60 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
           </ol>
         </nav>
 
-        <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
-          {/* Galeri */}
-          <div className="lg:sticky lg:top-24 lg:self-start">
-            <ProductGallery
-              slug={product.slug}
-              name={product.name}
-              images={images}
-              modelFileUrl={product.modelFileUrl}
-              productType={getProductType(product.slug)}
-              defaultParameters={defaultParameters}
-            />
+        {/* Başlık, görsel ve seçenekler.
+            Önceden galeri solda, sağda okunur bir ölçü listesi ve üç
+            ayrı düğme vardı; ölçü değiştirmek başka bir sayfaya
+            gidiyordu. Artık ikisi tek bileşende ve seçim burada. */}
+        <header className="mb-8 max-w-3xl">
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href={`/products?category=${product.category.slug}`}
+              className="adjy-eyebrow transition-colors hover:text-foreground"
+            >
+              {product.category.name}
+            </Link>
+            {isCustomizable && <Badge variant="customizable">Özelleştirilebilir</Badge>}
           </div>
-
-          {/* Satın alma alanı */}
-          <div className="max-w-lg">
-            <div className="flex flex-wrap items-center gap-2">
-              <Link
-                href={`/products?category=${product.category.slug}`}
-                className="adjy-eyebrow transition-colors hover:text-foreground"
-              >
-                {product.category.name}
-              </Link>
-              {isCustomizable && (
-                <Badge variant="customizable">Özelleştirilebilir</Badge>
-              )}
-            </div>
-
-            <h1 className="mt-4 text-[clamp(1.75rem,3.4vw,2.5rem)] font-medium leading-tight tracking-tight">
-              {product.name}
-            </h1>
-
-            {product.reviews.totalCount > 0 && (
-              <div className="mt-4 flex items-center gap-2">
-                <div className="flex items-center gap-0.5" aria-hidden>
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      className={
-                        i < Math.round(product.reviews.averageRating)
-                          ? "h-3.5 w-3.5 fill-brand-amber text-brand-amber"
-                          : "h-3.5 w-3.5 text-muted-foreground/30"
-                      }
-                    />
-                  ))}
-                </div>
-                <span className="text-sm text-muted-foreground">
-                  {product.reviews.averageRating} · {product.reviews.totalCount} değerlendirme
-                </span>
-              </div>
-            )}
-
-            <p className="mt-6 text-2xl font-medium tabular-nums">
-              {isCustomizable && (
-                <span className="mr-1.5 text-base font-normal text-muted-foreground">
-                  Başlangıç
-                </span>
-              )}
-              {product.basePrice.toFixed(2)} TL
+          <h1 className="adjy-display mt-3 text-[clamp(1.8rem,3.6vw,2.8rem)]">
+            {product.name}
+          </h1>
+          {product.description && (
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+              {product.description}
             </p>
-            {isCustomizable && (
-              <p className="mt-1.5 text-xs text-muted-foreground">
-                Nihai fiyat seçtiğin ölçülere göre konfigüratörde hesaplanır.
-              </p>
-            )}
+          )}
+        </header>
 
-            {product.description && (
-              <p className="mt-6 text-[15px] leading-relaxed text-muted-foreground">
-                {product.description}
-              </p>
-            )}
+        <ProductExperience
+          product={{
+            id: product.id,
+            name: product.name,
+            slug: product.slug,
+            basePrice: product.basePrice,
+            thumbnailUrl: product.thumbnailUrl,
+            images,
+            modelFileUrl: product.modelFileUrl,
+            productType: getProductType(product.slug),
+            stockQty: product.stockQty,
+            customMouldFee: product.customMouldFee ? Number(product.customMouldFee) : null,
+            parameters: product.parameters.map((q) => ({
+              name: q.name,
+              displayName: q.displayName,
+              type: q.type,
+              minValue: q.minValue,
+              maxValue: q.maxValue,
+              defaultValue: q.defaultValue,
+              step: q.step,
+              unit: q.unit,
+              affectsPrice: q.affectsPrice,
+              priceFormula: q.priceFormula,
+            })),
+          }}
+        />
 
-            {/* Ölçüler */}
-            {dimensionParams.length > 0 && (
-              <div className="mt-8 border-t border-border pt-6">
-                <h2 className="adjy-eyebrow mb-4 text-foreground">
-                  Değiştirilebilir ölçüler
-                </h2>
-                <dl className="divide-y divide-border">
-                  {dimensionParams.map((param) => (
-                    <div
-                      key={param.id}
-                      className="flex items-baseline justify-between gap-4 py-2.5"
-                    >
-                      <dt className="text-sm">{param.displayName}</dt>
-                      <dd className="text-sm tabular-nums text-muted-foreground">
-                        {param.minValue} – {param.maxValue}
-                        {param.unit ? ` ${param.unit}` : ""}
-                        <span className="ml-2 text-foreground">
-                          (varsayılan {param.defaultValue}
-                          {param.unit ? ` ${param.unit}` : ""})
-                        </span>
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-            )}
-
-            {/* Stok */}
-            <div className="mt-8">
-              {!inStock ? (
-                <p className="flex items-center gap-2 text-sm text-destructive">
-                  <AlertCircle className="h-4 w-4" aria-hidden />
-                  Stokta yok
-                </p>
-              ) : product.stockQty <= 10 ? (
-                <p className="flex items-center gap-2 text-sm text-brand-amber">
-                  <AlertCircle className="h-4 w-4" aria-hidden />
-                  Son {product.stockQty} adet
-                </p>
-              ) : (
-                <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <CheckCircle className="h-4 w-4 text-brand-lime" aria-hidden />
-                  Stokta
-                </p>
-              )}
-            </div>
-
-            {/* Eylemler */}
-            <div className="mt-5 space-y-3">
-              {isCustomizable && (
-                <Button asChild size="xl" className="w-full">
-                  <Link href={`/configure/${product.id}`}>
-                    <Sliders className="h-4 w-4" aria-hidden />
-                    Ölçüleri özelleştir
-                  </Link>
-                </Button>
-              )}
-
-              {inStock && (
-                <AddToCartButton
-                  size="xl"
-                  variant={isCustomizable ? "outline" : "default"}
-                  product={{
-                    id: product.id,
-                    name: product.name,
-                    basePrice: product.basePrice,
-                    thumbnailUrl: product.thumbnailUrl,
-                  }}
-                />
-              )}
-
-              {/* AR, parametrik ürünlere bağlıydı; katalogdaki
-                  ürünlerin çoğunun parametresi yok ve "Odanda Gör"
-                  hiç görünmüyordu. Oysa her ürünün kendi 3D modeli
-                  var — koşul model dosyasına bağlandı. */}
-              {product.modelFileUrl && (
-                <ProductARButton
-                  productId={product.id}
-                  productName={product.name}
-                  productSlug={product.slug}
-                  modelFileUrl={product.modelFileUrl}
-                  defaultParameters={defaultParameters}
-                />
-              )}
-            </div>
-
+        <div className="mt-14 grid gap-10 lg:grid-cols-2 lg:gap-16">
+          <div />
+          <div className="max-w-lg">
             {/* Teslimat özeti */}
             <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t border-border pt-5 text-xs text-muted-foreground">
               <Link href="/teslimat-politikasi" className="transition-colors hover:text-foreground">

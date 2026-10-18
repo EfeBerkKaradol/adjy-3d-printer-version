@@ -146,6 +146,9 @@ model Product {
   widthMm        Float?
   depthMm        Float?
   heightMm       Float?
+  /// Döküm ürünlerde özel ölçü seçilirse bir kerelik kalıp ücreti (TL).
+  /// Varsayılan ölçüde kalıp zaten var, ücret alınmaz.
+  customMouldFee Decimal?         @db.Decimal(10, 2)
   stockQty       Int              @default(999)
   isActive       Boolean          @default(true)
   featured       Boolean          @default(false)

@@ -42,18 +42,38 @@ function numericVariables(
   return vars;
 }
 
+/** Ölçü kaydırıcısı olan parametreler — kalıp kararı bunlara bakar */
+const OLCU_ADLARI = new Set(["width", "height", "depth"]);
+
+export interface PriceOptions {
+  /**
+   * Döküm ürünlerde bir kerelik kalıp ücreti (TL).
+   *
+   * Alçı ve seramik ürünler silikon kalıptan dökülür. Katalogdaki
+   * ölçünün kalıbı zaten var ve maliyeti onlarca döküme bölünür;
+   * başka bir ölçü istendiğinde o ölçü için yeni bir kalıp
+   * çıkarmak gerekir ve bu maliyet tek siparişe biner.
+   *
+   * Ücret yalnızca ölçü varsayılandan farklıysa eklenir ve
+   * seçilen hacimle büyür — büyük kalıp daha çok silikon içer.
+   */
+  mouldFee?: number | null;
+}
+
 /**
  * Parametrelere göre toplam fiyatı hesaplar.
  *
  * @param basePrice - Ürünün baz fiyatı
  * @param parameters - Ürün parametreleri (affectsPrice + priceFormula bilgisi)
  * @param values - Kullanıcının seçtiği değerler
+ * @param options - Döküm ürünlerde kalıp ücreti
  * @returns Hesaplanan toplam fiyat
  */
 export function calculatePrice(
   basePrice: number,
   parameters: PriceParameter[],
-  values: Record<string, number | string>
+  values: Record<string, number | string>,
+  options: PriceOptions = {}
 ): number {
   let totalPrice = basePrice;
   const vars = numericVariables(parameters, values);
@@ -82,7 +102,47 @@ export function calculatePrice(
     }
   }
 
+  totalPrice += mouldSurcharge(parameters, values, options.mouldFee);
+
   return Math.max(0, Math.round(totalPrice * 100) / 100);
+}
+
+/**
+ * Özel ölçü için kalıp farkı.
+ *
+ * Ölçülerin hepsi varsayılandaysa mevcut kalıp kullanılır, fark
+ * yoktur. Değiştiyse yeni kalıp çıkar: ücret, seçilen ölçünün
+ * varsayılana göre hacim oranıyla büyütülür (kenar iki katına
+ * çıkınca kalıp sekiz kat silikon ister).
+ */
+function mouldSurcharge(
+  parameters: PriceParameter[],
+  values: Record<string, number | string>,
+  mouldFee: number | null | undefined
+): number {
+  if (!mouldFee || mouldFee <= 0) return 0;
+
+  const olculer = parameters.filter((p) => OLCU_ADLARI.has(p.name));
+  if (olculer.length === 0) return 0;
+
+  let oran = 1;
+  let degisti = false;
+
+  for (const p of olculer) {
+    const varsayilan = Number(p.defaultValue);
+    const simdi = Number(values[p.name] ?? varsayilan);
+    if (!Number.isFinite(varsayilan) || varsayilan <= 0 || !Number.isFinite(simdi)) continue;
+    if (Math.abs(simdi - varsayilan) > 0.01) degisti = true;
+    oran *= simdi / varsayilan;
+  }
+
+  if (!degisti) return 0;
+
+  // İki eksen verilmişse üçüncüsü de onlarla birlikte büyür;
+  // hacim oranı için eksik eksen en-boy ortalamasıyla tamamlanır.
+  const hacimOrani = olculer.length >= 3 ? oran : Math.pow(oran, 3 / olculer.length);
+
+  return mouldFee * hacimOrani;
 }
 
 /**
