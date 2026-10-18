@@ -6,28 +6,33 @@ import { Ruler, Scan, Hammer, ShieldCheck } from "lucide-react";
 // Tanınmayan bir mağazada ilk soru "bunlar kim?" oluyor.
 // Dört kısa cevap, ürünlerin hemen üstünde: hepsi sitede
 // gerçekten karşılığı olan şeyler, süs değil.
+//
+// Dil ticari ve kısa tutuluyor. Önceki hâli müşteriyle
+// gereğinden samimi konuşuyordu — "kart bilgileri bize hiç
+// gelmez" gibi. Ödeme güvenliği anlatılırken teklifsizlik
+// güven vermiyor; bilgi veriyor.
 // ==========================================
 
 const MADDELER = [
   {
     icon: Ruler,
-    title: "Ölçü size göre",
-    body: "Çoğu ürünün enini ve boyunu kendi alanınıza göre ayarlayın.",
+    title: "Özel ölçüde üretim",
+    body: "Ürünlerin çoğunda en ve boy ölçüsü sipariş sırasında belirlenir.",
   },
   {
     icon: Scan,
-    title: "Almadan önce görün",
-    body: "Telefonunuzla kendi odanızda, gerçek ölçüsünde görüntüleyin.",
+    title: "Gerçek ölçüde önizleme",
+    body: "Ürün, telefon kamerasıyla bulunduğu alanda gerçek ölçüsünde görüntülenebilir.",
   },
   {
     icon: Hammer,
-    title: "Kendi atölyemizde",
-    body: "Her sipariş Beşiktaş'taki atölyemizde üretilir, depodan çıkmaz.",
+    title: "Kendi atölyemiz",
+    body: "Perakende ve toptan siparişler Beşiktaş'taki atölyemizde üretilir.",
   },
   {
     icon: ShieldCheck,
     title: "Güvenli ödeme",
-    body: "Ödeme 3D Secure ile alınır; kart bilgileri bize hiç gelmez.",
+    body: "Ödemeler 3D Secure doğrulamasıyla, lisanslı ödeme altyapısı üzerinden alınır.",
   },
 ];
 

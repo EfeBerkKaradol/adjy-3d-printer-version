@@ -18,11 +18,12 @@
 // ==========================================
 
 const MADDELER = [
-  "Kendi atölyemizde üretiyoruz",
-  "Çoğu üründe ölçüyü siz belirliyorsunuz",
+  "%100 yerli üretim",
+  "Özel ölçüde üretim",
+  "Perakende ve toptan sipariş",
   "14 gün içinde cayma hakkı",
   "3D Secure ile güvenli ödeme",
-  "Kırılabilir parçalar ayrı korumayla paketlenir",
+  "Kırılabilir ürünlerde özel paketleme",
 ];
 
 function Seri({ gizli }: { gizli?: boolean }) {

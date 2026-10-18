@@ -33,7 +33,7 @@ const SINIRLAR = [
   {
     baslik: "Kusurlu parçayı yollamıyoruz",
     govde:
-      "Her parça yola çıkmadan elden geçer. Katmanı kaçmış, yüzeyi bozulmuş olan yeniden basılır — siz beklersiniz, biz de öyle.",
+      "Her parça yola çıkmadan elden geçer. Katmanı kaçmış ya da yüzeyi bozulmuş parça yeniden üretilir; bu durumda teslimat gecikebilir.",
   },
 ];
 
@@ -49,7 +49,7 @@ export function HonestLimits() {
           <p className="mt-5 text-base leading-relaxed text-background/70">
             Bir üreticiye güvenip güvenmeyeceğinize, yapabildiklerinden çok
             yapamadıklarını söyleyip söylemediğine bakarak karar verirsiniz.
-            Bizimkiler şunlar.
+            Bizim sınırlarımız şunlar.
           </p>
         </div>
 
