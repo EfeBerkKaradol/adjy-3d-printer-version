@@ -368,3 +368,63 @@
   outline: 2px solid var(--foreground);
   outline-offset: 4px;
 }
+
+/* ==========================================
+   HİZMET ŞERİDİ
+   Maddeler kesintisiz akar. İki kopya yan yana durur ve
+   akış tam bir kopya boyu (%50) ilerleyip başa döner —
+   dönüş noktası görünmez.
+   ========================================== */
+.adjy-serit {
+  display: flex;
+  width: max-content;
+  animation: adjy-serit-ak 38s linear infinite;
+}
+
+/* İmleç üstündeyken durur: okumak isteyen yakalayabilsin */
+.adjy-serit:hover {
+  animation-play-state: paused;
+}
+
+.adjy-serit-seri {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.adjy-serit-madde {
+  display: inline-flex;
+  align-items: center;
+  gap: 2.25rem;
+  padding: 0.5rem 0;
+  padding-inline-end: 2.25rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  white-space: nowrap;
+}
+
+.adjy-serit-ayrac {
+  opacity: 0.45;
+}
+
+@keyframes adjy-serit-ak {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* Hareket azaltılmışsa akış durur; maddeler sarılarak durur,
+   hiçbiri gizli kalmaz. */
+@media (prefers-reduced-motion: reduce) {
+  .adjy-serit {
+    width: 100%;
+    animation: none;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .adjy-serit-seri[aria-hidden="true"] {
+    display: none;
+  }
+  .adjy-serit-seri {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
