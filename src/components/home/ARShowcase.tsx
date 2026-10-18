@@ -48,7 +48,7 @@ export function ARShowcase({ product }: { product: ARProduct | null }) {
           <h2 className="adjy-display text-[clamp(1.7rem,3.4vw,2.6rem)] leading-[1.1]">
             Almadan önce
             <br />
-            kendi odanda gör.
+            kendi odanızda görün.
           </h2>
           <p className="mt-5 max-w-md text-base leading-relaxed text-muted-foreground">
             Ürünü telefonunuzun kamerasıyla masanın üstüne, rafın yanına ya da

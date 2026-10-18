@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Üret | ADJY Shopping",
     description:
-      "Modelini yükle veya bir fotoğraftan 3D ürün oluştur. Ölçüsünü değiştir, odanda gör, üret.",
+      "Kendi modelinizi yükleyin ya da bir fotoğraftan 3D ürün oluşturun. Ölçüsünü belirleyin, odanızda görün, ürettirin.",
   },
 };
 

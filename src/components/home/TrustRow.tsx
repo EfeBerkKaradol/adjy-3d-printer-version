@@ -21,13 +21,13 @@ const MADDELER = [
   },
   {
     icon: Hammer,
-    title: "Kendi atölyemiz",
-    body: "3D baskı, seramik ve alçı — tek parçalık sipariş de üretilir.",
+    title: "Kendi atölyemizde",
+    body: "Her sipariş Beşiktaş'taki atölyemizde üretilir, depodan çıkmaz.",
   },
   {
     icon: ShieldCheck,
     title: "Güvenli ödeme",
-    body: "Kart bilginiz bize ulaşmaz; 14 gün içinde cayma hakkınız var.",
+    body: "Ödeme 3D Secure ile alınır; kart bilgileri bize hiç gelmez.",
   },
 ];
 

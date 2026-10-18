@@ -85,7 +85,7 @@ export default function OpengraphImage() {
             }}
           >
             3D baskı, seramik ve alçı dekoratif nesneler. Ölçüsünü değiştir,
-            odanda gör, ürettir.
+            odanızda görün, ürettirin.
           </div>
         </div>
 

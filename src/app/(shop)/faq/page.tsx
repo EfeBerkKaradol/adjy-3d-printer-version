@@ -32,57 +32,57 @@ const FAQ: FaqEntry[] = [
   {
     question: "Ürünlerin ölçüsünü değiştirebilir miyim?",
     answer:
-      "Evet. Ürünlerin çoğu parametrik: genişlik, yükseklik gibi ölçüleri kendi alanına göre santimetre cinsinden ayarlayabilirsin. Ölçüyü değiştirdiğinde fiyat da anında güncellenir, çünkü fiyat harcanan malzemeye göre hesaplanır.",
+      "Evet. Ürünlerin çoğu parametrik: genişlik, yükseklik gibi ölçüleri kendi alanınıza göre santimetre cinsinden ayarlayabilirsiniz. Ölçüyü değiştirdiğinizde fiyat da anında güncellenir, çünkü fiyat harcanan malzemeye göre hesaplanır.",
   },
   {
     question: "Hangi malzemelerle üretim yapıyorsunuz?",
     answer:
-      "Üç şekilde üretiyoruz: 3D baskı, seramik ve alçı. 3D baskıda genel kullanım için PLA, dayanıklılık gereken yerlerde PETG, ABS veya esnek TPU kullanılıyor. Seramik ve alçı ürünler kalıpla üretilip elden geçiriliyor. Mağazada üretim türüne göre filtreleyebilirsin.",
+      "Üç şekilde üretiyoruz: 3D baskı, seramik ve alçı. 3D baskıda genel kullanım için PLA, dayanıklılık gereken yerlerde PETG, ABS veya esnek TPU kullanılıyor. Seramik ve alçı ürünler kalıpla üretilip elden geçiriliyor. Mağazada üretim türüne göre filtreleyebilirsiniz.",
   },
   {
     question: "Kendi 3D modelimi yükleyip bastırabilir miyim?",
     answer:
-      "Evet. Üret bölümünden STL dosyanı yükleyebilirsin; sistem modeli ölçüp malzeme, kalite ve adet seçimine göre fiyatı anında gösterir. En büyük kenar 30 santimetreye kadar olan modelleri üretebiliyoruz.",
+      "Evet. Üret bölümünden STL dosyanızı yükleyebilirsiniz; sistem modeli ölçüp malzeme, kalite ve adet seçimine göre fiyatı anında gösterir. En büyük kenar 30 santimetreye kadar olan modelleri üretebiliyoruz.",
   },
   {
     question: "Elimde 3D model yok, sadece fotoğrafım var. Ne yapabilirim?",
     answer:
-      "Beğendiğin bir objenin fotoğrafını yükleyebilirsin. ADJY fotoğraftan düzenlenebilir bir 3D model çıkarır; ölçüsünü değiştirip fiyatını görebilir, odanda AR ile bakabilir ve üretime gönderebilirsin.",
+      "Beğendiğiniz bir objenin fotoğrafını yükleyebilirsiniz. ADJY fotoğraftan düzenlenebilir bir 3D model çıkarır; ölçüsünü değiştirip fiyatını görebilir, odanızda AR ile bakabilir ve üretime gönderebilirsiniz.",
   },
   {
     question: "Ürünü satın almadan odamda görebilir miyim?",
     answer:
-      "Evet. Ürün sayfasındaki “AR’da Gör” ile nesneyi telefonunun kamerasından kendi odanda, seçtiğin gerçek ölçüsünde görüntüleyebilirsin.",
+      "Evet. Ürün sayfasındaki “AR’da Gör” ile ürünü telefonunuzun kamerasından kendi odanızda, seçtiğiniz gerçek ölçüsünde görüntüleyebilirsiniz.",
   },
   {
     question: "Üye olmadan sipariş verebilir miyim?",
     answer:
-      "Evet. Ad, e-posta ve telefon bilgilerini girip şifre belirlemeden sipariş verebilirsin. Sipariş onayı e-posta ile gönderilir. İstersen hesap açarak siparişlerini tek yerden takip edebilirsin.",
+      "Evet. Ad, e-posta ve telefon bilgilerinizi girip şifre belirlemeden sipariş verebilirsiniz. Sipariş onayı e-posta ile gönderilir. İsterseniz hesap açarak siparişlerinizi tek yerden takip edebilirsiniz.",
   },
   {
     question: "Siparişim ne kadar sürede hazırlanır?",
     answer:
-      "Ortalama bir sipariş 2-5 iş günü içinde üretilir. Ölçü büyüdükçe baskı süresi uzar; ürün sayfasında seçtiğin ölçüye göre tahmini üretim süresi gösterilir. Üretim bittikten sonra kargoya verilir.",
+      "Ortalama bir sipariş 2-5 iş günü içinde üretilir. Ölçü büyüdükçe baskı süresi uzar; ürün sayfasında seçtiğiniz ölçüye göre tahmini üretim süresi gösterilir. Üretim bittikten sonra kargoya verilir.",
   },
   {
     question: "Kargo ücreti ne kadar, ne zaman ücretsiz?",
     answer:
-      "500 TL ve üzeri siparişlerde kargo ücretsizdir. Altındaki siparişlerde kargo ücreti ödeme adımında seçtiğin gönderim şekline göre hesaplanır. Tüm Türkiye'ye gönderim yapılıyor.",
+      "500 TL ve üzeri siparişlerde kargo ücretsizdir. Altındaki siparişlerde kargo ücreti ödeme adımında seçtiğiniz gönderim şekline göre hesaplanır. Tüm Türkiye'ye gönderim yapılıyor.",
   },
   {
     question: "İade ve değişim nasıl işliyor?",
     answer:
-      "Hazır ürünlerde teslim tarihinden itibaren 14 gün içinde iade hakkın var. Sana özel ölçüde üretilmiş ürünlerde, Tüketici Hakları Kanunu gereği iade kabul edilmiyor. Ancak üretim hatası (katman kayması, kırık, eksik parça) olursa ürün ücretsiz yeniden üretilir.",
+      "Hazır ürünlerde teslim tarihinden itibaren 14 gün içinde iade hakkınız var. Size özel ölçüde üretilmiş ürünlerde, Tüketici Hakları Kanunu gereği iade kabul edilmiyor. Ancak üretim hatası (katman kayması, kırık, eksik parça) olursa ürün ücretsiz yeniden üretilir.",
   },
   {
     question: "Faturamı nasıl alırım?",
     answer:
-      "Ödeme adımında bireysel ya da kurumsal fatura seçebilirsin. Bireysel faturada TC Kimlik numaran, kurumsalda ticaret unvanı, vergi dairesi ve vergi numarası isteniyor. Fatura siparişinle birlikte düzenlenir.",
+      "Ödeme adımında bireysel ya da kurumsal fatura seçebilirsiniz. Bireysel faturada TC Kimlik numaranız, kurumsalda ticaret unvanı, vergi dairesi ve vergi numarası isteniyor. Fatura siparişinizle birlikte düzenlenir.",
   },
   {
     question: "Toplu siparişlerde indirim var mı?",
     answer:
-      "Evet. Adet arttıkça birim fiyat düşer ve indirim ödeme ekranında otomatik uygulanır. Kurumsal promosyon, etkinlik ya da toptan talepler için iletişim formundan yazabilirsin.",
+      "Evet. Adet arttıkça birim fiyat düşer ve indirim ödeme ekranında otomatik uygulanır. Kurumsal promosyon, etkinlik ya da toptan talepler için iletişim formundan yazabilirsiniz.",
   },
 ];
 
