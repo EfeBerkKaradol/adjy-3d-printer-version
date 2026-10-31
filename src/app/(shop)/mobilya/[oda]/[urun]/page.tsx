@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/db";
 import {
-  MODELLER,
   modelBul,
   odaBul,
   varsayilanYapilandirma,
 } from "@/lib/furniture/catalog";
 import { fiyatiYuvarla, mobilyaFiyati } from "@/lib/furniture/pricing";
 import { FurnitureConfigurator } from "@/components/furniture/FurnitureConfigurator";
-import { furnitureSku } from "@/lib/furniture/sku";
+import { mobilyaUrunuBul } from "@/lib/furniture/ensure";
 
 // ==========================================
 // YAPILANDIRICI SAYFASI
@@ -24,20 +22,17 @@ import { furnitureSku } from "@/lib/furniture/sku";
 // onun üstünde taşınıyor.
 // ==========================================
 
-export function generateStaticParams() {
-  return MODELLER.map((m) => ({ oda: m.oda, urun: m.slug }));
-}
-
 /**
- * Sayfa derleme anında üretiliyor ve ürün satırını
- * veritabanından okuyor. Satırlar henüz açılmamışken derleme
- * yapılırsa sayfa 404 olarak dondurulur ve satırlar sonradan
- * açılsa bile yeniden deploy edilmeden düzelmez.
+ * Sayfa istek anında üretilir.
  *
- * Yenileme aralığı o bağı koparıyor: veritabanı ne zaman hazır
- * olursa sayfa kendiliğinden toparlanır.
+ * Derleme anında üretilseydi iki şey birden bozulurdu:
+ * veritabanı satırları henüz yokken yapılan bir deploy on iki
+ * sayfayı 404 olarak dondururdu, ve sayfanın kendi bağlantısını
+ * kurması derleme sırasında veritabanına yazmak anlamına
+ * gelirdi. Sunucu tarafı burada zaten küçük — asıl iş
+ * tarayıcıda, modelin kendisinde.
  */
-export const revalidate = 600;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -78,14 +73,11 @@ export default async function YapilandiriciPage({
   const odaBilgi = odaBul(oda);
   if (!model || !odaBilgi || model.oda !== oda) notFound();
 
-  const urunKaydi = await prisma.product.findUnique({
-    where: { sku: furnitureSku(model.id) },
-    select: { id: true },
-  });
-
-  // Ürün kaydı yoksa sepete eklenemez; sessizce kırık bir
-  // "Sepete ekle" göstermek yerine sayfayı hiç açmıyoruz.
-  if (!urunKaydi) notFound();
+  // Sepet ve sipariş kalemi gerçek bir ürün satırına bağlanıyor.
+  // Satır yoksa açılır — bölümün açık olması elle çalıştırılan
+  // bir betiğe bağlı kalmamalı.
+  const urunId = await mobilyaUrunuBul(model);
+  if (!urunId) notFound();
 
   const varsayilan = varsayilanYapilandirma(model);
   const fiyat = fiyatiYuvarla(
@@ -116,7 +108,7 @@ export default async function YapilandiriciPage({
       />
       <FurnitureConfigurator
         model={model}
-        urunId={urunKaydi.id}
+        urunId={urunId}
         odaAdi={odaBilgi.ad}
       />
     </>
