@@ -1,6 +1,7 @@
 import { MetadataRoute } from "next";
 import { prisma } from "@/lib/db";
 import { getAbsoluteUrl } from "@/lib/url";
+import { MODELLER, ODALAR } from "@/lib/furniture/catalog";
 
 export const dynamic = "force-dynamic";
 
@@ -76,5 +77,37 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  return [...staticPages, ...categoryPages, ...productPages];
+  // Mobilya sayfaları
+  //
+  // Bu sayfalar veritabanında ürün satırı olarak durmuyor —
+  // mobilya modelleri kodda tanımlı üreteçler. Ürün sorgusundan
+  // gelmedikleri için elle eklenmeleri gerekiyor; yoksa on iki
+  // yapılandırıcı sayfası arama motorlarına hiç bildirilmez.
+  const mobilyaPages: MetadataRoute.Sitemap = [
+    {
+      url: `${BASE_URL}/mobilya`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    ...ODALAR.map((oda) => ({
+      url: `${BASE_URL}/mobilya/${oda.id}`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
+    ...MODELLER.map((m) => ({
+      url: `${BASE_URL}/mobilya/${m.oda}/${m.slug}`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
+  ];
+
+  return [
+    ...staticPages,
+    ...categoryPages,
+    ...productPages,
+    ...mobilyaPages,
+  ];
 }
