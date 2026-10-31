@@ -36,6 +36,21 @@ export const MAIN_NAV: NavLink[] = [
     ],
   },
   {
+    // Mobilya mağazanın bir rafı değil, ayrı bir bölüm: ürün
+    // sayfası yok, yapılandırıcı var. Koleksiyonların içine
+    // gömülseydi kimse bulamazdı.
+    label: "Mobilya",
+    href: "/mobilya",
+    description: "Ölçüsünü kendiniz kurduğunuz modüler mobilya",
+    children: [
+      { label: "Oturma Odası", href: "/mobilya/oturma-odasi" },
+      { label: "Çalışma Odası", href: "/mobilya/calisma-odasi" },
+      { label: "Yatak Odası", href: "/mobilya/yatak-odasi" },
+      { label: "Antre", href: "/mobilya/antre" },
+      { label: "Dekoratif Raf", href: "/mobilya/dekoratif-raf" },
+    ],
+  },
+  {
     label: "Koleksiyonlar",
     href: "/collections",
     description: "Kategorilere göre keşfet",
@@ -67,6 +82,7 @@ export const FOOTER_NAV: { title: string; links: { label: string; href: string }
     title: "Alışveriş",
     links: [
       { label: "Mağaza", href: "/products" },
+      { label: "Mobilya", href: "/mobilya" },
       { label: "Koleksiyonlar", href: "/collections" },
       { label: "Üret", href: "/uret" },
       { label: "Fotoğraftan oluştur", href: "/uret/fotograftan-olustur" },

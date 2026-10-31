@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { randomUUID } from "node:crypto";
 import { createOrderSchema } from "@/lib/validations/order";
 import { calculatePrice } from "@/lib/priceCalculator";
+import { mobilyaUrunuMu, yapilandirmayiCoz } from "@/lib/furniture/order";
 import { getShippingPrice } from "@/lib/shipping";
 import { parseAttachmentIds, getAttachmentPriceMap } from "@/lib/panelAttachmentPricing";
 import { CUSTOM_PRINT_SLUG, isCustomPrintParams } from "@/lib/customPrint";
@@ -155,6 +156,7 @@ export async function POST(request: NextRequest) {
         id: true,
         name: true,
         slug: true,
+        sku: true,
         basePrice: true,
         parameters: {
           select: {
@@ -220,6 +222,20 @@ export async function POST(request: NextRequest) {
             colorId: String(customParams.colorId || ""),
           });
           unitPrice = breakdown.unitPriceGross;
+        } else if (mobilyaUrunuMu(product.sku)) {
+          // Mobilyanın veritabanında parametre satırı yok; fiyat
+          // kesim listesinden çıkıyor. Genel formül motoruna
+          // bıraksaydık müşteri hangi ölçüyü kurarsa kursun
+          // varsayılan fiyattan ücretlendirilirdi.
+          const cozum = yapilandirmayiCoz(
+            customParams as Record<string, unknown> | null
+          );
+          if (!cozum) {
+            throw new Error(
+              `Mobilya yapılandırması okunamadı: ${product.name}`
+            );
+          }
+          unitPrice = cozum.fiyat;
         } else {
           unitPrice = customParams
             ? calculatePrice(basePrice, product.parameters, customParams)
