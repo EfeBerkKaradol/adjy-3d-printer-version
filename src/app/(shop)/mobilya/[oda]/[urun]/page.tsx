@@ -28,6 +28,17 @@ export function generateStaticParams() {
   return MODELLER.map((m) => ({ oda: m.oda, urun: m.slug }));
 }
 
+/**
+ * Sayfa derleme anında üretiliyor ve ürün satırını
+ * veritabanından okuyor. Satırlar henüz açılmamışken derleme
+ * yapılırsa sayfa 404 olarak dondurulur ve satırlar sonradan
+ * açılsa bile yeniden deploy edilmeden düzelmez.
+ *
+ * Yenileme aralığı o bağı koparıyor: veritabanı ne zaman hazır
+ * olursa sayfa kendiliğinden toparlanır.
+ */
+export const revalidate = 600;
+
 export async function generateMetadata({
   params,
 }: {
