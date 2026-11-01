@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ModelGorseli } from "./ModelGorseli";
+import { OdaSeridi } from "./OdaSeridi";
 import { ODALAR, type MobilyaModeli } from "@/lib/furniture/catalog";
 import { varsayilanYapilandirma } from "@/lib/furniture/catalog";
 import { fiyatiYuvarla, mobilyaFiyati } from "@/lib/furniture/pricing";
@@ -36,7 +37,7 @@ export function OdaDuzeni({
         {/* ---------- ODALAR ---------- */}
         <nav aria-label="Odalar" className="lg:sticky lg:top-24 lg:self-start">
           <p className="adjy-eyebrow mb-3">Oda</p>
-          <ul className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-2 lg:mx-0 lg:flex-col lg:gap-0.5 lg:overflow-visible lg:px-0 lg:pb-0">
+          <OdaSeridi>
             <li className="shrink-0">
               <Link
                 href="/mobilya"
@@ -65,7 +66,7 @@ export function OdaDuzeni({
                 </Link>
               </li>
             ))}
-          </ul>
+          </OdaSeridi>
         </nav>
 
         {/* ---------- ÜRÜNLER ---------- */}
