@@ -2,7 +2,7 @@
 
 import { Check, Minus, Plus } from "lucide-react";
 import { MALZEMELER, malzemeBul } from "@/lib/furniture/materials";
-import { KULPLAR, TABANLAR } from "@/lib/furniture/hardware";
+import { KULPLAR, MASA_AYAKLARI, TABANLAR, masaAyagiBul } from "@/lib/furniture/hardware";
 import {
   type MobilyaModeli,
   siraSiniri,
@@ -314,12 +314,70 @@ export function TabanPaneli({
   model,
   onTaban,
   onArkaPanel,
+  onAltRaf,
 }: {
   cfg: MobilyaYapilandirma;
   model: MobilyaModeli;
   onTaban: (id: string) => void;
   onArkaPanel: (v: boolean) => void;
+  onAltRaf: (v: boolean) => void;
 }) {
+  // Masanın taşıyıcısı ayak, dolabınki taban. İkisi aynı şey
+  // değil: biri ürünü ayakta tutuyor, diğeri yerden kaldırıyor.
+  if (model.tur === "masa") {
+    const ayak = masaAyagiBul(cfg.taban);
+    return (
+      <div className="space-y-5">
+        <div>
+          <label className="text-sm font-medium">Ayak</label>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {MASA_AYAKLARI.map((a) => (
+              <button
+                key={a.id}
+                type="button"
+                onClick={() => onTaban(a.id)}
+                aria-pressed={cfg.taban === a.id}
+                className={`h-10 rounded-lg border px-3.5 text-sm transition-colors ${
+                  cfg.taban === a.id
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-border hover:bg-muted"
+                }`}
+              >
+                {a.ad}
+              </button>
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">{ayak.aciklama}</p>
+        </div>
+
+        {model.sira.max >= 2 && (
+          <div className="border-t border-border pt-4">
+            <label className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                checked={cfg.sira >= 2}
+                onChange={(e) => onAltRaf(e.target.checked)}
+                className="mt-0.5 h-4 w-4 accent-foreground"
+              />
+              <span>
+                <span className="text-sm font-medium">Alt raf</span>
+                <span className="mt-0.5 block text-xs text-muted-foreground">
+                  Tablanın altına, ayaklar arasına bir raf eklenir. Kitap ve
+                  kutulara yer açar; bacak boşluğunu bir miktar daraltır.
+                </span>
+              </span>
+            </label>
+          </div>
+        )}
+
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          Tablanın altında ön ve arka kayıt var. Süs değil: 18 mm tabla
+          kayıtsız bir masada zamanla ortadan çöker.
+        </p>
+      </div>
+    );
+  }
+
   const secili = tabanBul(cfg.taban);
   return (
     <div className="space-y-5">

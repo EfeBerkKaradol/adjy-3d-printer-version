@@ -25,8 +25,10 @@ import {
   LISTE_CARPANI,
   HAZIRLIK_CARPANI,
   kulpBul,
+  masaAyagiBul,
   tabanBul,
 } from "./hardware";
+import { MODELLER } from "./catalog";
 import { m2Fiyat, malzemeBul } from "./materials";
 import { icerikSayilari, panelleriUret } from "./panels";
 import type { DonanimKalemi, MobilyaYapilandirma, Panel } from "./types";
@@ -73,9 +75,11 @@ export function mobilyaFiyati(
   const paneller = panelleriUret(cfg);
   const govde = malzemeBul(cfg.govdeMalzeme);
   const on = malzemeBul(cfg.onMalzeme);
-  const taban = tabanBul(cfg.taban);
   const kulp = kulpBul(cfg.kulp);
-  const sayilar = icerikSayilari(cfg);
+  const masaMi = MODELLER.find((m) => m.id === cfg.modelId)?.tur === "masa";
+  const sayilar = masaMi
+    ? { kapak: 0, cekmece: 0, raf: 0 }
+    : icerikSayilari(cfg);
 
   // --- Malzeme ve bantlama ---
   let malzeme = 0;
@@ -85,6 +89,9 @@ export function mobilyaFiyati(
   let bantMetre = 0;
 
   for (const p of paneller) {
+    // Satın alınan ayak levhadan çıkmıyor; metrekaresi,
+    // kesimi ve bandı yok. Donanım olarak aşağıda fiyatlanır.
+    if (p.levhaDisi) continue;
     const m = p.malzemeRolu === "on" ? on : govde;
     const alan = panelAlani(p);
     const birim = m2Fiyat(m, p.kalinlik);
@@ -107,11 +114,28 @@ export function mobilyaFiyati(
   kalem("Teleskopik çekmece rayı", sayilar.cekmece, DONANIM_FIYAT.cekmeceRayi);
   kalem("Kulp — " + kulp.ad, sayilar.kapak + sayilar.cekmece, kulp.fiyat);
   kalem("Raf pimi", sayilar.raf * 4, DONANIM_FIYAT.rafPimi);
-  kalem("Montaj seti", paneller.length, DONANIM_FIYAT.montajSeti);
-  // Devrilme emniyeti yalnızca ayakta duran, devrilebilecek
-  // yükseklikteki ürünlerde gerekir.
-  kalem("Devrilme emniyeti", cfg.yukseklik > 900 ? 1 : 0, DONANIM_FIYAT.duvarAparati);
-  kalem(taban.ad, taban.adet, taban.adetFiyat);
+  kalem(
+    "Montaj seti",
+    paneller.filter((p) => !p.levhaDisi).length,
+    DONANIM_FIYAT.montajSeti
+  );
+
+  if (masaMi) {
+    // Masanın taşıyıcısı ayak. Panel ayak levhadan çıktığı için
+    // zaten kesim listesinde; ahşap ve metal ayak satın alınır.
+    const ayak = masaAyagiBul(cfg.taban);
+    kalem(ayak.ad, ayak.adet, ayak.adetFiyat);
+  } else {
+    // Devrilme emniyeti yalnızca ayakta duran, devrilebilecek
+    // yükseklikteki ürünlerde gerekir.
+    kalem(
+      "Devrilme emniyeti",
+      cfg.yukseklik > 900 ? 1 : 0,
+      DONANIM_FIYAT.duvarAparati
+    );
+    const taban = tabanBul(cfg.taban);
+    kalem(taban.ad, taban.adet, taban.adetFiyat);
+  }
 
   const donanim = donanimKalemleri.reduce(
     (t, k) => t + k.adet * k.birimFiyat,
@@ -125,7 +149,10 @@ export function mobilyaFiyati(
   // yanıyla gövdenin yan panelini aynı işçilikle saymak,
   // çekmeceyi olduğundan pahalı gösteriyordu.
   const panelIsciligi = paneller.reduce(
-    (t, p) => t + (panelAlani(p) < 0.15 ? ISCILIK.panelBasi * 0.5 : ISCILIK.panelBasi),
+    (t, p) =>
+      p.levhaDisi
+        ? t
+        : t + (panelAlani(p) < 0.15 ? ISCILIK.panelBasi * 0.5 : ISCILIK.panelBasi),
     0
   );
 
@@ -136,7 +163,10 @@ export function mobilyaFiyati(
     hacimM3 * ISCILIK.montajM3 +
     ISCILIK.kurulum +
     sayilar.kapak * ISCILIK.kapakAyari +
-    sayilar.cekmece * ISCILIK.cekmeceMontaji;
+    sayilar.cekmece * ISCILIK.cekmeceMontaji +
+    // Tablanın dört kenarı da görünür: bantı düzeltmek ve
+    // kayıtları hizalamak gövde montajından ayrı bir iş.
+    (masaMi ? ISCILIK.tablaMontaji : 0);
   const iscilik = iscilikHam * (secenekler.iscilikCarpani ?? 1);
 
   const dogrudanMaliyet = malzeme + bantlama + donanim + iscilik;
@@ -188,7 +218,7 @@ export function mobilyaFiyati(
     satirlar,
     donanimKalemleri,
     levhaAlani,
-    panelSayisi: paneller.length,
+    panelSayisi: paneller.filter((p) => !p.levhaDisi).length,
   };
 }
 

@@ -69,6 +69,14 @@ export interface Panel {
   gorunur: boolean;
   /** Varsa ait olduğu göz — tıklamayla seçim için */
   goz?: GozAnahtari;
+  /**
+   * Levhadan çıkmayan parça: satın alınan ahşap ya da metal
+   * ayak. Çizilir ama metrekare, kesim ve bantlama hesabına
+   * girmez — fiyatı donanım olarak adet üzerinden alınır.
+   */
+  levhaDisi?: boolean;
+  /** Levha dışı parçanın kendi rengi */
+  renkIpucu?: string;
 }
 
 export type PanelRol =
@@ -81,7 +89,8 @@ export type PanelRol =
   | "kapak"
   | "cekmece-on"
   | "cekmece-govde"
-  | "baza";
+  | "baza"
+  | "ayak";
 
 /** Donanım kalemi — fiyat dökümünde satır olarak görünür */
 export interface DonanimKalemi {

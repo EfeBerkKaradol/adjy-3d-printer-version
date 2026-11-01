@@ -73,10 +73,11 @@ interface Props {
   model: MobilyaModeli;
   /** Sepetin bağlanacağı veritabanı ürünü */
   urunId: string;
+  odaId: string;
   odaAdi: string;
 }
 
-export function FurnitureConfigurator({ model, urunId, odaAdi }: Props) {
+export function FurnitureConfigurator({ model, urunId, odaId, odaAdi }: Props) {
   const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
 
@@ -164,7 +165,11 @@ export function FurnitureConfigurator({ model, urunId, odaAdi }: Props) {
         parameters: {
           ...cfg,
           ozet: olcuMetni,
-          sutunSira: `${cfg.sutun} sütun × ${cfg.sira} sıra`,
+          sutunSira: model.izgaraSecilebilir
+            ? `${cfg.sutun} sütun × ${cfg.sira} sıra`
+            : cfg.sira >= 2
+              ? "alt raflı"
+              : "alt rafsız",
           panelSayisi: dokum.panelSayisi,
           levhaAlani: Number(dokum.levhaAlani.toFixed(2)),
         },
@@ -184,7 +189,7 @@ export function FurnitureConfigurator({ model, urunId, odaAdi }: Props) {
       <div className="relative bg-gradient-to-b from-muted/40 to-muted/70">
         <div className="absolute left-4 top-4 z-10 flex items-center gap-2">
           <Link
-            href={`/mobilya/${model.oda}`}
+            href={`/mobilya/${odaId}`}
             className="inline-flex h-9 items-center gap-1.5 rounded-full bg-background/90 px-3 text-sm backdrop-blur transition-colors hover:bg-background"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden />
@@ -232,7 +237,9 @@ export function FurnitureConfigurator({ model, urunId, odaAdi }: Props) {
         {/* Grup seçici — başparmağın ulaştığı yerde, yatay */}
         <div className="sticky top-0 z-10 flex gap-1 overflow-x-auto border-b border-border bg-background px-3 py-2.5">
           {GRUPLAR.filter(
-            (g) => g.id !== "bolme" || model.gozSecilebilir
+            (g) =>
+              (g.id !== "bolme" || model.gozSecilebilir) &&
+              (g.id !== "izgara" || model.izgaraSecilebilir)
           ).map((g) => {
             const Ikon = g.ikon;
             const aktif = grup === g.id;
@@ -249,7 +256,7 @@ export function FurnitureConfigurator({ model, urunId, odaAdi }: Props) {
                 }`}
               >
                 <Ikon className="h-4 w-4" aria-hidden />
-                {g.ad}
+                {g.id === "taban" && model.tur === "masa" ? "Ayak" : g.ad}
               </button>
             );
           })}
@@ -259,7 +266,7 @@ export function FurnitureConfigurator({ model, urunId, odaAdi }: Props) {
           {grup === "olcu" && (
             <OlcuPaneli cfg={cfg} model={model} onDegis={guncelle} />
           )}
-          {grup === "izgara" && (
+          {grup === "izgara" && model.izgaraSecilebilir && (
             <IzgaraPaneli cfg={cfg} model={model} onDegis={guncelle} />
           )}
           {grup === "bolme" && model.gozSecilebilir && (
@@ -304,6 +311,7 @@ export function FurnitureConfigurator({ model, urunId, odaAdi }: Props) {
               model={model}
               onTaban={(id) => guncelle({ taban: id })}
               onArkaPanel={(v) => guncelle({ arkaPanel: v })}
+              onAltRaf={(v) => guncelle({ sira: v ? 2 : 1 })}
             />
           )}
         </div>
@@ -335,7 +343,13 @@ export function FurnitureConfigurator({ model, urunId, odaAdi }: Props) {
             <span className="text-right text-xs tabular-nums text-muted-foreground">
               {olcuMetni}
               <br />
-              {cfg.sutun} sütun × {cfg.sira} sıra
+              {/* Masanın sütunu ve sırası yok; "1 sütun × 1 sıra"
+                  yazmak anlamsız bir bilgi olurdu. */}
+              {model.izgaraSecilebilir
+                ? `${cfg.sutun} sütun × ${cfg.sira} sıra`
+                : cfg.sira >= 2
+                  ? "alt raflı"
+                  : "alt rafsız"}
             </span>
           </button>
 

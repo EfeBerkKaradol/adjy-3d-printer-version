@@ -96,12 +96,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly" as const,
       priority: 0.8,
     })),
-    ...MODELLER.map((m) => ({
-      url: `${BASE_URL}/mobilya/${m.oda}/${m.slug}`,
-      lastModified: new Date(),
-      changeFrequency: "monthly" as const,
-      priority: 0.8,
-    })),
+    // Bir ürün birden çok odada görünüyor; her odanın altındaki
+    // adres ayrı bir sayfa, hepsi bildirilmeli.
+    ...MODELLER.flatMap((m) =>
+      m.odalar.map((oda) => ({
+        url: `${BASE_URL}/mobilya/${oda}/${m.slug}`,
+        lastModified: new Date(),
+        changeFrequency: "monthly" as const,
+        priority: 0.8,
+      }))
+    ),
   ];
 
   return [

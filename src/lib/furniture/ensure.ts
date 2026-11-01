@@ -87,7 +87,8 @@ export async function mobilyaUrunuBul(
   });
   if (mevcut) return mevcut.id;
 
-  const kategoriId = await odaKategorisi(model.oda);
+  // Ürün birden çok odada görünebiliyor; kategori bağı ilk odaya kurulur.
+  const kategoriId = await odaKategorisi(model.odalar[0]);
   if (!kategoriId) return null;
 
   const varsayilan = varsayilanYapilandirma(model);

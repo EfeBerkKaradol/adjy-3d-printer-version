@@ -67,9 +67,9 @@ async function main() {
 
   // --- Modeller ---
   for (const model of MODELLER) {
-    const kategori = odaId.get(model.oda);
+    const kategori = odaId.get(model.odalar[0]);
     if (!kategori) {
-      console.warn(`  ! ${model.ad}: odası yok (${model.oda})`);
+      console.warn(`  ! ${model.ad}: odası yok (${model.odalar[0]})`);
       continue;
     }
     const varsayilan = varsayilanYapilandirma(model);

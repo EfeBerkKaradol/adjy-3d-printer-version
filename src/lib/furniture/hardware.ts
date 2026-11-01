@@ -85,6 +85,56 @@ export function tabanBul(id: string): TabanSecenegi {
   return TABANLAR.find((t) => t.id === id) ?? TABANLAR[0];
 }
 
+/**
+ * Masa, sehpa ve bank ayakları.
+ *
+ * Dolap tabanından ayrı tutuluyor çünkü bunlar gövdeyi
+ * yerden kaldıran bir detay değil, ürünün taşıyıcısı. Panel
+ * ayak levhadan çıkar ve kesim listesine girer; ahşap ve metal
+ * ayak satın alınır, adet üzerinden fiyatlanır.
+ */
+export interface MasaAyagi {
+  id: string;
+  ad: string;
+  aciklama: string;
+  /** Levhadan kesilen yan panel mi */
+  panelli: boolean;
+  /** Panelli değilse adet fiyatı (TL) */
+  adetFiyat: number;
+  adet: number;
+}
+
+export const MASA_AYAKLARI: MasaAyagi[] = [
+  {
+    id: "panel-ayak",
+    ad: "Panel ayak",
+    aciklama: "Gövdeyle aynı levhadan, tabladan zemine inen iki yan.",
+    panelli: true,
+    adetFiyat: 0,
+    adet: 0,
+  },
+  {
+    id: "ahsap-ayak",
+    ad: "Masif ahşap ayak",
+    aciklama: "Konik masif ayak, dört adet. Tablayı hafif gösterir.",
+    panelli: false,
+    adetFiyat: 390,
+    adet: 4,
+  },
+  {
+    id: "metal-ayak",
+    ad: "Metal ayak",
+    aciklama: "Mat siyah çelik profil, dört adet.",
+    panelli: false,
+    adetFiyat: 310,
+    adet: 4,
+  },
+];
+
+export function masaAyagiBul(id: string): MasaAyagi {
+  return MASA_AYAKLARI.find((a) => a.id === id) ?? MASA_AYAKLARI[0];
+}
+
 export interface KulpSecenegi {
   id: string;
   ad: string;
@@ -142,6 +192,8 @@ export const ISCILIK = {
   kapakAyari: 120,
   /** Çekmece montajı — çekmece başına */
   cekmeceMontaji: 180,
+  /** Tabla kenarı düzeltme ve kayıt montajı — masa başına */
+  tablaMontaji: 260,
 } as const;
 
 /**

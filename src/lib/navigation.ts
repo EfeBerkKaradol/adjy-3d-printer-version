@@ -44,10 +44,15 @@ export const MAIN_NAV: NavLink[] = [
     description: "Ölçüsünü kendiniz kurduğunuz modüler mobilya",
     children: [
       { label: "Oturma Odası", href: "/mobilya/oturma-odasi" },
-      { label: "Çalışma Odası", href: "/mobilya/calisma-odasi" },
+      { label: "Yemek Odası", href: "/mobilya/yemek-odasi" },
       { label: "Yatak Odası", href: "/mobilya/yatak-odasi" },
-      { label: "Antre", href: "/mobilya/antre" },
+      { label: "Mutfak", href: "/mobilya/mutfak" },
+      { label: "Ofis", href: "/mobilya/ofis" },
+      { label: "Antre Mobilyası", href: "/mobilya/antre" },
+      { label: "Genç Odası", href: "/mobilya/genc-odasi" },
+      { label: "Banyo", href: "/mobilya/banyo" },
       { label: "Dekoratif Raf", href: "/mobilya/dekoratif-raf" },
+      { label: "Basit Şekiller", href: "/mobilya/basit-sekiller" },
     ],
   },
   {

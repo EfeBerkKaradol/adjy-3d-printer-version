@@ -41,7 +41,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { oda, urun } = await params;
   const model = modelBul(urun);
-  if (!model || model.oda !== oda) return {};
+  if (!model || !model.odalar.includes(oda)) return {};
   const fiyat = fiyatiYuvarla(
     mobilyaFiyati(varsayilanYapilandirma(model), {
       iscilikCarpani: model.iscilikCarpani,
@@ -71,7 +71,7 @@ export default async function YapilandiriciPage({
   const { oda, urun } = await params;
   const model = modelBul(urun);
   const odaBilgi = odaBul(oda);
-  if (!model || !odaBilgi || model.oda !== oda) notFound();
+  if (!model || !odaBilgi || !model.odalar.includes(oda)) notFound();
 
   // Sepet ve sipariş kalemi gerçek bir ürün satırına bağlanıyor.
   // Satır yoksa açılır — bölümün açık olması elle çalıştırılan
@@ -109,6 +109,7 @@ export default async function YapilandiriciPage({
       <FurnitureConfigurator
         model={model}
         urunId={urunId}
+        odaId={oda}
         odaAdi={odaBilgi.ad}
       />
     </>

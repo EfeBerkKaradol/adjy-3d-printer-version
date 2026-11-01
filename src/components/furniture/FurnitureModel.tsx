@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { malzemeBul } from "@/lib/furniture/materials";
 import { gozlerinYerlesimi, panelleriUret } from "@/lib/furniture/panels";
 import { tabanBul } from "@/lib/furniture/hardware";
+import { MODELLER } from "@/lib/furniture/catalog";
 import type { GozAnahtari, MobilyaYapilandirma } from "@/lib/furniture/types";
 import { ahsapDokusu, siluetDokusu } from "./wood";
 
@@ -40,6 +41,7 @@ export function FurnitureModel({
 }: Props) {
   const paneller = useMemo(() => panelleriUret(cfg), [cfg]);
   const gozler = useMemo(() => gozlerinYerlesimi(cfg), [cfg]);
+  const masaMi = MODELLER.find((m) => m.id === cfg.modelId)?.tur === "masa";
   const taban = tabanBul(cfg.taban);
 
   const govde = malzemeBul(cfg.govdeMalzeme);
@@ -67,6 +69,24 @@ export function FurnitureModel({
           const malzeme = onYuzey ? on : govde;
           const doku = onYuzey ? onDoku : govdeDoku;
           const vurgulu = seciliGoz !== null && p.goz === seciliGoz;
+          // Satın alınan ayak levha değil: dokusu yok, kendi
+          // rengiyle çizilir.
+          if (p.levhaDisi) {
+            return (
+              <mesh
+                key={p.id}
+                position={[p.x * MM, p.y * MM, p.z * MM]}
+                castShadow
+              >
+                <boxGeometry args={[p.w * MM, p.h * MM, p.d * MM]} />
+                <meshStandardMaterial
+                  color={p.renkIpucu ?? malzeme.hex}
+                  roughness={p.renkIpucu ? 0.45 : 0.6}
+                  metalness={p.renkIpucu ? 0.5 : 0}
+                />
+              </mesh>
+            );
+          }
           return (
             <mesh
               key={p.id}
@@ -85,13 +105,15 @@ export function FurnitureModel({
           );
         })}
 
-      {/* --- Ayaklar ve tekerlekler --- */}
-      {!taban.panelli && taban.yukseklik > 10 && (
+      {/* --- Dolap ayakları ve tekerlekler ---
+          Masa ayakları panel listesinden geliyor; burası
+          yalnızca gövdeyi yerden kaldıran dolap tabanı. */}
+      {!masaMi && !taban.panelli && taban.yukseklik > 10 && (
         <Ayaklar cfg={cfg} yukseklik={taban.yukseklik} tekerlek={cfg.taban === "tekerlek"} />
       )}
 
       {/* --- Kulplar --- */}
-      <Kulplar cfg={cfg} />
+      {!masaMi && <Kulplar cfg={cfg} />}
 
       {/* --- Göz seçimi: tıklanabilir saydam kutular --- */}
       {gozSecimi &&

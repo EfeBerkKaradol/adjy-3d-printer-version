@@ -22,7 +22,8 @@ import {
   KUTU_KALINLIK,
   malzemeBul,
 } from "./materials";
-import { tabanBul } from "./hardware";
+import { masaAyagiBul, tabanBul } from "./hardware";
+import { MODELLER } from "./catalog";
 import type { GozAnahtari, GozIcerigi, MobilyaYapilandirma, Panel } from "./types";
 
 /** Panelin levha üstündeki kesim çevresi — en büyük iki ölçü */
@@ -98,6 +99,146 @@ export function gozlerinYerlesimi(cfg: MobilyaYapilandirma): GozOlcu[] {
  * ürüne ayrı bir üreteç yazmak aynı kodu kopyalamak olurdu.
  */
 export function panelleriUret(cfg: MobilyaYapilandirma): Panel[] {
+  // Mobilyanın iki yapım ailesi var ve ikisi aynı üreteçten
+  // çıkamaz: dolap bir gövdedir, masa bir tabla ile onu taşıyan
+  // ayaklardır. Tek üreteçte birleştirmek, ikisini de yanlış
+  // anlatan bir orta yol üretirdi.
+  const model = MODELLER.find((m) => m.id === cfg.modelId);
+  if (model?.tur === "masa") return masaPanelleri(cfg);
+  return dolapPanelleri(cfg);
+}
+
+/**
+ * Masa, sehpa, konsol ve bank.
+ *
+ * Tabla + taşıyıcı. Panel ayakta yanlar levhadan çıkar ve
+ * kesim listesine girer; ahşap ya da metal ayak satın alınır,
+ * levhadan çıkmaz. Kayıt (ön ve arka bağlantı) tablanın bel
+ * vermesini engeller — 18 mm tabla kayıtsız bir yemek
+ * masasında zamanla çöker.
+ */
+function masaPanelleri(cfg: MobilyaYapilandirma): Panel[] {
+  const paneller: Panel[] = [];
+  const ayak = masaAyagiBul(cfg.taban);
+  const D = cfg.derinlik;
+  const W = cfg.genislik;
+  const H = cfg.yukseklik;
+
+  const ekle = (p: Omit<Panel, "kesimCevre">) =>
+    paneller.push({ ...p, kesimCevre: cevre(p.w, p.h, p.d) });
+
+  // --- Tabla: dört kenarı da bantlanır, hepsi görünür ---
+  ekle({
+    id: "tabla",
+    rol: "ust",
+    x: 0,
+    y: H - T / 2,
+    z: 0,
+    w: W,
+    h: T,
+    d: D,
+    kalinlik: T,
+    malzemeRolu: "govde",
+    bantliKenar: 2 * (W + D),
+    gorunur: true,
+  });
+
+  const ayakY = H - T;
+
+  if (ayak.panelli) {
+    const ic = 30;
+    for (const [i, yon] of [-1, 1].entries()) {
+      ekle({
+        id: `masa-yan-${i}`,
+        rol: "yan",
+        x: (yon * (W - T)) / 2 + yon * -ic,
+        y: ayakY / 2,
+        z: 0,
+        w: T,
+        h: ayakY,
+        d: D - 60,
+        kalinlik: T,
+        malzemeRolu: "govde",
+        bantliKenar: 2 * ayakY + (D - 60),
+        gorunur: true,
+      });
+    }
+  }
+
+  if (!ayak.panelli) {
+    // Satın alınan ayak levhadan çıkmaz ama ürünün parçası:
+    // listede durur ki hem çizilsin hem donanım olarak
+    // fiyatlansın. Listeden düşseydi masa havada dururdu.
+    const ic = 90;
+    const kalin = cfg.taban === "metal-ayak" ? 40 : 60;
+    const renk = cfg.taban === "metal-ayak" ? "#2b2f33" : undefined;
+    const noktalar: [number, number][] = [
+      [-W / 2 + ic, -D / 2 + ic],
+      [W / 2 - ic, -D / 2 + ic],
+      [-W / 2 + ic, D / 2 - ic],
+      [W / 2 - ic, D / 2 - ic],
+    ];
+    for (const [i, [ax, az]] of noktalar.entries()) {
+      ekle({
+        id: `masa-ayak-${i}`,
+        rol: "ayak",
+        x: ax,
+        y: ayakY / 2,
+        z: az,
+        w: kalin,
+        h: ayakY,
+        d: kalin,
+        kalinlik: kalin,
+        malzemeRolu: "govde",
+        bantliKenar: 0,
+        gorunur: true,
+        levhaDisi: true,
+        renkIpucu: renk,
+      });
+    }
+  }
+
+  // --- Kayıt: tablanın altında, ön ve arka ---
+  const kayitH = Math.min(120, Math.max(60, ayakY * 0.18));
+  for (const [i, yon] of [-1, 1].entries()) {
+    ekle({
+      id: `kayit-${i}`,
+      rol: "dikey",
+      x: 0,
+      y: ayakY - kayitH / 2,
+      z: (yon * (D - 80)) / 2,
+      w: W - 140,
+      h: kayitH,
+      d: T,
+      kalinlik: T,
+      malzemeRolu: "govde",
+      bantliKenar: W - 140,
+      gorunur: true,
+    });
+  }
+
+  // --- Alt raf: sıra sayısı 2 ve üstündeyse ---
+  if (cfg.sira >= 2) {
+    ekle({
+      id: "alt-raf",
+      rol: "raf",
+      x: 0,
+      y: Math.max(90, ayakY * 0.22),
+      z: 0,
+      w: W - 2 * T - 80,
+      h: T,
+      d: D - 80,
+      kalinlik: T,
+      malzemeRolu: "govde",
+      bantliKenar: W - 2 * T - 80,
+      gorunur: true,
+    });
+  }
+
+  return paneller;
+}
+
+function dolapPanelleri(cfg: MobilyaYapilandirma): Panel[] {
   const paneller: Panel[] = [];
   const taban = tabanBul(cfg.taban);
   const tabanY = taban.yukseklik;
