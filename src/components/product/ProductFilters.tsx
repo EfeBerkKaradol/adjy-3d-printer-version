@@ -30,10 +30,25 @@ export interface FilterCategory {
   name: string;
   slug: string;
   productCount: number;
+  /** Alt kategoriler (yalnızca ürünü olanlar) */
+  children?: FilterCategory[];
+}
+
+export interface FilterCollection {
+  id: string;
+  name: string;
+  slug: string;
+  productCount: number;
+}
+
+/** Ana ve alt kategorileri tek listede düzler (ad bulmak için). */
+export function flattenCategories(categories: FilterCategory[]): FilterCategory[] {
+  return categories.flatMap((c) => [c, ...(c.children ?? [])]);
 }
 
 export interface ProductFiltersProps {
   categories: FilterCategory[];
+  collections?: FilterCollection[];
   materials: { value: string; label: string }[];
   /** Çekmece içinde kullanıldığında seçim sonrası kapanır */
   onNavigate?: () => void;
@@ -62,6 +77,7 @@ export function useFilterState() {
 
   const current = {
     category: searchParams.get("category") ?? "",
+    koleksiyon: searchParams.get("koleksiyon") ?? "",
     material: searchParams.get("material") ?? "",
     minPrice: searchParams.get("minPrice") ?? "",
     maxPrice: searchParams.get("maxPrice") ?? "",
@@ -74,6 +90,7 @@ export function useFilterState() {
 
   const activeCount =
     (current.category ? 1 : 0) +
+    (current.koleksiyon ? 1 : 0) +
     (current.material ? 1 : 0) +
     (current.minPrice || current.maxPrice ? 1 : 0) +
     (current.customizable ? 1 : 0) +
@@ -181,6 +198,7 @@ function CheckRow({
 
 export function ProductFilters({
   categories,
+  collections = [],
   materials,
   onNavigate,
   showHeader = true,
@@ -266,13 +284,52 @@ export function ProductFilters({
             </AccordionTrigger>
             <AccordionContent className="pb-4">
               {categories.map((cat) => (
+                <div key={cat.id}>
+                  <CheckRow
+                    id={`f-cat-${cat.slug}`}
+                    label={cat.name}
+                    count={cat.productCount}
+                    checked={current.category === cat.slug}
+                    onChange={(v) => update({ category: v ? cat.slug : null })}
+                  />
+                  {/* Alt kategoriler: ana kategori ya da alt kategorilerinden biri seçiliyken açılır */}
+                  {(cat.children?.length ?? 0) > 1 &&
+                    (current.category === cat.slug ||
+                      cat.children?.some((k) => k.slug === current.category)) && (
+                      <div className="ml-7 border-l border-border pl-3">
+                        {cat.children?.map((k) => (
+                          <CheckRow
+                            key={k.id}
+                            id={`f-cat-${k.slug}`}
+                            label={k.name}
+                            count={k.productCount}
+                            checked={current.category === k.slug}
+                            onChange={(v) => update({ category: v ? k.slug : cat.slug })}
+                          />
+                        ))}
+                      </div>
+                    )}
+                </div>
+              ))}
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
+        {/* Koleksiyon */}
+        {collections.length > 0 && (
+          <AccordionItem value="koleksiyon" className="border-b border-border">
+            <AccordionTrigger className="py-4 text-sm hover:no-underline">
+              Koleksiyon
+            </AccordionTrigger>
+            <AccordionContent className="pb-4">
+              {collections.map((k) => (
                 <CheckRow
-                  key={cat.id}
-                  id={`f-cat-${cat.slug}`}
-                  label={cat.name}
-                  count={cat.productCount}
-                  checked={current.category === cat.slug}
-                  onChange={(v) => update({ category: v ? cat.slug : null })}
+                  key={k.id}
+                  id={`f-kol-${k.slug}`}
+                  label={k.name}
+                  count={k.productCount}
+                  checked={current.koleksiyon === k.slug}
+                  onChange={(v) => update({ koleksiyon: v ? k.slug : null })}
                 />
               ))}
             </AccordionContent>

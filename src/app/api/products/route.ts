@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { productQuerySchema } from "@/lib/validations/product";
+import { categoryFilter } from "@/lib/categoryTree";
 import { getFromCache, setCache, CACHE_KEYS, CACHE_TTL } from "@/lib/cache";
 
 // ==========================================
@@ -44,7 +45,8 @@ export async function GET(request: NextRequest) {
 
     // [GÖREV 1]: Kategori filtresi
     if (query.category) {
-      where.category = { slug: query.category };
+      // Ana kategori: alt kategorilerindeki ürünler de dahil
+      where.category = categoryFilter(query.category);
     }
 
     // [GÖREV 2]: Featured filtresi
