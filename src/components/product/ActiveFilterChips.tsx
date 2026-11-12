@@ -1,6 +1,11 @@
 "use client";
 
-import { useFilterState, type FilterCategory } from "./ProductFilters";
+import {
+  flattenCategories,
+  useFilterState,
+  type FilterCategory,
+  type FilterCollection,
+} from "./ProductFilters";
 import { X } from "lucide-react";
 
 // ==========================================
@@ -11,6 +16,7 @@ import { X } from "lucide-react";
 
 interface ActiveFilterChipsProps {
   categories: FilterCategory[];
+  collections?: FilterCollection[];
 }
 
 function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
@@ -27,13 +33,16 @@ function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
   );
 }
 
-export function ActiveFilterChips({ categories }: ActiveFilterChipsProps) {
+export function ActiveFilterChips({ categories, collections = [] }: ActiveFilterChipsProps) {
   const { current, setParams, activeCount, clearAll } = useFilterState();
 
   if (activeCount === 0) return null;
 
   const categoryName =
-    categories.find((c) => c.slug === current.category)?.name ?? current.category;
+    flattenCategories(categories).find((c) => c.slug === current.category)?.name ??
+    current.category;
+  const collectionName =
+    collections.find((c) => c.slug === current.koleksiyon)?.name ?? current.koleksiyon;
 
   const priceLabel =
     current.minPrice || current.maxPrice
@@ -50,6 +59,9 @@ export function ActiveFilterChips({ categories }: ActiveFilterChipsProps) {
       )}
       {current.category && (
         <Chip label={categoryName} onRemove={() => setParams({ category: null })} />
+      )}
+      {current.koleksiyon && (
+        <Chip label={collectionName} onRemove={() => setParams({ koleksiyon: null })} />
       )}
       {current.customizable && (
         <Chip

@@ -11,6 +11,14 @@ import { Pagination } from "@/components/ui/pagination";
 import { materialFilterValues, materialOptions, type MaterialOption } from "@/lib/materialFamily";
 import { ItemListJsonLd } from "@/components/seo/JsonLd";
 import { getAbsoluteUrl } from "@/lib/url";
+import {
+  categoryFilter,
+  collectionFilter,
+  loadCategoryTree,
+  loadCollectionTags,
+  type CollectionTag,
+} from "@/lib/categoryTree";
+import type { FilterCategory } from "@/components/product/ProductFilters";
 
 // ==========================================
 // MAĞAZA (Server Component)
@@ -35,6 +43,7 @@ const PAGE_SIZE = 12;
 interface ProductsPageProps {
   searchParams: Promise<{
     category?: string;
+    koleksiyon?: string;
     featured?: string;
     customizable?: string;
     inStock?: string;
@@ -70,7 +79,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const where: any = { isActive: true };
 
-  if (params.category) where.category = { slug: params.category };
+  // Ana kategori seçilince alt kategorilerindeki ürünler de gelir
+  if (params.category) where.category = categoryFilter(params.category);
+  if (params.koleksiyon) where.tags = collectionFilter(params.koleksiyon);
   if (params.featured === "true") where.featured = true;
   if (params.inStock === "true") where.stockQty = { gt: 0 };
   // Parametrik ürün = en az bir Parameter kaydı olan ürün
@@ -95,7 +106,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
   let products: Awaited<ReturnType<typeof loadProducts>>["products"] = [];
   let totalCount = 0;
-  let categories: { id: string; name: string; slug: string; productCount: number }[] = [];
+  let categories: FilterCategory[] = [];
+  let collections: CollectionTag[] = [];
   let materialChoices: MaterialOption[] = [];
   let configurableCount = 0;
   let failed = false;
@@ -119,7 +131,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       where.materialType = values.length === 1 ? { equals: values[0], mode: "insensitive" } : { in: values };
     }
 
-    const [rows, count, configurableCount, categoryRows] = await Promise.all([
+    const [rows, count, configurableCount, tree, collectionTags] = await Promise.all([
       prisma.product.findMany({
         where,
         orderBy: buildOrderBy(params.sort),
@@ -159,18 +171,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       prisma.product.count({
         where: { isActive: true, parameters: { some: {} } },
       }),
-      prisma.category.findMany({
-        where: { isActive: true, parentId: null },
-        orderBy: { sortOrder: "asc" },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          // Yalnızca aktif ürünler sayılır — aksi hâlde şeritteki sayı
-          // ile listedeki sonuç sayısı birbirini tutmuyor
-          _count: { select: { products: { where: { isActive: true } } } },
-        },
-      }),
+      loadCategoryTree(prisma),
+      loadCollectionTags(prisma),
     ]);
 
     return {
@@ -178,13 +180,15 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       count,
       configurableCount,
       materialTypes,
-      categories: categoryRows
-        .filter((c) => c._count.products > 0)
+      collections: collectionTags,
+      categories: tree
+        .filter((c) => c.productCount > 0)
         .map((c) => ({
           id: c.id,
           name: c.name,
           slug: c.slug,
-          productCount: c._count.products,
+          productCount: c.productCount,
+          children: c.children.filter((k) => k.productCount > 0),
         })),
     };
   }
@@ -195,6 +199,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     totalCount = data.count;
     materialChoices = materialOptions(data.materialTypes);
     categories = data.categories;
+    collections = data.collections;
     configurableCount = data.configurableCount;
   } catch (error) {
     console.error("Ürünler yüklenirken hata:", error);
@@ -232,6 +237,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         <Suspense fallback={<div className="h-12" />}>
           <CategoryChips
             categories={categories}
+            collections={collections}
             configurableCount={configurableCount}
           />
         </Suspense>
@@ -242,7 +248,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         <aside className="hidden lg:block" aria-label="Ürün filtreleri">
           <div className="sticky top-24">
             <Suspense fallback={<div className="h-96" />}>
-              <ProductFilters categories={categories} materials={materialChoices} />
+              <ProductFilters categories={categories} collections={collections} materials={materialChoices} />
             </Suspense>
           </div>
         </aside>
@@ -264,7 +270,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           </div>
 
           <Suspense fallback={null}>
-            <ActiveFilterChips categories={categories} />
+            <ActiveFilterChips categories={categories} collections={collections} />
           </Suspense>
 
           <div className="mt-8">
@@ -294,6 +300,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       <Suspense fallback={null}>
         <FilterDrawer
           categories={categories}
+          collections={collections}
           materials={materialChoices}
           resultCount={totalCount}
         />

@@ -62,7 +62,7 @@ async function getProduct(slug: string) {
       customMouldFee: true,
       stockQty: true,
       featured: true,
-      category: { select: { id: true, name: true, slug: true } },
+      category: { select: { id: true, name: true, slug: true, parentId: true } },
       parameters: {
         orderBy: { sortOrder: "asc" },
         select: {
@@ -108,10 +108,16 @@ function readGallery(gallery: unknown): string[] {
   return gallery.filter((g): g is string => typeof g === "string" && g.length > 0);
 }
 
-async function getRelated(categoryId: string, excludeId: string) {
+async function getRelated(categoryId: string, parentId: string | null, excludeId: string) {
   try {
+    // Aynı ana kategorinin ailesi: kendi alt kategorisi önce, sonra kardeşleri
+    const familyId = parentId ?? categoryId;
     const rows = await prisma.product.findMany({
-      where: { isActive: true, categoryId, id: { not: excludeId } },
+      where: {
+        isActive: true,
+        id: { not: excludeId },
+        category: { OR: [{ id: familyId }, { parentId: familyId }] },
+      },
       take: 4,
       orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
       select: {
@@ -186,7 +192,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
   if (!product) notFound();
 
-  const related = await getRelated(product.category.id, product.id);
+  const related = await getRelated(product.category.id, product.category.parentId, product.id);
   const baseUrl = getAbsoluteUrl();
 
   const gallery = readGallery(product.gallery);

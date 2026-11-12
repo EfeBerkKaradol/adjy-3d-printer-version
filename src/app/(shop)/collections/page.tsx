@@ -5,6 +5,7 @@ import { CategoryGrid, type HomeCategory } from "@/components/home/CategoryGrid"
 import { CollectionRow, type Collection } from "@/components/collections/CollectionRow";
 import { Button } from "@/components/ui/button";
 import { resolvePublicImage } from "@/lib/publicAsset";
+import { loadCategoryTree, loadCollectionTags } from "@/lib/categoryTree";
 import { ArrowRight } from "lucide-react";
 import { MATERIAL_FAMILIES, familyFor } from "@/lib/materialFamily";
 
@@ -20,7 +21,7 @@ export const revalidate = 1800;
 export const metadata: Metadata = {
   title: "Koleksiyonlar",
   description:
-    "ADJY koleksiyonlarını keşfedin: ev dekorasyonu, ofis aksesuarları, teknik parçalar ve daha fazlası.",
+    "ADJY koleksiyonlarını keşfedin: aydınlatma, bitki ve saksı, dekorasyon, masa ve ofis, düzen ve depolama, hobi ve mimari maketler.",
   alternates: { canonical: "/collections" },
   openGraph: {
     title: "Koleksiyonlar | ADJY",
@@ -60,65 +61,49 @@ async function getCategoryCovers(): Promise<Map<string, string>> {
  */
 async function getCollections(): Promise<Collection[]> {
   try {
-    const categories = await prisma.category.findMany({
-      where: { isActive: true, parentId: null },
-      orderBy: { sortOrder: "asc" },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        imageUrl: true,
-        _count: { select: { products: { where: { isActive: true } } } },
-        products: {
-          where: { isActive: true },
-          orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-          take: 4,
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            basePrice: true,
-            thumbnailUrl: true,
-            featured: true,
-            widthMm: true,
-            depthMm: true,
-            heightMm: true,
-            category: { select: { name: true, slug: true } },
-            _count: { select: { reviews: true, parameters: true } },
-          },
-        },
-      },
-    });
+    const tree = (await loadCategoryTree(prisma)).filter((c) => c.productCount > 0);
 
-    // Başlangıç fiyatı kategori genelinden okunur; vitrindeki
-    // dört üründen biri en ucuzu olmayabilir.
-    const enUcuz = await prisma.product.groupBy({
-      by: ["categoryId"],
-      where: { isActive: true },
-      _min: { basePrice: true },
-    });
-    const fiyatlar = new Map(
-      enUcuz.map((r) => [r.categoryId, r._min.basePrice ? Number(r._min.basePrice) : null])
+    return await Promise.all(
+      tree.map(async (c) => {
+        // Ana kategori + alt kategorileri birlikte: vitrin ve başlangıç fiyatı
+        const where = { isActive: true, categoryId: { in: c.ids } };
+        const [products, enUcuz] = await Promise.all([
+          prisma.product.findMany({
+            where,
+            orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+            take: 4,
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              basePrice: true,
+              thumbnailUrl: true,
+              featured: true,
+              widthMm: true,
+              depthMm: true,
+              heightMm: true,
+              category: { select: { name: true, slug: true } },
+              _count: { select: { reviews: true, parameters: true } },
+            },
+          }),
+          prisma.product.aggregate({ where, _min: { basePrice: true } }),
+        ]);
+        return {
+          id: c.id,
+          name: c.name,
+          slug: c.slug,
+          description: c.description,
+          coverUrl: resolvePublicImage(c.imageUrl) ?? products[0]?.thumbnailUrl ?? null,
+          productCount: c.productCount,
+          fromPrice: enUcuz._min.basePrice ? Number(enUcuz._min.basePrice) : null,
+          products: products.map((p) => ({
+            ...p,
+            basePrice: Number(p.basePrice),
+            isCustomizable: p._count.parameters > 0,
+          })),
+        };
+      })
     );
-
-    return categories
-      .filter((c) => c._count.products > 0)
-      .map((c) => ({
-        id: c.id,
-        name: c.name,
-        slug: c.slug,
-        description: c.description,
-        coverUrl:
-          resolvePublicImage(c.imageUrl) ?? c.products[0]?.thumbnailUrl ?? null,
-        productCount: c._count.products,
-        fromPrice: fiyatlar.get(c.id) ?? null,
-        products: c.products.map((p) => ({
-          ...p,
-          basePrice: Number(p.basePrice),
-          isCustomizable: p._count.parameters > 0,
-        })),
-      }));
   } catch {
     return [];
   }
@@ -127,19 +112,7 @@ async function getCollections(): Promise<Collection[]> {
 async function getCategories(): Promise<HomeCategory[]> {
   try {
     const [categories, covers] = await Promise.all([
-      prisma.category.findMany({
-        where: { isActive: true, parentId: null },
-        orderBy: { sortOrder: "asc" },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          description: true,
-          imageUrl: true,
-          // Yalnızca aktif ürünler sayılır
-          _count: { select: { products: { where: { isActive: true } } } },
-        },
-      }),
+      loadCategoryTree(prisma),
       getCategoryCovers(),
     ]);
 
@@ -148,9 +121,12 @@ async function getCategories(): Promise<HomeCategory[]> {
       name: c.name,
       slug: c.slug,
       description: c.description,
-      // Kategorinin kendi görseli varsa o, yoksa içindeki ürün
-      imageUrl: resolvePublicImage(c.imageUrl) ?? covers.get(c.id) ?? null,
-      productCount: c._count.products,
+      // Kategorinin kendi görseli varsa o, yoksa içindeki (ya da alt kategorisindeki) ürün
+      imageUrl:
+        resolvePublicImage(c.imageUrl) ??
+        c.ids.map((id) => covers.get(id)).find(Boolean) ??
+        null,
+      productCount: c.productCount,
     }));
   } catch {
     return [];
@@ -188,10 +164,11 @@ async function getMaterialFamilies() {
 }
 
 export default async function CollectionsPage() {
-  const [collections, categories, families] = await Promise.all([
+  const [collections, categories, families, gifts] = await Promise.all([
     getCollections(),
     getCategories(),
     getMaterialFamilies(),
+    loadCollectionTags(prisma).catch(() => []),
   ]);
   const withProducts = categories.filter((c) => c.productCount > 0);
 
@@ -220,6 +197,23 @@ export default async function CollectionsPage() {
               <span className="ml-1.5 tabular-nums text-muted-foreground">
                 {c.productCount}
               </span>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {/* Hediye, Yılbaşı gibi koleksiyonlar — kategoriden bağımsız */}
+      {gifts.length > 0 && (
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="mr-1 text-sm text-muted-foreground">Özel seçkiler:</span>
+          {gifts.map((g) => (
+            <Link
+              key={g.id}
+              href={`/products?koleksiyon=${g.slug}`}
+              className="rounded-full bg-foreground px-3.5 py-1.5 text-sm text-background transition-opacity hover:opacity-85"
+            >
+              {g.name}
+              <span className="ml-1.5 tabular-nums opacity-60">{g.productCount}</span>
             </Link>
           ))}
         </div>

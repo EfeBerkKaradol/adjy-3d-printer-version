@@ -6,6 +6,7 @@ import { PromoBand } from "@/components/home/PromoBand";
 import { CustomerVoices, type Soz } from "@/components/home/CustomerVoices";
 import { TrustRow } from "@/components/home/TrustRow";
 import { CategoryGrid, type HomeCategory } from "@/components/home/CategoryGrid";
+import { loadCategoryTree } from "@/lib/categoryTree";
 import { CreateSection } from "@/components/home/CreateSection";
 import { ProductRail, type RailProduct } from "@/components/product/ProductRail";
 import { SectionHeading } from "@/components/ui/section-heading";
@@ -158,26 +159,18 @@ const MIN_KATEGORI_URUN = 3;
 
 async function getCategories(): Promise<HomeCategory[]> {
   try {
-    const rows = await prisma.category.findMany({
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        imageUrl: true,
-        _count: { select: { products: { where: { isActive: true } } } },
-      },
-    });
+    // Ana kategoriler; sayıya alt kategorilerdeki ürünler de girer
+    const rows = await loadCategoryTree(prisma);
     return rows
-      .filter((c) => c._count.products >= MIN_KATEGORI_URUN)
-      .sort((a, b) => b._count.products - a._count.products)
+      .filter((c) => c.productCount >= MIN_KATEGORI_URUN)
+      .sort((a, b) => b.productCount - a.productCount)
       .map((c) => ({
         id: c.id,
         name: c.name,
         slug: c.slug,
         description: c.description,
         imageUrl: c.imageUrl,
-        productCount: c._count.products,
+        productCount: c.productCount,
       }));
   } catch {
     return [];

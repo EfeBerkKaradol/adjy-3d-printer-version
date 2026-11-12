@@ -13,6 +13,7 @@ import {
   ProductFilters,
   useFilterState,
   type FilterCategory,
+  type FilterCollection,
 } from "./ProductFilters";
 import { SORT_OPTIONS } from "./SortDropdown";
 import { ArrowDownUp, Check, SlidersHorizontal } from "lucide-react";
@@ -26,12 +27,14 @@ import { ArrowDownUp, Check, SlidersHorizontal } from "lucide-react";
 
 interface FilterDrawerProps {
   categories: FilterCategory[];
+  collections?: FilterCollection[];
   materials: { value: string; label: string }[];
   resultCount: number;
 }
 
 export function FilterDrawer({
   categories,
+  collections = [],
   materials,
   resultCount,
 }: FilterDrawerProps) {
@@ -98,6 +101,7 @@ export function FilterDrawer({
           <div className="flex-1 overflow-y-auto overscroll-contain px-5 pb-6 pt-2">
             <ProductFilters
               categories={categories}
+              collections={collections}
               materials={materials}
               showHeader={false}
             />
