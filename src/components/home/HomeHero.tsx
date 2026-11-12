@@ -124,7 +124,7 @@ export function HomeHero({ products }: Props) {
                     />
                   )}
                   {p.isCustomizable && (
-                    <span className="absolute left-2 top-2 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-medium backdrop-blur">
+                    <span className="absolute left-2 top-2 rounded-full bg-background/90 px-2 py-0.5 text-[11px] font-medium backdrop-blur">
                       Ölçüsü değişir
                     </span>
                   )}

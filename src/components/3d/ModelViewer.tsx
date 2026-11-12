@@ -9,11 +9,12 @@ import {
   AdaptiveDpr,
   AdaptiveEvents,
 } from "@react-three/drei";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
+import { useCoarsePointer } from "@/hooks/useCoarsePointer";
 import { ParametricModel } from "./ParametricModel";
 import { GLBModelViewer } from "./GLBModelViewer";
 import { GLBErrorBoundary, Grounded, shouldUseGLB } from "./sceneParts";
-import { Loader2 } from "lucide-react";
+import { Loader2, Hand, X } from "lucide-react";
 
 // ==========================================
 // 3D MODEL VIEWER
@@ -42,8 +43,14 @@ function LoadingFallback() {
   );
 }
 
+// Dokunmatik ekranda tuval, sayfayı kaydırmak isteyen parmağı yakalayıp modeli
+// döndürüyordu (OrbitControls dokunuşları tümüyle alır). Orada tuvalin üstünde
+// ince bir katman durur: kaydırma sayfaya geçer, döndürmek için bir kez dokunulur.
 export function ModelViewer({ parameters, productType, modelFileUrl, defaults }: ModelViewerProps) {
   const useGLB = shouldUseGLB(modelFileUrl, productType);
+  const dokunmatik = useCoarsePointer();
+  const [etkin, setEtkin] = useState(false);
+  const kilitli = dokunmatik && !etkin;
 
   const parametricFallback = (
     <ParametricModel parameters={parameters} productType={productType} />
@@ -104,8 +111,9 @@ export function ModelViewer({ parameters, productType, modelFileUrl, defaults }:
 
           {/* Kontroller */}
           <OrbitControls
+            enabled={!kilitli}
             target={[0, 1.2, 0]}
-            enablePan
+            enablePan={!dokunmatik}
             minDistance={2.5}
             maxDistance={14}
             maxPolarAngle={Math.PI / 2.05}
@@ -113,10 +121,38 @@ export function ModelViewer({ parameters, productType, modelFileUrl, defaults }:
         </Canvas>
       </Suspense>
 
-      {/* Kontrol ipucu */}
-      <div className="absolute bottom-3 left-3 text-[10px] text-muted-foreground/50 select-none pointer-events-none">
-        Sürükle: döndür · Tekerlek: yakınlaştır
-      </div>
+      {/* Dokunmatik: kaydırma sayfaya geçer; döndürmek için dokun */}
+      {kilitli && (
+        <button
+          type="button"
+          onClick={() => setEtkin(true)}
+          className="absolute inset-0 z-10 flex items-end justify-center bg-transparent pb-4"
+          style={{ touchAction: "pan-y" }}
+          aria-label="3D modeli döndürmek için dokun"
+        >
+          <span className="inline-flex min-h-11 items-center gap-2 rounded-full bg-background/90 px-4 text-sm shadow-sm backdrop-blur">
+            <Hand className="h-4 w-4" aria-hidden />
+            Döndürmek için dokun
+          </span>
+        </button>
+      )}
+      {dokunmatik && etkin && (
+        <button
+          type="button"
+          onClick={() => setEtkin(false)}
+          className="absolute right-3 top-3 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-background/90 shadow-sm backdrop-blur"
+          aria-label="Döndürmeyi bitir"
+        >
+          <X className="h-5 w-5" aria-hidden />
+        </button>
+      )}
+
+      {/* Kontrol ipucu (fare) */}
+      {!dokunmatik && (
+        <div className="absolute bottom-3 left-3 text-xs text-muted-foreground/60 select-none pointer-events-none">
+          Sürükle: döndür · Tekerlek: yakınlaştır
+        </div>
+      )}
     </div>
   );
 }

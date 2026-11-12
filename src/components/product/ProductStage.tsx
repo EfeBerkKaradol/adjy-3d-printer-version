@@ -5,6 +5,7 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import { Box, Image as ImageIcon, Loader2 } from "lucide-react";
 import { FILAMENT_COLORS } from "@/lib/slicer";
+import { useCoarsePointer } from "@/hooks/useCoarsePointer";
 
 // ==========================================
 // ÜRÜN SAHNESİ
@@ -22,6 +23,12 @@ import { FILAMENT_COLORS } from "@/lib/slicer";
 //
 // Sekmelerle fotoğrafa geri dönülebilir; 3D hiç yüklenemezse
 // fotoğraf zaten ekranda durduğu için kimse bir şey kaybetmez.
+//
+// Dokunmatik ekranlarda (telefon, tablet) 3D kendiliğinden
+// devralmaz: model mobil veride saniyeler sürüyor ve ekranı
+// kaplayan tuval, sayfayı kaydırmaya çalışan parmağı yakalayıp
+// ürünü döndürüyordu. Orada fotoğraf kalır, 3D ancak "3D"ye
+// dokunulunca indirilir.
 // ==========================================
 
 const ModelViewer = dynamic(
@@ -52,13 +59,16 @@ export function ProductStage({
   const [aktifFoto, setAktifFoto] = useState(0);
   const [modelHazir, setModelHazir] = useState(false);
   const [kullaniciSecti, setKullaniciSecti] = useState(false);
+  const dokunmatik = useCoarsePointer();
 
   const model3dVar = !!modelFileUrl;
 
   // Model yüklendikten sonra kendiliğinden devralır — ziyaretçi
-  // sekmeye kendisi dokunduysa tercihine karışılmaz.
+  // sekmeye kendisi dokunduysa tercihine karışılmaz. Dokunmatik
+  // ekranda kendiliğinden yüklenmez (yukarıdaki not).
   useEffect(() => {
     if (!model3dVar) return;
+    if (window.matchMedia("(pointer: coarse)").matches) return;
     const t = window.setTimeout(() => setModelHazir(true), 1200);
     return () => window.clearTimeout(t);
   }, [model3dVar]);
@@ -69,6 +79,7 @@ export function ProductStage({
 
   function sec(s: Sekme) {
     setKullaniciSecti(true);
+    if (s === "3d") setModelHazir(true);
     setSekme(s);
   }
 
@@ -104,7 +115,7 @@ export function ProductStage({
           </div>
         )}
 
-        {model3dVar && !modelHazir && (
+        {model3dVar && !modelHazir && !dokunmatik && (
           <span className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-background/90 px-3 py-1.5 text-xs backdrop-blur">
             <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
             3D hazırlanıyor
@@ -118,7 +129,7 @@ export function ProductStage({
             type="button"
             onClick={() => sec("3d")}
             aria-pressed={sekme === "3d"}
-            className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors ${
+            className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors ${
               sekme === "3d" ? "border-foreground bg-foreground text-background" : "border-border hover:bg-muted"
             }`}
           >
@@ -129,7 +140,7 @@ export function ProductStage({
             type="button"
             onClick={() => sec("foto")}
             aria-pressed={sekme === "foto"}
-            className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors ${
+            className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors ${
               sekme === "foto" ? "border-foreground bg-foreground text-background" : "border-border hover:bg-muted"
             }`}
           >
@@ -137,7 +148,7 @@ export function ProductStage({
             Fotoğraf
           </button>
           {sekme === "3d" && (
-            <span className="ml-1 text-xs text-muted-foreground">
+            <span className="ml-1 hidden text-xs text-muted-foreground [@media(pointer:fine)]:inline">
               Sürükleyin · tekerlekle yakınlaştırın
             </span>
           )}

@@ -33,7 +33,7 @@ export function WishlistButton({ productId, className }: WishlistButtonProps) {
     <button
       onClick={handleClick}
       className={cn(
-        "p-2 rounded-full transition-all duration-200",
+        "p-3 sm:p-2 rounded-full transition-all duration-200",
         "hover:scale-110 active:scale-95",
         isWishlisted
           ? "bg-red-500/20 text-red-500 hover:bg-red-500/30"

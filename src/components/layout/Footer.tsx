@@ -32,12 +32,12 @@ export function Footer() {
               {FOOTER_NAV.map((group) => (
                 <div key={group.title}>
                   <h2 className="adjy-eyebrow mb-4 text-foreground">{group.title}</h2>
-                  <ul className="space-y-2.5">
+                  <ul className="space-y-0 sm:space-y-2.5">
                     {group.links.map((link) => (
                       <li key={link.href + link.label}>
                         <Link
                           href={link.href}
-                          className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                          className="inline-block py-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground sm:py-0"
                         >
                           {link.label}
                         </Link>

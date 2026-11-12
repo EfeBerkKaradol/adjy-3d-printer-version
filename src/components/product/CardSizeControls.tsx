@@ -122,7 +122,7 @@ export function CardSizeControls({ basePrice, parameters, onChange }: Props) {
             <div className="flex items-baseline justify-between gap-2">
               <label
                 htmlFor={`olcu-${p.name}`}
-                className="text-[11px] uppercase tracking-wide text-muted-foreground"
+                className="text-xs uppercase tracking-wide text-muted-foreground"
               >
                 {p.displayName}
               </label>
@@ -142,7 +142,7 @@ export function CardSizeControls({ basePrice, parameters, onChange }: Props) {
               className="adjy-mini-range mt-1.5 w-full"
               style={{ ["--dolu" as string]: `${yuzde}%` }}
             />
-            <div className="mt-1 flex justify-between text-[10px] tabular-nums text-muted-foreground">
+            <div className="mt-1 flex justify-between text-[11px] tabular-nums text-muted-foreground">
               <span>{formatCmValue(p.minValue)}</span>
               <span>{formatCmValue(p.maxValue)} cm</span>
             </div>

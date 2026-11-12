@@ -271,7 +271,7 @@
 
   /* Teknik üst-başlık: küçük, harf aralıklı, versal */
   .adjy-eyebrow {
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
     line-height: 1;
     letter-spacing: 0.16em;
     text-transform: uppercase;
@@ -362,6 +362,29 @@
   background: var(--background);
   border: 2px solid var(--foreground);
   cursor: grab;
+}
+
+/* Dokunmatik: çizgi aynı incelikte kalır, parmağın tuttuğu alan 28px olur */
+@media (pointer: coarse) {
+  .adjy-mini-range {
+    height: 28px;
+    background: linear-gradient(
+        to right,
+        var(--foreground) 0%,
+        var(--foreground) var(--dolu, 50%),
+        var(--border) var(--dolu, 50%),
+        var(--border) 100%
+      )
+      center / 100% 2px no-repeat;
+  }
+  .adjy-mini-range::-webkit-slider-thumb {
+    width: 22px;
+    height: 22px;
+  }
+  .adjy-mini-range::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+  }
 }
 
 .adjy-mini-range:focus-visible {
