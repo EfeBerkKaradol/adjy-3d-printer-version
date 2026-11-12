@@ -4,6 +4,8 @@ import { useCallback, useRef, useState } from "react";
 import * as THREE from "three";
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter.js";
+import { mergeVertices, toCreasedNormals } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import { MeshoptSimplifier } from "meshoptimizer";
 import { Loader2, Upload, Check, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { analyzeMeshPositions, estimatePrint, calculatePrintPrice, formatPrintTime, formatTRY } from "@/lib/slicer";
@@ -35,51 +37,41 @@ import { formatCmValue } from "@/lib/units";
 // ==========================================
 
 /**
- * AR modelini sadeleştirir.
+ * Web/AR modelini sadeleştirir.
  *
  * Baskı STL'leri yüz binlerce üçgen taşıyor; olduğu gibi GLB'ye
  * çevrilince dosya 40 MB'ı aşıyor ve telefonda açılmıyor.
- * Köşeler bir ızgaraya yuvarlanıp aynı hücreye düşenler
- * birleştirilir: biçim korunur, üçgen sayısı onda birine iner.
- * Bu yalnızca AR kopyası içindir — ölçü ve hacim hesabı
+ *
+ * Önceden köşeler bir ızgaraya yuvarlanıyordu: hızlıydı ama
+ * yüzeyde delikler, yüzlerce kopuk parça ve ters dönmüş yüzler
+ * bırakıyordu (ürün sayfasındaki "yüzey hataları"). Şimdi:
+ *   1. aynı konumdaki köşeler kaynaştırılır (STL üçgen çorbası → bağlı mesh)
+ *   2. meshoptimizer ile topolojiyi koruyarak sadeleştirilir
+ *   3. 32°'den keskin kenarlarda normal ayrılır, eğriler yumuşak kalır
+ * Bu yalnızca web/AR kopyası içindir — ölçü ve hacim hesabı
  * her zaman ham geometriden yapılır.
  */
-function sadelestir(geo: THREE.BufferGeometry, hedefUcgen: number): THREE.BufferGeometry {
-  const pos = geo.getAttribute("position").array as ArrayLike<number>;
-  const ucgen = pos.length / 9;
-  if (ucgen <= hedefUcgen) return geo;
+async function sadelestir(geo: THREE.BufferGeometry, hedefUcgen: number): Promise<THREE.BufferGeometry> {
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", geo.getAttribute("position").clone());
+  const bagli = mergeVertices(g, 1e-4);
+  const konum = new Float32Array(bagli.getAttribute("position").array as ArrayLike<number>);
+  let index: Uint32Array = new Uint32Array(bagli.index!.array as ArrayLike<number>);
 
-  geo.computeBoundingBox();
-  const bb = geo.boundingBox!;
-  const boy = Math.max(bb.max.x - bb.min.x, bb.max.y - bb.min.y, bb.max.z - bb.min.z) || 1;
-  const n = Math.max(12, Math.round(Math.pow(hedefUcgen * 2, 1 / 2.2)));
-  const h = boy / n;
-
-  const anahtar = (i: number) =>
-    `${Math.floor((pos[i] - bb.min.x) / h)},${Math.floor((pos[i + 1] - bb.min.y) / h)},${Math.floor((pos[i + 2] - bb.min.z) / h)}`;
-
-  const temsil = new Map<string, [number, number, number]>();
-  for (let i = 0; i < pos.length; i += 3) {
-    const k = anahtar(i);
-    if (!temsil.has(k)) temsil.set(k, [pos[i], pos[i + 1], pos[i + 2]]);
+  if (index.length / 3 > hedefUcgen) {
+    await MeshoptSimplifier.ready;
+    // Hedefe ulaşılamazsa (ince detay) %1'lik biçim hatasında durur
+    const [sade] = MeshoptSimplifier.simplify(index, konum, 3, hedefUcgen * 3, 0.01);
+    index = sade;
   }
+  const sonuc = new THREE.BufferGeometry();
+  sonuc.setAttribute("position", new THREE.BufferAttribute(konum, 3));
+  sonuc.setIndex(new THREE.BufferAttribute(index, 1));
 
-  const cikti: number[] = [];
-  const gorulen = new Set<string>();
-  for (let t = 0; t < pos.length; t += 9) {
-    const ka = anahtar(t), kb = anahtar(t + 3), kc = anahtar(t + 6);
-    if (ka === kb || kb === kc || ka === kc) continue;
-    const imza = [ka, kb, kc].sort().join("|");
-    if (gorulen.has(imza)) continue;
-    gorulen.add(imza);
-    for (const k of [ka, kb, kc]) cikti.push(...temsil.get(k)!);
-  }
-
-  const yeni = new THREE.BufferGeometry();
-  yeni.setAttribute("position", new THREE.Float32BufferAttribute(cikti, 3));
-  yeni.computeVertexNormals();
-  yeni.computeBoundingBox();
-  return yeni;
+  // Keskin kenar normalleri; ardından aynı konum+normal tekrar birleştirilir (dosya küçük kalır)
+  const kenarli = mergeVertices(toCreasedNormals(sonuc, (32 * Math.PI) / 180), 1e-6);
+  kenarli.computeBoundingBox();
+  return kenarli;
 }
 
 interface Olcu {
@@ -254,13 +246,13 @@ export function ProductModelUpload({ productId, materialType, onSaved }: Props) 
     setHata(null);
     try {
       // AR ve konfigüratör için GLB — ana parçadan, sadeleştirilmiş,
-      // gerçek ölçekte (mm → m). ~2500 üçgen: telefonda hızlı açılan,
-      // biçimi koruyan boyut.
+      // gerçek ölçekte (mm → m). En çok 40 000 üçgen: telefonda
+      // açılan, dokuyu ve kabartmayı koruyan boyut.
       //
       // Baskı STL'leri Z yukarı gelir (tabla konvansiyonu); glTF ise
       // Y yukarı kabul eder. Geometri bu yüzden çevrilir — çevrilmeyen
       // modeller konfigüratörde ve AR'da yan yatıyordu.
-      const arGeo = sadelestir(parcalar[anaParca].geometri.clone(), 2500);
+      const arGeo = await sadelestir(parcalar[anaParca].geometri, 40000);
       arGeo.rotateX(-Math.PI / 2);
       arGeo.computeBoundingBox();
 
