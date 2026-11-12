@@ -271,6 +271,11 @@ async function main() {
         await tx.category.update({ where: { id: c.id }, data: { isActive: false } });
         console.log(`  ${slug} pasife alındı`);
       }
+    }, {
+      // ~70 sorgu tek transaction'da; Neon'a her biri ağ gidiş-dönüşü.
+      // Varsayılan 5 sn canlıda yetmedi (5,2 sn'de düştü, her şey geri alındı).
+      timeout: 120_000,
+      maxWait: 20_000,
     });
     console.log("\nUygulandı.");
   } finally {
