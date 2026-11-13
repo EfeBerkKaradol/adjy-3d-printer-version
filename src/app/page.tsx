@@ -2,6 +2,9 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { HomeHero, type HeroCard } from "@/components/home/HomeHero";
+import { PrinterIntro } from "@/components/home/printer/PrinterIntro";
+import { PRINTABLES, type PrintItem } from "@/components/home/printer/catalog";
+import { formatTRY } from "@/lib/slicer";
 import { PromoBand } from "@/components/home/PromoBand";
 import { CustomerVoices, type Soz } from "@/components/home/CustomerVoices";
 import { TrustRow } from "@/components/home/TrustRow";
@@ -27,7 +30,8 @@ export const revalidate = 300;
 // bizi merak edene orada anlatılır.
 //
 // Yerleşim, ziyaretçinin sırayla sorduğu sorulara göre:
-//   Ne satıyorsunuz?   → karşılama, üç gerçek ürün ve fiyatları
+//   Burası ne?         → atölye: ürünlerimizi basan piksel yazıcı
+//   Ne satıyorsunuz?   → vitrin, üç gerçek ürün ve fiyatları
 //   Size niye güveneyim? → güven şeridi
 //   Nelerin var?       → kategoriler (kataloğun genişliği)
 //   En iyileri?        → öne çıkanlar
@@ -147,6 +151,34 @@ async function getHeroCards(): Promise<{
   } catch {
     return { products: [], total: 0, customizableCount: 0 };
   }
+}
+
+/**
+ * Karşılamadaki piksel yazıcının bastığı ürünler. Ad ve fiyat
+ * veritabanından gelir; ürün yayında değilse bağlantı kategorisine
+ * düşer. Veritabanına ulaşılamazsa koddaki adlarla devam edilir —
+ * animasyon her durumda oynar.
+ */
+async function getPrintables(): Promise<PrintItem[]> {
+  let found = new Map<string, { name: string; basePrice: unknown }>();
+  try {
+    const rows = await prisma.product.findMany({
+      where: { isActive: true, slug: { in: PRINTABLES.map((p) => p.slug) } },
+      select: { slug: true, name: true, basePrice: true },
+    });
+    found = new Map(rows.map((r) => [r.slug, r]));
+  } catch {
+    // sessizce koddaki adlarla devam
+  }
+  return PRINTABLES.map((p) => {
+    const row = found.get(p.slug);
+    return {
+      key: p.key,
+      name: row?.name ?? p.fallbackName,
+      href: row ? `/products/${p.slug}` : `/products?category=${p.categorySlug}`,
+      price: row ? formatTRY(Number(row.basePrice)) : null,
+    };
+  });
 }
 
 /**
@@ -317,7 +349,7 @@ async function getCustomerVoices(): Promise<{ sozler: Soz[]; ortalama: number }>
 
 export default async function HomePage() {
   const compareAt = await getCompareAtPrices();
-  const [hero, categories, featured, customizable, newArrivals, promo, sesler] =
+  const [hero, categories, featured, customizable, newArrivals, promo, sesler, printables] =
     await Promise.all([
       getHeroCards(),
       getCategories(),
@@ -326,6 +358,7 @@ export default async function HomePage() {
       getNewArrivals(compareAt),
       getPromoProduct(),
       getCustomerVoices(),
+      getPrintables(),
     ]);
 
   return (
@@ -337,6 +370,7 @@ export default async function HomePage() {
         description="İstediğiniz ölçüde tasarım ürünleri: vazo, saksı, aydınlatma, masa düzeni ve dekoratif figürler. Kendi atölyemizde 3D baskı, seramik ve alçı ile üretiyoruz."
       />
 
+      <PrinterIntro items={printables} />
       <HomeHero products={hero.products} />
       <TrustRow />
 

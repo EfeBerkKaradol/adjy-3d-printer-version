@@ -39,15 +39,17 @@ export function HomeHero({ products }: Props) {
   const yan = digerleri.slice(0, 2);
 
   return (
-    <section className="adjy-container pb-10 pt-8 lg:pb-16 lg:pt-12">
+    // id: karşılamadaki "Kaydır" bağlantısı buraya iner
+    <section id="vitrin" className="adjy-container scroll-mt-24 pb-10 pt-8 lg:pb-16 lg:pt-12">
       <div className="grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-center lg:gap-14">
         <div>
           <p className="adjy-eyebrow mb-5">Tasarım ürünleri · Kendi atölyemizden</p>
-          <h1 className="adjy-display text-[clamp(2.2rem,5vw,3.8rem)] leading-[1.02]">
+          {/* Sayfanın h1'i artık karşılamada (PrinterIntro) */}
+          <h2 className="adjy-display text-[clamp(2.2rem,5vw,3.8rem)] leading-[1.02]">
             İstediğiniz ölçüde
             <br />
             <span className="text-muted-foreground">tasarım ürünleri</span>
-          </h1>
+          </h2>
           <p className="mt-6 max-w-md text-base leading-relaxed text-muted-foreground">
             Vazo, saksı, aydınlatma, masa düzeni ve dekoratif figürler. Her biri
             kendi atölyemizde, siparişe göre üretiliyor — çoğunun ölçüsünü
