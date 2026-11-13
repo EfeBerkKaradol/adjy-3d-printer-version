@@ -635,7 +635,6 @@ a.adjy-pixel-card:focus-visible,
 [data-slot="button"][data-variant="secondary"],
 [data-slot="button"][data-variant="destructive"] {
   border-width: 0 !important;
-  margin: 2px;
   box-shadow: var(--px-frame) !important;
 }
 [data-slot="button"][data-variant="destructive"] {
@@ -668,7 +667,6 @@ a.adjy-pixel-card:focus-visible,
 [data-slot="textarea"],
 [data-slot="select-trigger"] {
   border-width: 0 !important;
-  margin: 2px;
   background-color: var(--background) !important;
   box-shadow: var(--px-frame) !important;
 }
@@ -716,7 +714,6 @@ a.adjy-pixel-card:focus-visible,
 /* ---------- Kart, açılır menü, çekmece ---------- */
 [data-slot="card"] {
   border-width: 0 !important;
-  margin: 2px;
   box-shadow: var(--px-frame) !important;
 }
 [data-slot="select-content"],
@@ -809,4 +806,21 @@ a.adjy-pixel-card:focus-visible,
 /* Piksel çerçeveli genel kutu: herhangi bir bölüm için */
 .adjy-pixel-frame {
   box-shadow: var(--px-frame);
+}
+
+/* Sayı alanlarında tarayıcı okları piksel çerçeveyle uyuşmuyor */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Akordeon içeriği overflow:hidden; piksel çerçeveler kırpılmasın */
+[data-slot="accordion-content"] > div {
+  padding-inline: 2px;
+  padding-top: 2px;
 }

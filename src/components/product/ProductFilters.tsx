@@ -9,7 +9,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Sliders } from "lucide-react";
 
@@ -124,41 +123,55 @@ function PriceRange({
   const [max, setMax] = useState(initialMax);
 
   return (
-    <>
-      <div className="flex items-center gap-2">
-        <Input
-          type="number"
-          inputMode="numeric"
-          min={0}
-          placeholder="Min"
-          aria-label="En düşük fiyat (TL)"
-          value={min}
-          onChange={(e) => setMin(e.target.value)}
-          className="h-9"
-        />
-        <span className="text-muted-foreground" aria-hidden>
-          —
-        </span>
-        <Input
-          type="number"
-          inputMode="numeric"
-          min={0}
-          placeholder="Maks"
-          aria-label="En yüksek fiyat (TL)"
-          value={max}
-          onChange={(e) => setMax(e.target.value)}
-          className="h-9"
-        />
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onApply(min, max);
+      }}
+    >
+      {/* Tek piksel kutu: iki yarı, ortada kesik ayraç */}
+      <div className="adjy-pixel-frame grid grid-cols-2 bg-background">
+        <label className="flex flex-col px-3 py-2 focus-within:bg-foreground/[0.06]">
+          <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            En az
+          </span>
+          <span className="mt-0.5 flex items-baseline gap-1 font-mono text-sm tabular-nums">
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              placeholder="0"
+              aria-label="En düşük fiyat (TL)"
+              value={min}
+              onChange={(e) => setMin(e.target.value)}
+              className="w-full min-w-0 bg-transparent outline-none placeholder:text-muted-foreground/60"
+            />
+            <span className="text-[11px] text-muted-foreground">TL</span>
+          </span>
+        </label>
+        <label className="flex flex-col border-l-2 border-dashed border-foreground/40 px-3 py-2 focus-within:bg-foreground/[0.06]">
+          <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            En çok
+          </span>
+          <span className="mt-0.5 flex items-baseline gap-1 font-mono text-sm tabular-nums">
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              placeholder="∞"
+              aria-label="En yüksek fiyat (TL)"
+              value={max}
+              onChange={(e) => setMax(e.target.value)}
+              className="w-full min-w-0 bg-transparent outline-none placeholder:text-muted-foreground/60"
+            />
+            <span className="text-[11px] text-muted-foreground">TL</span>
+          </span>
+        </label>
       </div>
-      <Button
-        variant="outline"
-        size="sm"
-        className="mt-3 w-full"
-        onClick={() => onApply(min, max)}
-      >
-        Fiyatı uygula
+      <Button type="submit" size="sm" className="mt-3 w-full">
+        Uygula
       </Button>
-    </>
+    </form>
   );
 }
 
