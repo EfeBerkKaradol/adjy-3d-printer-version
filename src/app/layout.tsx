@@ -74,12 +74,14 @@ export const metadata: Metadata = {
       "Vazo, saksı, aydınlatma ve dekoratif ürünler. Kendi atölyemizde üretiliyor; çoğunda ölçüyü siz belirliyorsunuz.",
   },
   manifest: "/manifest.json",
-  // Merchant Center / Search Console "HTML etiketi" doğrulaması.
-  // Vercel'de GOOGLE_SITE_VERIFICATION ortam değişkenine yalnızca
-  // content="..." içindeki değer yazılır; tanımlı değilse etiket basılmaz.
-  ...(process.env.GOOGLE_SITE_VERIFICATION && {
-    verification: { google: process.env.GOOGLE_SITE_VERIFICATION },
-  }),
+  // Merchant Center (ADJY, 5875752891) "HTML etiketi" doğrulaması.
+  // Etiket sitede kalmalı: kaldırılırsa Google sahipliği düşürür.
+  // GOOGLE_SITE_VERIFICATION tanımlıysa onu kullanır.
+  verification: {
+    google:
+      process.env.GOOGLE_SITE_VERIFICATION ||
+      "_npMgZ5XLJruG_7uQ6UgIWqtTIKWc-IyxRuoK8mUhBw",
+  },
   robots: {
     index: true,
     follow: true,
