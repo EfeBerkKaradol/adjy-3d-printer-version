@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/db";
-import { HomeHero, type HeroCard } from "@/components/home/HomeHero";
+import { OrderJourney } from "@/components/home/OrderJourney";
 import { PrinterIntro } from "@/components/home/printer/PrinterIntro";
 import { HAND_DRAWN, PRINTABLES, type PrintItem } from "@/components/home/printer/catalog";
 import { kindForCategory } from "@/components/home/printer/sprites";
@@ -32,7 +32,7 @@ export const revalidate = 300;
 //
 // Yerleşim, ziyaretçinin sırayla sorduğu sorulara göre:
 //   Burası ne?         → atölye: ürünlerimizi basan piksel yazıcı
-//   Ne satıyorsunuz?   → vitrin, üç gerçek ürün ve fiyatları
+//   Nasıl sipariş?     → siparişten kapınıza, adım adım
 //   Size niye güveneyim? → güven şeridi
 //   Nelerin var?       → kategoriler (kataloğun genişliği)
 //   En iyileri?        → öne çıkanlar
@@ -111,46 +111,12 @@ function toRailProduct(
   };
 }
 
-/** Karşılamadaki üç kare: görseli olan, öne çıkarılmış nesneler */
-async function getHeroCards(): Promise<{
-  products: HeroCard[];
-  total: number;
-  customizableCount: number;
-}> {
+/** Ölçüsü değişen ürün sayısı (ara banttaki "N ürün" için) */
+async function getCustomizableCount(): Promise<number> {
   try {
-    const [featured, total, customizableCount] = await Promise.all([
-      prisma.product.findMany({
-        where: { isActive: true, thumbnailUrl: { not: null } },
-        orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-        take: 3,
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          basePrice: true,
-          thumbnailUrl: true,
-          category: { select: { name: true } },
-          _count: { select: { parameters: true } },
-        },
-      }),
-      prisma.product.count({ where: { isActive: true } }),
-      prisma.product.count({ where: { isActive: true, parameters: { some: {} } } }),
-    ]);
-    return {
-      products: featured.map((p) => ({
-        id: p.id,
-        name: p.name,
-        slug: p.slug,
-        basePrice: Number(p.basePrice),
-        thumbnailUrl: p.thumbnailUrl,
-        category: p.category,
-        isCustomizable: p._count.parameters > 0,
-      })),
-      total,
-      customizableCount,
-    };
+    return await prisma.product.count({ where: { isActive: true, parameters: { some: {} } } });
   } catch {
-    return { products: [], total: 0, customizableCount: 0 };
+    return 0;
   }
 }
 
@@ -362,9 +328,9 @@ async function getCustomerVoices(): Promise<{ sozler: Soz[]; ortalama: number }>
 
 export default async function HomePage() {
   const compareAt = await getCompareAtPrices();
-  const [hero, categories, featured, customizable, newArrivals, promo, sesler, printables] =
+  const [customizableCount, categories, featured, customizable, newArrivals, promo, sesler, printables] =
     await Promise.all([
-      getHeroCards(),
+      getCustomizableCount(),
       getCategories(),
       getFeaturedRail(compareAt),
       getCustomizableRail(compareAt),
@@ -384,7 +350,7 @@ export default async function HomePage() {
       />
 
       <PrinterIntro items={printables} />
-      <HomeHero products={hero.products} />
+      <OrderJourney />
       <TrustRow />
 
       {categories.length > 0 && (
@@ -413,7 +379,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      <PromoBand product={promo} count={customizable.length > 0 ? hero.customizableCount : 0} />
+      <PromoBand product={promo} count={customizable.length > 0 ? customizableCount : 0} />
 
       {customizable.length > 0 && (
         <section className="adjy-container adjy-section">
