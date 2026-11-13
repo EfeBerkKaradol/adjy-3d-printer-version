@@ -208,7 +208,7 @@ export default function AdminOrderDetailPage() {
       </div>
 
       {/* Durum Akış Çubuğu (Stepper) */}
-      <div className="bg-card border border-border/40 rounded-xl p-5">
+      <div className="bg-card adjy-pixel-frame rounded-xl p-5">
         <div className="flex items-center justify-between overflow-x-auto gap-1">
           {statusFlow.map((s, i) => {
             const isPast = currentIdx >= i;
@@ -271,7 +271,7 @@ export default function AdminOrderDetailPage() {
         <div className="lg:col-span-2 space-y-6">
           {/* Durum Güncelleme */}
           {!isFinalState && (
-            <div className="bg-card border border-border/40 rounded-xl p-5">
+            <div className="bg-card adjy-pixel-frame rounded-xl p-5">
               <h3 className="font-semibold mb-4 flex items-center gap-2">
                 <ArrowRight className="h-4 w-4" />
                 Sonraki Adım
@@ -354,7 +354,7 @@ export default function AdminOrderDetailPage() {
           )}
 
           {/* Ürünler + Baskı Durumları */}
-          <div className="bg-card border border-border/40 rounded-xl p-5">
+          <div className="bg-card adjy-pixel-frame rounded-xl p-5">
             <h3 className="font-semibold mb-3 flex items-center gap-2">
               <Package className="h-4 w-4" />
               Sipariş Kalemleri ({items.length})
@@ -366,7 +366,7 @@ export default function AdminOrderDetailPage() {
                 return (
                   <div
                     key={item.id as string}
-                    className="flex items-center justify-between py-3 border-b border-border/20 last:border-0"
+                    className="flex items-center justify-between py-3 border-b-2 border-dashed border-foreground/25 last:border-0"
                   >
                     <div className="flex items-center gap-3 flex-1">
                       {thumbUrl ? (
@@ -411,7 +411,7 @@ export default function AdminOrderDetailPage() {
           </div>
 
           {/* Sipariş Geçmişi */}
-          <div className="bg-card border border-border/40 rounded-xl p-5">
+          <div className="bg-card adjy-pixel-frame rounded-xl p-5">
             <h3 className="font-semibold mb-3 flex items-center gap-2">
               <Clock className="h-4 w-4" />
               Sipariş Geçmişi
@@ -456,7 +456,7 @@ export default function AdminOrderDetailPage() {
         {/* Sağ: Durum Özeti + Müşteri + Ödeme + Adres */}
         <div className="space-y-6">
           {/* Durum Özet */}
-          <div className="bg-card border border-border/40 rounded-xl p-5">
+          <div className="bg-card adjy-pixel-frame rounded-xl p-5">
             <h3 className="font-semibold mb-3">Durum Özeti</h3>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
@@ -495,7 +495,7 @@ export default function AdminOrderDetailPage() {
           </div>
 
           {/* Müşteri */}
-          <div className="bg-card border border-border/40 rounded-xl p-5">
+          <div className="bg-card adjy-pixel-frame rounded-xl p-5">
             <h3 className="font-semibold mb-3">Müşteri</h3>
             <p className="text-sm font-medium">
               {user.fullName || user.email}
@@ -507,7 +507,7 @@ export default function AdminOrderDetailPage() {
           </div>
 
           {/* Ödeme */}
-          <div className="bg-card border border-border/40 rounded-xl p-5">
+          <div className="bg-card adjy-pixel-frame rounded-xl p-5">
             <h3 className="font-semibold mb-3 flex items-center gap-2">
               <CreditCard className="h-4 w-4" />
               Ödeme
@@ -521,7 +521,7 @@ export default function AdminOrderDetailPage() {
                 <span className="text-muted-foreground">Kargo</span>
                 <span>{formatCurrency(o.shippingCost as number)}</span>
               </div>
-              <div className="flex justify-between border-t border-border/40 pt-2 font-bold">
+              <div className="flex justify-between border-t-2 border-dashed border-foreground/25 pt-2 font-bold">
                 <span>Genel Toplam</span>
                 <span>{formatCurrency(o.grandTotal as number)}</span>
               </div>
@@ -543,7 +543,7 @@ export default function AdminOrderDetailPage() {
 
           {/* Adres */}
           {address && (
-            <div className="bg-card border border-border/40 rounded-xl p-5">
+            <div className="bg-card adjy-pixel-frame rounded-xl p-5">
               <h3 className="font-semibold mb-3 flex items-center gap-2">
                 <MapPin className="h-4 w-4" />
                 Teslimat Adresi
@@ -563,13 +563,13 @@ export default function AdminOrderDetailPage() {
               Bilgiler sipariş anında dondurulur; müşteri profilini
               sonradan değiştirse bile kesilen fatura bu kayda dayanır. */}
           {address && (
-            <div className="bg-card border border-border/40 rounded-xl p-5">
+            <div className="bg-card adjy-pixel-frame rounded-xl p-5">
               <div className="flex items-start justify-between gap-3 mb-3">
                 <h3 className="font-semibold flex items-center gap-2">
                   <FileText className="h-4 w-4" />
                   Fatura Bilgileri
                 </h3>
-                <span className="text-[11px] px-2 py-0.5 rounded border border-border/60 text-muted-foreground">
+                <span className="text-[11px] px-2 py-0.5 rounded adjy-pixel-frame text-muted-foreground">
                   {address.invoiceType === "KURUMSAL" ? "Kurumsal" : "Bireysel"}
                 </span>
               </div>

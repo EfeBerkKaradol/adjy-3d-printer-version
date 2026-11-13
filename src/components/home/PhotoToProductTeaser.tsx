@@ -59,7 +59,7 @@ export function PhotoToProductTeaser() {
             </Link>
           </div>
 
-          <ol className="grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-3">
+          <ol className="grid gap-px overflow-hidden rounded-lg adjy-pixel-frame bg-border sm:grid-cols-3">
             {STEPS.map(({ n, title, body, Icon }) => (
               <li key={n} className="bg-background p-6">
                 <div className="flex items-center justify-between">

@@ -237,7 +237,7 @@ export default function OrderDetailPage() {
 
       {/* Sipariş Takip Stepper */}
       {!isCancelled ? (
-        <div className="mb-8 p-6 border border-border/40 rounded-xl bg-card">
+        <div className="mb-8 p-6 adjy-pixel-frame rounded-xl bg-card">
           <h2 className="font-semibold mb-6 text-sm text-muted-foreground">Sipariş Durumu</h2>
 
           {/* Desktop Stepper */}
@@ -342,7 +342,7 @@ export default function OrderDetailPage() {
         {/* Sol: Ürünler + Kargo + Geçmiş */}
         <div className="lg:col-span-2 space-y-6">
           {/* Ürünler */}
-          <div className="border border-border/40 rounded-xl p-5 bg-card">
+          <div className="adjy-pixel-frame rounded-xl p-5 bg-card">
             <h2 className="font-semibold mb-4 flex items-center gap-2">
               <Package className="h-4 w-4" />
               Ürünler ({order.items.length})
@@ -403,7 +403,7 @@ export default function OrderDetailPage() {
 
           {/* Kargo Takip */}
           {order.shipment && (
-            <div className="border border-border/40 rounded-xl p-5 bg-card">
+            <div className="adjy-pixel-frame rounded-xl p-5 bg-card">
               <h2 className="font-semibold mb-4 flex items-center gap-2">
                 <Truck className="h-4 w-4" />
                 Kargo Bilgileri
@@ -455,7 +455,7 @@ export default function OrderDetailPage() {
 
           {/* Sipariş Geçmişi */}
           {order.history.length > 0 && (
-            <div className="border border-border/40 rounded-xl p-5 bg-card">
+            <div className="adjy-pixel-frame rounded-xl p-5 bg-card">
               <h2 className="font-semibold mb-4 flex items-center gap-2">
                 <Clock className="h-4 w-4" />
                 Sipariş Geçmişi
@@ -496,7 +496,7 @@ export default function OrderDetailPage() {
         {/* Sağ: Özet + Adres + Ödeme */}
         <div className="space-y-6">
           {/* Fiyat Özeti */}
-          <div className="border border-border/40 rounded-xl p-5 bg-card">
+          <div className="adjy-pixel-frame rounded-xl p-5 bg-card">
             <h3 className="font-semibold text-sm mb-3">Fiyat Özeti</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
@@ -522,7 +522,7 @@ export default function OrderDetailPage() {
           </div>
 
           {/* Sipariş Tarihi */}
-          <div className="border border-border/40 rounded-xl p-5 bg-card">
+          <div className="adjy-pixel-frame rounded-xl p-5 bg-card">
             <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
               <Clock className="h-4 w-4" />
               Sipariş Tarihi
@@ -540,7 +540,7 @@ export default function OrderDetailPage() {
 
           {/* Adres */}
           {order.address && (
-            <div className="border border-border/40 rounded-xl p-5 bg-card">
+            <div className="adjy-pixel-frame rounded-xl p-5 bg-card">
               <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
                 <MapPin className="h-4 w-4" />
                 Teslimat Adresi
@@ -558,7 +558,7 @@ export default function OrderDetailPage() {
 
           {/* Ödeme Bilgileri */}
           {order.payments.length > 0 && (
-            <div className="border border-border/40 rounded-xl p-5 bg-card">
+            <div className="adjy-pixel-frame rounded-xl p-5 bg-card">
               <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
                 <CreditCard className="h-4 w-4" />
                 Ödeme Bilgileri

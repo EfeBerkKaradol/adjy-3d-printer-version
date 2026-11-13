@@ -26,20 +26,20 @@ export default function CerezPolitikasiPage() {
           <h2 className="text-lg font-semibold text-foreground">2. Kullandığımız Çerez Türleri</h2>
 
           <div className="mt-3 space-y-4">
-            <div className="border border-border/40 rounded-lg p-4">
+            <div className="adjy-pixel-frame rounded-lg p-4">
               <h3 className="font-medium text-foreground mb-1">Zorunlu Çerezler</h3>
               <p className="text-xs">
                 Sitenin düzgün çalışması için gereklidir. Oturum yönetimi, sepet bilgileri ve güvenlik
                 doğrulaması bu kapsamda değerlendirilir. Bu çerezler rıza olmaksızın kullanılır.
               </p>
             </div>
-            <div className="border border-border/40 rounded-lg p-4">
+            <div className="adjy-pixel-frame rounded-lg p-4">
               <h3 className="font-medium text-foreground mb-1">İşlevsel Çerezler</h3>
               <p className="text-xs">
                 Dil tercihi, tema seçimi ve kullanıcı tercihlerini hatırlamak için kullanılır.
               </p>
             </div>
-            <div className="border border-border/40 rounded-lg p-4">
+            <div className="adjy-pixel-frame rounded-lg p-4">
               <h3 className="font-medium text-foreground mb-1">Analitik Çerezler</h3>
               <p className="text-xs">
                 Siteyi kaç kişinin ziyaret ettiğini, hangi sayfaların daha çok görüntülendiğini ve

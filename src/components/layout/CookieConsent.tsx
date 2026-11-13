@@ -43,7 +43,7 @@ export function CookieConsent() {
 
   return (
     <div
-      className="fixed inset-x-0 bottom-0 z-[60] border-t border-border bg-background/95 backdrop-blur-md"
+      className="fixed inset-x-0 bottom-0 z-[60] border-t-2 border-foreground bg-background"
       role="region"
       aria-label="Çerez bildirimi"
     >

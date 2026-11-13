@@ -30,7 +30,7 @@ export const metadata: Metadata = {
 export default function MobilyaPage() {
   return (
     <>
-      <section className="border-b border-border/60 bg-muted/30">
+      <section className="border-b-2 border-dashed border-foreground/25 bg-muted/30">
         <div className="adjy-container py-12 lg:py-16">
           <div className="max-w-2xl">
             <p className="adjy-eyebrow mb-4">Mobilya</p>
@@ -60,7 +60,7 @@ export default function MobilyaPage() {
         aciklama={`${MODELLER.length} ürün tipi. Bir tanesini seçin, ölçüsünü kendi odanıza göre kurun; fiyat siz değiştirdikçe güncellensin.`}
       />
 
-      <section className="border-t border-border/60">
+      <section className="border-t-2 border-dashed border-foreground/25">
         <div className="adjy-container py-12 lg:py-16">
           <div className="grid gap-x-12 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
             {[

@@ -59,17 +59,17 @@ export function FilterDrawer({
   return (
     <>
       {/* Alt sabit çubuk */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur-md lg:hidden">
-        <div className="grid grid-cols-2 divide-x divide-border">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-foreground bg-background lg:hidden">
+        <div className="grid grid-cols-2 divide-x-2 divide-dashed divide-foreground/40">
           <button
             type="button"
             onClick={() => setFiltersOpen(true)}
-            className="flex h-14 items-center justify-center gap-2 text-sm font-medium"
+            className="flex h-14 items-center justify-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.12em]"
           >
             <SlidersHorizontal className="h-4 w-4" aria-hidden />
             Filtrele
             {activeCount > 0 && (
-              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] tabular-nums text-primary-foreground">
+              <span className="flex h-5 min-w-5 items-center justify-center bg-foreground px-1.5 text-[10px] tabular-nums text-background">
                 {activeCount}
               </span>
             )}
@@ -77,7 +77,7 @@ export function FilterDrawer({
           <button
             type="button"
             onClick={() => setSortOpen(true)}
-            className="flex h-14 items-center justify-center gap-2 text-sm font-medium"
+            className="flex h-14 items-center justify-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.12em]"
           >
             <ArrowDownUp className="h-4 w-4" aria-hidden />
             Sırala
@@ -91,8 +91,8 @@ export function FilterDrawer({
           side="right"
           className="flex w-full flex-col gap-0 border-l border-border bg-background p-0 sm:max-w-md"
         >
-          <div className="border-b border-border px-5 py-4">
-            <SheetTitle className="text-base font-semibold">Filtrele</SheetTitle>
+          <div className="border-b-2 border-dashed border-foreground/80 px-5 py-4">
+            <SheetTitle>Filtrele</SheetTitle>
           </div>
           <SheetDescription className="sr-only">
             Ürünleri kategoriye, fiyata, malzemeye ve özelleştirilebilirliğe göre filtreleyin.
@@ -107,7 +107,7 @@ export function FilterDrawer({
             />
           </div>
 
-          <div className="border-t border-border p-4">
+          <div className="border-t-2 border-dashed border-foreground/80 p-4">
             <Button size="lg" className="w-full" onClick={() => setFiltersOpen(false)}>
               {resultCount} ürünü göster
             </Button>
@@ -119,21 +119,21 @@ export function FilterDrawer({
       <Sheet open={sortOpen} onOpenChange={setSortOpen}>
         <SheetContent
           side="bottom"
-          className="border-t border-border bg-background p-0"
+          className="border-t-2 border-dashed border-foreground/25 bg-background p-0"
         >
-          <div className="border-b border-border px-5 py-4">
-            <SheetTitle className="text-base font-semibold">Sırala</SheetTitle>
+          <div className="border-b-2 border-dashed border-foreground/80 px-5 py-4">
+            <SheetTitle>Sırala</SheetTitle>
           </div>
           <SheetDescription className="sr-only">
             Ürün listesinin sıralamasını seçin.
           </SheetDescription>
-          <ul className="divide-y divide-border pb-2">
+          <ul className="divide-y-2 divide-dashed divide-foreground/20 pb-2">
             {SORT_OPTIONS.map((option) => (
               <li key={option.value}>
                 <button
                   type="button"
                   onClick={() => selectSort(option.value)}
-                  className="flex min-h-14 w-full items-center justify-between px-5 text-left text-sm"
+                  className="flex min-h-14 w-full items-center justify-between px-5 text-left font-mono text-[11px] font-semibold uppercase tracking-[0.12em]"
                 >
                   {option.label}
                   {currentSort === option.value && (

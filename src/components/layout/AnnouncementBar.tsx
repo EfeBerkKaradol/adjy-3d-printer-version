@@ -45,7 +45,7 @@ export function AnnouncementBar() {
   return (
     // overflow-hidden şart: şerit "max-content" genişlikte, kesilmezse
     // bütün sayfa yatay kayıyor.
-    <div className="overflow-hidden border-b border-border/60 bg-foreground text-background">
+    <div className="overflow-hidden bg-foreground text-background">
       <div className="adjy-serit" role="complementary" aria-label="Mağaza bilgileri">
         {/* İkinci kopya yalnızca görsel süreklilik için; ekran
             okuyucu maddeleri bir kez okur. */}

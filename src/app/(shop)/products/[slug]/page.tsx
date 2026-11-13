@@ -357,7 +357,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
           <div />
           <div className="max-w-lg">
             {/* Teslimat özeti */}
-            <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t border-border pt-5 text-xs text-muted-foreground">
+            <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t-2 border-dashed border-foreground/25 pt-5 text-xs text-muted-foreground">
               <Link href="/teslimat-politikasi" className="transition-colors hover:text-foreground">
                 500 TL üzeri ücretsiz kargo
               </Link>
@@ -367,9 +367,9 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             </div>
 
             {/* Detaylar */}
-            <Accordion type="multiple" className="mt-8 border-t border-border">
+            <Accordion type="multiple" className="mt-8 border-t-2 border-dashed border-foreground/25">
               {product.description && (
-                <AccordionItem value="aciklama" className="border-b border-border">
+                <AccordionItem value="aciklama" className="border-b-2 border-dashed border-foreground/25">
                   <AccordionTrigger className="py-4 text-sm hover:no-underline">
                     Açıklama
                   </AccordionTrigger>
@@ -379,7 +379,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 </AccordionItem>
               )}
 
-              <AccordionItem value="ozellikler" className="border-b border-border">
+              <AccordionItem value="ozellikler" className="border-b-2 border-dashed border-foreground/25">
                 <AccordionTrigger className="py-4 text-sm hover:no-underline">
                   Özellikler
                 </AccordionTrigger>
@@ -425,7 +425,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 </AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="uretim" className="border-b border-border">
+              <AccordionItem value="uretim" className="border-b-2 border-dashed border-foreground/25">
                 <AccordionTrigger className="py-4 text-sm hover:no-underline">
                   Üretim
                 </AccordionTrigger>
@@ -437,7 +437,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 </AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="teslimat" className="border-b border-border">
+              <AccordionItem value="teslimat" className="border-b-2 border-dashed border-foreground/25">
                 <AccordionTrigger className="py-4 text-sm hover:no-underline">
                   Teslimat ve iade
                 </AccordionTrigger>
@@ -458,13 +458,13 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         </div>
 
         {/* Değerlendirmeler */}
-        <div className="mt-20 border-t border-border pt-12">
+        <div className="mt-20 border-t-2 border-dashed border-foreground/25 pt-12">
           <ProductReviews productId={product.id} />
         </div>
 
         {/* İlgili ürünler */}
         {related.length > 0 && (
-          <section className="mt-20 border-t border-border pt-12" aria-label="İlgili ürünler">
+          <section className="mt-20 border-t-2 border-dashed border-foreground/25 pt-12" aria-label="İlgili ürünler">
             <div className="mb-8 flex items-end justify-between gap-4">
               <h2 className="text-xl font-medium tracking-tight md:text-2xl">
                 {product.category.name} kategorisinden

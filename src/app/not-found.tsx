@@ -33,7 +33,7 @@ export default function NotFound() {
 
       <nav
         aria-label="Öneriler"
-        className="mt-12 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2"
+        className="mt-12 grid gap-px overflow-hidden rounded-lg adjy-pixel-frame bg-border sm:grid-cols-2"
       >
         {EXITS.map((exit) => (
           <Link

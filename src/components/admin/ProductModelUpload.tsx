@@ -328,7 +328,7 @@ export function ProductModelUpload({ productId, materialType, onSaved }: Props) 
   const buyukFormat = toplam ? toplam.enUzunMm > BUILD.standardMm : false;
 
   return (
-    <div className="rounded-lg border border-border/60 p-4">
+    <div className="rounded-lg adjy-pixel-frame p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h3 className="text-sm font-medium">Ürün 3D dosyaları</h3>
@@ -395,7 +395,7 @@ export function ProductModelUpload({ productId, materialType, onSaved }: Props) 
                   onChange={(e) => setMontaj(e.target.value)}
                   placeholder="en x derinlik x yükseklik"
                   aria-label="Montajlı ölçü (mm)"
-                  className="w-56 rounded-md border border-border/60 bg-background px-2.5 py-1.5 text-sm tabular-nums"
+                  className="w-56 rounded-md adjy-pixel-frame bg-background px-2.5 py-1.5 text-sm tabular-nums"
                 />
                 <span className="text-sm text-muted-foreground">
                   mm
@@ -481,7 +481,7 @@ export function ProductModelUpload({ productId, materialType, onSaved }: Props) 
           {ayrinti && (
             <table className="mt-3 w-full text-sm">
               <thead>
-                <tr className="border-b border-border/60 text-left text-xs text-muted-foreground">
+                <tr className="border-b-2 border-dashed border-foreground/25 text-left text-xs text-muted-foreground">
                   <th className="pb-1 font-normal">Parça</th>
                   <th className="pb-1 font-normal">Ölçü (cm)</th>
                   <th className="pb-1 text-right font-normal">Hacim</th>
@@ -491,7 +491,7 @@ export function ProductModelUpload({ productId, materialType, onSaved }: Props) 
               </thead>
               <tbody>
                 {parcalar.map((p, i) => (
-                  <tr key={p.ad} className="border-b border-border/30">
+                  <tr key={p.ad} className="border-b-2 border-dashed border-foreground/25">
                     <td className="py-1.5 pr-2">{p.ad}</td>
                     <td className="py-1.5 pr-2 tabular-nums">
                       {formatCmValue(p.olcu.xMm)} × {formatCmValue(p.olcu.yMm)} ×{" "}

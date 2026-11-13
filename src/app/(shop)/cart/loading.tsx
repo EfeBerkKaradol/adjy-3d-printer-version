@@ -7,7 +7,7 @@ export default function CartLoading() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex gap-4 p-4 border border-border/40 rounded-xl">
+            <div key={i} className="flex gap-4 p-4 adjy-pixel-frame rounded-xl">
               <Skeleton className="h-20 w-20 rounded-lg" />
               <div className="flex-1 space-y-2">
                 <Skeleton className="h-5 w-3/4" />

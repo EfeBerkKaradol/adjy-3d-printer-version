@@ -141,7 +141,7 @@ export function FeaturedObjects({ products }: FeaturedObjectsProps) {
           </div>
 
           {/* Numaralı seçim listesi */}
-          <ul className="mt-10 divide-y divide-border border-t border-border">
+          <ul className="mt-10 divide-y divide-border border-t-2 border-dashed border-foreground/25">
             {products.map((product, i) => (
               <li key={product.id}>
                 <button

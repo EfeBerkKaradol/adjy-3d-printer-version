@@ -214,7 +214,7 @@ export default function AdminCategoriesPage() {
 
             {/* Form */}
             {showForm && (
-                <div className="bg-card border border-border/40 rounded-xl p-6 space-y-4">
+                <div className="bg-card adjy-pixel-frame rounded-xl p-6 space-y-4">
                     <div className="flex items-center justify-between">
                         <h3 className="font-semibold">
                             {editingId ? "Kategori Düzenle" : "Yeni Kategori Ekle"}
@@ -308,7 +308,7 @@ export default function AdminCategoriesPage() {
 
             {/* Category List */}
             {categories.length === 0 ? (
-                <div className="bg-card border border-border/40 rounded-xl p-16 text-center">
+                <div className="bg-card adjy-pixel-frame rounded-xl p-16 text-center">
                     <FolderTree className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
                     <p className="text-muted-foreground">Henüz kategori bulunmuyor</p>
                 </div>
@@ -317,7 +317,7 @@ export default function AdminCategoriesPage() {
                     {categories.map((cat) => (
                         <div key={cat.id}>
                             {/* Parent Category */}
-                            <div className="bg-card border border-border/40 rounded-xl p-4 flex items-center justify-between">
+                            <div className="bg-card adjy-pixel-frame rounded-xl p-4 flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                                         <FolderTree className="h-5 w-5 text-primary" />
@@ -365,7 +365,7 @@ export default function AdminCategoriesPage() {
                                     {cat.children.map((child) => (
                                         <div
                                             key={child.id}
-                                            className="bg-card/50 border border-border/30 rounded-lg p-3 flex items-center justify-between"
+                                            className="bg-card/50 adjy-pixel-frame rounded-lg p-3 flex items-center justify-between"
                                         >
                                             <div className="flex items-center gap-3">
                                                 <ChevronRight className="h-4 w-4 text-muted-foreground" />

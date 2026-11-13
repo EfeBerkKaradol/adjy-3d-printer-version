@@ -11,7 +11,7 @@ import { FOOTER_NAV } from "@/lib/navigation";
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-background">
+    <footer className="border-t-2 border-dashed border-foreground/80 bg-background">
       <div className="adjy-container py-16 md:py-20">
         <div className="grid gap-12 lg:grid-cols-[1.4fr_3fr]">
           {/* Marka */}
@@ -50,13 +50,13 @@ export function Footer() {
           </nav>
         </div>
 
-        <div className="mt-16 flex flex-col items-start gap-6 border-t border-border pt-8 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-muted-foreground">
+        <div className="mt-16 flex flex-col items-start gap-6 border-t-2 border-dashed border-foreground/30 pt-8 sm:flex-row sm:items-center sm:justify-between">
+          <p className="font-mono text-[11px] uppercase tracking-[0.1em] text-muted-foreground">
             &copy; {new Date().getFullYear()} ADJY. Tüm hakları saklıdır.
           </p>
 
           <div className="flex items-center gap-3">
-            <span className="text-xs text-muted-foreground">Güvenli ödeme</span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-muted-foreground">Güvenli ödeme</span>
             <Image
               src="/assets/payment/visa.svg"
               alt="Visa"

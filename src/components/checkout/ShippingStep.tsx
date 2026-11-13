@@ -50,7 +50,7 @@ export function ShippingStep({
           <div key={option.id}>
             <Label
               htmlFor={option.id}
-              className="flex items-center gap-4 p-4 border border-border/40 rounded-xl bg-card cursor-pointer hover:border-primary/50 transition-colors has-[data-state=checked]:border-primary has-[data-state=checked]:bg-primary/5"
+              className="flex items-center gap-4 p-4 adjy-pixel-frame rounded-xl bg-card cursor-pointer hover:border-primary/50 transition-colors has-[data-state=checked]:border-primary has-[data-state=checked]:bg-primary/5"
             >
               <RadioGroupItem value={option.id} id={option.id} />
 

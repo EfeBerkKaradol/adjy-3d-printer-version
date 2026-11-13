@@ -153,7 +153,7 @@ export function PhotoToProduct({ modelId }: { modelId?: string }) {
       )}
 
       {phase.name === "error" && (
-        <div className="rounded-md border border-border p-6">
+        <div className="rounded-md adjy-pixel-frame p-6">
           <AlertTriangle className="h-5 w-5 text-muted-foreground" aria-hidden />
           <p className="mt-3 text-[15px] leading-relaxed">{phase.message}</p>
           <div className="mt-5 flex flex-wrap gap-2">

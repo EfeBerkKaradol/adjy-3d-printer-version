@@ -12,7 +12,7 @@ import { ArrowRight, Sliders } from "lucide-react";
 export function FinalCTA() {
   return (
     <section
-      className="border-t border-border bg-[#171717] text-[#F5F4F0]"
+      className="border-t-2 border-dashed border-foreground/25 bg-[#171717] text-[#F5F4F0]"
       aria-label="Başlayın"
     >
       <div className="adjy-container py-24 md:py-36">

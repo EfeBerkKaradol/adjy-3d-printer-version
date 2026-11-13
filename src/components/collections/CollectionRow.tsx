@@ -36,7 +36,7 @@ export function CollectionRow({ collection }: { collection: Collection }) {
   const href = `/products?category=${slug}`;
 
   return (
-    <section className="border-t border-border/60 py-12 first:border-t-0 first:pt-0 md:py-16">
+    <section className="border-t-2 border-dashed border-foreground/25 py-12 first:border-t-0 first:pt-0 md:py-16">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex min-w-0 items-center gap-4">
           {coverUrl && (

@@ -289,7 +289,7 @@ export function ResultWorkspace({ analysis, model, onRestart }: ResultWorkspaceP
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-10">
       {/* Model */}
       <div className="lg:sticky lg:top-24 lg:self-start">
-        <div className="aspect-square overflow-hidden rounded-lg border border-border lg:aspect-[4/5]">
+        <div className="aspect-square overflow-hidden rounded-lg adjy-pixel-frame lg:aspect-[4/5]">
           <GeneratedModelViewer
             geometry={geometry}
             color={colorHex}
@@ -349,7 +349,7 @@ export function ResultWorkspace({ analysis, model, onRestart }: ResultWorkspaceP
                   value={knownHeight}
                   onChange={(e) => setKnownHeight(e.target.value)}
                   placeholder="18"
-                  className="w-28 rounded-md border border-border bg-background px-3 py-2 text-sm tabular-nums outline-none focus:border-foreground"
+                  className="w-28 rounded-md adjy-pixel-frame bg-background px-3 py-2 text-sm tabular-nums outline-none focus:border-foreground"
                 />
                 <span className="self-center text-sm text-muted-foreground">cm</span>
                 <Button type="button" size="sm" onClick={applyKnownHeight}>
@@ -392,7 +392,7 @@ export function ResultWorkspace({ analysis, model, onRestart }: ResultWorkspaceP
             max={999}
             value={quantity}
             onChange={(e) => setQuantity(Math.max(1, Math.min(999, Number(e.target.value) || 1)))}
-            className="w-20 rounded-md border border-border bg-background px-3 py-1.5 text-sm tabular-nums outline-none focus:border-foreground"
+            className="w-20 rounded-md adjy-pixel-frame bg-background px-3 py-1.5 text-sm tabular-nums outline-none focus:border-foreground"
           />
         </div>
 

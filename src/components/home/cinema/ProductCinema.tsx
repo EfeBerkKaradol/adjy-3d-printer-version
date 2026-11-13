@@ -130,7 +130,7 @@ export function ProductCinema({ product }: { product?: CinemaProduct | null }) {
           Modüler tasarım, senin etrafında kurulur.
         </h2>
         <div className="relative mt-10 aspect-[4/3] overflow-hidden bg-surface-2">{scene}</div>
-        <ol className="mt-10 divide-y divide-border border-t border-border">
+        <ol className="mt-10 divide-y divide-border border-t-2 border-dashed border-foreground/25">
           {CHAPTERS.map((c) => (
             <li key={c.n} className="py-6">
               <span className="font-mono text-xs tabular-nums text-muted-foreground">{c.n}</span>

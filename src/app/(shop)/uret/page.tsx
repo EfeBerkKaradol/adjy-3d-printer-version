@@ -51,7 +51,7 @@ export default function UretPage() {
         Elindeki modeli yükle veya bir fotoğraftan yeni bir 3D ürün oluştur.
       </p>
 
-      <div className="mt-14 grid gap-px overflow-hidden rounded-lg border border-border bg-border md:grid-cols-2">
+      <div className="mt-14 grid gap-px overflow-hidden rounded-lg adjy-pixel-frame bg-border md:grid-cols-2">
         {OPTIONS.map(({ href, eyebrow, title, body, cta, Icon }) => (
           <Link
             key={href}

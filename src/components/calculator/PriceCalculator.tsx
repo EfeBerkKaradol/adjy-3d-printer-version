@@ -488,7 +488,7 @@ export function PriceCalculator() {
             )}
           </div>
         ) : (
-          <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-border/30 bg-gradient-to-b from-muted/30 to-muted/60">
+          <div className="relative aspect-square w-full overflow-hidden rounded-2xl adjy-pixel-frame bg-gradient-to-b from-muted/30 to-muted/60">
             <StlViewer
               geometry={model.geometry}
               color={selectedColor.hex}
@@ -522,7 +522,7 @@ export function PriceCalculator() {
 
         {/* Büyük dosya için alternatif teklif kanalı */}
         {tooBig && (
-          <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/40 p-4 text-sm">
+          <div className="flex items-start gap-3 rounded-xl adjy-pixel-frame bg-muted/40 p-4 text-sm">
             <Mail className="mt-0.5 h-5 w-5 shrink-0 text-foreground" />
             <div className="space-y-2">
               <p className="font-medium">Dosyanız {MAX_FILE_SIZE_MB}MB&apos;tan büyük mü?</p>

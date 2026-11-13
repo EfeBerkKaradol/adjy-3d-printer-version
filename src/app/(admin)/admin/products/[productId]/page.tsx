@@ -163,7 +163,7 @@ export default function EditProductPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Durum */}
-        <div className="border border-border/40 rounded-xl p-5 bg-card">
+        <div className="adjy-pixel-frame rounded-xl p-5 bg-card">
           <div className="flex items-center gap-6">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -187,7 +187,7 @@ export default function EditProductPage() {
         </div>
 
         {/* Temel Bilgiler */}
-        <div className="border border-border/40 rounded-xl p-5 bg-card space-y-4">
+        <div className="adjy-pixel-frame rounded-xl p-5 bg-card space-y-4">
           <h3 className="font-semibold text-sm text-muted-foreground">Temel Bilgiler</h3>
 
           <div>
@@ -205,7 +205,7 @@ export default function EditProductPage() {
             <textarea
               value={form.description}
               onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
-              className="w-full px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[80px] resize-y"
+              className="w-full px-3 py-2 adjy-pixel-frame rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[80px] resize-y"
             />
           </div>
 
@@ -225,7 +225,7 @@ export default function EditProductPage() {
               <select
                 value={form.categoryId}
                 onChange={(e) => setForm((p) => ({ ...p, categoryId: e.target.value }))}
-                className="w-full px-3 py-2 border border-border rounded-lg bg-background text-sm h-9"
+                className="w-full px-3 py-2 adjy-pixel-frame rounded-lg bg-background text-sm h-9"
                 required
               >
                 <option value="">Seçin...</option>
@@ -238,7 +238,7 @@ export default function EditProductPage() {
         </div>
 
         {/* Teknik Detaylar */}
-        <div className="border border-border/40 rounded-xl p-5 bg-card space-y-4">
+        <div className="adjy-pixel-frame rounded-xl p-5 bg-card space-y-4">
           <h3 className="font-semibold text-sm text-muted-foreground">Teknik Detaylar</h3>
           <div className="grid grid-cols-3 gap-4">
             <div>
@@ -311,7 +311,7 @@ export default function EditProductPage() {
         </div>
 
         {/* Dosyalar */}
-        <div className="border border-border/40 rounded-xl p-5 bg-card space-y-4">
+        <div className="adjy-pixel-frame rounded-xl p-5 bg-card space-y-4">
           <h3 className="font-semibold text-sm text-muted-foreground">Dosyalar</h3>
 
           <ImageUpload
@@ -345,7 +345,7 @@ export default function EditProductPage() {
       </form>
 
       {/* Özelleştirme Parametreleri — form dışında, bağımsız save */}
-      <div className="border border-border/40 rounded-xl p-5 bg-card space-y-4">
+      <div className="adjy-pixel-frame rounded-xl p-5 bg-card space-y-4">
         <div>
           <h3 className="font-semibold text-sm text-muted-foreground">Özelleştirme Parametreleri</h3>
           <p className="text-xs text-muted-foreground mt-1">

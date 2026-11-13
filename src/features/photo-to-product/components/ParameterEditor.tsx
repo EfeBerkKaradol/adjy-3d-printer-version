@@ -84,7 +84,7 @@ export function ParameterEditor({ parameters, onChange, onReset }: ParameterEdit
                     const n = Number(e.target.value);
                     if (Number.isFinite(n)) store(n);
                   }}
-                  className="w-20 rounded-md border border-border bg-background px-2 py-1 text-right text-sm tabular-nums outline-none focus:border-foreground"
+                  className="w-20 rounded-md adjy-pixel-frame bg-background px-2 py-1 text-right text-sm tabular-nums outline-none focus:border-foreground"
                 />
                 <span className="w-6 text-xs text-muted-foreground">{p.unit}</span>
               </div>

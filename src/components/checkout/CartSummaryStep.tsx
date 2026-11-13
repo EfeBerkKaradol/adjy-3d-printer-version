@@ -31,7 +31,7 @@ export function CartSummaryStep({ items, totalPrice, onNext }: CartSummaryStepPr
         {items.map((item) => (
           <div
             key={item.id}
-            className="flex items-center gap-4 p-4 border border-border/40 rounded-lg bg-card"
+            className="flex items-center gap-4 p-4 adjy-pixel-frame rounded-lg bg-card"
           >
             <div className="w-16 h-16 bg-muted/30 rounded-lg flex items-center justify-center overflow-hidden shrink-0">
               {item.product.thumbnailUrl ? (

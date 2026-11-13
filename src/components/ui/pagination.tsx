@@ -38,7 +38,7 @@ export function Pagination({ currentPage, totalPages }: PaginationProps) {
       <Link
         href={buildHref(currentPage - 1)}
         className={cn(
-          "inline-flex items-center justify-center h-9 w-9 rounded-md border border-border/40 text-sm transition-colors hover:bg-muted",
+          "inline-flex items-center justify-center h-9 w-9 rounded-md adjy-pixel-frame text-sm transition-colors hover:bg-muted",
           currentPage <= 1 && "pointer-events-none opacity-40"
         )}
         aria-disabled={currentPage <= 1}
@@ -59,7 +59,7 @@ export function Pagination({ currentPage, totalPages }: PaginationProps) {
               "inline-flex items-center justify-center h-9 w-9 rounded-md text-sm font-medium transition-colors",
               page === currentPage
                 ? "bg-primary text-primary-foreground"
-                : "border border-border/40 hover:bg-muted"
+                : "adjy-pixel-frame hover:bg-muted"
             )}
           >
             {page}
@@ -70,7 +70,7 @@ export function Pagination({ currentPage, totalPages }: PaginationProps) {
       <Link
         href={buildHref(currentPage + 1)}
         className={cn(
-          "inline-flex items-center justify-center h-9 w-9 rounded-md border border-border/40 text-sm transition-colors hover:bg-muted",
+          "inline-flex items-center justify-center h-9 w-9 rounded-md adjy-pixel-frame text-sm transition-colors hover:bg-muted",
           currentPage >= totalPages && "pointer-events-none opacity-40"
         )}
         aria-disabled={currentPage >= totalPages}

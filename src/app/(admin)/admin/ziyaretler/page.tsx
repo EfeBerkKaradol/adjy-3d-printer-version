@@ -129,7 +129,7 @@ export default async function ZiyaretlerPage({
             saklanmaz. &quot;Oturum&quot; bir sekme demektir, bir kişi değil.
           </p>
         </div>
-        <nav className="flex gap-1 rounded-lg border border-border/60 p-1">
+        <nav className="flex gap-1 rounded-lg adjy-pixel-frame p-1">
           {ARALIKLAR.map((a) => (
             <Link
               key={a.gun}
@@ -145,7 +145,7 @@ export default async function ZiyaretlerPage({
       </div>
 
       {toplam === 0 ? (
-        <div className="rounded-xl border border-dashed border-border/60 px-6 py-16 text-center">
+        <div className="rounded-xl border-2 border-dashed border-foreground/30 px-6 py-16 text-center">
           <p className="font-medium">Bu aralıkta kayıt yok</p>
           <p className="mt-1.5 text-sm text-muted-foreground">
             Ölçüm yeni açıldıysa ilk ziyaretlerin görünmesi birkaç dakika sürer.
@@ -156,7 +156,7 @@ export default async function ZiyaretlerPage({
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {kartlar.map((k) => (
-              <div key={k.label} className="rounded-xl border border-border/40 bg-card p-5">
+              <div key={k.label} className="rounded-xl adjy-pixel-frame bg-card p-5">
                 <k.icon className="h-5 w-5 text-muted-foreground" aria-hidden />
                 <p className="mt-4 text-xs text-muted-foreground">{k.label}</p>
                 <p className="mt-1 text-2xl font-semibold tabular-nums">{k.deger}</p>
@@ -165,7 +165,7 @@ export default async function ZiyaretlerPage({
           </div>
 
           {gunluk.length > 1 && (
-            <section className="rounded-xl border border-border/40 bg-card p-5">
+            <section className="rounded-xl adjy-pixel-frame bg-card p-5">
               <h2 className="text-sm font-medium">Günlük görüntüleme</h2>
               <div className="mt-5 flex h-36 items-end gap-1.5">
                 {gunluk.map((g) => {
@@ -188,8 +188,8 @@ export default async function ZiyaretlerPage({
           )}
 
           <div className="grid gap-6 lg:grid-cols-2">
-            <section className="rounded-xl border border-border/40 bg-card">
-              <h2 className="border-b border-border/40 px-5 py-4 text-sm font-medium">
+            <section className="rounded-xl adjy-pixel-frame bg-card">
+              <h2 className="border-b-2 border-dashed border-foreground/25 px-5 py-4 text-sm font-medium">
                 En çok açılan sayfalar
               </h2>
               <ul className="divide-y divide-border/40">
@@ -214,8 +214,8 @@ export default async function ZiyaretlerPage({
             </section>
 
             <div className="space-y-6">
-              <section className="rounded-xl border border-border/40 bg-card">
-                <h2 className="border-b border-border/40 px-5 py-4 text-sm font-medium">
+              <section className="rounded-xl adjy-pixel-frame bg-card">
+                <h2 className="border-b-2 border-dashed border-foreground/25 px-5 py-4 text-sm font-medium">
                   Nereden geldiler
                 </h2>
                 {kaynaklar.length === 0 ? (
@@ -240,8 +240,8 @@ export default async function ZiyaretlerPage({
                 )}
               </section>
 
-              <section className="rounded-xl border border-border/40 bg-card">
-                <h2 className="border-b border-border/40 px-5 py-4 text-sm font-medium">
+              <section className="rounded-xl adjy-pixel-frame bg-card">
+                <h2 className="border-b-2 border-dashed border-foreground/25 px-5 py-4 text-sm font-medium">
                   Cihaz
                 </h2>
                 <ul className="divide-y divide-border/40">
@@ -261,8 +261,8 @@ export default async function ZiyaretlerPage({
             </div>
           </div>
 
-          <section className="rounded-xl border border-border/40 bg-card">
-            <h2 className="border-b border-border/40 px-5 py-4 text-sm font-medium">
+          <section className="rounded-xl adjy-pixel-frame bg-card">
+            <h2 className="border-b-2 border-dashed border-foreground/25 px-5 py-4 text-sm font-medium">
               Son hareketler
             </h2>
             <ul className="divide-y divide-border/40">

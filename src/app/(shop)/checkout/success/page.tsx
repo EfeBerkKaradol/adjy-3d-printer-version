@@ -48,13 +48,13 @@ function SuccessContent() {
       </p>
 
       {orderId && (
-        <div className="bg-muted/30 border border-border/40 rounded-xl p-6 mb-8">
+        <div className="bg-muted/30 adjy-pixel-frame rounded-xl p-6 mb-8">
           <p className="text-sm text-muted-foreground mb-1">Sipariş ID</p>
           <p className="font-mono text-sm font-medium">{orderId}</p>
         </div>
       )}
 
-      <div className="space-y-3 text-left bg-card border border-border/40 rounded-xl p-6 mb-8">
+      <div className="space-y-3 text-left bg-card adjy-pixel-frame rounded-xl p-6 mb-8">
         <h3 className="font-semibold mb-3">Sonraki Adımlar</h3>
         <div className="flex items-start gap-3">
           <div className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">

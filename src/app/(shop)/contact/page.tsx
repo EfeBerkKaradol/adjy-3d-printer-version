@@ -89,7 +89,7 @@ export default function ContactPage() {
       </header>
 
       {/* Ulaşım yolları */}
-      <section className="mt-12 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
+      <section className="mt-12 grid gap-px overflow-hidden rounded-xl adjy-pixel-frame bg-border sm:grid-cols-2 lg:grid-cols-3">
         {COMPANY.email && (
           <div className="bg-background p-6">
             <Mail className="h-5 w-5 text-muted-foreground" aria-hidden />
@@ -253,7 +253,7 @@ export default function ContactPage() {
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               Çok sorulanların cevabı hazır — beklemene gerek kalmaz.
             </p>
-            <ul className="mt-5 grid gap-px overflow-hidden rounded-xl border border-border bg-border">
+            <ul className="mt-5 grid gap-px overflow-hidden rounded-xl adjy-pixel-frame bg-border">
               {KISAYOLLAR.map((k) => (
                 <li key={k.href}>
                   <Link

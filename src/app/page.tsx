@@ -316,7 +316,7 @@ export default async function HomePage() {
 
 
       {featured.length > 0 && (
-        <section className="adjy-container adjy-section border-t border-border/60">
+        <section className="adjy-container adjy-section border-t-2 border-dashed border-foreground/25">
           <SectionHeading eyebrow="Öne çıkanlar" title="Çok sevilen ürünler" />
           <div className="mt-8">
             <ProductRail products={featured} moreHref="/products" />
@@ -325,7 +325,7 @@ export default async function HomePage() {
       )}
 
       {newArrivals.length > 0 && (
-        <section className="adjy-container adjy-section border-t border-border/60">
+        <section className="adjy-container adjy-section border-t-2 border-dashed border-foreground/25">
           <SectionHeading eyebrow="Yeni gelenler" title="Atölyeden yeni çıkanlar" />
           <div className="mt-8">
             <ProductRail products={newArrivals} moreHref="/products?sort=newest" />
@@ -334,7 +334,7 @@ export default async function HomePage() {
       )}
 
       {customizable.length > 0 && (
-        <section className="adjy-container adjy-section border-t border-border/60">
+        <section className="adjy-container adjy-section border-t-2 border-dashed border-foreground/25">
           <SectionHeading eyebrow="Özel ölçüde üretim" title="Rafınıza, masanıza, pencerenize göre" />
           <div className="mt-8">
             <ProductRail products={customizable} moreHref="/products?customizable=true" />
@@ -347,7 +347,7 @@ export default async function HomePage() {
       <TrustRow />
       <CreateSection />
 
-      <section className="border-t border-border/60">
+      <section className="border-t-2 border-dashed border-foreground/25">
         <div className="adjy-container flex flex-col gap-5 py-14 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-xl">
             <h2 className="adjy-display text-[clamp(1.4rem,2.6vw,2rem)]">

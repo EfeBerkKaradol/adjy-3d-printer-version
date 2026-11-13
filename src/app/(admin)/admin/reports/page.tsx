@@ -110,7 +110,7 @@ export default function AdminReportsPage() {
           return (
             <div
               key={card.title}
-              className="bg-card border border-border/40 rounded-xl p-6"
+              className="bg-card adjy-pixel-frame rounded-xl p-6"
             >
               <div className="flex items-center gap-3 mb-4">
                 <div
@@ -131,7 +131,7 @@ export default function AdminReportsPage() {
 
       {/* Özet Bilgileri */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-card border border-border/40 rounded-xl p-6">
+        <div className="bg-card adjy-pixel-frame rounded-xl p-6">
           <h3 className="font-semibold mb-4">Sipariş Durumu Dağılımı</h3>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
@@ -159,7 +159,7 @@ export default function AdminReportsPage() {
           </div>
         </div>
 
-        <div className="bg-card border border-border/40 rounded-xl p-6">
+        <div className="bg-card adjy-pixel-frame rounded-xl p-6">
           <h3 className="font-semibold mb-4">Aylık Performans</h3>
           <div className="space-y-3">
             <div className="flex justify-between items-center">

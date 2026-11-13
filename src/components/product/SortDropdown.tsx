@@ -43,11 +43,11 @@ export function SortDropdown() {
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="inline-flex h-9 items-center gap-2 text-sm transition-colors hover:text-muted-foreground"
+          className="adjy-pixel-box inline-flex h-9 items-center gap-2 bg-background px-3 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[10px] transition-colors hover:bg-foreground hover:text-background"
         >
-          <span className="text-muted-foreground">Sırala:</span>
+          <span className="opacity-60">Sırala:</span>
           <span className="font-medium">{currentLabel}</span>
-          <ChevronDown className="h-4 w-4 text-muted-foreground" aria-hidden />
+          <ChevronDown className="h-3.5 w-3.5" aria-hidden />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-60">

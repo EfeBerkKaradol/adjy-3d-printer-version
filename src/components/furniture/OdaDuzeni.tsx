@@ -91,7 +91,7 @@ export function OdaDuzeni({
                 <li key={m.id}>
                   <Link
                     href={`/mobilya/${oda}/${m.slug}`}
-                    className="group flex h-full flex-col overflow-hidden rounded-xl border border-border transition-colors hover:border-foreground/40"
+                    className="group flex h-full flex-col overflow-hidden rounded-xl adjy-pixel-frame transition-colors hover:border-foreground/40"
                   >
                     {/* Beyaz zemin: ürün kartta tek başına dursun */}
                     <div className="bg-white dark:bg-neutral-100">

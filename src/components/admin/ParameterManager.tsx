@@ -430,7 +430,7 @@ export function ParameterManager({ productId }: ParameterManagerProps) {
         <div key={p.id}>
           {/* Collapsed Card */}
           {editingId !== p.id && (
-            <div className="flex items-center gap-2 p-3 rounded-lg border border-border/30 bg-background/50 hover:bg-background/80 transition-colors">
+            <div className="flex items-center gap-2 p-3 rounded-lg adjy-pixel-frame bg-background/50 hover:bg-background/80 transition-colors">
               {/* Reorder */}
               <div className="flex flex-col gap-0.5">
                 <button
@@ -807,7 +807,7 @@ export function ParameterManager({ productId }: ParameterManagerProps) {
                     defaultValue: e.target.value,
                   }))
                 }
-                className="h-8 w-12 rounded border border-border cursor-pointer"
+                className="h-8 w-12 rounded adjy-pixel-frame cursor-pointer"
               />
               <Input
                 value={form.defaultValue}

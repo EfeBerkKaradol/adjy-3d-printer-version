@@ -171,7 +171,7 @@ export function PaymentStep({ orderId, orderNumber, guestToken, onBack }: Paymen
       </div>
 
       {/* Sözleşme Onayları */}
-      <div className="border border-border/40 rounded-xl p-4 space-y-4 bg-muted/20">
+      <div className="adjy-pixel-frame rounded-xl p-4 space-y-4 bg-muted/20">
         <div className="flex items-start gap-3">
           <Checkbox
             id="agreement"
@@ -224,11 +224,11 @@ export function PaymentStep({ orderId, orderNumber, guestToken, onBack }: Paymen
           <div
             ref={iframeContainerRef}
             id="iyzipay-checkout-form"
-            className="min-h-[400px] border border-border/40 rounded-xl p-4 bg-white"
+            className="min-h-[400px] adjy-pixel-frame rounded-xl p-4 bg-white"
           />
         </>
       ) : (
-        <div className="text-center py-8 text-sm text-muted-foreground border border-dashed border-border/40 rounded-xl">
+        <div className="text-center py-8 text-sm text-muted-foreground border-2 border-dashed border-foreground/30 rounded-xl">
           Ödeme formunu görmek için lütfen yukarıdaki sözleşmeleri onaylayın.
         </div>
       )}

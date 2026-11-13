@@ -214,7 +214,7 @@ export default async function MusteriPage({
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {kartlar.map((k) => (
-          <div key={k.label} className="rounded-xl border border-border/40 bg-card p-5">
+          <div key={k.label} className="rounded-xl adjy-pixel-frame bg-card p-5">
             <p className="text-xs text-muted-foreground">{k.label}</p>
             <p className="mt-1 text-2xl font-semibold tabular-nums">{k.deger}</p>
           </div>
@@ -228,7 +228,7 @@ export default async function MusteriPage({
             {musteri.orders.length === 0 ? (
               <p className="mt-3 text-sm text-muted-foreground">Henüz sipariş yok.</p>
             ) : (
-              <ul className="mt-3 divide-y divide-border/40 overflow-hidden rounded-xl border border-border/40 bg-card">
+              <ul className="mt-3 divide-y divide-border/40 overflow-hidden rounded-xl adjy-pixel-frame bg-card">
                 {musteri.orders.map((o) => (
                   <li key={o.id}>
                     <Link

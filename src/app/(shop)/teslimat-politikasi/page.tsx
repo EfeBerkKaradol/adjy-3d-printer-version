@@ -22,7 +22,7 @@ export default function ShippingPolicyPage() {
           <div className="mt-3 overflow-x-auto">
             <table className="w-full text-sm border-collapse">
               <thead>
-                <tr className="border-b border-border">
+                <tr className="border-b-2 border-dashed border-foreground/25">
                   <th className="text-left py-2 pr-4 font-medium text-foreground">Ürün Kategorisi</th>
                   <th className="text-left py-2 font-medium text-foreground">Tahmini Üretim Süresi</th>
                 </tr>

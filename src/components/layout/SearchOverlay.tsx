@@ -160,7 +160,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex flex-col"
+      className="adjy-nav fixed inset-0 z-[100] flex flex-col"
       role="dialog"
       aria-modal="true"
       aria-label="Ürün arama"
