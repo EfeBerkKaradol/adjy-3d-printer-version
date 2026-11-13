@@ -23,6 +23,8 @@ interface PaymentStepProps {
 export function PaymentStep({ orderId, orderNumber, guestToken, onBack }: PaymentStepProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // iyzico'nun döndürdüğü kod ve açıklama — destek için ekranda durur
+  const [errorDetail, setErrorDetail] = useState<string | null>(null);
   const [checkoutContent, setCheckoutContent] = useState<string | null>(null);
   // Artırılınca ödeme başlatma yeniden çalışır
   const [deneme, setDeneme] = useState(0);
@@ -40,6 +42,7 @@ export function PaymentStep({ orderId, orderNumber, guestToken, onBack }: Paymen
     async function initializePayment() {
       setLoading(true);
       setError(null);
+      setErrorDetail(null);
 
       try {
         const res = await fetch("/api/payments/initialize", {
@@ -52,6 +55,13 @@ export function PaymentStep({ orderId, orderNumber, guestToken, onBack }: Paymen
 
         if (!res.ok) {
           setError(data.error || "Ödeme başlatılamadı");
+          if (data.code || data.details) {
+            setErrorDetail(
+              [data.code ? `Kod ${data.code}` : null, data.details]
+                .filter(Boolean)
+                .join(": ")
+            );
+          }
           return;
         }
 
@@ -128,6 +138,11 @@ export function PaymentStep({ orderId, orderNumber, guestToken, onBack }: Paymen
       <div className="py-10 text-center">
         <AlertCircle className="mx-auto mb-4 h-12 w-12 text-destructive" />
         <p className="mb-2 font-medium text-destructive">{error}</p>
+        {errorDetail && (
+          <p className="mx-auto mb-3 max-w-md text-xs text-muted-foreground">
+            {errorDetail}
+          </p>
+        )}
         <p className="mx-auto mb-6 max-w-md text-sm text-muted-foreground">
           Siparişiniz kaydedildi, kartınızdan <strong>herhangi bir çekim
           yapılmadı</strong>. Ödeme adımını birazdan yeniden deneyebilir ya da
