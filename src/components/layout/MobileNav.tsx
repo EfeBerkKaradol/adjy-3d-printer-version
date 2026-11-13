@@ -35,7 +35,7 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="flex w-full flex-col gap-0 border-l border-border bg-background p-0 sm:max-w-sm"
+        className="adjy-nav flex w-full flex-col gap-0 border-l border-border bg-background p-0 sm:max-w-sm"
       >
         <div className="border-b border-border px-5 py-4">
           <SheetTitle className="font-[family-name:var(--font-orbitron)] text-lg font-extrabold tracking-[0.22em]">

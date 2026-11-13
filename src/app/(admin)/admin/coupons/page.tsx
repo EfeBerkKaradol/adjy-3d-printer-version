@@ -98,7 +98,7 @@ export default function AdminCouponsPage() {
       </div>
 
       {/* Tablo */}
-      <div className="border border-border/40 rounded-xl overflow-hidden">
+      <div className="adjy-pixel-frame rounded-xl overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-muted/30">
             <tr>

@@ -13,7 +13,7 @@ export function ManufacturabilityStatus({ result }: { result: ManufacturabilityR
     result.level === "ok" ? CheckCircle2 : result.level === "adjustable" ? Info : AlertTriangle;
 
   return (
-    <div className="flex gap-2.5 border-t border-border pt-4">
+    <div className="flex gap-2.5 border-t-2 border-dashed border-foreground/25 pt-4">
       <Icon
         className={`mt-0.5 h-4 w-4 shrink-0 ${
           result.level === "unsuitable" ? "text-destructive" : "text-muted-foreground"

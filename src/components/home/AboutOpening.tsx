@@ -76,7 +76,7 @@ export function AboutOpening({ gorsel, urunSayisi, olcuSayisi }: Props) {
       </div>
 
       {/* Soyut vaat yerine sayılabilir dört şey */}
-      <dl className="mt-14 grid gap-x-10 gap-y-8 border-t border-border pt-10 sm:grid-cols-2 lg:grid-cols-4">
+      <dl className="mt-14 grid gap-x-10 gap-y-8 border-t-2 border-dashed border-foreground/25 pt-10 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <dt className="text-sm text-muted-foreground">Katalogdaki ürün</dt>
           <dd className="mt-2 text-3xl font-medium tabular-nums">{urunSayisi}</dd>

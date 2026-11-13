@@ -244,7 +244,7 @@ export function ARModal({
           {renderARButton()}
 
           {/* Bilgi */}
-          <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 border border-border/40">
+          <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 adjy-pixel-frame">
             <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
             <div className="text-xs text-muted-foreground">
               {isSupported ? (

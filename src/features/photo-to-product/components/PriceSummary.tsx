@@ -22,7 +22,7 @@ export function PriceSummary({
   const { price, estimate } = pricing;
 
   return (
-    <section className="border-t border-border pt-5">
+    <section className="border-t-2 border-dashed border-foreground/25 pt-5">
       <div className="flex items-end justify-between gap-4">
         <div>
           <p className="text-sm text-muted-foreground">Fiyat</p>
@@ -70,7 +70,7 @@ export function PriceSummary({
               <dd className="tabular-nums">%{Math.round(price.discountRate * 100)}</dd>
             </div>
           )}
-          <div className="flex justify-between border-t border-border pt-1.5 font-medium">
+          <div className="flex justify-between border-t-2 border-dashed border-foreground/25 pt-1.5 font-medium">
             <dt>Toplam · {quantity} adet</dt>
             <dd className="tabular-nums">{formatTRY(price.totalGross)}</dd>
           </div>

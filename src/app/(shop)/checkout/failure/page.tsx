@@ -39,7 +39,7 @@ function FailureContent() {
         )}
       </div>
 
-      <div className="space-y-2 text-left bg-card border border-border/40 rounded-xl p-6 mb-8">
+      <div className="space-y-2 text-left bg-card adjy-pixel-frame rounded-xl p-6 mb-8">
         <h3 className="font-semibold mb-2">Ne yapabilirsiniz?</h3>
         <ul className="space-y-2 text-sm text-muted-foreground">
           <li>- Kart bilgilerinizi kontrol edip tekrar deneyin</li>

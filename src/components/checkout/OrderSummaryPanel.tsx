@@ -27,7 +27,7 @@ export function OrderSummaryPanel({
   const grandTotal = totalPrice + shippingCost - discountAmount;
 
   return (
-    <div className="p-5 border border-border/40 rounded-xl bg-card sticky top-24">
+    <div className="p-5 adjy-pixel-frame rounded-xl bg-card sticky top-24">
       <h3 className="font-semibold text-base mb-4">Siparis Ozeti</h3>
 
       {/* Ürünler */}

@@ -49,7 +49,7 @@ export function AdminSidebar({ isMobile = false }: { isMobile?: boolean }) {
   return (
     <aside className="w-64 min-h-screen border-r border-border/40 bg-card/50 flex flex-col">
       {/* Logo */}
-      <div className="p-6 border-b border-border/40">
+      <div className="p-6 border-b-2 border-dashed border-foreground/25">
         <ConditionalSheetClose isMobile={isMobile}>
           <Link href="/admin" className="flex items-center gap-2">
             <span className="text-xl font-bold font-[var(--font-orbitron)] tracking-wider">
@@ -91,7 +91,7 @@ export function AdminSidebar({ isMobile = false }: { isMobile?: boolean }) {
       </nav>
 
       {/* Mağazaya Dön */}
-      <div className="p-4 border-t border-border/40">
+      <div className="p-4 border-t-2 border-dashed border-foreground/25">
         <ConditionalSheetClose isMobile={isMobile}>
           <Link
             href="/"

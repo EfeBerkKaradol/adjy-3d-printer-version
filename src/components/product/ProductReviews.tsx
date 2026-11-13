@@ -187,7 +187,7 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
 
       {/* Değerlendirme Formu */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="border border-border/40 rounded-xl p-6 mb-8 bg-card">
+        <form onSubmit={handleSubmit} className="adjy-pixel-frame rounded-xl p-6 mb-8 bg-card">
           <h3 className="font-semibold mb-4">Değerlendirme Yaz</h3>
 
           {/* Yıldız Seçimi */}
@@ -228,7 +228,7 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Değerlendirmenize bir başlık verin"
-              className="w-full px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="w-full px-3 py-2 adjy-pixel-frame rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
               maxLength={100}
             />
           </div>
@@ -240,7 +240,7 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Ürün hakkındaki düşüncelerinizi paylaşın..."
-              className="w-full px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[100px] resize-y"
+              className="w-full px-3 py-2 adjy-pixel-frame rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[100px] resize-y"
               maxLength={1000}
             />
           </div>
@@ -284,7 +284,7 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
           {reviews.map((review) => (
             <div
               key={review.id}
-              className="border border-border/40 rounded-xl p-5 bg-card"
+              className="adjy-pixel-frame rounded-xl p-5 bg-card"
             >
               <div className="flex items-start justify-between mb-2">
                 <div>

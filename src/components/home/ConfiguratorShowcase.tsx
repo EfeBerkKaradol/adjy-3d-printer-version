@@ -233,7 +233,7 @@ export function ConfiguratorShowcase({ products }: ConfiguratorShowcaseProps) {
           <div
             role="tablist"
             aria-label="Özel ölçüde üretilebilen ürünler"
-            className="mb-8 flex flex-wrap gap-x-6 gap-y-2 border-b border-border pb-4"
+            className="mb-8 flex flex-wrap gap-x-6 gap-y-2 border-b-2 border-dashed border-foreground/25 pb-4"
           >
             {usable.map((p, i) => {
               const active = p.id === product.id;
@@ -305,7 +305,7 @@ export function ConfiguratorShowcase({ products }: ConfiguratorShowcaseProps) {
         </div>
 
         {product.materialType && (
-          <div className="mt-8 flex items-baseline justify-between border-t border-border pt-5">
+          <div className="mt-8 flex items-baseline justify-between border-t-2 border-dashed border-foreground/25 pt-5">
             <span className="adjy-eyebrow">Malzeme</span>
             <span className="text-sm font-medium">{product.materialType}</span>
           </div>

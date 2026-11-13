@@ -82,7 +82,7 @@ export function CustomerTasks({ userId, tasks }: { userId: string; tasks: Gorev[
           onChange={(e) => setBaslik(e.target.value)}
           placeholder="Cuma ara, numune gönder…"
           aria-label="Görev"
-          className="w-full rounded-lg border border-border/60 bg-background px-3 py-2 text-sm"
+          className="w-full rounded-lg adjy-pixel-frame bg-background px-3 py-2 text-sm"
         />
         <div className="flex items-center gap-2">
           <input
@@ -90,7 +90,7 @@ export function CustomerTasks({ userId, tasks }: { userId: string; tasks: Gorev[
             value={tarih}
             onChange={(e) => setTarih(e.target.value)}
             aria-label="Son tarih"
-            className="rounded-lg border border-border/60 bg-background px-3 py-2 text-sm"
+            className="rounded-lg adjy-pixel-frame bg-background px-3 py-2 text-sm"
           />
           <button
             type="submit"
@@ -126,7 +126,7 @@ export function CustomerTasks({ userId, tasks }: { userId: string; tasks: Gorev[
                   body: JSON.stringify({ taskId: t.id, done: true }),
                 })
               }
-              className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border border-border transition-colors hover:bg-muted"
+              className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded adjy-pixel-frame transition-colors hover:bg-muted"
             >
               <Check className="h-3 w-3 opacity-0 hover:opacity-50" aria-hidden />
             </button>
@@ -163,7 +163,7 @@ export function CustomerTasks({ userId, tasks }: { userId: string; tasks: Gorev[
         {biten.map((t) => (
           <li
             key={t.id}
-            className="flex items-start gap-3 rounded-lg border border-border/40 bg-muted/30 p-3"
+            className="flex items-start gap-3 rounded-lg adjy-pixel-frame bg-muted/30 p-3"
           >
             <button
               type="button"

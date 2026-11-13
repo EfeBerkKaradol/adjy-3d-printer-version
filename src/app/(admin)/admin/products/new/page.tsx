@@ -109,7 +109,7 @@ export default function NewProductPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Temel Bilgiler */}
-        <div className="border border-border/40 rounded-xl p-5 bg-card space-y-4">
+        <div className="adjy-pixel-frame rounded-xl p-5 bg-card space-y-4">
           <h3 className="font-semibold text-sm text-muted-foreground">Temel Bilgiler</h3>
 
           <div>
@@ -138,7 +138,7 @@ export default function NewProductPage() {
               value={form.description}
               onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
               placeholder="Ürün açıklaması..."
-              className="w-full px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[80px] resize-y"
+              className="w-full px-3 py-2 adjy-pixel-frame rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[80px] resize-y"
             />
           </div>
 
@@ -159,7 +159,7 @@ export default function NewProductPage() {
               <select
                 value={form.categoryId}
                 onChange={(e) => setForm((p) => ({ ...p, categoryId: e.target.value }))}
-                className="w-full px-3 py-2 border border-border rounded-lg bg-background text-sm h-9"
+                className="w-full px-3 py-2 adjy-pixel-frame rounded-lg bg-background text-sm h-9"
                 required
               >
                 <option value="">Seçin...</option>
@@ -172,7 +172,7 @@ export default function NewProductPage() {
         </div>
 
         {/* Teknik Detaylar */}
-        <div className="border border-border/40 rounded-xl p-5 bg-card space-y-4">
+        <div className="adjy-pixel-frame rounded-xl p-5 bg-card space-y-4">
           <h3 className="font-semibold text-sm text-muted-foreground">Teknik Detaylar</h3>
 
           <div className="grid grid-cols-3 gap-4">
@@ -224,7 +224,7 @@ export default function NewProductPage() {
         </div>
 
         {/* Dosyalar */}
-        <div className="border border-border/40 rounded-xl p-5 bg-card space-y-4">
+        <div className="adjy-pixel-frame rounded-xl p-5 bg-card space-y-4">
           <h3 className="font-semibold text-sm text-muted-foreground">Dosyalar</h3>
 
           <ImageUpload

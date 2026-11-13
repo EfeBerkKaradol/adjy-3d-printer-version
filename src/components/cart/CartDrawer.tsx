@@ -47,7 +47,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
         side="right"
         className="flex w-full flex-col gap-0 border-l border-border bg-background p-0 sm:max-w-md"
       >
-        <div className="flex items-center justify-between border-b border-border px-5 py-4">
+        <div className="flex items-center justify-between border-b-2 border-dashed border-foreground/25 px-5 py-4">
           <SheetTitle className="text-base font-semibold">
             Sepet{list.length > 0 ? ` (${list.length})` : ""}
           </SheetTitle>
@@ -104,7 +104,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                     )}
 
                     <div className="mt-auto flex items-center justify-between pt-3">
-                      <div className="flex items-center border border-border">
+                      <div className="flex items-center adjy-pixel-frame">
                         <button
                           type="button"
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -138,7 +138,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
               ))}
             </ul>
 
-            <div className="border-t border-border px-5 py-5">
+            <div className="border-t-2 border-dashed border-foreground/25 px-5 py-5">
               {remaining > 0 ? (
                 <p className="mb-4 text-xs text-muted-foreground">
                   Ücretsiz kargoya{" "}

@@ -71,15 +71,15 @@ export function CategoryChips({
 
   const chip = (active: boolean) =>
     cn(
-      "shrink-0 whitespace-nowrap border-b-2 pb-3 text-sm transition-colors",
+      "shrink-0 whitespace-nowrap border-b-4 pb-3 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors",
       active
         ? "border-foreground font-medium text-foreground"
         : "border-transparent text-muted-foreground hover:text-foreground"
     );
 
   return (
-    <nav ref={navRef} aria-label="Kategoriler" className="border-b border-border">
-      <ul className="relative -mb-px flex gap-7 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <nav ref={navRef} aria-label="Kategoriler" className="border-b-2 border-dashed border-foreground/30">
+      <ul className="relative -mb-0.5 flex gap-7 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <li>
           <button
             type="button"
@@ -105,7 +105,7 @@ export function CategoryChips({
               className={chip(activeMain?.id === cat.id)}
             >
               {cat.name}
-              <span className="ml-1.5 text-xs tabular-nums text-muted-foreground">
+              <span className="ml-1.5 tabular-nums text-muted-foreground">
                 {cat.productCount}
               </span>
             </button>
@@ -123,7 +123,7 @@ export function CategoryChips({
               className={chip(customizable)}
             >
               Yapılandırılabilir
-              <span className="ml-1.5 text-xs tabular-nums text-muted-foreground">
+              <span className="ml-1.5 tabular-nums text-muted-foreground">
                 {configurableCount}
               </span>
             </button>
@@ -135,7 +135,7 @@ export function CategoryChips({
       {subs.length > 1 && activeMain && (
         <ul
           aria-label={`${activeMain.name} alt kategorileri`}
-          className="relative flex gap-2 overflow-x-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="relative flex gap-3 overflow-x-auto px-0.5 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           <li>
             <button
@@ -167,7 +167,7 @@ export function CategoryChips({
       {collections.length > 0 && !(subs.length > 1) && (
         <ul
           aria-label="Koleksiyonlar"
-          className="relative flex gap-2 overflow-x-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="relative flex gap-3 overflow-x-auto px-0.5 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {collections.map((k) => (
             <li key={k.id}>
@@ -190,9 +190,9 @@ export function CategoryChips({
 
 function pill(active: boolean) {
   return cn(
-    "inline-flex min-h-9 shrink-0 items-center whitespace-nowrap rounded-full border px-3.5 text-[13px] transition-colors",
+    "adjy-pixel-box inline-flex min-h-8 shrink-0 items-center whitespace-nowrap px-3 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[10px] transition-colors",
     active
-      ? "border-foreground bg-foreground text-background"
-      : "border-border text-muted-foreground hover:text-foreground"
+      ? "bg-foreground text-background"
+      : "bg-background text-muted-foreground hover:text-foreground"
   );
 }

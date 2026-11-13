@@ -39,7 +39,7 @@ const SINIRLAR = [
 
 export function HonestLimits() {
   return (
-    <section className="border-t border-border/60 bg-foreground text-background">
+    <section className="border-t-2 border-dashed border-foreground/25 bg-foreground text-background">
       <div className="adjy-container py-16 lg:py-24">
         <div className="max-w-2xl">
           <p className="adjy-eyebrow mb-5 text-background/60">Sınırlarımız</p>

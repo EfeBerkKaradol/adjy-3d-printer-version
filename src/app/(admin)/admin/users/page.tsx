@@ -180,11 +180,11 @@ export default function AdminUsersPage() {
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       ) : (
-        <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
+        <div className="bg-card adjy-pixel-frame rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border/40 bg-muted/30">
+                <tr className="border-b-2 border-dashed border-foreground/25 bg-muted/30">
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground">
                     Kullanıcı
                   </th>
@@ -219,7 +219,7 @@ export default function AdminUsersPage() {
                   users.map((user) => (
                     <tr
                       key={user.id}
-                      className="border-b border-border/20 hover:bg-muted/20 transition-colors"
+                      className="border-b-2 border-dashed border-foreground/25 hover:bg-muted/20 transition-colors"
                     >
                       <td className="px-4 py-3">
                         <div>
@@ -290,7 +290,7 @@ export default function AdminUsersPage() {
           </div>
 
           {pagination && pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between px-4 py-3 border-t border-border/40">
+            <div className="flex items-center justify-between px-4 py-3 border-t-2 border-dashed border-foreground/25">
               <p className="text-xs text-muted-foreground">
                 Toplam {pagination.total} kullanıcı
               </p>

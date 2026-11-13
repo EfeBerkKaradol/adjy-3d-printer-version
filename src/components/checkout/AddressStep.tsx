@@ -256,7 +256,7 @@ export function AddressStep({
             const addr = savedAddresses.find((a) => a.id === selectedShippingId);
             if (!addr) return null;
             return (
-              <div className="p-3 rounded-lg border border-border/40 bg-muted/30 text-sm space-y-0.5">
+              <div className="p-3 rounded-lg adjy-pixel-frame bg-muted/30 text-sm space-y-0.5">
                 {addr.fullName && (
                   <p className="font-medium">{addr.fullName}</p>
                 )}
@@ -277,7 +277,7 @@ export function AddressStep({
 
       {/* Yeni adres formu */}
       {isNewShipping && (
-        <div className="space-y-4 p-4 border border-border/40 rounded-xl bg-card">
+        <div className="space-y-4 p-4 adjy-pixel-frame rounded-xl bg-card">
           {savedAddresses.length > 0 && (
             <p className="text-sm font-medium text-muted-foreground mb-2">
               Yeni Adres Bilgileri
@@ -491,7 +491,7 @@ export function AddressStep({
                 const addr = savedAddresses.find((a) => a.id === selectedBillingId);
                 if (!addr) return null;
                 return (
-                  <div className="p-3 rounded-lg border border-border/40 bg-muted/30 text-sm space-y-0.5">
+                  <div className="p-3 rounded-lg adjy-pixel-frame bg-muted/30 text-sm space-y-0.5">
                     {addr.fullName && (
                       <p className="font-medium">{addr.fullName}</p>
                     )}
@@ -509,7 +509,7 @@ export function AddressStep({
 
           {/* Yeni fatura adresi formu */}
           {isNewBilling && (
-            <div className="space-y-4 p-4 border border-border/40 rounded-xl bg-card">
+            <div className="space-y-4 p-4 adjy-pixel-frame rounded-xl bg-card">
               {savedAddresses.length > 0 && (
                 <p className="text-sm font-medium text-muted-foreground mb-2">
                   Yeni Fatura Adresi Bilgileri

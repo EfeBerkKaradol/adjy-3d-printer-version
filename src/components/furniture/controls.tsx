@@ -63,7 +63,7 @@ export function OlcuKaydirici({
           onClick={() => onChange(oturt(deger - adim))}
           disabled={deger <= min}
           aria-label={`${etiket} azalt`}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border transition-colors hover:bg-muted disabled:opacity-35"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full adjy-pixel-frame transition-colors hover:bg-muted disabled:opacity-35"
         >
           <Minus className="h-4 w-4" aria-hidden />
         </button>
@@ -83,7 +83,7 @@ export function OlcuKaydirici({
           onClick={() => onChange(oturt(deger + adim))}
           disabled={deger >= max}
           aria-label={`${etiket} artır`}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border transition-colors hover:bg-muted disabled:opacity-35"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full adjy-pixel-frame transition-colors hover:bg-muted disabled:opacity-35"
         >
           <Plus className="h-4 w-4" aria-hidden />
         </button>
@@ -266,7 +266,7 @@ export function BolmePaneli({
         ))}
       </div>
 
-      <div className="border-t border-border pt-4">
+      <div className="border-t-2 border-dashed border-foreground/25 pt-4">
         <p className="text-xs text-muted-foreground">Tüm gözlere birden</p>
         <div className="mt-2 flex flex-wrap gap-2">
           {(["bos", "kapak", "cekmece"] as GozIcerigi[]).map((i) => (
@@ -274,7 +274,7 @@ export function BolmePaneli({
               key={i}
               type="button"
               onClick={() => onHepsi(i)}
-              className="h-9 rounded-full border border-border px-3.5 text-xs transition-colors hover:bg-muted"
+              className="h-9 rounded-full adjy-pixel-frame px-3.5 text-xs transition-colors hover:bg-muted"
             >
               Hepsi {ICERIK_ETIKET[i].toLowerCase()}
             </button>
@@ -283,7 +283,7 @@ export function BolmePaneli({
       </div>
 
       {kapakVar && (
-        <div className="border-t border-border pt-4">
+        <div className="border-t-2 border-dashed border-foreground/25 pt-4">
           <label className="text-sm font-medium">Kulp</label>
           <div className="mt-2 flex flex-wrap gap-2">
             {KULPLAR.map((k) => (
@@ -351,7 +351,7 @@ export function TabanPaneli({
         </div>
 
         {model.sira.max >= 2 && (
-          <div className="border-t border-border pt-4">
+          <div className="border-t-2 border-dashed border-foreground/25 pt-4">
             <label className="flex items-start gap-3">
               <input
                 type="checkbox"
@@ -412,7 +412,7 @@ export function TabanPaneli({
         </p>
       )}
 
-      <div className="border-t border-border pt-4">
+      <div className="border-t-2 border-dashed border-foreground/25 pt-4">
         <label className="flex items-start gap-3">
           <input
             type="checkbox"

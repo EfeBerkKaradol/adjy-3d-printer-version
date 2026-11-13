@@ -247,7 +247,7 @@ export default async function CollectionsPage() {
       )}
 
       {families.length > 0 && (
-        <section className="mt-20 border-t border-border pt-12 md:mt-28">
+        <section className="mt-20 border-t-2 border-dashed border-foreground/25 pt-12 md:mt-28">
           <h2 className="text-xl font-medium tracking-tight md:text-2xl">
             Üretim türüne göre
           </h2>
@@ -282,7 +282,7 @@ export default async function CollectionsPage() {
         </section>
       )}
 
-      <section className="mt-20 border-t border-border pt-12 md:mt-28">
+      <section className="mt-20 border-t-2 border-dashed border-foreground/25 pt-12 md:mt-28">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-xl">
             <h2 className="text-xl font-medium tracking-tight md:text-2xl">

@@ -187,7 +187,7 @@ export default async function AboutPage() {
       />
 
       {/* 02 — Neden başladık */}
-      <section className="border-t border-border/60 bg-muted/30">
+      <section className="border-t-2 border-dashed border-foreground/25 bg-muted/30">
         <div className="adjy-container py-16 lg:py-24">
           <div className="mx-auto max-w-3xl">
             <p className="adjy-eyebrow mb-6">Neden</p>
@@ -214,7 +214,7 @@ export default async function AboutPage() {
 
       {/* 03 — Ölçüyü siz verirsiniz: anlatılmıyor, çalıştırılıyor */}
       {configuratorProducts.length > 0 && (
-        <section className="adjy-container adjy-section border-t border-border/60">
+        <section className="adjy-container adjy-section border-t-2 border-dashed border-foreground/25">
           <SectionHeading
             eyebrow="Özel ölçüde üretim"
             title="Ölçüyü siz belirleyin."
@@ -237,7 +237,7 @@ export default async function AboutPage() {
       <HonestLimits />
 
       {/* 07 — Nerede */}
-      <section className="border-t border-border/60">
+      <section className="border-t-2 border-dashed border-foreground/25">
         <div className="adjy-container grid gap-10 py-16 lg:grid-cols-2 lg:gap-16 lg:py-20">
           <div>
             <p className="adjy-eyebrow mb-5">Nerede</p>
@@ -300,7 +300,7 @@ export default async function AboutPage() {
               </Link>
               <Link
                 href="/contact"
-                className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium transition-colors hover:bg-muted"
+                className="inline-flex items-center gap-2 rounded-full adjy-pixel-frame px-6 py-3 text-sm font-medium transition-colors hover:bg-muted"
               >
                 Bize yazın
               </Link>

@@ -50,7 +50,7 @@ export function ModelViewer({ parameters, productType, modelFileUrl, defaults }:
   );
 
   return (
-    <div className="relative w-full aspect-square bg-gradient-to-b from-muted/30 to-muted/60 rounded-2xl overflow-hidden border border-border/30">
+    <div className="relative w-full aspect-square bg-gradient-to-b from-muted/30 to-muted/60 rounded-2xl overflow-hidden adjy-pixel-frame">
       <Suspense fallback={<LoadingFallback />}>
         <Canvas
           camera={{ position: [5, 3.8, 5], fov: 45 }}

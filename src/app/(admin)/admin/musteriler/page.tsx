@@ -134,7 +134,7 @@ export default async function MusterilerPage({
         <div className="flex items-center gap-4">
           <a
             href="/api/admin/customers/export"
-            className="inline-flex items-center gap-2 rounded-lg border border-border/60 px-3.5 py-2 text-sm font-medium transition-colors hover:bg-muted"
+            className="inline-flex items-center gap-2 rounded-lg adjy-pixel-frame px-3.5 py-2 text-sm font-medium transition-colors hover:bg-muted"
           >
             <Download className="h-4 w-4" aria-hidden />
             CSV indir
@@ -153,23 +153,23 @@ export default async function MusterilerPage({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-border/40 bg-card p-5">
+        <div className="rounded-xl adjy-pixel-frame bg-card p-5">
           <p className="text-xs text-muted-foreground">Toplam ciro</p>
           <p className="mt-1 text-2xl font-semibold tabular-nums">{formatTRY(ciro)}</p>
         </div>
-        <div className="rounded-xl border border-border/40 bg-card p-5">
+        <div className="rounded-xl adjy-pixel-frame bg-card p-5">
           <p className="text-xs text-muted-foreground">Müşteri başına ortalama</p>
           <p className="mt-1 text-2xl font-semibold tabular-nums">
             {alanlar.length > 0 ? formatTRY(ciro / alanlar.length) : "—"}
           </p>
         </div>
-        <div className="rounded-xl border border-border/40 bg-card p-5">
+        <div className="rounded-xl adjy-pixel-frame bg-card p-5">
           <p className="text-xs text-muted-foreground">Tekrar eden</p>
           <p className="mt-1 text-2xl font-semibold tabular-nums">
             {satirlar.filter((r) => r.siparisSayisi > 1).length}
           </p>
         </div>
-        <div className="rounded-xl border border-border/40 bg-card p-5">
+        <div className="rounded-xl adjy-pixel-frame bg-card p-5">
           <p className="text-xs text-muted-foreground">Uykuda</p>
           <p className="mt-1 text-2xl font-semibold tabular-nums">
             {satirlar.filter((r) => r.uykuda).length}
@@ -189,14 +189,14 @@ export default async function MusterilerPage({
             defaultValue={arama}
             placeholder="Ad, e-posta ya da telefon"
             aria-label="Müşteri ara"
-            className="w-full rounded-lg border border-border/60 bg-background py-2 pl-9 pr-3 text-sm"
+            className="w-full rounded-lg adjy-pixel-frame bg-background py-2 pl-9 pr-3 text-sm"
           />
         </div>
         <select
           name="segment"
           defaultValue={segment ?? ""}
           aria-label="Segment"
-          className="rounded-lg border border-border/60 bg-background px-3 py-2 text-sm"
+          className="rounded-lg adjy-pixel-frame bg-background px-3 py-2 text-sm"
         >
           <option value="">Tüm segmentler</option>
           {Object.values(SEGMENTLER).map((s) => (
@@ -209,7 +209,7 @@ export default async function MusterilerPage({
           name="sira"
           defaultValue={siralama}
           aria-label="Sıralama"
-          className="rounded-lg border border-border/60 bg-background px-3 py-2 text-sm"
+          className="rounded-lg adjy-pixel-frame bg-background px-3 py-2 text-sm"
         >
           {Object.entries(SIRALAMALAR).map(([id, label]) => (
             <option key={id} value={id}>
@@ -225,11 +225,11 @@ export default async function MusterilerPage({
         </button>
       </form>
 
-      <div className="overflow-hidden rounded-xl border border-border/40 bg-card">
+      <div className="overflow-hidden rounded-xl adjy-pixel-frame bg-card">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border/40 bg-muted/30 text-left text-muted-foreground">
+              <tr className="border-b-2 border-dashed border-foreground/25 bg-muted/30 text-left text-muted-foreground">
                 <th className="px-4 py-3 font-medium">Müşteri</th>
                 <th className="px-4 py-3 font-medium">Segment</th>
                 <th className="px-4 py-3 text-right font-medium">Sipariş</th>
@@ -248,7 +248,7 @@ export default async function MusterilerPage({
                 </tr>
               ) : (
                 satirlar.map((r) => (
-                  <tr key={r.id} className="border-b border-border/40 last:border-0 hover:bg-muted/30">
+                  <tr key={r.id} className="border-b-2 border-dashed border-foreground/25 last:border-0 hover:bg-muted/30">
                     <td className="px-4 py-3">
                       <Link href={`/admin/musteriler/${r.id}`} className="block">
                         <span className="font-medium">{r.fullName || "—"}</span>

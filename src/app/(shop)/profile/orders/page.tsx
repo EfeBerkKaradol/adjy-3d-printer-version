@@ -165,7 +165,7 @@ export default function OrdersPage() {
                                 <CardContent>
                                     <div className="space-y-2">
                                         {order.items.map((item, idx) => (
-                                            <div key={idx} className="flex items-center justify-between text-sm py-1.5 border-t border-border/40 first:border-0">
+                                            <div key={idx} className="flex items-center justify-between text-sm py-1.5 border-t-2 border-dashed border-foreground/25 first:border-0">
                                                 <span className="text-muted-foreground">
                                                     {item.productName} <span className="text-xs">×{item.quantity}</span>
                                                 </span>

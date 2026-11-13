@@ -142,7 +142,7 @@ export function ProductExperience({ product }: { product: ExperienceProduct }) {
           </p>
         )}
 
-        <div className="mt-8 border-t border-border pt-8">
+        <div className="mt-8 border-t-2 border-dashed border-foreground/25 pt-8">
           <ProductOptions
             parameters={product.parameters}
             values={values}
@@ -151,7 +151,7 @@ export function ProductExperience({ product }: { product: ExperienceProduct }) {
         </div>
 
         {kalipFarki > 0 && (
-          <div className="mt-7 flex gap-3 rounded-xl border border-border bg-muted/40 p-4">
+          <div className="mt-7 flex gap-3 rounded-xl adjy-pixel-frame bg-muted/40 p-4">
             <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
             <div className="text-sm leading-relaxed">
               <p className="font-medium">

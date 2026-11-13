@@ -90,7 +90,7 @@ export function FurnitureARButton({
         type="button"
         onClick={() => void uret()}
         disabled={hazirlaniyor}
-        className="inline-flex h-full min-h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-border px-3 text-sm font-medium transition-colors hover:bg-muted disabled:opacity-60"
+        className="inline-flex h-full min-h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl adjy-pixel-frame px-3 text-sm font-medium transition-colors hover:bg-muted disabled:opacity-60"
       >
         {hazirlaniyor ? (
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden />

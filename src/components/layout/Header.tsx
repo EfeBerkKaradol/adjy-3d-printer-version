@@ -134,7 +134,7 @@ export function Header() {
 
       {/* Dış kap şeffaf: yalnızca cam şerit tıklanabilir, kenarlardan
           arkadaki içerik görünmeye ve tıklanmaya devam eder */}
-      <header className="pointer-events-none sticky top-0 z-50 w-full px-3 pt-3 md:px-4 md:pt-4">
+      <header className="adjy-nav pointer-events-none sticky top-0 z-50 w-full px-3 pt-3 md:px-4 md:pt-4">
         <Dock
           role="toolbar"
           aria-label="Site menüsü"

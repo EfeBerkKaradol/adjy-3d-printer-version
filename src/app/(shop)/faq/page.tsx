@@ -107,12 +107,12 @@ export default function FAQPage() {
         </p>
       </header>
 
-      <Accordion type="single" collapsible className="mt-12 border-t border-border">
+      <Accordion type="single" collapsible className="mt-12 border-t-2 border-dashed border-foreground/25">
         {FAQ.map((item, i) => (
           <AccordionItem
             key={item.question}
             value={`q-${i}`}
-            className="border-b border-border"
+            className="border-b-2 border-dashed border-foreground/25"
           >
             <AccordionTrigger className="py-5 text-left text-[15px] font-medium hover:no-underline">
               {item.question}
@@ -125,7 +125,7 @@ export default function FAQPage() {
       </Accordion>
 
       {/* Sipariş süreci: siparişten kapıya altı adım */}
-      <div className="mt-8 border-t border-border">
+      <div className="mt-8 border-t-2 border-dashed border-foreground/25">
         <OrderJourney />
       </div>
     </div>

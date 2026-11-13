@@ -73,7 +73,7 @@ export function ConfigurableCard({
   const showImage = product.thumbnailUrl && !imgError;
 
   return (
-    <article className="group flex flex-col border border-border bg-surface">
+    <article className="group flex flex-col adjy-pixel-frame bg-surface">
       <Link href={`/configure/${product.id}`} className="flex flex-1 flex-col">
         <div className="relative aspect-[4/3] overflow-hidden bg-surface-2">
           {showImage ? (
@@ -96,7 +96,7 @@ export function ConfigurableCard({
           <h3 className="mt-2 text-lg font-medium tracking-tight">{product.name}</h3>
 
           {/* Asıl bilgi: neyi ne kadar değiştirebilirsin */}
-          <div className="mt-5 flex flex-col gap-4 border-t border-border pt-5">
+          <div className="mt-5 flex flex-col gap-4 border-t-2 border-dashed border-foreground/25 pt-5">
             {product.parameters.slice(0, 3).map((param) => (
               <RangeBar key={param.id} param={param} />
             ))}

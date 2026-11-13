@@ -85,12 +85,12 @@ export function CustomerNotes({ userId, notes, tags }: Props) {
               onChange={(e) => setYeniEtiket(e.target.value)}
               placeholder="etiket ekle"
               aria-label="Yeni etiket"
-              className="w-28 rounded-full border border-border/60 bg-background px-2.5 py-1 text-xs"
+              className="w-28 rounded-full adjy-pixel-frame bg-background px-2.5 py-1 text-xs"
             />
             <button
               type="submit"
               aria-label="Etiketi ekle"
-              className="rounded-full border border-border/60 p-1 transition-colors hover:bg-muted"
+              className="rounded-full adjy-pixel-frame p-1 transition-colors hover:bg-muted"
             >
               <Plus className="h-3 w-3" aria-hidden />
             </button>
@@ -114,7 +114,7 @@ export function CustomerNotes({ userId, notes, tags }: Props) {
             onChange={(e) => setMetin(e.target.value)}
             placeholder="Telefonla aradı, kargo gecikmesini sordu…"
             aria-label="Yeni not"
-            className="min-h-24 w-full resize-y rounded-lg border border-border/60 bg-background p-3 text-sm"
+            className="min-h-24 w-full resize-y rounded-lg adjy-pixel-frame bg-background p-3 text-sm"
           />
           <div className="mt-2 flex items-center gap-3">
             <button
@@ -134,7 +134,7 @@ export function CustomerNotes({ userId, notes, tags }: Props) {
             <li className="text-sm text-muted-foreground">Henüz not yok.</li>
           )}
           {notes.map((n) => (
-            <li key={n.id} className="rounded-lg border border-border/40 bg-card p-4">
+            <li key={n.id} className="rounded-lg adjy-pixel-frame bg-card p-4">
               <p className="whitespace-pre-wrap text-sm leading-relaxed">{n.body}</p>
               <div className="mt-3 flex items-center justify-between gap-3 text-xs text-muted-foreground">
                 <span>

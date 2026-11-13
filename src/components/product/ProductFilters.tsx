@@ -9,7 +9,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Sliders } from "lucide-react";
 
@@ -124,41 +123,55 @@ function PriceRange({
   const [max, setMax] = useState(initialMax);
 
   return (
-    <>
-      <div className="flex items-center gap-2">
-        <Input
-          type="number"
-          inputMode="numeric"
-          min={0}
-          placeholder="Min"
-          aria-label="En düşük fiyat (TL)"
-          value={min}
-          onChange={(e) => setMin(e.target.value)}
-          className="h-9"
-        />
-        <span className="text-muted-foreground" aria-hidden>
-          —
-        </span>
-        <Input
-          type="number"
-          inputMode="numeric"
-          min={0}
-          placeholder="Maks"
-          aria-label="En yüksek fiyat (TL)"
-          value={max}
-          onChange={(e) => setMax(e.target.value)}
-          className="h-9"
-        />
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onApply(min, max);
+      }}
+    >
+      {/* Tek piksel kutu: iki yarı, ortada kesik ayraç */}
+      <div className="adjy-pixel-frame grid grid-cols-2 bg-background">
+        <label className="flex flex-col px-3 py-2 focus-within:bg-foreground/[0.06]">
+          <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            En az
+          </span>
+          <span className="mt-0.5 flex items-baseline gap-1 font-mono text-sm tabular-nums">
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              placeholder="0"
+              aria-label="En düşük fiyat (TL)"
+              value={min}
+              onChange={(e) => setMin(e.target.value)}
+              className="w-full min-w-0 bg-transparent outline-none placeholder:text-muted-foreground/60"
+            />
+            <span className="text-[11px] text-muted-foreground">TL</span>
+          </span>
+        </label>
+        <label className="flex flex-col border-l-2 border-dashed border-foreground/40 px-3 py-2 focus-within:bg-foreground/[0.06]">
+          <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            En çok
+          </span>
+          <span className="mt-0.5 flex items-baseline gap-1 font-mono text-sm tabular-nums">
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              placeholder="∞"
+              aria-label="En yüksek fiyat (TL)"
+              value={max}
+              onChange={(e) => setMax(e.target.value)}
+              className="w-full min-w-0 bg-transparent outline-none placeholder:text-muted-foreground/60"
+            />
+            <span className="text-[11px] text-muted-foreground">TL</span>
+          </span>
+        </label>
       </div>
-      <Button
-        variant="outline"
-        size="sm"
-        className="mt-3 w-full"
-        onClick={() => onApply(min, max)}
-      >
-        Fiyatı uygula
+      <Button type="submit" size="sm" className="mt-3 w-full">
+        Uygula
       </Button>
-    </>
+    </form>
   );
 }
 
@@ -189,7 +202,7 @@ function CheckRow({
       >
         <span>{label}</span>
         {count !== undefined && (
-          <span className="text-xs tabular-nums text-muted-foreground">{count}</span>
+          <span className="font-mono text-[11px] tabular-nums text-muted-foreground">{count}</span>
         )}
       </label>
     </div>
@@ -213,12 +226,12 @@ export function ProductFilters({
   return (
     <div>
       {showHeader ? (
-        <div className="flex items-center justify-between border-b border-border pb-4">
-          <h2 className="flex items-center gap-2 text-sm font-medium">
+        <div className="flex items-center justify-between border-b-2 border-dashed border-foreground/80 pb-4">
+          <h2 className="flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.12em]">
             <Sliders className="h-4 w-4" aria-hidden />
             Filtreler
             {activeCount > 0 && (
-              <span className="text-xs font-normal text-muted-foreground">
+              <span className="text-muted-foreground">
                 ({activeCount})
               </span>
             )}
@@ -230,7 +243,7 @@ export function ProductFilters({
                 clearAll();
                 onNavigate?.();
               }}
-              className="text-xs text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
+              className="adjy-pixel-box bg-background px-2 py-1 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[10px] transition-colors hover:bg-foreground hover:text-background"
             >
               Temizle
             </button>
@@ -245,7 +258,7 @@ export function ProductFilters({
                 clearAll();
                 onNavigate?.();
               }}
-              className="text-xs text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
+              className="adjy-pixel-box bg-background px-2 py-1 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[10px] transition-colors hover:bg-foreground hover:text-background"
             >
               Filtreleri temizle ({activeCount})
             </button>
@@ -259,8 +272,8 @@ export function ProductFilters({
         className="w-full"
       >
         {/* Özelleştirme — ADJY'yi ayıran filtre, en üstte */}
-        <AccordionItem value="ozellestirme" className="border-b border-border">
-          <AccordionTrigger className="py-4 text-sm hover:no-underline">
+        <AccordionItem value="ozellestirme" >
+          <AccordionTrigger className="py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] hover:no-underline">
             Özelleştirme
           </AccordionTrigger>
           <AccordionContent className="pb-4">
@@ -278,8 +291,8 @@ export function ProductFilters({
 
         {/* Kategori */}
         {categories.length > 0 && (
-          <AccordionItem value="kategori" className="border-b border-border">
-            <AccordionTrigger className="py-4 text-sm hover:no-underline">
+          <AccordionItem value="kategori" >
+            <AccordionTrigger className="py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] hover:no-underline">
               Kategori
             </AccordionTrigger>
             <AccordionContent className="pb-4">
@@ -296,7 +309,7 @@ export function ProductFilters({
                   {(cat.children?.length ?? 0) > 1 &&
                     (current.category === cat.slug ||
                       cat.children?.some((k) => k.slug === current.category)) && (
-                      <div className="ml-7 border-l border-border pl-3">
+                      <div className="ml-7 border-l-2 border-dashed border-foreground/30 pl-3">
                         {cat.children?.map((k) => (
                           <CheckRow
                             key={k.id}
@@ -317,8 +330,8 @@ export function ProductFilters({
 
         {/* Koleksiyon */}
         {collections.length > 0 && (
-          <AccordionItem value="koleksiyon" className="border-b border-border">
-            <AccordionTrigger className="py-4 text-sm hover:no-underline">
+          <AccordionItem value="koleksiyon" >
+            <AccordionTrigger className="py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] hover:no-underline">
               Koleksiyon
             </AccordionTrigger>
             <AccordionContent className="pb-4">
@@ -337,8 +350,8 @@ export function ProductFilters({
         )}
 
         {/* Fiyat */}
-        <AccordionItem value="fiyat" className="border-b border-border">
-          <AccordionTrigger className="py-4 text-sm hover:no-underline">
+        <AccordionItem value="fiyat" >
+          <AccordionTrigger className="py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] hover:no-underline">
             Fiyat
           </AccordionTrigger>
           <AccordionContent className="pb-4">
@@ -357,8 +370,8 @@ export function ProductFilters({
             Tekil filament adı değil aile gösterilir; PLA ile PETG
             farkı alıcıyı listede değil ürün künyesinde ilgilendirir. */}
         {materials.length > 0 && (
-          <AccordionItem value="malzeme" className="border-b border-border">
-            <AccordionTrigger className="py-4 text-sm hover:no-underline">
+          <AccordionItem value="malzeme" >
+            <AccordionTrigger className="py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] hover:no-underline">
               Üretim
             </AccordionTrigger>
             <AccordionContent className="pb-4">
@@ -376,8 +389,8 @@ export function ProductFilters({
         )}
 
         {/* Durum */}
-        <AccordionItem value="durum" className="border-b border-border">
-          <AccordionTrigger className="py-4 text-sm hover:no-underline">
+        <AccordionItem value="durum" >
+          <AccordionTrigger className="py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] hover:no-underline">
             Durum
           </AccordionTrigger>
           <AccordionContent className="pb-4">

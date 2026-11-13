@@ -222,12 +222,12 @@ export function FurnitureConfigurator({ model, urunId, odaId, odaAdi }: Props) {
       </div>
 
       {/* ---------- KONTROLLER ---------- */}
-      <aside className="flex flex-col border-t border-border bg-background lg:border-l lg:border-t-0">
+      <aside className="flex flex-col border-t-2 border-dashed border-foreground/25 bg-background lg:border-l lg:border-t-0">
         {/* Mobilde bu blok ekranın dörtte birini yiyordu ve
             kontroller katlanın altında kalıyordu. Ürün adı
             sahnenin üstünde zaten yazıyor; açıklama da ürüne
             girmeden önce kartta okundu. */}
-        <div className="hidden border-b border-border px-5 py-4 lg:block">
+        <div className="hidden border-b-2 border-dashed border-foreground/25 px-5 py-4 lg:block">
           <h1 className="text-lg font-medium tracking-tight">{model.ad}</h1>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
             {model.aciklama}
@@ -235,7 +235,7 @@ export function FurnitureConfigurator({ model, urunId, odaId, odaAdi }: Props) {
         </div>
 
         {/* Grup seçici — başparmağın ulaştığı yerde, yatay */}
-        <div className="sticky top-0 z-10 flex gap-1 overflow-x-auto border-b border-border bg-background px-3 py-2.5">
+        <div className="sticky top-0 z-10 flex gap-1 overflow-x-auto border-b-2 border-dashed border-foreground/25 bg-background px-3 py-2.5">
           {GRUPLAR.filter(
             (g) =>
               (g.id !== "bolme" || model.gozSecilebilir) &&
@@ -295,7 +295,7 @@ export function FurnitureConfigurator({ model, urunId, odaId, odaAdi }: Props) {
                 }
               />
               {Object.values(cfg.gozler).some((v) => v !== "bos") && (
-                <div className="border-t border-border pt-6">
+                <div className="border-t-2 border-dashed border-foreground/25 pt-6">
                   <MalzemeSecici
                     etiket="Kapak ve çekmece yüzeyi"
                     deger={cfg.onMalzeme}
@@ -321,7 +321,7 @@ export function FurnitureConfigurator({ model, urunId, odaId, odaAdi }: Props) {
             değiştiren kişi fiyatı görmek için her seferinde aşağı
             kaydırmak zorundaydı. Araştırmanın en net bulgusu
             buydu: sepet, modelin dibinde durmalı. */}
-        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-background px-5 py-4 lg:static lg:z-auto">
+        <div className="fixed inset-x-0 bottom-0 z-20 border-t-2 border-dashed border-foreground/25 bg-background px-5 py-4 lg:static lg:z-auto">
           <button
             type="button"
             onClick={() => setDokumAcik((a) => !a)}
@@ -368,7 +368,7 @@ export function FurnitureConfigurator({ model, urunId, odaId, odaAdi }: Props) {
                   </dd>
                 </div>
               ))}
-              <div className="flex justify-between gap-3 border-t border-border pt-1.5">
+              <div className="flex justify-between gap-3 border-t-2 border-dashed border-foreground/25 pt-1.5">
                 <dt className="text-muted-foreground">Üretim ve kâr payı</dt>
                 <dd className="shrink-0 tabular-nums">
                   {formatTRY(dokum.listeFiyat - dokum.dogrudanMaliyet)}

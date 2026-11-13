@@ -28,7 +28,7 @@ export function LocationMap({ address, href, embedUrl }: Props) {
   const [yuklendi, setYuklendi] = useState(false);
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border">
+    <div className="overflow-hidden rounded-xl adjy-pixel-frame">
       <div className="relative aspect-[16/10] bg-muted">
         {yuklendi && embedUrl ? (
           <iframe
@@ -59,7 +59,7 @@ export function LocationMap({ address, href, embedUrl }: Props) {
               <button
                 type="button"
                 onClick={() => setYuklendi(true)}
-                className="relative rounded-full border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
+                className="relative rounded-full adjy-pixel-frame bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
               >
                 Haritayı göster
               </button>
@@ -73,7 +73,7 @@ export function LocationMap({ address, href, embedUrl }: Props) {
           href={href}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-between gap-3 border-t border-border px-4 py-3 text-sm font-medium transition-colors hover:bg-muted"
+          className="flex items-center justify-between gap-3 border-t-2 border-dashed border-foreground/25 px-4 py-3 text-sm font-medium transition-colors hover:bg-muted"
         >
           Google Haritalar&apos;da aç
           <ExternalLink className="h-4 w-4 shrink-0" aria-hidden />

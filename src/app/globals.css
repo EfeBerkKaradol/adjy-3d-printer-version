@@ -326,14 +326,13 @@
 .adjy-mini-range {
   -webkit-appearance: none;
   appearance: none;
-  height: 2px;
-  border-radius: 2px;
+  height: 4px;
   background: linear-gradient(
     to right,
     var(--foreground) 0%,
     var(--foreground) var(--dolu, 50%),
-    var(--border) var(--dolu, 50%),
-    var(--border) 100%
+    color-mix(in oklab, var(--foreground) 18%, transparent) var(--dolu, 50%),
+    color-mix(in oklab, var(--foreground) 18%, transparent) 100%
   );
   cursor: pointer;
 }
@@ -341,9 +340,9 @@
 .adjy-mini-range::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 14px;
+  width: 12px;
   height: 14px;
-  border-radius: 9999px;
+  border-radius: 0;
   background: var(--background);
   border: 2px solid var(--foreground);
   cursor: grab;
@@ -352,13 +351,13 @@
 
 .adjy-mini-range::-webkit-slider-thumb:active {
   cursor: grabbing;
-  transform: scale(1.15);
+  background: var(--foreground);
 }
 
 .adjy-mini-range::-moz-range-thumb {
-  width: 14px;
+  width: 12px;
   height: 14px;
-  border-radius: 9999px;
+  border-radius: 0;
   background: var(--background);
   border: 2px solid var(--foreground);
   cursor: grab;
@@ -397,13 +396,22 @@
   gap: 2.25rem;
   padding: 0.5rem 0;
   padding-inline-end: 2.25rem;
-  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
   line-height: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
   white-space: nowrap;
 }
 
+/* Ayraç: nokta yerine küçük piksel kare */
 .adjy-serit-ayrac {
-  opacity: 0.45;
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  background: currentColor;
+  opacity: 0.55;
+  font-size: 0;
 }
 
 @keyframes adjy-serit-ak {
@@ -574,4 +582,245 @@ a.adjy-pixel-card:focus-visible,
   0% { bottom: 0; opacity: 1; }
   99% { bottom: 100%; opacity: 1; }
   100% { bottom: 100%; opacity: 0; }
+}
+
+/* ==========================================
+ * PİKSEL KATMAN — SİTENİN TAMAMI
+ *
+ * Ana sayfadaki piksel dil (basamaklı köşeli çerçeve, sert gölge,
+ * mono büyük harf) bütün arayüz parçalarına buradan yayılır.
+ * shadcn bileşenleri `data-slot` taşıdığı için tek tek dosyalara
+ * dokunmadan düğme, giriş, seçim, onay kutusu, menü ve çekmeceler
+ * aynı görünüme geçer. Yuvarlak köşe hiçbir yerde kalmaz.
+ * ========================================== */
+
+@layer base {
+  /* Piksel ekranda yuvarlak köşe yok: avatarlar, rozetler, çipler dahil.
+     Üst menü (dock, açılır menü, arama, mobil menü) bilinçli olarak
+     cam görünümünde kalır: .adjy-nav içinde köşeler korunur. */
+  :not(.adjy-nav, .adjy-nav *),
+  :not(.adjy-nav, .adjy-nav *)::before,
+  :not(.adjy-nav, .adjy-nav *)::after {
+    border-radius: 0 !important;
+  }
+}
+
+:root {
+  /* Dört kenara 2px; köşeler boş kalır, basamaklı piksel köşe oluşur */
+  --px-frame:
+    0 -2px 0 0 var(--px, var(--foreground)),
+    0 2px 0 0 var(--px, var(--foreground)),
+    -2px 0 0 0 var(--px, var(--foreground)),
+    2px 0 0 0 var(--px, var(--foreground));
+  --px-drop:
+    4px 6px 0 0 var(--px, var(--foreground)),
+    6px 4px 0 0 var(--px, var(--foreground)),
+    5px 5px 0 0 var(--px, var(--foreground));
+}
+
+/* ---------- Düğmeler ---------- */
+[data-slot="button"]:not([data-variant="link"]) {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  font-size: 0.75rem;
+  transition: transform 100ms steps(2), box-shadow 100ms steps(2), background-color 100ms steps(2), color 100ms steps(2);
+}
+[data-slot="button"][data-size^="icon"] {
+  letter-spacing: 0;
+}
+[data-slot="button"][data-variant="default"],
+[data-slot="button"][data-variant="outline"],
+[data-slot="button"][data-variant="secondary"],
+[data-slot="button"][data-variant="destructive"] {
+  border-width: 0 !important;
+  box-shadow: var(--px-frame) !important;
+}
+[data-slot="button"][data-variant="destructive"] {
+  --px: var(--destructive);
+}
+[data-slot="button"][data-variant="outline"] {
+  background: var(--background);
+}
+[data-slot="button"][data-variant="default"]:hover:not(:disabled),
+[data-slot="button"][data-variant="outline"]:hover:not(:disabled),
+[data-slot="button"][data-variant="secondary"]:hover:not(:disabled),
+[data-slot="button"][data-variant="destructive"]:hover:not(:disabled),
+[data-slot="button"]:focus-visible {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--px-frame), var(--px-drop) !important;
+}
+[data-slot="button"][data-variant="default"]:hover:not(:disabled) {
+  background: var(--primary);
+}
+[data-slot="button"]:active:not(:disabled) {
+  transform: translate(0, 0);
+  box-shadow: var(--px-frame) !important;
+}
+[data-slot="button"][data-variant="ghost"]:hover:not(:disabled) {
+  box-shadow: var(--px-frame) !important;
+}
+
+/* ---------- Giriş alanları ---------- */
+[data-slot="input"],
+[data-slot="textarea"],
+[data-slot="select-trigger"] {
+  border-width: 0 !important;
+  background-color: var(--background) !important;
+  box-shadow: var(--px-frame) !important;
+}
+[data-slot="input"]:focus-visible,
+[data-slot="textarea"]:focus-visible,
+[data-slot="select-trigger"]:focus-visible,
+[data-slot="select-trigger"][data-state="open"] {
+  box-shadow: var(--px-frame), 4px 4px 0 0 var(--px, var(--foreground)) !important;
+}
+[data-slot="input"][aria-invalid="true"],
+[data-slot="textarea"][aria-invalid="true"],
+[data-slot="select-trigger"][aria-invalid="true"] {
+  --px: var(--destructive);
+}
+
+/* ---------- Onay kutusu ve seçenek ---------- */
+[data-slot="checkbox"],
+[data-slot="radio-group-item"] {
+  border: 2px solid var(--foreground) !important;
+  box-shadow: none !important;
+  background: var(--background);
+}
+[data-slot="checkbox"][data-state="checked"] {
+  background: var(--foreground) !important;
+  color: var(--background) !important;
+}
+[data-slot="radio-group-indicator"] svg {
+  /* Daire yerine kare piksel nokta */
+  fill: currentColor;
+  clip-path: inset(15%);
+}
+
+/* ---------- Rozet ---------- */
+[data-slot="badge"] {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 10px;
+  font-weight: 600;
+  border-width: 0 !important;
+  margin: 2px;
+  box-shadow: var(--px-frame);
+}
+
+/* ---------- Kart, açılır menü, çekmece ---------- */
+[data-slot="card"] {
+  border-width: 0 !important;
+  box-shadow: var(--px-frame) !important;
+}
+[data-slot="select-content"],
+[data-slot="dropdown-menu-content"],
+[data-slot="dropdown-menu-sub-content"] {
+  border-width: 0 !important;
+  box-shadow: var(--px-frame), var(--px-drop) !important;
+}
+[data-slot="select-item"],
+[data-slot="dropdown-menu-item"],
+[data-slot="dropdown-menu-checkbox-item"],
+[data-slot="dropdown-menu-radio-item"] {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+[data-slot="select-item"]:focus,
+[data-slot="dropdown-menu-item"]:focus,
+[data-slot="dropdown-menu-checkbox-item"]:focus,
+[data-slot="dropdown-menu-radio-item"]:focus {
+  background: var(--foreground) !important;
+  color: var(--background) !important;
+}
+[data-slot="sheet-content"] {
+  border-width: 0 !important;
+  box-shadow: var(--px-frame) !important;
+}
+[data-slot="sheet-content"][data-side="right"],
+[data-slot="sheet-content"]:not([data-side]) {
+  box-shadow: -2px 0 0 0 var(--foreground), -6px 0 0 0 color-mix(in oklab, var(--foreground) 18%, transparent) !important;
+}
+/* Mobil menü üst menünün parçası: cam/sade görünümde kalır */
+.adjy-nav[data-slot="sheet-content"] {
+  border-width: revert-layer !important;
+  box-shadow: none !important;
+}
+.adjy-nav [data-slot="sheet-title"] {
+  font-family: revert-layer;
+  text-transform: revert-layer;
+  letter-spacing: revert-layer;
+  font-size: revert-layer;
+}
+[data-slot="sheet-title"] {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.8125rem;
+}
+
+/* ---------- Sekmeler ---------- */
+[data-slot="tabs-list"] {
+  background: transparent !important;
+  gap: 0.5rem;
+}
+[data-slot="tabs-trigger"] {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  border-width: 0 !important;
+  margin: 2px;
+  box-shadow: var(--px-frame) !important;
+}
+[data-slot="tabs-trigger"][data-state="active"] {
+  background: var(--foreground) !important;
+  color: var(--background) !important;
+}
+
+/* ---------- Akordeon (SSS) ---------- */
+[data-slot="accordion-item"] {
+  border-bottom: 2px dashed color-mix(in oklab, var(--foreground) 70%, transparent) !important;
+}
+[data-slot="accordion-item"]:last-child {
+  border-bottom-width: 0 !important;
+}
+
+/* ---------- Ayırıcı ---------- */
+[data-slot="separator"][data-orientation="horizontal"] {
+  height: 0 !important;
+  background: transparent !important;
+  border-top: 2px dashed color-mix(in oklab, var(--foreground) 35%, transparent);
+}
+
+/* ---------- İskelet: yumuşak nabız yerine basamaklı ---------- */
+[data-slot="skeleton"] {
+  animation-timing-function: steps(3) !important;
+}
+
+/* Piksel çerçeveli genel kutu: herhangi bir bölüm için */
+.adjy-pixel-frame {
+  box-shadow: var(--px-frame);
+}
+
+/* Sayı alanlarında tarayıcı okları piksel çerçeveyle uyuşmuyor */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Akordeon içeriği overflow:hidden; piksel çerçeveler kırpılmasın */
+[data-slot="accordion-content"] > div {
+  padding-inline: 2px;
+  padding-top: 2px;
 }

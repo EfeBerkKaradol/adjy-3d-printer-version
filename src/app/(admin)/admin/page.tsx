@@ -187,7 +187,7 @@ export default function AdminDashboard() {
       {/* İstatistik Kartları */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Toplam Gelir */}
-        <div className="bg-card border border-border/40 rounded-xl p-5">
+        <div className="bg-card adjy-pixel-frame rounded-xl p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm text-muted-foreground">Toplam Gelir</span>
             <TrendingUp className="h-4 w-4 text-green-500" />
@@ -199,7 +199,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Siparişler */}
-        <div className="bg-card border border-border/40 rounded-xl p-5">
+        <div className="bg-card adjy-pixel-frame rounded-xl p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm text-muted-foreground">Siparişler</span>
             <ShoppingCart className="h-4 w-4 text-blue-500" />
@@ -220,7 +220,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Kullanıcılar */}
-        <div className="bg-card border border-border/40 rounded-xl p-5">
+        <div className="bg-card adjy-pixel-frame rounded-xl p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm text-muted-foreground">Kullanıcılar</span>
             <Users className="h-4 w-4 text-purple-500" />
@@ -232,7 +232,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Bekleyen İşler */}
-        <div className="bg-card border border-border/40 rounded-xl p-5">
+        <div className="bg-card adjy-pixel-frame rounded-xl p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm text-muted-foreground">Bekleyen</span>
             <Clock className="h-4 w-4 text-orange-500" />
@@ -310,7 +310,7 @@ export default function AdminDashboard() {
               Ayrıntı →
             </Link>
           </div>
-          <div className="bg-card border border-border/40 rounded-xl p-5">
+          <div className="bg-card adjy-pixel-frame rounded-xl p-5">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
               <div className="flex items-center gap-2">
                 {/* "Şu an sitede" — Vercel'in vermediği, kendi
@@ -380,7 +380,7 @@ export default function AdminDashboard() {
           <h2 className="text-lg font-semibold">Son 30 Gün</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Gelir Grafiği */}
-            <div className="bg-card border border-border/40 rounded-xl p-5">
+            <div className="bg-card adjy-pixel-frame rounded-xl p-5">
               <h3 className="text-sm font-medium text-muted-foreground mb-4">
                 Günlük Gelir
               </h3>
@@ -388,7 +388,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Günlük Sipariş Grafiği */}
-            <div className="bg-card border border-border/40 rounded-xl p-5">
+            <div className="bg-card adjy-pixel-frame rounded-xl p-5">
               <h3 className="text-sm font-medium text-muted-foreground mb-4">
                 Günlük Sipariş Sayısı
               </h3>
@@ -397,7 +397,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Sipariş Durum Dağılımı */}
-          <div className="bg-card border border-border/40 rounded-xl p-5 max-w-lg">
+          <div className="bg-card adjy-pixel-frame rounded-xl p-5 max-w-lg">
             <h3 className="text-sm font-medium text-muted-foreground mb-4">
               Sipariş Durum Dağılımı
             </h3>
@@ -415,11 +415,11 @@ export default function AdminDashboard() {
           </Button>
         </div>
 
-        <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
+        <div className="bg-card adjy-pixel-frame rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border/40 bg-muted/30">
+                <tr className="border-b-2 border-dashed border-foreground/25 bg-muted/30">
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground">
                     Sipariş No
                   </th>
@@ -451,7 +451,7 @@ export default function AdminDashboard() {
                   recentOrders.map((order) => (
                     <tr
                       key={order.id}
-                      className="border-b border-border/20 hover:bg-muted/20 transition-colors"
+                      className="border-b-2 border-dashed border-foreground/25 hover:bg-muted/20 transition-colors"
                     >
                       <td className="px-4 py-3">
                         <Link

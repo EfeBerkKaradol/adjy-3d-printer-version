@@ -41,7 +41,7 @@ export function ARShowcase({ product }: { product: ARProduct | null }) {
       : null;
 
   return (
-    <section className="border-t border-border/60">
+    <section className="border-t-2 border-dashed border-foreground/25">
       <div className="adjy-container grid items-center gap-10 py-16 lg:grid-cols-2 lg:gap-16 lg:py-24">
         <div className="order-2 lg:order-1">
           <p className="adjy-eyebrow mb-5">Artırılmış gerçeklik</p>

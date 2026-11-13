@@ -49,7 +49,7 @@ const ADIMLAR = [
 
 export function HowWeMake({ gorsel }: { gorsel: string | null }) {
   return (
-    <section className="border-t border-border/60">
+    <section className="border-t-2 border-dashed border-foreground/25">
       <div className="adjy-container py-16 lg:py-24">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
           <div className="lg:sticky lg:top-24 lg:self-start">

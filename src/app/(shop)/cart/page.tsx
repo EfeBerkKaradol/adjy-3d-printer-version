@@ -116,7 +116,7 @@ export default function CartPage() {
                 </div>
 
                 <div className="mt-auto flex items-end justify-between gap-4 pt-4">
-                  <div className="flex items-center border border-border">
+                  <div className="flex items-center adjy-pixel-frame">
                     <button
                       type="button"
                       onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -156,7 +156,7 @@ export default function CartPage() {
           <div className="lg:sticky lg:top-24">
             <h2 className="adjy-eyebrow mb-5 text-foreground">Sipariş özeti</h2>
 
-            <dl className="space-y-3 border-t border-border pt-5 text-sm">
+            <dl className="space-y-3 border-t-2 border-dashed border-foreground/25 pt-5 text-sm">
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">Ara toplam</dt>
                 <dd className="tabular-nums">{subtotal.toFixed(2)} TL</dd>
@@ -179,7 +179,7 @@ export default function CartPage() {
               </p>
             )}
 
-            <div className="mt-5 flex items-baseline justify-between border-t border-border pt-5">
+            <div className="mt-5 flex items-baseline justify-between border-t-2 border-dashed border-foreground/25 pt-5">
               <span className="text-base font-medium">Toplam</span>
               <span className="text-xl font-medium tabular-nums">
                 {subtotal.toFixed(2)} TL

@@ -50,7 +50,7 @@ export default async function AdminLayout({
 
           <main className="flex-1 bg-background max-w-full overflow-x-hidden">
             {/* Mobile Header with Hamburger Menu */}
-            <div className="md:hidden flex items-center p-4 border-b border-border/40 bg-card">
+            <div className="md:hidden flex items-center p-4 border-b-2 border-dashed border-foreground/25 bg-card">
               <Sheet>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon" className="md:hidden">

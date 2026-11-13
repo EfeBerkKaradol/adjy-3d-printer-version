@@ -93,7 +93,7 @@ export function MaterialSelector({ value, onChange }: MaterialSelectorProps) {
       </button>
 
       {advanced && (
-        <div className="mt-4 space-y-4 border-t border-border pt-4">
+        <div className="mt-4 space-y-4 border-t-2 border-dashed border-foreground/25 pt-4">
           <div>
             <p className="mb-2 text-sm">Baskı kalitesi</p>
             <div className="flex flex-wrap gap-2">
@@ -123,7 +123,7 @@ export function MaterialSelector({ value, onChange }: MaterialSelectorProps) {
               id="infill"
               value={value.infillPercent}
               onChange={(e) => set({ infillPercent: Number(e.target.value) })}
-              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground"
+              className="w-full rounded-md adjy-pixel-frame bg-background px-3 py-2 text-sm outline-none focus:border-foreground"
             >
               {INFILL_OPTIONS.map((o) => (
                 <option key={o} value={o}>

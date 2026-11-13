@@ -24,10 +24,10 @@ function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
     <button
       type="button"
       onClick={onRemove}
-      className="inline-flex items-center gap-1.5 rounded-full border border-border py-1.5 pl-3 pr-2.5 text-xs transition-colors hover:bg-surface"
+      className="adjy-pixel-box inline-flex items-center gap-1.5 bg-background py-1 pl-2.5 pr-2 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[10px] transition-colors hover:bg-foreground hover:text-background"
     >
       {label}
-      <X className="h-3 w-3 text-muted-foreground" aria-hidden />
+      <X className="h-3 w-3" aria-hidden />
       <span className="sr-only">filtresini kaldır</span>
     </button>
   );
@@ -91,7 +91,7 @@ export function ActiveFilterChips({ categories, collections = [] }: ActiveFilter
       <button
         type="button"
         onClick={clearAll}
-        className="ml-1 text-xs text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
+        className="ml-1 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[10px] text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
       >
         Tümünü temizle
       </button>

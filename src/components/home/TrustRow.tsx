@@ -38,7 +38,7 @@ const MADDELER = [
 
 export function TrustRow() {
   return (
-    <section className="border-b border-border/60 bg-muted/30">
+    <section className="border-b-2 border-dashed border-foreground/25 bg-muted/30">
       <ul className="adjy-container grid gap-x-8 gap-y-6 py-8 sm:grid-cols-2 lg:grid-cols-4">
         {MADDELER.map(({ icon: Icon, title, body }) => (
           <li key={title} className="flex gap-3">

@@ -88,7 +88,7 @@ export default function MyModelsPage() {
       )}
 
       {models && models.length === 0 && (
-        <div className="mt-12 rounded-lg border border-dashed border-border p-10 text-center">
+        <div className="mt-12 rounded-lg border-2 border-dashed border-foreground/30 p-10 text-center">
           <p className="text-[15px]">Henüz kaydettiğin bir model yok.</p>
           <Button asChild className="mt-5">
             <Link href="/uret/fotograftan-olustur">Fotoğraftan Oluştur</Link>
@@ -97,7 +97,7 @@ export default function MyModelsPage() {
       )}
 
       {models && models.length > 0 && (
-        <ul className="mt-12 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-12 grid gap-px overflow-hidden rounded-lg adjy-pixel-frame bg-border sm:grid-cols-2 lg:grid-cols-3">
           {models.map((m) => {
             const d = m.parameters?.dimensions;
             return (

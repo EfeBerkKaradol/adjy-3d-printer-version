@@ -103,7 +103,7 @@ export function ParameterSlider({
               }
             }}
             aria-label={`${label} değeri${shownUnit ? ` (${shownUnit})` : ""}`}
-            className="w-16 border-b border-border bg-transparent pb-0.5 text-right font-mono text-base tabular-nums outline-none transition-colors focus:border-foreground"
+            className="w-16 border-b-2 border-dashed border-foreground/25 bg-transparent pb-0.5 text-right font-mono text-base tabular-nums outline-none transition-colors focus:border-foreground"
           />
           {shownUnit && <span className="text-xs text-muted-foreground">{shownUnit}</span>}
         </div>

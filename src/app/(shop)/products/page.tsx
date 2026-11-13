@@ -215,7 +215,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   return (
-    <div className="adjy-container py-10 pb-24 md:py-14 lg:pb-14">
+    <div className="adjy-container py-10 md:py-14">
       {/* Listedeki sıranın arama motorunca liste olarak
           anlaşılması için — çıplak bağlantı yığını değil. */}
       {products.length > 0 && (
@@ -261,7 +261,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
         {/* Liste */}
         <div>
-          <div className="flex items-center justify-between gap-4 border-b border-border pb-4">
+          <div className="flex items-center justify-between gap-4 border-b-2 border-dashed border-foreground/25 pb-4">
             <p className="text-sm text-muted-foreground">
               <span className="font-medium text-foreground tabular-nums">
                 {totalCount}
@@ -273,6 +273,15 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                 <SortDropdown />
               </Suspense>
             </div>
+            {/* Mobil/tablet: filtre ve sıralama çekmeceleri */}
+            <Suspense fallback={null}>
+              <FilterDrawer
+                categories={categories}
+                collections={collections}
+                materials={materialChoices}
+                resultCount={totalCount}
+              />
+            </Suspense>
           </div>
 
           <Suspense fallback={null}>
@@ -281,7 +290,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
           <div className="mt-8">
             {failed ? (
-              <div className="border border-dashed border-border px-6 py-20 text-center">
+              <div className="border-2 border-dashed border-foreground/30 px-6 py-20 text-center">
                 <p className="text-base font-medium">Ürünler yüklenemedi</p>
                 <p className="mt-1.5 text-sm text-muted-foreground">
                   Bağlantı sorunu olabilir. Lütfen sayfayı yenileyin.
@@ -302,15 +311,6 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         </div>
       </div>
 
-      {/* Mobil filtre / sıralama */}
-      <Suspense fallback={null}>
-        <FilterDrawer
-          categories={categories}
-          collections={collections}
-          materials={materialChoices}
-          resultCount={totalCount}
-        />
-      </Suspense>
     </div>
   );
 }

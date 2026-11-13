@@ -145,7 +145,7 @@ export default function AgentPanelPage() {
     <div className="flex h-screen flex-col">
       {/* Panelin kendi gezinmesi var; buradaki şerit yalnızca
           admin paneline dönüş ve tazeleme için ince tutuldu. */}
-      <header className="flex items-center justify-between gap-3 border-b border-border/60 px-3 py-2">
+      <header className="flex items-center justify-between gap-3 border-b-2 border-dashed border-foreground/25 px-3 py-2">
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           <Button variant="ghost" size="sm" asChild className="gap-2">
             <Link href="/admin">
