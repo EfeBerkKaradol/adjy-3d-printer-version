@@ -129,18 +129,31 @@ async function getPrintables(): Promise<PrintItem[]> {
         slug: true,
         name: true,
         basePrice: true,
-        category: { select: { slug: true, parent: { select: { slug: true } } } },
+        category: { select: { slug: true, name: true, parent: { select: { slug: true } } } },
       },
     });
     if (rows.length > 0) {
-      return rows.map((r) => ({
-        key:
-          HAND_DRAWN[r.slug] ??
-          `${kindForCategory([r.category.slug, r.category.parent?.slug, r.slug])}:${r.slug}`,
-        name: r.name,
-        href: `/products/${r.slug}`,
-        price: formatTRY(Number(r.basePrice)),
-      }));
+      return rows.map((r) => {
+        const elle = HAND_DRAWN[r.slug];
+        // Elle çizilen altı ürün birebir o ürün: adı ve fiyatı yazılır.
+        // Diğerlerinin çizimi kategorisinden türetildiği için ürün adı
+        // çizimle uyuşmayabiliyordu; altına kategorisi yazılır ve
+        // bağlantı kategoriye gider.
+        if (elle) {
+          return {
+            key: elle,
+            name: r.name,
+            href: `/products/${r.slug}`,
+            price: formatTRY(Number(r.basePrice)),
+          };
+        }
+        return {
+          key: `${kindForCategory([r.category.slug, r.category.parent?.slug])}:${r.slug}`,
+          name: r.category.name,
+          href: `/products?category=${r.category.slug}`,
+          price: null,
+        };
+      });
     }
   } catch {
     // sessizce koddaki ürünlerle devam
