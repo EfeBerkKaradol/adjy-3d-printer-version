@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PixelSprite } from "@/components/home/printer/PixelSprite";
 import { kindForCategory } from "@/components/home/printer/sprites";
+import { PixelArrow, PixelMoreButton } from "@/components/home/PixelMoreButton";
 
 // ==========================================
 // KATEGORİLER — PİKSEL VİTRİN
@@ -83,52 +84,14 @@ export function CategoryGrid({ categories, limit }: Props) {
                     {c.productCount} ürün
                   </p>
                 </div>
-                {/* Piksel ok */}
-                <svg
-                  viewBox="0 0 7 7"
-                  className="h-3.5 w-3.5 shrink-0 transition-transform duration-150 group-hover:translate-x-0.5"
-                  shapeRendering="crispEdges"
-                  fill="currentColor"
-                  aria-hidden
-                >
-                  <rect x="0" y="3" width="5" height="1" />
-                  <rect x="3" y="1" width="1" height="1" />
-                  <rect x="4" y="2" width="1" height="1" />
-                  <rect x="5" y="3" width="1" height="1" />
-                  <rect x="4" y="4" width="1" height="1" />
-                  <rect x="3" y="5" width="1" height="1" />
-                </svg>
+  <PixelArrow className="h-3.5 w-3.5 shrink-0 transition-transform duration-150 group-hover:translate-x-0.5" />
               </div>
             </Link>
           </li>
         ))}
       </ul>
 
-      {limit && (
-        <div className="mt-10 flex justify-center">
-          <Link
-            href="/collections"
-            className="adjy-pixel-card inline-flex items-center gap-3 px-6 py-3 font-mono text-xs font-semibold uppercase tracking-[0.14em]"
-          >
-            Daha fazlasını gör
-            <span className="text-muted-foreground">({categories.length})</span>
-            <svg
-              viewBox="0 0 7 7"
-              className="h-3.5 w-3.5"
-              shapeRendering="crispEdges"
-              fill="currentColor"
-              aria-hidden
-            >
-              <rect x="0" y="3" width="5" height="1" />
-              <rect x="3" y="1" width="1" height="1" />
-              <rect x="4" y="2" width="1" height="1" />
-              <rect x="5" y="3" width="1" height="1" />
-              <rect x="4" y="4" width="1" height="1" />
-              <rect x="3" y="5" width="1" height="1" />
-            </svg>
-          </Link>
-        </div>
-      )}
+      {limit && <PixelMoreButton href="/collections" count={categories.length} />}
     </>
   );
 }
