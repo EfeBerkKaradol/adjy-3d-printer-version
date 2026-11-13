@@ -13,13 +13,19 @@ export interface ShippingOption {
   estimatedDays: string; // "2-4 iş günü"
 }
 
+// Ücretsiz kargo limiti
+export const FREE_SHIPPING_THRESHOLD = 500;
+
+/** Ücretsiz kargo limitinin altındaki varsayılan (standart) kargo ücreti */
+export const STANDARD_SHIPPING_PRICE = 29.9;
+
 // Kargo seçenekleri
 const SHIPPING_OPTIONS: ShippingOption[] = [
   {
     id: "standard",
     name: "Standart Kargo",
     description: "Yurtiçi Kargo ile gönderim",
-    price: 49.99,
+    price: STANDARD_SHIPPING_PRICE,
     estimatedDays: "3-5 iş günü",
   },
   {
@@ -38,8 +44,6 @@ const SHIPPING_OPTIONS: ShippingOption[] = [
   },
 ];
 
-// Ücretsiz kargo limiti
-const FREE_SHIPPING_THRESHOLD = 500;
 
 /**
  * Sipariş tutarına göre mevcut kargo seçeneklerini döndürür.

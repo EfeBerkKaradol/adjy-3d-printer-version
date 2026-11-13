@@ -1,3 +1,5 @@
+import { FREE_SHIPPING_THRESHOLD, STANDARD_SHIPPING_PRICE } from "@/lib/shipping";
+
 interface ProductJsonLdProps {
   name: string;
   description: string;
@@ -27,6 +29,11 @@ export function ProductJsonLd({
   rating,
   category,
 }: ProductJsonLdProps) {
+  // Google yalnızca mutlak görsel adresini kabul eder
+  const origin = url.split("/products")[0];
+  const absoluteImage =
+    image && !/^https?:\/\//i.test(image) ? `${origin}${image.startsWith("/") ? "" : "/"}${image}` : image;
+
   // Stok durumunu stockQty'ye göre belirle
   const availability =
     stockQty > 10
@@ -40,7 +47,7 @@ export function ProductJsonLd({
     "@type": "Product",
     name,
     description,
-    ...(image && { image }),
+    ...(absoluteImage && { image: absoluteImage }),
     ...(category && { category }),
     ...(sku && { sku, mpn: sku }),
     brand: {
@@ -58,12 +65,14 @@ export function ProductJsonLd({
         "@type": "Organization",
         name: "ADJY",
       },
-      // Google Merchant Center — Teslimat detayları
+      // Google Merchant Center — Teslimat detayları.
+      // Ödeme adımında alınan ücretle aynı kaynaktan gelir;
+      // farklı olursa Merchant Center "kargo ücreti uyuşmazlığı" verir.
       shippingDetails: {
         "@type": "OfferShippingDetails",
         shippingRate: {
           "@type": "MonetaryAmount",
-          value: price >= 500 ? "0" : "29.90",
+          value: price >= FREE_SHIPPING_THRESHOLD ? "0" : STANDARD_SHIPPING_PRICE.toFixed(2),
           currency: "TRY",
         },
         deliveryTime: {
@@ -94,8 +103,9 @@ export function ProductJsonLd({
           "https://schema.org/MerchantReturnFiniteReturnWindow",
         merchantReturnDays: 14,
         returnMethod: "https://schema.org/ReturnByMail",
-        returnFees: "https://schema.org/FreeReturn",
-        merchantReturnLink: `${url.split("/products")[0]}/iade-politikasi`,
+        // İade politikası: "Kargo ücreti alıcıya aittir"
+        returnFees: "https://schema.org/ReturnFeesCustomerResponsibility",
+        merchantReturnLink: `${origin}/iade-politikasi`,
       },
     },
     ...(rating &&
