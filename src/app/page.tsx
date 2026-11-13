@@ -363,7 +363,6 @@ export default async function HomePage() {
         </section>
       )}
 
-      <TrustRow />
 
       {featured.length > 0 && (
         <section className="adjy-container adjy-section border-t border-border/60">
@@ -408,6 +407,7 @@ export default async function HomePage() {
 
       <CustomerVoices sozler={sesler.sozler} ortalama={sesler.ortalama} />
 
+      <TrustRow />
       <CreateSection />
 
       <section className="border-t border-border/60">
