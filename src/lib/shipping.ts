@@ -17,7 +17,7 @@ export interface ShippingOption {
 export const FREE_SHIPPING_THRESHOLD = 500;
 
 /** Ücretsiz kargo limitinin altındaki varsayılan (standart) kargo ücreti */
-export const STANDARD_SHIPPING_PRICE = 49.99;
+export const STANDARD_SHIPPING_PRICE = 29.9;
 
 // Kargo seçenekleri
 const SHIPPING_OPTIONS: ShippingOption[] = [
