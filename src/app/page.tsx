@@ -358,7 +358,7 @@ export default async function HomePage() {
             action={{ label: "Tüm ürünler", href: "/products" }}
           />
           <div className="mt-8">
-            <CategoryGrid categories={categories} />
+            <CategoryGrid categories={categories} limit={4} />
           </div>
         </section>
       )}

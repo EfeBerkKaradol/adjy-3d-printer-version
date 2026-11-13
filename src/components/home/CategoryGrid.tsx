@@ -39,55 +39,96 @@ function nesneOf(slug: string) {
   return KATEGORI_NESNESI[slug] ?? `${kindForCategory([slug])}:${slug}`;
 }
 
-export function CategoryGrid({ categories }: { categories: HomeCategory[] }) {
+interface Props {
+  categories: HomeCategory[];
+  /**
+   * Gösterilecek en fazla kart. Ana sayfada 4: masaüstünde tek sıra,
+   * telefonda 2×2. Verilirse altına "Daha fazlasını gör" düğmesi
+   * eklenir ve tüm kategoriler sayfasına gider.
+   */
+  limit?: number;
+}
+
+export function CategoryGrid({ categories, limit }: Props) {
   if (categories.length === 0) return null;
+  const gosterilen = limit ? categories.slice(0, limit) : categories;
 
   return (
-    <ul className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
-      {categories.map((c, i) => (
-        <li key={c.id}>
-          <Link
-            href={`/products?category=${c.slug}`}
-            className="adjy-pixel-card group flex h-full flex-col"
-          >
-            {/* Sahne: noktalı ızgara üstünde piksel nesne */}
-            <div className="relative flex aspect-[5/4] items-end justify-center overflow-hidden px-4 pb-3 pt-6 [background-image:radial-gradient(color-mix(in_oklab,var(--foreground)_16%,transparent)_1px,transparent_1.5px)] [background-size:10px_10px]">
-              <span className="absolute left-2.5 top-2 font-mono text-[10px] tabular-nums tracking-[0.12em] text-muted-foreground">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <PixelSprite
-                spriteKey={nesneOf(c.slug)}
-                className="adjy-print-reveal h-[78%] w-auto max-w-full"
-              />
-            </div>
-
-            {/* Alt şerit */}
-            <div className="flex items-center justify-between gap-3 border-t-2 border-dashed border-foreground/80 px-3.5 py-3">
-              <div className="min-w-0">
-                <h3 className="truncate text-[15px] font-semibold leading-tight">{c.name}</h3>
-                <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-                  {c.productCount} ürün
-                </p>
+    <>
+      <ul className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
+        {gosterilen.map((c, i) => (
+          <li key={c.id}>
+            <Link
+              href={`/products?category=${c.slug}`}
+              className="adjy-pixel-card group flex h-full flex-col"
+            >
+              {/* Sahne: noktalı ızgara üstünde piksel nesne */}
+              <div className="relative flex aspect-[5/4] items-end justify-center overflow-hidden px-4 pb-3 pt-6 [background-image:radial-gradient(color-mix(in_oklab,var(--foreground)_16%,transparent)_1px,transparent_1.5px)] [background-size:10px_10px]">
+                <span className="absolute left-2.5 top-2 font-mono text-[10px] tabular-nums tracking-[0.12em] text-muted-foreground">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <PixelSprite
+                  spriteKey={nesneOf(c.slug)}
+                  className="adjy-print-reveal h-[78%] w-auto max-w-full"
+                />
               </div>
-              {/* Piksel ok */}
-              <svg
-                viewBox="0 0 7 7"
-                className="h-3.5 w-3.5 shrink-0 transition-transform duration-150 group-hover:translate-x-0.5"
-                shapeRendering="crispEdges"
-                fill="currentColor"
-                aria-hidden
-              >
-                <rect x="0" y="3" width="5" height="1" />
-                <rect x="3" y="1" width="1" height="1" />
-                <rect x="4" y="2" width="1" height="1" />
-                <rect x="5" y="3" width="1" height="1" />
-                <rect x="4" y="4" width="1" height="1" />
-                <rect x="3" y="5" width="1" height="1" />
-              </svg>
-            </div>
+
+              {/* Alt şerit */}
+              <div className="flex items-center justify-between gap-3 border-t-2 border-dashed border-foreground/80 px-3.5 py-3">
+                <div className="min-w-0">
+                  <h3 className="truncate text-[15px] font-semibold leading-tight">
+                    {c.name}
+                  </h3>
+                  <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                    {c.productCount} ürün
+                  </p>
+                </div>
+                {/* Piksel ok */}
+                <svg
+                  viewBox="0 0 7 7"
+                  className="h-3.5 w-3.5 shrink-0 transition-transform duration-150 group-hover:translate-x-0.5"
+                  shapeRendering="crispEdges"
+                  fill="currentColor"
+                  aria-hidden
+                >
+                  <rect x="0" y="3" width="5" height="1" />
+                  <rect x="3" y="1" width="1" height="1" />
+                  <rect x="4" y="2" width="1" height="1" />
+                  <rect x="5" y="3" width="1" height="1" />
+                  <rect x="4" y="4" width="1" height="1" />
+                  <rect x="3" y="5" width="1" height="1" />
+                </svg>
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+
+      {limit && (
+        <div className="mt-10 flex justify-center">
+          <Link
+            href="/collections"
+            className="adjy-pixel-card inline-flex items-center gap-3 px-6 py-3 font-mono text-xs font-semibold uppercase tracking-[0.14em]"
+          >
+            Daha fazlasını gör
+            <span className="text-muted-foreground">({categories.length})</span>
+            <svg
+              viewBox="0 0 7 7"
+              className="h-3.5 w-3.5"
+              shapeRendering="crispEdges"
+              fill="currentColor"
+              aria-hidden
+            >
+              <rect x="0" y="3" width="5" height="1" />
+              <rect x="3" y="1" width="1" height="1" />
+              <rect x="4" y="2" width="1" height="1" />
+              <rect x="5" y="3" width="1" height="1" />
+              <rect x="4" y="4" width="1" height="1" />
+              <rect x="3" y="5" width="1" height="1" />
+            </svg>
           </Link>
-        </li>
-      ))}
-    </ul>
+        </div>
+      )}
+    </>
   );
 }
