@@ -77,27 +77,18 @@ function useTyped(lines: string[], opts: { enabled: boolean; delay?: number; spe
   return state.lines === lines ? Math.min(state.count, total) : 0;
 }
 
-function Caret({ show }: { show: boolean }) {
-  // Sıfır genişlikte bir kapsayıcı: imleç metni itmez
-  return (
-    <span className="relative inline-block w-0" aria-hidden>
-      {show && (
-        <span className="adjy-caret absolute bottom-[0.12em] left-[0.06em] block h-[0.82em] w-[0.42em] bg-current" />
-      )}
-    </span>
-  );
-}
-
 /** Yazılan + henüz yazılmamış (saydam, yer tutan) kısım */
-function TypedLine({ text, shown, caret }: { text: string; shown: number; caret: boolean }) {
+function TypedLine({ text, shown }: { text: string; shown: number }) {
   return (
     <>
       {text.slice(0, shown)}
-      <Caret show={caret} />
       <span className="opacity-0">{text.slice(shown)}</span>
     </>
   );
 }
+
+/** Durum satırındaki piksel çubuğun blok sayısı */
+const BLOK = 12;
 
 interface Props {
   items: PrintItem[];
@@ -107,6 +98,7 @@ export function PrinterIntro({ items }: Props) {
   const reduce = usePrefersReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
   const pctRef = useRef<HTMLSpanElement>(null);
+  const barRef = useRef<HTMLSpanElement>(null);
   const [current, setCurrent] = useState(0);
 
   const keys = useMemo(() => items.map((i) => i.key), [items]);
@@ -116,13 +108,20 @@ export function PrinterIntro({ items }: Props) {
   const typed = useTyped(BASLIK, { enabled: !reduce, delay: 350, speed: 48 });
   const baslikBitti = typed >= BASLIK_TOPLAM;
   const satirlar = BASLIK.map((l, i) => Math.max(0, Math.min(l.length, typed - BASLIK_BASI[i])));
-  const aktifSatir = satirlar.findIndex((n, i) => n < BASLIK[i].length);
 
   // ---- baskıdaki ürün adı: her yeni nesnede yeniden yazılır ----
   const adSatiri = useMemo(() => [item?.name ?? ""], [item?.name]);
   const adYazilan = useTyped(adSatiri, { enabled: !reduce && baslikBitti, delay: 80, speed: 28 });
 
   const onTick = useCallback((t: PrinterTick) => {
+    // Piksel çubuk: yüzdeye göre dolu blok sayısı, doğrudan DOM'a yazılır
+    const bar = barRef.current;
+    if (bar) {
+      const dolu = t.phase === "heat" ? 0 : Math.floor((t.percent / 100) * BLOK);
+      Array.from(bar.children).forEach((c, i) => {
+        (c as HTMLElement).dataset.on = i < dolu ? "1" : "0";
+      });
+    }
     const el = pctRef.current;
     if (!el) return;
     el.textContent =
@@ -174,11 +173,7 @@ export function PrinterIntro({ items }: Props) {
                   key={l}
                   className={i === BASLIK.length - 1 ? "block text-muted-foreground" : "block"}
                 >
-                  <TypedLine
-                    text={l}
-                    shown={satirlar[i]}
-                    caret={!reduce && (aktifSatir === i || (baslikBitti && i === BASLIK.length - 1))}
-                  />
+                  <TypedLine text={l} shown={satirlar[i]} />
                 </span>
               ))}
             </span>
@@ -226,25 +221,29 @@ export function PrinterIntro({ items }: Props) {
 
           {/* Yazıcıda şu an ne var — küçük, yazıcının hemen altında */}
           {item && (
-            <div className="relative mt-2 inline-flex max-w-full items-center gap-2 whitespace-nowrap rounded-full border border-border/70 bg-background/70 px-3 py-1 font-mono text-[10.5px] backdrop-blur-sm">
-              <span className="relative flex h-1.5 w-1.5" aria-hidden>
-                {!reduce && (
-                  <span className="absolute inline-flex h-full w-full animate-ping bg-emerald-500/70" />
-                )}
-                <span className="relative inline-flex h-1.5 w-1.5 bg-emerald-500" />
-              </span>
+            <div className="adjy-pixel-box relative mt-3 inline-flex max-w-full items-center gap-2.5 whitespace-nowrap bg-background px-2.5 py-1 font-mono text-[10.5px] uppercase tracking-[0.06em]">
               <Link
                 href={item.href}
                 className="font-semibold text-foreground underline-offset-4 hover:underline"
               >
                 <span className="sr-only">Şu an baskıda: {item.name}</span>
                 <span aria-hidden>
-                  <TypedLine text={item.name} shown={adYazilan} caret={false} />
+                  <TypedLine text={item.name} shown={adYazilan} />
                 </span>
               </Link>
+              {/* Piksel ilerleme çubuğu */}
+              <span ref={barRef} className="flex gap-px" aria-hidden>
+                {Array.from({ length: BLOK }, (_, i) => (
+                  <span
+                    key={i}
+                    data-on={reduce ? "1" : "0"}
+                    className="block h-2 w-1.5 bg-foreground/15 data-[on=1]:bg-foreground"
+                  />
+                ))}
+              </span>
               <span
                 ref={pctRef}
-                className="min-w-[4.5em] tabular-nums text-muted-foreground"
+                className="min-w-[5.5em] tabular-nums text-muted-foreground"
                 aria-hidden
               >
                 ısınıyor…
