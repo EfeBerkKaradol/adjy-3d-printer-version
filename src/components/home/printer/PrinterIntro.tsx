@@ -186,7 +186,7 @@ export function PrinterIntro({ items }: Props) {
         </motion.div>
 
         {/* ---------- sağ alt: yazıcı ve altında küçük durum satırı ---------- */}
-        <div className="relative flex flex-col items-center justify-self-end lg:self-end">
+        <div className="relative flex w-full min-w-0 flex-col items-center justify-self-center lg:w-auto lg:justify-self-end lg:self-end">
           {/* Arka plandaki piksel ızgara */}
           <div
             aria-hidden
@@ -202,10 +202,10 @@ export function PrinterIntro({ items }: Props) {
 
           {/* Yazıcıda şu an ne var — küçük, yazıcının hemen altında */}
           {item && (
-            <div className="adjy-pixel-box relative mt-3 inline-flex max-w-full items-center gap-2.5 whitespace-nowrap bg-background px-2.5 py-1 font-mono text-[10.5px] uppercase tracking-[0.06em]">
+            <div className="adjy-pixel-box relative mt-3 inline-flex max-w-[calc(100%-4px)] items-center gap-2.5 overflow-hidden whitespace-nowrap bg-background px-2.5 py-1 font-mono text-[10.5px] uppercase tracking-[0.06em]">
               <Link
                 href={item.href}
-                className="font-semibold text-foreground underline-offset-4 hover:underline"
+                className="min-w-0 truncate font-semibold text-foreground underline-offset-4 hover:underline"
               >
                 <span className="sr-only">Şu an baskıda: {item.name}</span>
                 <span aria-hidden>

@@ -20,7 +20,7 @@ import { ArrowDownUp, Check, SlidersHorizontal } from "lucide-react";
 
 // ==========================================
 // MOBİL FİLTRE / SIRALAMA
-// Ekranın altında sabit duran iki düğme; her biri
+// Liste başlığında iki piksel düğme; her biri
 // tam ekran bir çekmece açar. Masaüstündeki kenar
 // çubuğunun küçültülmüş hâli değil, ayrı bir çözüm.
 // ==========================================
@@ -58,31 +58,31 @@ export function FilterDrawer({
 
   return (
     <>
-      {/* Alt sabit çubuk */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-foreground bg-background lg:hidden">
-        <div className="grid grid-cols-2 divide-x-2 divide-dashed divide-foreground/40">
-          <button
-            type="button"
-            onClick={() => setFiltersOpen(true)}
-            className="flex h-14 items-center justify-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.12em]"
-          >
-            <SlidersHorizontal className="h-4 w-4" aria-hidden />
-            Filtrele
-            {activeCount > 0 && (
-              <span className="flex h-5 min-w-5 items-center justify-center bg-foreground px-1.5 text-[10px] tabular-nums text-background">
-                {activeCount}
-              </span>
-            )}
-          </button>
-          <button
-            type="button"
-            onClick={() => setSortOpen(true)}
-            className="flex h-14 items-center justify-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.12em]"
-          >
-            <ArrowDownUp className="h-4 w-4" aria-hidden />
-            Sırala
-          </button>
-        </div>
+      {/* Liste başlığındaki iki piksel düğme — yalnızca mobil/tablet.
+          Eskiden ekranın altında sabit bir çubuktu; çerez çubuğunun
+          altında kalıp görünmüyordu. */}
+      <div className="flex items-center gap-3 lg:hidden">
+        <button
+          type="button"
+          onClick={() => setFiltersOpen(true)}
+          className="adjy-pixel-box inline-flex h-9 items-center gap-2 bg-foreground px-3 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-background"
+        >
+          <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden />
+          Filtrele
+          {activeCount > 0 && (
+            <span className="flex h-4 min-w-4 items-center justify-center bg-background px-1 text-[10px] tabular-nums text-foreground">
+              {activeCount}
+            </span>
+          )}
+        </button>
+        <button
+          type="button"
+          onClick={() => setSortOpen(true)}
+          className="adjy-pixel-box inline-flex h-9 items-center gap-2 bg-background px-3 font-mono text-[10px] font-semibold uppercase tracking-[0.12em]"
+        >
+          <ArrowDownUp className="h-3.5 w-3.5" aria-hidden />
+          Sırala
+        </button>
       </div>
 
       {/* Filtre çekmecesi — tam ekran */}

@@ -215,7 +215,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   return (
-    <div className="adjy-container py-10 pb-24 md:py-14 lg:pb-14">
+    <div className="adjy-container py-10 md:py-14">
       {/* Listedeki sıranın arama motorunca liste olarak
           anlaşılması için — çıplak bağlantı yığını değil. */}
       {products.length > 0 && (
@@ -273,6 +273,15 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                 <SortDropdown />
               </Suspense>
             </div>
+            {/* Mobil/tablet: filtre ve sıralama çekmeceleri */}
+            <Suspense fallback={null}>
+              <FilterDrawer
+                categories={categories}
+                collections={collections}
+                materials={materialChoices}
+                resultCount={totalCount}
+              />
+            </Suspense>
           </div>
 
           <Suspense fallback={null}>
@@ -302,15 +311,6 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         </div>
       </div>
 
-      {/* Mobil filtre / sıralama */}
-      <Suspense fallback={null}>
-        <FilterDrawer
-          categories={categories}
-          collections={collections}
-          materials={materialChoices}
-          resultCount={totalCount}
-        />
-      </Suspense>
     </div>
   );
 }
