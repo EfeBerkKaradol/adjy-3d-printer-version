@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useHydrated } from "@/hooks/useClientState";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -17,10 +17,12 @@ import {
 import { SearchOverlay } from "./SearchOverlay";
 import { MobileNav } from "./MobileNav";
 import { CartDrawer } from "@/components/cart/CartDrawer";
-import { Dock, DockDivider, DockItem } from "./Dock";
-import { MAIN_NAV } from "@/lib/navigation";
+import { Dock, DockItem } from "./Dock";
+import { NavDropdown, useShopGroups } from "./NavDropdown";
+import { MAIN_NAV, type NavMenu } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import {
+  ChevronDown,
   LogOut,
   MapPin,
   Menu,
@@ -54,6 +56,51 @@ export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+
+  // Açılır menü: hangi başlık açık, panel nerede ortalanacak
+  const [dropdown, setDropdown] = useState<{
+    key: string;
+    menu: NavMenu;
+    center: number;
+  } | null>(null);
+  const closeTimer = useRef<number | null>(null);
+  const shopGroups = useShopGroups(dropdown !== null);
+
+  const cancelClose = () => {
+    if (closeTimer.current) window.clearTimeout(closeTimer.current);
+    closeTimer.current = null;
+  };
+  const openMenu = (key: string, menu: NavMenu, el: HTMLElement) => {
+    cancelClose();
+    const r = el.getBoundingClientRect();
+    setDropdown({ key, menu, center: r.left + r.width / 2 });
+  };
+  // Kısa bir gecikme: imleç başlıktan panele inerken ya da
+  // iki başlık arasından geçerken menü kapanıp açılmasın
+  const scheduleClose = () => {
+    cancelClose();
+    closeTimer.current = window.setTimeout(() => setDropdown(null), 160);
+  };
+  const closeNow = () => {
+    cancelClose();
+    setDropdown(null);
+  };
+
+  // Sayfa değişince menüyü kapat; Esc ile de kapanır
+  useEffect(() => {
+    closeNow();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+  useEffect(() => {
+    if (!dropdown) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeNow();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dropdown]);
+  useEffect(() => cancelClose, []);
 
   // Cmd/Ctrl+K ile aramayı aç
   useEffect(() => {
@@ -91,7 +138,7 @@ export function Header() {
         <Dock
           role="toolbar"
           aria-label="Site menüsü"
-          className="pointer-events-auto mx-auto w-full gap-1 rounded-[22px] px-2 py-1.5 md:w-fit md:gap-1.5 md:rounded-[24px] md:px-2.5 md:py-2"
+          className="pointer-events-auto mx-auto w-full max-w-[var(--container-max)] gap-1 rounded-[22px] px-2 py-1.5 md:gap-1.5 md:rounded-[24px] md:px-3 md:py-2"
         >
           {/* Logo */}
           <DockItem max={1.18}>
@@ -104,25 +151,51 @@ export function Header() {
             </Link>
           </DockItem>
 
-          <DockDivider className="hidden md:block" />
+          <span className="hidden flex-1 md:block" aria-hidden />
 
-          {/* Ana navigasyon */}
-          <nav className="hidden items-center gap-1 md:flex" aria-label="Ana navigasyon">
+          {/* Ana navigasyon — başlıkların üstüne gelince menü açılır */}
+          <nav className="hidden items-center gap-1 md:flex lg:gap-2" aria-label="Ana navigasyon">
             {MAIN_NAV.map((link) => {
               const active = isActive(link.href);
+              const menu = link.menu;
+              const expanded = dropdown?.key === link.href;
               return (
                 <DockItem key={link.href} max={1.22}>
                   <Link
                     href={link.href}
                     aria-current={active ? "page" : undefined}
+                    aria-haspopup={menu ? "menu" : undefined}
+                    aria-expanded={menu ? expanded : undefined}
+                    aria-controls={menu && expanded ? "dock-menu" : undefined}
+                    onPointerEnter={(e) => {
+                      if (e.pointerType !== "mouse") return;
+                      if (menu) openMenu(link.href, menu, e.currentTarget);
+                      else scheduleClose();
+                    }}
+                    onPointerLeave={(e) => {
+                      if (e.pointerType === "mouse") scheduleClose();
+                    }}
+                    onFocus={(e) => menu && openMenu(link.href, menu, e.currentTarget)}
+                    onClick={closeNow}
                     className={cn(
-                      "relative flex h-10 items-center rounded-[14px] px-3.5 text-sm transition-colors",
+                      "relative flex h-10 items-center gap-1 rounded-[14px] px-3.5 text-sm transition-colors",
                       active
                         ? "adjy-glass-tile font-medium text-foreground"
-                        : "text-muted-foreground hover:bg-white/40 hover:text-foreground dark:hover:bg-white/[0.06]"
+                        : expanded
+                          ? "bg-white/40 text-foreground dark:bg-white/[0.06]"
+                          : "text-muted-foreground hover:bg-white/40 hover:text-foreground dark:hover:bg-white/[0.06]"
                     )}
                   >
                     {link.label}
+                    {menu && (
+                      <ChevronDown
+                        aria-hidden
+                        className={cn(
+                          "-mr-1 h-3.5 w-3.5 opacity-50 transition-transform duration-200",
+                          expanded && "rotate-180 opacity-80"
+                        )}
+                      />
+                    )}
                     {/* Dock'taki "açık uygulama" noktası */}
                     {active && (
                       <span
@@ -136,8 +209,7 @@ export function Header() {
             })}
           </nav>
 
-          <DockDivider className="hidden md:block" />
-          <span className="flex-1 md:hidden" aria-hidden />
+          <span className="flex-1" aria-hidden />
 
           {/* Eylemler — iOS ikonları gibi buzlu karolar */}
           <DockItem>
@@ -258,6 +330,14 @@ export function Header() {
             </button>
           </DockItem>
         </Dock>
+
+        <NavDropdown
+          open={dropdown}
+          shopGroups={shopGroups}
+          onEnter={cancelClose}
+          onLeave={scheduleClose}
+          onNavigate={closeNow}
+        />
       </header>
 
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
