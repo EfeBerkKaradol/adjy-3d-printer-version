@@ -1,11 +1,13 @@
 // ==========================================
 // YAZICININ BASTIĞI ÜRÜNLER
 //
-// Her piksel nesne kataloğumuzdaki gerçek bir ürüne bağlı. Ana
-// sayfa bu slug'ları veritabanında arar: ürün yayındaysa adı ve
-// fiyatı oradan gelir, bağlantı ürün sayfasına gider. Ürün yoksa
-// (kaldırılmış, adı değişmiş) bağlantı kategorisine düşer; boş
-// bir sayfaya gönderilen ziyaretçi olmaz.
+// Yazıcı mağazadaki bütün aktif ürünleri rastgele sırayla basar.
+// Aşağıdaki altı ürünün piksel hâli elle çizildi; diğer her ürün
+// için kategorisine uyan bir tür seçilip slug'ından türetilen
+// renk ve oranlarla üretilir (sprites.ts → spriteFor).
+//
+// Veritabanına ulaşılamazsa yalnızca bu altısı, kategori
+// bağlantılarıyla oynar.
 // ==========================================
 
 export interface PrintableDef {
@@ -35,3 +37,8 @@ export interface PrintItem {
   /** Biçimlenmiş fiyat; ürün bulunamadıysa yok */
   price: string | null;
 }
+
+/** Elle çizilmiş sprite'ı olan ürünler: slug → sprite anahtarı */
+export const HAND_DRAWN: Record<string, string> = Object.fromEntries(
+  PRINTABLES.map((p) => [p.slug, p.key])
+);

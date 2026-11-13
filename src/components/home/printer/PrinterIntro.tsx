@@ -10,11 +10,10 @@ import type { PrintItem } from "./catalog";
 // ==========================================
 // İLK KARŞILAMA — ATÖLYE
 //
-// Sağ altta piksel bir 3D yazıcı kataloğumuzdaki ürünleri sırayla
-// basıyor, hemen altında küçük bir durum satırı (ürün, yüzde)
-// var; sol altta kısa başlık daktilo gibi yazılıyor. Aşağı kaydırıldıkça
-// yazıcı sağ alta doğru kayıp kaybolur, yazılar yukarı süzülür ve
-// sayfa mağazanın kendisine (HomeHero) geçer.
+// Sağ altta piksel bir 3D yazıcı mağazadaki bütün ürünleri rastgele
+// sırayla basıyor, hemen altında küçük bir durum satırı (ürün,
+// yüzde) var; sol altta kısa başlık daktilo gibi yazılıyor. Aşağı
+// kaydırınca yazıcı yerinde kalır, yalnızca yazılar yukarı süzülür.
 //
 // Erişilebilirlik:
 //   - Başlığın tamamı ekran okuyucuya baştan verilir; daktilo
@@ -134,16 +133,11 @@ export function PrinterIntro({ items }: Props) {
             : "sıradaki…";
   }, []);
 
-  // ---- kaydırma: yazıcı sağ alta kayar, yazılar yukarı süzülür ----
+  // ---- kaydırma: yazıcı yerinde durur, yalnızca yazılar yukarı süzülür ----
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
   });
-  const printerX = useTransform(scrollYProgress, [0, 1], [0, 160]);
-  const printerY = useTransform(scrollYProgress, [0, 1], [0, 240]);
-  const printerRotate = useTransform(scrollYProgress, [0, 1], [0, 7]);
-  const printerScale = useTransform(scrollYProgress, [0, 1], [1, 0.8]);
-  const printerOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
   const textY = useTransform(scrollYProgress, [0, 1], [0, -90]);
   const textOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
   const hintOpacity = useTransform(scrollYProgress, [0, 0.08], [1, 0]);
@@ -192,20 +186,7 @@ export function PrinterIntro({ items }: Props) {
         </motion.div>
 
         {/* ---------- sağ alt: yazıcı ve altında küçük durum satırı ---------- */}
-        <motion.div
-          style={
-            reduce
-              ? undefined
-              : {
-                  x: printerX,
-                  y: printerY,
-                  rotate: printerRotate,
-                  scale: printerScale,
-                  opacity: printerOpacity,
-                }
-          }
-          className="relative flex flex-col items-center justify-self-end lg:self-end"
-        >
+        <div className="relative flex flex-col items-center justify-self-end lg:self-end">
           {/* Arka plandaki piksel ızgara */}
           <div
             aria-hidden
@@ -255,7 +236,7 @@ export function PrinterIntro({ items }: Props) {
               )}
             </div>
           )}
-        </motion.div>
+        </div>
       </div>
 
       {/* Aşağı kaydır ipucu */}

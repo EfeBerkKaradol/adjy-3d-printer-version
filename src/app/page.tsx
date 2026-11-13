@@ -3,7 +3,8 @@ import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { HomeHero, type HeroCard } from "@/components/home/HomeHero";
 import { PrinterIntro } from "@/components/home/printer/PrinterIntro";
-import { PRINTABLES, type PrintItem } from "@/components/home/printer/catalog";
+import { HAND_DRAWN, PRINTABLES, type PrintItem } from "@/components/home/printer/catalog";
+import { kindForCategory } from "@/components/home/printer/sprites";
 import { formatTRY } from "@/lib/slicer";
 import { PromoBand } from "@/components/home/PromoBand";
 import { CustomerVoices, type Soz } from "@/components/home/CustomerVoices";
@@ -154,31 +155,43 @@ async function getHeroCards(): Promise<{
 }
 
 /**
- * Karşılamadaki piksel yazıcının bastığı ürünler. Ad ve fiyat
- * veritabanından gelir; ürün yayında değilse bağlantı kategorisine
- * düşer. Veritabanına ulaşılamazsa koddaki adlarla devam edilir —
- * animasyon her durumda oynar.
+ * Karşılamadaki piksel yazıcının bastığı ürünler: mağazadaki bütün
+ * aktif ürünler (sırayı yazıcı rastgele seçer). Her ürünün piksel
+ * hâli kategorisinden türetilir. Veritabanına ulaşılamazsa koddaki
+ * altı ürünle devam edilir — animasyon her durumda oynar.
  */
 async function getPrintables(): Promise<PrintItem[]> {
-  let found = new Map<string, { name: string; basePrice: unknown }>();
   try {
     const rows = await prisma.product.findMany({
-      where: { isActive: true, slug: { in: PRINTABLES.map((p) => p.slug) } },
-      select: { slug: true, name: true, basePrice: true },
+      where: { isActive: true },
+      orderBy: { createdAt: "desc" },
+      take: 200,
+      select: {
+        slug: true,
+        name: true,
+        basePrice: true,
+        category: { select: { slug: true, parent: { select: { slug: true } } } },
+      },
     });
-    found = new Map(rows.map((r) => [r.slug, r]));
+    if (rows.length > 0) {
+      return rows.map((r) => ({
+        key:
+          HAND_DRAWN[r.slug] ??
+          `${kindForCategory([r.category.slug, r.category.parent?.slug, r.slug])}:${r.slug}`,
+        name: r.name,
+        href: `/products/${r.slug}`,
+        price: formatTRY(Number(r.basePrice)),
+      }));
+    }
   } catch {
-    // sessizce koddaki adlarla devam
+    // sessizce koddaki ürünlerle devam
   }
-  return PRINTABLES.map((p) => {
-    const row = found.get(p.slug);
-    return {
-      key: p.key,
-      name: row?.name ?? p.fallbackName,
-      href: row ? `/products/${p.slug}` : `/products?category=${p.categorySlug}`,
-      price: row ? formatTRY(Number(row.basePrice)) : null,
-    };
-  });
+  return PRINTABLES.map((p) => ({
+    key: p.key,
+    name: p.fallbackName,
+    href: `/products?category=${p.categorySlug}`,
+    price: null,
+  }));
 }
 
 /**

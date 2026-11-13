@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { SPRITES, mix, shade, type Sprite } from "./sprites";
+import { mix, shade, spriteFor, type Sprite } from "./sprites";
 
 // ==========================================
 // PİKSEL 3D YAZICI
@@ -140,9 +140,28 @@ export function PixelPrinter({ keys, reduceMotion, onObject, onTick, className }
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const sprites = keys.map((k) => SPRITES[k]).filter(Boolean);
-    if (sprites.length === 0) return;
-    const cellLists = sprites.map(cellsOf);
+    if (keys.length === 0) return;
+    // Katalog büyük olabilir: sprite ve baskı sırası ancak sırası
+    // gelince üretilir, sonra saklanır.
+    const spriteCache: Sprite[] = [];
+    const cellCache: Cell[][] = [];
+    const spriteAt = (i: number) => (spriteCache[i] ??= spriteFor(keys[i]));
+    const cellsAt = (i: number) => (cellCache[i] ??= cellsOf(spriteAt(i)));
+
+    // Rastgele sıra: torba karıştırılır, bitince yeniden karıştırılır;
+    // aynı ürün art arda gelmez.
+    let torba: number[] = [];
+    const sonraki = (onceki: number) => {
+      if (torba.length === 0) {
+        torba = keys.map((_, i) => i);
+        for (let i = torba.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [torba[i], torba[j]] = [torba[j], torba[i]];
+        }
+        if (torba.length > 1 && torba[torba.length - 1] === onceki) torba.unshift(torba.pop()!);
+      }
+      return torba.pop()!;
+    };
 
     // ---------- durum ----------
     let index = 0;
@@ -155,7 +174,7 @@ export function PixelPrinter({ keys, reduceMotion, onObject, onTick, className }
     let lastPhase: Phase | null = null;
 
     const printDuration = (i: number) =>
-      Math.min(8, Math.max(5.5, cellLists[i].length / 95));
+      Math.min(8, Math.max(5.5, cellsAt(i).length / 95));
 
     // ---------- çizim yardımcıları ----------
     const px = (x: number, y: number, c: string) => {
@@ -345,8 +364,8 @@ export function PixelPrinter({ keys, reduceMotion, onObject, onTick, className }
     function render() {
       // Tema sınıfı her karede okunur; tema değişimi anında yansır
       const p = document.documentElement.classList.contains("dark") ? DARK : LIGHT;
-      const s = sprites[index];
-      const cells = cellLists[index];
+      const s = spriteAt(index);
+      const cells = cellsAt(index);
       ctx!.clearRect(0, 0, PRINTER_W, PRINTER_H);
 
       let shown = 0;
@@ -392,8 +411,8 @@ export function PixelPrinter({ keys, reduceMotion, onObject, onTick, className }
     function step(dt: number) {
       clock += dt;
       phaseT += dt;
-      const s = sprites[index];
-      const cells = cellLists[index];
+      const s = spriteAt(index);
+      const cells = cellsAt(index);
 
       // kafa hedefi
       let tx = 24;
@@ -423,7 +442,7 @@ export function PixelPrinter({ keys, reduceMotion, onObject, onTick, className }
         phase = "eject";
         phaseT = 0;
       } else if (phase === "eject" && phaseT >= T_EJECT) {
-        index = (index + 1) % sprites.length;
+        index = sonraki(index);
         phase = "heat";
         phaseT = 0;
         onObjectRef.current?.(index);
@@ -481,7 +500,8 @@ export function PixelPrinter({ keys, reduceMotion, onObject, onTick, className }
     );
     io.observe(canvas);
     document.addEventListener("visibilitychange", sync);
-    onObjectRef.current?.(0);
+    index = sonraki(-1);
+    onObjectRef.current?.(index);
     render();
     sync();
 
