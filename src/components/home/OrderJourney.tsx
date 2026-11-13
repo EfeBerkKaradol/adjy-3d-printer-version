@@ -6,10 +6,9 @@ import { motion, useScroll, useSpring, useTransform, type MotionValue } from "fr
 // ==========================================
 // SİPARİŞTEN KAPINIZA
 //
-// Karşılamanın hemen altındaki bölüm. Eskiden burada başlık,
-// paragraf ve ürün kareleri vardı; artık yalnızca sipariş sürecini
-// yukarıdan aşağı, kronolojik bir zaman çizelgesi olarak anlatıyor.
-// Az yazı: her adımda bir başlık ve tek kısa satır.
+// SSS sayfasında duruyor: sipariş sürecini yukarıdan aşağı,
+// kronolojik bir zaman çizelgesi olarak anlatıyor. Az yazı: her
+// adımda bir başlık ve tek kısa satır. Kapsayıcıyı sayfa verir.
 //
 // Görsel dil karşılamadaki yazıcıyla aynı: piksel ikonlar, kare
 // düğümler. Kaydırdıkça ortadaki çizgi dolar, ulaşılan adımların
@@ -157,8 +156,7 @@ export function OrderJourney() {
   const ilerleme = useSpring(scrollYProgress, { stiffness: 140, damping: 30, mass: 0.4 });
 
   return (
-    // id: karşılamadaki "Kaydır" bağlantısı buraya iner
-    <section id="vitrin" aria-labelledby="surec-baslik" className="adjy-container scroll-mt-24 py-16 lg:py-24">
+    <section aria-labelledby="surec-baslik" className="py-16 lg:py-20">
       <div className="mx-auto max-w-3xl">
         <p className="adjy-eyebrow text-center">Nasıl çalışır</p>
         <h2

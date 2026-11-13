@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/db";
-import { OrderJourney } from "@/components/home/OrderJourney";
 import { PrinterIntro } from "@/components/home/printer/PrinterIntro";
 import { HAND_DRAWN, PRINTABLES, type PrintItem } from "@/components/home/printer/catalog";
 import { kindForCategory } from "@/components/home/printer/sprites";
@@ -32,7 +31,6 @@ export const revalidate = 300;
 //
 // Yerleşim, ziyaretçinin sırayla sorduğu sorulara göre:
 //   Burası ne?         → atölye: ürünlerimizi basan piksel yazıcı
-//   Nasıl sipariş?     → siparişten kapınıza, adım adım
 //   Size niye güveneyim? → güven şeridi
 //   Nelerin var?       → kategoriler (kataloğun genişliği)
 //   En iyileri?        → öne çıkanlar
@@ -350,11 +348,10 @@ export default async function HomePage() {
       />
 
       <PrinterIntro items={printables} />
-      <OrderJourney />
-      <TrustRow />
 
       {categories.length > 0 && (
-        <section className="adjy-container adjy-section">
+        // id: karşılamadaki "Kaydır" bağlantısı buraya iner
+        <section id="vitrin" className="adjy-container adjy-section scroll-mt-24">
           <SectionHeading
             eyebrow="Kategoriler"
             title="Ne arıyorsunuz?"
@@ -365,6 +362,8 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      <TrustRow />
 
       {featured.length > 0 && (
         <section className="adjy-container adjy-section border-t border-border/60">
