@@ -101,31 +101,107 @@ export async function POST(request: NextRequest) {
     // Callback URL
     const callbackUrl = `${getAbsoluteUrl()}/api/payments/callback`;
 
-    // Basket items
-    const basketItems = order.items.map((item) => ({
-      id: item.product.id,
-      name: item.product.name,
-      category1: item.product.category?.name || "3D Baskı",
-      itemType: "PHYSICAL" as const,
-      price: Number(item.lineTotal).toFixed(2),
+    // ==========================================
+    // SEPET (iyzico kuralları)
+    //
+    // iyzico iki şeyi kesin ister:
+    //   1) price = sepet kalemlerinin toplamı (kuruşu kuruşuna)
+    //   2) her sepet kalemi > 0
+    // Eski kod kupon indirimini sepete yansıtmıyordu (price ürünler
+    // + kargo toplamından küçük kalıyordu) ve satır toplamları ile
+    // genel toplam ayrı ayrı yuvarlandığı için kuruş farkı
+    // çıkabiliyordu; iki durumda da iyzico isteği reddediyor ve
+    // müşteri "Ödeme başlatılamadı" görüyordu. Tutarlar burada
+    // kuruş (tam sayı) olarak kurulur, indirim ürün satırlarına
+    // oranlı dağıtılır, sıfırlanan satırlar atılır.
+    // ==========================================
+    const kurus = (v: unknown) => Math.round(Number(v) * 100);
+
+    type Kalem = {
+      id: string;
+      name: string;
+      category1: string;
+      itemType: "PHYSICAL";
+      cents: number;
+    };
+
+    const urunKalemleri: Kalem[] = order.items.map((item, i) => ({
+      // Aynı ürün sepette iki kez olabilir; kalem kimliği tekil kalsın
+      id: `${item.product.id}-${i + 1}`.slice(0, 100),
+      name: (item.product.name || "Ürün").slice(0, 100),
+      category1: (item.product.category?.name || "3D Baskı").slice(0, 100),
+      itemType: "PHYSICAL",
+      cents: kurus(item.lineTotal),
     }));
 
-    // Kargo da basket item olarak eklenmeli (iyzico gereksinimi: toplam = ürün toplamı)
-    if (Number(order.shippingCost) > 0) {
-      basketItems.push({
+    // Kupon indirimini ürün satırlarına oranlı dağıt
+    let indirim = Math.max(0, kurus(order.discountAmount));
+    const urunToplami = urunKalemleri.reduce((t, k) => t + k.cents, 0);
+    if (indirim > 0 && urunToplami > 0) {
+      indirim = Math.min(indirim, urunToplami);
+      let dagitilan = 0;
+      urunKalemleri.forEach((k, i) => {
+        const pay =
+          i === urunKalemleri.length - 1
+            ? indirim - dagitilan
+            : Math.floor((indirim * k.cents) / urunToplami);
+        const uygulanan = Math.min(pay, k.cents);
+        k.cents -= uygulanan;
+        dagitilan += uygulanan;
+      });
+      // Son satır tavanına takıldıysa artanı diğerlerinden düş
+      let kalan = indirim - dagitilan;
+      for (const k of urunKalemleri) {
+        if (kalan <= 0) break;
+        const d = Math.min(kalan, k.cents);
+        k.cents -= d;
+        kalan -= d;
+      }
+    }
+
+    const kalemler: Kalem[] = [...urunKalemleri];
+
+    // Kargo da sepet kalemi olmalı (toplam = kalemler toplamı)
+    const kargo = kurus(order.shippingCost);
+    if (kargo > 0) {
+      kalemler.push({
         id: "shipping",
         name: "Kargo Ücreti",
         category1: "Kargo",
-        itemType: "PHYSICAL" as const,
-        price: Number(order.shippingCost).toFixed(2),
+        itemType: "PHYSICAL",
+        cents: kargo,
       });
     }
+
+    const basketItems = kalemler
+      .filter((k) => k.cents > 0)
+      .map(({ cents, ...k }) => ({ ...k, price: (cents / 100).toFixed(2) }));
+
+    const sepetToplami = kalemler.reduce((t, k) => t + Math.max(0, k.cents), 0);
+    const genelToplam = kurus(order.grandTotal);
+
+    if (basketItems.length === 0 || sepetToplami <= 0) {
+      return NextResponse.json(
+        { error: "Ödenecek tutar bulunamadı" },
+        { status: 400 }
+      );
+    }
+
+    if (sepetToplami !== genelToplam) {
+      // Sipariş kaydındaki toplam ile kalemler kuruş farkı veriyorsa
+      // müşteriden kalemlerin toplamı alınır; fark günlüğe düşer.
+      console.warn(
+        `iyzico sepet farkı — sipariş ${order.orderNumber}: kalemler ${sepetToplami} kuruş, grandTotal ${genelToplam} kuruş`
+      );
+    }
+
+    const odenecek = (sepetToplami / 100).toFixed(2);
 
     // iyzico Checkout Form başlat
     const result = await initializeCheckoutForm({
       conversationId,
-      price: Number(order.grandTotal).toFixed(2),
-      paidPrice: Number(order.grandTotal).toFixed(2),
+      price: odenecek,
+      paidPrice: odenecek,
       currency: "TRY",
       basketId: order.id,
       paymentGroup: "PRODUCT",
@@ -171,9 +247,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: "Ödeme başlatılamadı",
-          details: result.errorMessage,
+          code: (result as { errorCode?: string }).errorCode ?? null,
+          details: result.errorMessage ?? null,
         },
-        { status: 500 }
+        { status: 502 }
       );
     }
 
@@ -182,7 +259,7 @@ export async function POST(request: NextRequest) {
       data: {
         orderId: order.id,
         iyzicoConversationId: conversationId,
-        amount: Number(order.grandTotal),
+        amount: Number(odenecek),
         currency: "TRY",
         status: "PENDING",
       },
