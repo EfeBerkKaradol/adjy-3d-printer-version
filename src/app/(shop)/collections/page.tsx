@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { CategoryGrid, type HomeCategory } from "@/components/home/CategoryGrid";
+import { PixelArrow } from "@/components/home/PixelMoreButton";
 import { CollectionRow, type Collection } from "@/components/collections/CollectionRow";
 import { Button } from "@/components/ui/button";
 import { resolvePublicImage } from "@/lib/publicAsset";
 import { loadCategoryTree, loadCollectionTags } from "@/lib/categoryTree";
 import { ArrowRight } from "lucide-react";
 import { MATERIAL_FAMILIES, familyFor } from "@/lib/materialFamily";
+import { secondImageOf } from "@/lib/gallery";
 
 // Kategoriler ve ürün sayıları yarım saatte bir tazelenir
 export const revalidate = 1800;
@@ -78,6 +80,7 @@ async function getCollections(): Promise<Collection[]> {
               slug: true,
               basePrice: true,
               thumbnailUrl: true,
+              gallery: true,
               featured: true,
               widthMm: true,
               depthMm: true,
@@ -96,9 +99,10 @@ async function getCollections(): Promise<Collection[]> {
           coverUrl: resolvePublicImage(c.imageUrl) ?? products[0]?.thumbnailUrl ?? null,
           productCount: c.productCount,
           fromPrice: enUcuz._min.basePrice ? Number(enUcuz._min.basePrice) : null,
-          products: products.map((p) => ({
+          products: products.map(({ gallery, ...p }) => ({
             ...p,
             basePrice: Number(p.basePrice),
+            hoverImageUrl: secondImageOf(p.thumbnailUrl, gallery),
             isCustomizable: p._count.parameters > 0,
           })),
         };
@@ -185,32 +189,22 @@ export default async function CollectionsPage() {
         </p>
       </header>
 
-      {collections.length > 0 && (
-        <div className="mt-6 flex flex-wrap gap-2 md:mt-8">
-          {collections.map((c) => (
-            <Link
-              key={c.id}
-              href={`#${c.slug}`}
-              className="rounded-full border border-border px-3.5 py-1.5 text-sm transition-colors hover:bg-muted"
-            >
-              {c.name}
-              <span className="ml-1.5 tabular-nums text-muted-foreground">
-                {c.productCount}
-              </span>
-            </Link>
-          ))}
+      {/* Tüm kategoriler: ana sayfadakiyle aynı piksel kartlar */}
+      {withProducts.length > 0 && (
+        <div className="mt-10 md:mt-12">
+          <CategoryGrid categories={withProducts} />
         </div>
       )}
 
       {/* Hediye, Yılbaşı gibi koleksiyonlar — kategoriden bağımsız */}
       {gifts.length > 0 && (
-        <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className="mt-8 flex flex-wrap items-center gap-3">
           <span className="mr-1 text-sm text-muted-foreground">Özel seçkiler:</span>
           {gifts.map((g) => (
             <Link
               key={g.id}
               href={`/products?koleksiyon=${g.slug}`}
-              className="rounded-full bg-foreground px-3.5 py-1.5 text-sm text-background transition-opacity hover:opacity-85"
+              className="adjy-pixel-card bg-foreground! px-3 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-background"
             >
               {g.name}
               <span className="ml-1.5 tabular-nums opacity-60">{g.productCount}</span>
@@ -228,10 +222,8 @@ export default async function CollectionsPage() {
               </div>
             ))}
           </div>
-        ) : withProducts.length > 0 ? (
-          <CategoryGrid categories={withProducts} />
-        ) : (
-          <div className="border border-dashed border-border px-6 py-20 text-center">
+        ) : withProducts.length > 0 ? null : (
+          <div className="adjy-pixel-box px-6 py-20 text-center">
             <p className="text-base font-medium">Koleksiyonlar yüklenemedi</p>
             <p className="mt-1.5 text-sm text-muted-foreground">
               Tüm ürünlere göz atarak devam edebilirsiniz.
@@ -264,12 +256,12 @@ export default async function CollectionsPage() {
             ağırlığına göre de gezebilirsiniz.
           </p>
 
-          <div className="mt-8 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-3">
+          <div className="mt-8 grid gap-4 sm:grid-cols-3 sm:gap-5">
             {families.map((f) => (
               <Link
                 key={f.id}
                 href={`/products?material=${f.id}`}
-                className="group bg-background p-6 transition-colors hover:bg-surface-2"
+                className="adjy-pixel-card group p-6"
               >
                 <div className="flex items-baseline justify-between gap-3">
                   <h3 className="text-[15px] font-medium tracking-tight">{f.label}</h3>
@@ -280,12 +272,9 @@ export default async function CollectionsPage() {
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                   {f.description}
                 </p>
-                <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium">
+                <span className="mt-5 inline-flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.12em]">
                   Göz at
-                  <ArrowRight
-                    className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
-                    aria-hidden
-                  />
+                  <PixelArrow className="h-3.5 w-3.5 transition-transform duration-150 group-hover:translate-x-0.5" />
                 </span>
               </Link>
             ))}

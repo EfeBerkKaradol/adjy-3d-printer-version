@@ -494,3 +494,84 @@
 .dark .adjy-glass.adjy-glass-menu {
   background: rgb(32 32 38 / 0.62);
 }
+
+/* Karşılamadaki piksel durum kutusu (PrinterIntro): köşeleri
+   basamaklı, 2px'lik piksel çerçeve */
+.adjy-pixel-box {
+  box-shadow:
+    0 -2px 0 0 var(--foreground),
+    0 2px 0 0 var(--foreground),
+    -2px 0 0 0 var(--foreground),
+    2px 0 0 0 var(--foreground);
+  margin-inline: 2px;
+}
+
+/* Piksel kart: basamaklı köşeli çerçeve; üzerine gelince sert,
+   basamaklı gölgeyle yukarı kalkar (CategoryGrid, CustomerVoices) */
+.adjy-pixel-card {
+  --px: var(--foreground);
+  background: var(--background);
+  margin: 2px;
+  box-shadow:
+    0 -2px 0 0 var(--px),
+    0 2px 0 0 var(--px),
+    -2px 0 0 0 var(--px),
+    2px 0 0 0 var(--px);
+  transition: transform 120ms steps(2), box-shadow 120ms steps(2);
+}
+a.adjy-pixel-card:hover,
+a.adjy-pixel-card:focus-visible,
+.adjy-pixel-card[data-lift]:hover,
+.adjy-pixel-card[data-lift]:focus-within {
+  transform: translate(-3px, -3px);
+  box-shadow:
+    0 -2px 0 0 var(--px),
+    0 2px 0 0 var(--px),
+    -2px 0 0 0 var(--px),
+    2px 0 0 0 var(--px),
+    4px 6px 0 0 var(--px),
+    6px 4px 0 0 var(--px),
+    5px 5px 0 0 var(--px);
+}
+
+/* Üzerine gelince piksel nesne alttan yukarı yeniden basılır */
+@keyframes adjy-print-reveal {
+  from { clip-path: inset(100% 0 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .group:hover .adjy-print-reveal {
+    animation: adjy-print-reveal 0.7s steps(14) both;
+  }
+}
+
+/*
+ * Ürün kartında ikinci görsel: normalde gizli, üzerine gelince
+ * kapak görselinin üstüne alttan yukarı, basamak basamak basılır.
+ * Önündeki ince çizgi yazıcının nozulu gibi yukarı tırmanır.
+ */
+.adjy-print-swap {
+  clip-path: inset(100% 0 0 0);
+}
+.adjy-print-nozzle {
+  opacity: 0;
+  bottom: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .group:hover .adjy-print-swap {
+    animation: adjy-print-reveal 0.7s steps(14) both;
+  }
+  .group:hover .adjy-print-nozzle {
+    animation: adjy-print-nozzle 0.7s steps(14) both;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .group:hover .adjy-print-swap {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes adjy-print-nozzle {
+  0% { bottom: 0; opacity: 1; }
+  99% { bottom: 100%; opacity: 1; }
+  100% { bottom: 100%; opacity: 0; }
+}

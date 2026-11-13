@@ -7,6 +7,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { FaqJsonLd, type FaqEntry } from "@/components/seo/JsonLd";
+import { OrderJourney } from "@/components/home/OrderJourney";
 
 // ==========================================
 // SIKÇA SORULAN SORULAR
@@ -122,6 +123,11 @@ export default function FAQPage() {
           </AccordionItem>
         ))}
       </Accordion>
+
+      {/* Sipariş süreci: siparişten kapıya altı adım */}
+      <div className="mt-8 border-t border-border">
+        <OrderJourney />
+      </div>
     </div>
   );
 }

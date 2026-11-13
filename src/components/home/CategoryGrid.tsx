@@ -1,15 +1,18 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowUpRight } from "lucide-react";
+import { PixelSprite } from "@/components/home/printer/PixelSprite";
+import { kindForCategory } from "@/components/home/printer/sprites";
+import { PixelArrow, PixelMoreButton } from "@/components/home/PixelMoreButton";
 
 // ==========================================
-// BÖLÜM 02 — KATEGORİLER
-// Kategori görselleri henüz yüklenmediği için her
-// kart, slug'dan türetilen sessiz bir desene düşer.
-// Görsel eklendiği anda desen yerini görsele bırakır.
+// KATEGORİLER — PİKSEL VİTRİN
+//
+// Karşılamadaki yazıcının dilini sürdürür: her kategori, yazıcının
+// bastığı türden bir piksel nesneyle temsil edilir. Kartlar
+// basamaklı köşeli piksel çerçeveli; üzerine gelince kart sert
+// gölgesiyle yukarı kalkar ve nesne alttan yukarı "yeniden basılır".
+//
+// Kategori görselleri bilinçli olarak kullanılmıyor: fotoğraf ile
+// piksel nesneyi karıştırmak temayı dağıtıyordu.
 // ==========================================
 
 export interface HomeCategory {
@@ -21,106 +24,74 @@ export interface HomeCategory {
   productCount: number;
 }
 
-interface CategoryGridProps {
+/** Ana kategoriler için elle seçilmiş nesneler; diğerleri türünden */
+const KATEGORI_NESNESI: Record<string, string> = {
+  aydinlatma: "mantar",
+  "vazo-saksi": "saksi",
+  "ev-dekorasyon": "kedi",
+  "ofis-aksesuarlari": "duzenleyici:ofis-aksesuarlari",
+  "duzen-depolama": "raf:duzen-depolama",
+  "hobi-boyama": "figur:hobi-boyama-2",
+  "mimari-maket": "maket:mimari-maket",
+  mobilya: "mobilya:mobilya-1",
+};
+
+function nesneOf(slug: string) {
+  return KATEGORI_NESNESI[slug] ?? `${kindForCategory([slug])}:${slug}`;
+}
+
+interface Props {
   categories: HomeCategory[];
+  /**
+   * Gösterilecek en fazla kart. Ana sayfada 4: masaüstünde tek sıra,
+   * telefonda 2×2. Verilirse altına "Daha fazlasını gör" düğmesi
+   * eklenir ve tüm kategoriler sayfasına gider.
+   */
+  limit?: number;
 }
 
-/** Kategoriye özgü, tekrar üretilebilir geometrik zemin */
-function CategoryPattern({ index }: { index: number }) {
-  const variant = index % 4;
-
-  return (
-    <div className="flex h-full w-full items-center justify-center bg-surface-2">
-      <svg
-        viewBox="0 0 160 200"
-        className="h-full w-full text-muted-foreground/25"
-        preserveAspectRatio="xMidYMid slice"
-        aria-hidden="true"
-      >
-        <g fill="none" stroke="currentColor" strokeWidth="1.2">
-          {variant === 0 &&
-            Array.from({ length: 7 }).map((_, i) => (
-              <rect key={i} x={20 + i * 8} y={40 + i * 8} width={120 - i * 16} height={120 - i * 16} />
-            ))}
-          {variant === 1 &&
-            Array.from({ length: 6 }).map((_, r) =>
-              Array.from({ length: 5 }).map((_, c) => (
-                <circle key={`${r}-${c}`} cx={24 + c * 28} cy={36 + r * 26} r="7" />
-              ))
-            )}
-          {variant === 2 &&
-            Array.from({ length: 10 }).map((_, i) => (
-              <line key={i} x1={-20 + i * 24} y1="200" x2={60 + i * 24} y2="0" />
-            ))}
-          {variant === 3 &&
-            Array.from({ length: 5 }).map((_, i) => (
-              <circle key={i} cx="80" cy="100" r={18 + i * 16} />
-            ))}
-        </g>
-      </svg>
-    </div>
-  );
-}
-
-function CategoryCard({ category, index }: { category: HomeCategory; index: number }) {
-  const [imgError, setImgError] = useState(false);
-  const showImage = Boolean(category.imageUrl) && !imgError;
-
-  return (
-    <Link
-      href={`/products?category=${category.slug}`}
-      className="group relative block overflow-hidden bg-surface-2"
-    >
-      <div className="relative aspect-[4/5]">
-        {showImage ? (
-          <Image
-            src={category.imageUrl as string}
-            alt=""
-            fill
-            sizes="(max-width: 640px) 75vw, (max-width: 1024px) 45vw, 30vw"
-            onError={() => setImgError(true)}
-            className="adjy-zoom object-cover"
-          />
-        ) : (
-          <div className="adjy-zoom h-full w-full">
-            <CategoryPattern index={index} />
-          </div>
-        )}
-
-        {/* Okunabilirlik için alt perde */}
-        <div
-          className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-background via-background/70 to-transparent"
-          aria-hidden
-        />
-
-        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5">
-          <div className="min-w-0">
-            <h3 className="text-lg font-medium tracking-tight">{category.name}</h3>
-            {category.description && (
-              <p className="mt-1 line-clamp-1 text-sm text-muted-foreground">
-                {category.description}
-              </p>
-            )}
-            <p className="adjy-eyebrow mt-2.5">{category.productCount} ürün</p>
-          </div>
-          <ArrowUpRight
-            className="h-5 w-5 shrink-0 translate-y-0 text-muted-foreground transition-all duration-200 group-hover:-translate-y-0.5 group-hover:text-foreground"
-            aria-hidden
-          />
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-export function CategoryGrid({ categories }: CategoryGridProps) {
+export function CategoryGrid({ categories, limit }: Props) {
   if (categories.length === 0) return null;
+  const gosterilen = limit ? categories.slice(0, limit) : categories;
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
-      {categories.map((category, i) => (
-        <CategoryCard key={category.id} category={category} index={i} />
-      ))}
-    </div>
+    <>
+      <ul className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
+        {gosterilen.map((c, i) => (
+          <li key={c.id}>
+            <Link
+              href={`/products?category=${c.slug}`}
+              className="adjy-pixel-card group flex h-full flex-col"
+            >
+              {/* Sahne: noktalı ızgara üstünde piksel nesne */}
+              <div className="relative flex aspect-[5/4] items-end justify-center overflow-hidden px-4 pb-3 pt-6 [background-image:radial-gradient(color-mix(in_oklab,var(--foreground)_16%,transparent)_1px,transparent_1.5px)] [background-size:10px_10px]">
+                <span className="absolute left-2.5 top-2 font-mono text-[10px] tabular-nums tracking-[0.12em] text-muted-foreground">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <PixelSprite
+                  spriteKey={nesneOf(c.slug)}
+                  className="adjy-print-reveal h-[78%] w-auto max-w-full"
+                />
+              </div>
+
+              {/* Alt şerit */}
+              <div className="flex items-center justify-between gap-3 border-t-2 border-dashed border-foreground/80 px-3.5 py-3">
+                <div className="min-w-0">
+                  <h3 className="truncate text-[15px] font-semibold leading-tight">
+                    {c.name}
+                  </h3>
+                  <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                    {c.productCount} ürün
+                  </p>
+                </div>
+  <PixelArrow className="h-3.5 w-3.5 shrink-0 transition-transform duration-150 group-hover:translate-x-0.5" />
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+
+      {limit && <PixelMoreButton href="/collections" count={categories.length} />}
+    </>
   );
 }

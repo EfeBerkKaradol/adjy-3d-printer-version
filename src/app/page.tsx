@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/db";
-import { HomeHero, type HeroCard } from "@/components/home/HomeHero";
-import { PromoBand } from "@/components/home/PromoBand";
+import { PrinterIntro } from "@/components/home/printer/PrinterIntro";
+import { HAND_DRAWN, PRINTABLES, type PrintItem } from "@/components/home/printer/catalog";
+import { kindForCategory } from "@/components/home/printer/sprites";
+import { formatTRY } from "@/lib/slicer";
 import { CustomerVoices, type Soz } from "@/components/home/CustomerVoices";
 import { TrustRow } from "@/components/home/TrustRow";
 import { CategoryGrid, type HomeCategory } from "@/components/home/CategoryGrid";
@@ -12,6 +14,7 @@ import { ProductRail, type RailProduct } from "@/components/product/ProductRail"
 import { SectionHeading } from "@/components/ui/section-heading";
 import { OrganizationJsonLd, WebSiteJsonLd } from "@/components/seo/JsonLd";
 import { getAbsoluteUrl } from "@/lib/url";
+import { secondImageOf } from "@/lib/gallery";
 
 // Vitrin veritabanından beslenir; statik kalırsa yeni ürünler ancak
 // yeni bir deploy ile görünür. 5 dakikada bir tazelenir.
@@ -27,12 +30,13 @@ export const revalidate = 300;
 // bizi merak edene orada anlatılır.
 //
 // Yerleşim, ziyaretçinin sırayla sorduğu sorulara göre:
-//   Ne satıyorsunuz?   → karşılama, üç gerçek ürün ve fiyatları
-//   Size niye güveneyim? → güven şeridi
+//   Burası ne?         → atölye: ürünlerimizi basan piksel yazıcı
 //   Nelerin var?       → kategoriler (kataloğun genişliği)
 //   En iyileri?        → öne çıkanlar
-//   Sizi ayıran ne?    → ölçüsü değişen nesneler
 //   Yeni ne var?       → yeni gelenler
+//   Sizi ayıran ne?    → ölçüsü değişen nesneler
+//   Alanlar ne dedi?   → müşteri yorumları
+//   Size niye güveneyim? → güven şeridi
 //   Kendi modelim?     → üret
 //
 // Veritabanına ulaşılamazsa bölümler sessizce gizlenir; yarım
@@ -45,6 +49,7 @@ const RAIL_SELECT = {
   slug: true,
   basePrice: true,
   thumbnailUrl: true,
+  gallery: true,
   createdAt: true,
   category: { select: { name: true } },
   _count: { select: { parameters: true } },
@@ -85,6 +90,7 @@ function toRailProduct(
     slug: string;
     basePrice: unknown;
     thumbnailUrl: string | null;
+    gallery: unknown;
     createdAt: Date;
     category: { name: string };
     _count: { parameters: number };
@@ -100,53 +106,51 @@ function toRailProduct(
     basePrice: Number(p.basePrice),
     compareAtPrice: compareAt,
     thumbnailUrl: p.thumbnailUrl,
+    hoverImageUrl: secondImageOf(p.thumbnailUrl, p.gallery),
     category: p.category,
     isNew: markNew && p.createdAt.getTime() > cutoff,
     isCustomizable: p._count.parameters > 0,
   };
 }
 
-/** Karşılamadaki üç kare: görseli olan, öne çıkarılmış nesneler */
-async function getHeroCards(): Promise<{
-  products: HeroCard[];
-  total: number;
-  customizableCount: number;
-}> {
+/**
+ * Karşılamadaki piksel yazıcının bastığı ürünler: mağazadaki bütün
+ * aktif ürünler (sırayı yazıcı rastgele seçer). Her ürünün piksel
+ * hâli kategorisinden türetilir. Veritabanına ulaşılamazsa koddaki
+ * altı ürünle devam edilir — animasyon her durumda oynar.
+ */
+async function getPrintables(): Promise<PrintItem[]> {
   try {
-    const [featured, total, customizableCount] = await Promise.all([
-      prisma.product.findMany({
-        where: { isActive: true, thumbnailUrl: { not: null } },
-        orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-        take: 3,
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          basePrice: true,
-          thumbnailUrl: true,
-          category: { select: { name: true } },
-          _count: { select: { parameters: true } },
-        },
-      }),
-      prisma.product.count({ where: { isActive: true } }),
-      prisma.product.count({ where: { isActive: true, parameters: { some: {} } } }),
-    ]);
-    return {
-      products: featured.map((p) => ({
-        id: p.id,
-        name: p.name,
-        slug: p.slug,
-        basePrice: Number(p.basePrice),
-        thumbnailUrl: p.thumbnailUrl,
-        category: p.category,
-        isCustomizable: p._count.parameters > 0,
-      })),
-      total,
-      customizableCount,
-    };
+    const rows = await prisma.product.findMany({
+      where: { isActive: true },
+      orderBy: { createdAt: "desc" },
+      take: 200,
+      select: {
+        slug: true,
+        name: true,
+        basePrice: true,
+        category: { select: { slug: true, parent: { select: { slug: true } } } },
+      },
+    });
+    if (rows.length > 0) {
+      return rows.map((r) => ({
+        key:
+          HAND_DRAWN[r.slug] ??
+          `${kindForCategory([r.category.slug, r.category.parent?.slug, r.slug])}:${r.slug}`,
+        name: r.name,
+        href: `/products/${r.slug}`,
+        price: formatTRY(Number(r.basePrice)),
+      }));
+    }
   } catch {
-    return { products: [], total: 0, customizableCount: 0 };
+    // sessizce koddaki ürünlerle devam
   }
+  return PRINTABLES.map((p) => ({
+    key: p.key,
+    name: p.fallbackName,
+    href: `/products?category=${p.categorySlug}`,
+    price: null,
+  }));
 }
 
 /**
@@ -182,7 +186,7 @@ async function getFeaturedRail(compareAt: Map<string, number>): Promise<RailProd
     const rows = await prisma.product.findMany({
       where: { isActive: true, thumbnailUrl: { not: null } },
       orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      take: 8,
+      take: 4,
       select: RAIL_SELECT,
     });
     return rows.map((p) => toRailProduct(p, true, compareAt.get(p.id) ?? null));
@@ -197,7 +201,7 @@ async function getCustomizableRail(compareAt: Map<string, number>): Promise<Rail
     const rows = await prisma.product.findMany({
       where: { isActive: true, thumbnailUrl: { not: null }, parameters: { some: {} } },
       orderBy: { createdAt: "desc" },
-      take: 8,
+      take: 4,
       select: RAIL_SELECT,
     });
     return rows.map((p) => toRailProduct(p, false, compareAt.get(p.id) ?? null));
@@ -211,54 +215,12 @@ async function getNewArrivals(compareAt: Map<string, number>): Promise<RailProdu
     const rows = await prisma.product.findMany({
       where: { isActive: true, thumbnailUrl: { not: null } },
       orderBy: { createdAt: "desc" },
-      take: 8,
+      take: 4,
       select: RAIL_SELECT,
     });
     return rows.map((p) => toRailProduct(p, true, compareAt.get(p.id) ?? null));
   } catch {
     return [];
-  }
-}
-
-/**
- * Ara banttaki nesne: ölçü aralığı en geniş olan. Aralığı dar
- * bir üründe "ölçüsünü sen seç" sözü zayıf kalıyor.
- */
-async function getPromoProduct() {
-  try {
-    const rows = await prisma.product.findMany({
-      where: {
-        isActive: true,
-        thumbnailUrl: { not: null },
-        parameters: { some: { name: "width", minValue: { not: null }, maxValue: { not: null } } },
-      },
-      select: {
-        name: true,
-        slug: true,
-        thumbnailUrl: true,
-        parameters: {
-          where: { name: "width" },
-          select: { minValue: true, maxValue: true },
-          take: 1,
-        },
-      },
-      take: 40,
-    });
-
-    const uygun = rows
-      .map((p) => ({
-        name: p.name,
-        slug: p.slug,
-        thumbnailUrl: p.thumbnailUrl,
-        minMm: p.parameters[0]?.minValue ?? 0,
-        maxMm: p.parameters[0]?.maxValue ?? 0,
-      }))
-      .filter((p) => p.maxMm > p.minMm && p.minMm > 0)
-      .sort((a, b) => b.maxMm - b.minMm - (a.maxMm - a.minMm));
-
-    return uygun[0] ?? null;
-  } catch {
-    return null;
   }
 }
 
@@ -317,15 +279,14 @@ async function getCustomerVoices(): Promise<{ sozler: Soz[]; ortalama: number }>
 
 export default async function HomePage() {
   const compareAt = await getCompareAtPrices();
-  const [hero, categories, featured, customizable, newArrivals, promo, sesler] =
+  const [categories, featured, customizable, newArrivals, sesler, printables] =
     await Promise.all([
-      getHeroCards(),
       getCategories(),
       getFeaturedRail(compareAt),
       getCustomizableRail(compareAt),
       getNewArrivals(compareAt),
-      getPromoProduct(),
       getCustomerVoices(),
+      getPrintables(),
     ]);
 
   return (
@@ -337,65 +298,53 @@ export default async function HomePage() {
         description="İstediğiniz ölçüde tasarım ürünleri: vazo, saksı, aydınlatma, masa düzeni ve dekoratif figürler. Kendi atölyemizde 3D baskı, seramik ve alçı ile üretiyoruz."
       />
 
-      <HomeHero products={hero.products} />
-      <TrustRow />
+      <PrinterIntro items={printables} />
 
       {categories.length > 0 && (
-        <section className="adjy-container adjy-section">
+        // id: karşılamadaki "Kaydır" bağlantısı buraya iner
+        <section id="vitrin" className="adjy-container adjy-section scroll-mt-24">
           <SectionHeading
             eyebrow="Kategoriler"
             title="Ne arıyorsunuz?"
             action={{ label: "Tüm ürünler", href: "/products" }}
           />
           <div className="mt-8">
-            <CategoryGrid categories={categories} />
+            <CategoryGrid categories={categories} limit={4} />
           </div>
         </section>
       )}
+
 
       {featured.length > 0 && (
         <section className="adjy-container adjy-section border-t border-border/60">
-          <SectionHeading
-            eyebrow="Öne çıkanlar"
-            title="Çok sevilen ürünler"
-            action={{ label: "Hepsini gör", href: "/products" }}
-          />
+          <SectionHeading eyebrow="Öne çıkanlar" title="Çok sevilen ürünler" />
           <div className="mt-8">
-            <ProductRail products={featured} />
-          </div>
-        </section>
-      )}
-
-      <PromoBand product={promo} count={customizable.length > 0 ? hero.customizableCount : 0} />
-
-      {customizable.length > 0 && (
-        <section className="adjy-container adjy-section">
-          <SectionHeading
-            eyebrow="Özel ölçüde üretim"
-            title="Rafınıza, masanıza, pencerenize göre"
-            action={{ label: "Hepsini gör", href: "/products?customizable=true" }}
-          />
-          <div className="mt-8">
-            <ProductRail products={customizable} />
+            <ProductRail products={featured} moreHref="/products" />
           </div>
         </section>
       )}
 
       {newArrivals.length > 0 && (
         <section className="adjy-container adjy-section border-t border-border/60">
-          <SectionHeading
-            eyebrow="Yeni gelenler"
-            title="Atölyeden yeni çıkanlar"
-            action={{ label: "Tümü", href: "/products?sort=newest" }}
-          />
+          <SectionHeading eyebrow="Yeni gelenler" title="Atölyeden yeni çıkanlar" />
           <div className="mt-8">
-            <ProductRail products={newArrivals} />
+            <ProductRail products={newArrivals} moreHref="/products?sort=newest" />
+          </div>
+        </section>
+      )}
+
+      {customizable.length > 0 && (
+        <section className="adjy-container adjy-section border-t border-border/60">
+          <SectionHeading eyebrow="Özel ölçüde üretim" title="Rafınıza, masanıza, pencerenize göre" />
+          <div className="mt-8">
+            <ProductRail products={customizable} moreHref="/products?customizable=true" />
           </div>
         </section>
       )}
 
       <CustomerVoices sozler={sesler.sozler} ortalama={sesler.ortalama} />
 
+      <TrustRow />
       <CreateSection />
 
       <section className="border-t border-border/60">
