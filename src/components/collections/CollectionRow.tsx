@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { PixelArrow } from "@/components/home/PixelMoreButton";
 import { ProductCard, type ProductCardProduct } from "@/components/product/ProductCard";
 import { formatPrice } from "@/lib/pricing";
 
@@ -40,7 +40,7 @@ export function CollectionRow({ collection }: { collection: Collection }) {
       <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex min-w-0 items-center gap-4">
           {coverUrl && (
-            <div className="relative hidden h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-muted sm:block">
+            <div className="adjy-pixel-box relative hidden h-20 w-20 shrink-0 overflow-hidden bg-muted sm:block">
               <Image
                 src={coverUrl}
                 alt=""
@@ -71,17 +71,14 @@ export function CollectionRow({ collection }: { collection: Collection }) {
 
         <Link
           href={href}
-          className="group inline-flex shrink-0 items-center gap-2 border-b border-foreground pb-1 text-sm font-medium transition-colors hover:border-muted-foreground hover:text-muted-foreground"
+          className="adjy-pixel-card group inline-flex shrink-0 items-center gap-3 self-start px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] sm:self-auto"
         >
           Koleksiyonun tamamı
-          <ArrowRight
-            className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
-            aria-hidden
-          />
+          <PixelArrow className="h-3.5 w-3.5 transition-transform duration-150 group-hover:translate-x-0.5" />
         </Link>
       </div>
 
-      <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-10 lg:grid-cols-4">
+      <div className="mt-8 grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
         {products.map((p, i) => (
           <ProductCard key={p.id} product={p} index={i} />
         ))}

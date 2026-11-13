@@ -19,6 +19,15 @@ export function PixelArrow({ className = "h-3.5 w-3.5" }: { className?: string }
   );
 }
 
+/** Piksel etiket: "YENİ", "%20", "ÖNE ÇIKAN" */
+export function PixelTag({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="adjy-pixel-box bg-background px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.1em]">
+      {children}
+    </span>
+  );
+}
+
 export function PixelMoreButton({ href, count }: { href: string; count?: number }) {
   return (
     <div className="mt-10 flex justify-center">

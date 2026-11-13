@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { prisma } from "@/lib/db";
 import { ProductGrid } from "@/components/product/ProductGrid";
+import { secondImageOf } from "@/lib/gallery";
 import { ProductFilters } from "@/components/product/ProductFilters";
 import { FilterDrawer } from "@/components/product/FilterDrawer";
 import { SortDropdown } from "@/components/product/SortDropdown";
@@ -144,6 +145,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           description: true,
           basePrice: true,
           thumbnailUrl: true,
+          gallery: true,
           featured: true,
           widthMm: true,
           depthMm: true,
@@ -176,7 +178,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     ]);
 
     return {
-      products: rows.map((p) => ({ ...p, basePrice: Number(p.basePrice) })),
+      products: rows.map(({ gallery, ...p }) => ({
+        ...p,
+        basePrice: Number(p.basePrice),
+        hoverImageUrl: secondImageOf(p.thumbnailUrl, gallery),
+      })),
       count,
       configurableCount,
       materialTypes,

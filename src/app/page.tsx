@@ -14,6 +14,7 @@ import { ProductRail, type RailProduct } from "@/components/product/ProductRail"
 import { SectionHeading } from "@/components/ui/section-heading";
 import { OrganizationJsonLd, WebSiteJsonLd } from "@/components/seo/JsonLd";
 import { getAbsoluteUrl } from "@/lib/url";
+import { secondImageOf } from "@/lib/gallery";
 
 // Vitrin veritabanından beslenir; statik kalırsa yeni ürünler ancak
 // yeni bir deploy ile görünür. 5 dakikada bir tazelenir.
@@ -48,6 +49,7 @@ const RAIL_SELECT = {
   slug: true,
   basePrice: true,
   thumbnailUrl: true,
+  gallery: true,
   createdAt: true,
   category: { select: { name: true } },
   _count: { select: { parameters: true } },
@@ -88,6 +90,7 @@ function toRailProduct(
     slug: string;
     basePrice: unknown;
     thumbnailUrl: string | null;
+    gallery: unknown;
     createdAt: Date;
     category: { name: string };
     _count: { parameters: number };
@@ -103,6 +106,7 @@ function toRailProduct(
     basePrice: Number(p.basePrice),
     compareAtPrice: compareAt,
     thumbnailUrl: p.thumbnailUrl,
+    hoverImageUrl: secondImageOf(p.thumbnailUrl, p.gallery),
     category: p.category,
     isNew: markNew && p.createdAt.getTime() > cutoff,
     isCustomizable: p._count.parameters > 0,

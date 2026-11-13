@@ -13,6 +13,7 @@ import {
 import { AddToCartButton } from "@/components/product/AddToCartButton";
 import { ProductExperience } from "@/components/product/ProductExperience";
 import { ProductGrid } from "@/components/product/ProductGrid";
+import { readGallery, secondImageOf } from "@/lib/gallery";
 import { ProductARButton } from "@/components/ar/ProductARButton";
 import { ProductReviews } from "@/components/product/ProductReviews";
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
@@ -103,11 +104,6 @@ async function getProduct(slug: string) {
 }
 
 /** gallery alanı Json — yalnızca string dizisi olduğunda kullanılır */
-function readGallery(gallery: unknown): string[] {
-  if (!Array.isArray(gallery)) return [];
-  return gallery.filter((g): g is string => typeof g === "string" && g.length > 0);
-}
-
 async function getRelated(categoryId: string, parentId: string | null, excludeId: string) {
   try {
     // Aynı ana kategorinin ailesi: kendi alt kategorisi önce, sonra kardeşleri
@@ -126,12 +122,17 @@ async function getRelated(categoryId: string, parentId: string | null, excludeId
         slug: true,
         basePrice: true,
         thumbnailUrl: true,
+        gallery: true,
         featured: true,
         category: { select: { name: true, slug: true } },
         _count: { select: { reviews: true, parameters: true } },
       },
     });
-    return rows.map((p) => ({ ...p, basePrice: Number(p.basePrice) }));
+    return rows.map(({ gallery, ...p }) => ({
+      ...p,
+      basePrice: Number(p.basePrice),
+      hoverImageUrl: secondImageOf(p.thumbnailUrl, gallery),
+    }));
   } catch {
     return [];
   }

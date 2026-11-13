@@ -2,23 +2,23 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { Badge } from "@/components/ui/badge";
 import { WishlistButton } from "./WishlistButton";
 import { useCartStore } from "@/store/cartStore";
 import { Check, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ProductImageFallback } from "./ProductImageFallback";
+import { ProductCardImage } from "./ProductCardImage";
+import { PixelArrow, PixelTag } from "@/components/home/PixelMoreButton";
 import { getPriceInfo, formatPrice } from "@/lib/pricing";
 import { formatCmValue } from "@/lib/units";
 import { CardSizeControls, type KartParametre } from "./CardSizeControls";
 
 // ==========================================
-// ÜRÜN KARTI
-// Görsel kartın çoğunu kaplar; çerçeve yok, bilgi
-// görselin altında sabit durur. Hover'da yalnızca
-// görsel yakınlaşır ve hızlı eylem çubuğu belirir.
+// ÜRÜN KARTI — PİKSEL ÇERÇEVE
+// Kategoriler ve ana sayfa raflarıyla aynı dil: basamaklı
+// köşeli piksel çerçeve, kesik çizgili alt şerit, piksel
+// etiketler. Üzerine gelince kart sert gölgesiyle kalkar,
+// ürünün ikinci görseli alttan yukarı basılarak belirir ve
+// hızlı eylem düğmesi görünür.
 // Ölçüsü değişen ürünlerde kaydırıcı kartın altında
 // durur: ölçü burada seçilir, sepete o ölçüyle girer.
 // Önceden ayrı bir "Yapılandır" sayfasına gitmek
@@ -34,6 +34,8 @@ export interface ProductCardProduct {
   /** Üstü çizili eski fiyat — indirim yoksa null */
   compareAtPrice?: number | null;
   thumbnailUrl: string | null;
+  /** Üzerine gelince alttan yukarı basılan ikinci görsel (galeriden) */
+  hoverImageUrl?: string | null;
   featured?: boolean;
   category: { name: string; slug: string };
   averageRating?: number;
@@ -56,14 +58,11 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, index = 0, priority = false }: ProductCardProps) {
-  const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
-  const [imgError, setImgError] = useState(false);
   const [added, setAdded] = useState(false);
 
   const customizable =
     product.isCustomizable ?? (product._count?.parameters ?? 0) > 0;
-  const showImage = product.thumbnailUrl && !imgError;
   const priceInfo = getPriceInfo(product.basePrice, product.compareAtPrice);
   // Kaydırıcı çekildiğinde fiyat ve seçilen ölçü burada tutulur;
   // sepete eklenen de bu olur.
@@ -118,70 +117,49 @@ export function ProductCard({ product, index = 0, priority = false }: ProductCar
 
   return (
     <article
-      className="group adjy-rise"
+      data-lift
+      className="adjy-pixel-card group adjy-rise relative flex h-full flex-col"
       style={{ animationDelay: `${Math.min(index, 7) * 55}ms` }}
     >
-      <Link href={`/products/${product.slug}`} className="block">
+      <Link href={`/products/${product.slug}`} className="flex flex-1 flex-col">
         {/* Görsel */}
         <div className="relative aspect-square overflow-hidden bg-surface-2">
-          {showImage ? (
-            <Image
-              src={product.thumbnailUrl as string}
-              alt={product.name}
-              fill
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              priority={priority}
-              onError={() => setImgError(true)}
-              className="adjy-zoom object-cover"
-            />
-          ) : (
-            <ProductImageFallback slug={product.slug} />
-          )}
+          <ProductCardImage
+            slug={product.slug}
+            name={product.name}
+            src={product.thumbnailUrl}
+            hoverSrc={product.hoverImageUrl}
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            priority={priority}
+          />
 
           {/* Rozetler */}
-          <div className="pointer-events-none absolute left-3 top-3 flex flex-col items-start gap-1.5">
-            {product.featured && (
-              <Badge variant="tech" className="bg-background/90 backdrop-blur-sm">
-                Öne çıkan
-              </Badge>
-            )}
-            {customizable && (
-              <Badge variant="customizable" className="bg-background/90 backdrop-blur-sm">
-                Özelleştirilebilir
-              </Badge>
-            )}
-            {priceInfo.hasDiscount && (
-              <Badge variant="tech" className="bg-background/90 backdrop-blur-sm">
-                %{priceInfo.percent}
-              </Badge>
-            )}
-          </div>
-
-          {/* Favori */}
-          <div className="absolute right-2 top-2 z-10 opacity-100 transition-opacity duration-200 md:opacity-0 md:group-focus-within:opacity-100 md:group-hover:opacity-100">
-            <WishlistButton productId={product.id} />
+          <div className="pointer-events-none absolute left-3 top-3 flex flex-col items-start gap-2">
+            {product.featured && <PixelTag>Öne çıkan</PixelTag>}
+            {customizable && <PixelTag>Özel ölçü</PixelTag>}
+            {priceInfo.hasDiscount && <PixelTag>%{priceInfo.percent}</PixelTag>}
           </div>
 
           {/* Hızlı eylem — masaüstünde hover, mobilde gizli (karta dokunmak ürüne gider) */}
-          <div className="absolute inset-x-2 bottom-2 hidden translate-y-1.5 opacity-0 transition-all duration-200 group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:translate-y-0 group-hover:opacity-100 md:block">
+          <div className="absolute inset-x-3 bottom-3 z-10 hidden opacity-0 transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100 md:block">
             <button
               type="button"
               onClick={handleQuickAction}
               className={cn(
-                "flex h-10 w-full items-center justify-center gap-2 rounded-sm text-sm font-medium transition-colors",
+                "adjy-pixel-box flex h-9 w-full items-center justify-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors",
                 added
-                  ? "bg-brand-lime/15 text-brand-lime"
-                  : "bg-background/95 text-foreground backdrop-blur-sm hover:bg-background"
+                  ? "bg-foreground text-background"
+                  : "bg-background text-foreground hover:bg-foreground hover:text-background"
               )}
             >
               {added ? (
                 <>
-                  <Check className="h-4 w-4" aria-hidden />
+                  <Check className="h-3.5 w-3.5" aria-hidden />
                   Sepete eklendi
                 </>
               ) : (
                 <>
-                  <Plus className="h-4 w-4" aria-hidden />
+                  <Plus className="h-3.5 w-3.5" aria-hidden />
                   {/* Ölçüsü değişen üründe de buradan eklenir:
                       kaydırıcıda seçilen ölçüyle. */}
                   {customizable ? "Bu ölçüde ekle" : "Hızlı ekle"}
@@ -191,27 +169,33 @@ export function ProductCard({ product, index = 0, priority = false }: ProductCar
           </div>
         </div>
 
-        {/* Bilgi */}
-        <div className="pt-4">
-          <p className="adjy-eyebrow">{product.category.name}</p>
-          <h3 className="mt-2 text-[15px] font-medium leading-snug tracking-tight transition-colors group-hover:text-muted-foreground">
-            {product.name}
-          </h3>
-          <p className="mt-1.5 flex items-baseline gap-2 text-[15px] tabular-nums">
+        {/* Bilgi: kesik çizgili alt şerit */}
+        <div className="flex flex-1 flex-col border-t-2 border-dashed border-foreground/80 px-3.5 py-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="truncate font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                {product.category.name}
+              </p>
+              <h3 className="mt-1 text-[15px] font-semibold leading-snug">
+                {product.name}
+              </h3>
+            </div>
+            <PixelArrow className="mt-1 h-3.5 w-3.5 shrink-0 transition-transform duration-150 group-hover:translate-x-0.5" />
+          </div>
+          <p className="mt-1.5 flex flex-wrap items-baseline gap-x-2 font-mono text-xs tabular-nums">
             {customizable && (
               <span className="text-muted-foreground">Başlangıç</span>
             )}
-            <span className="font-medium">{formatPrice(price)}</span>
+            <span className="font-semibold">{formatPrice(price)}</span>
             {priceInfo.compareAt !== null && (
-              <span className="text-[13px] text-muted-foreground line-through">
+              <span className="text-muted-foreground line-through">
                 {formatPrice(priceInfo.compareAt)}
               </span>
             )}
           </p>
           {olcu && !(customizable && (product.parameters?.length ?? 0) > 0) && (
-            <p className="mt-1 text-[13px] tabular-nums text-muted-foreground">
+            <p className="mt-1 font-mono text-[11px] tabular-nums text-muted-foreground">
               {olcu}
-              {customizable && " · ölçüsü değişir"}
             </p>
           )}
 
@@ -224,6 +208,11 @@ export function ProductCard({ product, index = 0, priority = false }: ProductCar
           )}
         </div>
       </Link>
+
+      {/* Favori: bağlantının dışında, kartın sağ üstünde */}
+      <div className="absolute right-3 top-3 z-10 opacity-100 transition-opacity duration-200 md:opacity-0 md:group-focus-within:opacity-100 md:group-hover:opacity-100">
+        <WishlistButton productId={product.id} />
+      </div>
     </article>
   );
 }

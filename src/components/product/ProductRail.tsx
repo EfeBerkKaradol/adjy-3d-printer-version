@@ -1,19 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { WishlistButton } from "./WishlistButton";
-import { ProductImageFallback } from "./ProductImageFallback";
+import { ProductCardImage } from "./ProductCardImage";
 import { getPriceInfo, formatPrice } from "@/lib/pricing";
-import { PixelArrow, PixelMoreButton } from "@/components/home/PixelMoreButton";
+import { PixelArrow, PixelMoreButton, PixelTag } from "@/components/home/PixelMoreButton";
 
 // ==========================================
 // ANA SAYFA ÜRÜN RAFI — PİKSEL KARTLAR
 //
 // Kategoriler bölümüyle aynı dil: basamaklı köşeli piksel
 // çerçeve, kesik çizgili alt şerit, piksel ok. Üzerine gelince
-// kart sert gölgesiyle kalkar.
+// kart sert gölgesiyle kalkar ve ikinci görsel alttan yukarı basılır.
 //
 // Eskiden yatay kaydırmalı bir raydı; artık kategorilerle aynı
 // ızgara: masaüstünde tek sıra 4 kart, telefonda 2×2. Altındaki
@@ -27,6 +25,8 @@ export interface RailProduct {
   basePrice: number;
   compareAtPrice: number | null;
   thumbnailUrl: string | null;
+  /** Üzerine gelince alttan yukarı basılan ikinci görsel */
+  hoverImageUrl?: string | null;
   category: { name: string };
   isNew?: boolean;
   isCustomizable?: boolean;
@@ -40,41 +40,25 @@ interface ProductRailProps {
   limit?: number;
 }
 
-/** Piksel etiket: "YENİ", "%20" */
-function Etiket({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="adjy-pixel-box bg-background px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.1em]">
-      {children}
-    </span>
-  );
-}
-
 function RailCard({ product, priority }: { product: RailProduct; priority: boolean }) {
-  const [imgError, setImgError] = useState(false);
-  const showImage = product.thumbnailUrl && !imgError;
   const price = getPriceInfo(product.basePrice, product.compareAtPrice);
 
   return (
     <li className="relative">
       <Link href={`/products/${product.slug}`} className="adjy-pixel-card group flex h-full flex-col">
         <div className="relative aspect-square overflow-hidden bg-surface-2">
-          {showImage ? (
-            <Image
-              src={product.thumbnailUrl as string}
-              alt={product.name}
-              fill
-              sizes="(max-width: 1024px) 50vw, 25vw"
-              priority={priority}
-              onError={() => setImgError(true)}
-              className="adjy-zoom object-cover"
-            />
-          ) : (
-            <ProductImageFallback slug={product.slug} />
-          )}
+          <ProductCardImage
+            slug={product.slug}
+            name={product.name}
+            src={product.thumbnailUrl}
+            hoverSrc={product.hoverImageUrl}
+            sizes="(max-width: 1024px) 50vw, 25vw"
+            priority={priority}
+          />
 
           <div className="pointer-events-none absolute left-3 top-3 flex flex-col items-start gap-2">
-            {product.isNew && <Etiket>Yeni</Etiket>}
-            {price.hasDiscount && <Etiket>%{price.percent}</Etiket>}
+            {product.isNew && <PixelTag>Yeni</PixelTag>}
+            {price.hasDiscount && <PixelTag>%{price.percent}</PixelTag>}
           </div>
         </div>
 

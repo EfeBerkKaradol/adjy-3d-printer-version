@@ -9,7 +9,8 @@ import { SearchX } from "lucide-react";
 // ==========================================
 // ÜRÜN GRİDİ
 // Masaüstü 4, tablet 3, küçük tablet 2, telefon 2 sütun.
-// Kartlar arasında sadece boşluk var — çerçeve yok.
+// Kartlar piksel çerçeveli (ProductCard); aralık çerçevenin
+// sert gölgesine yer bırakacak kadar.
 // ==========================================
 
 interface ProductGridProps {
@@ -22,18 +23,20 @@ interface ProductGridProps {
 export function ProductGrid({ products, isLoading, columns = 4 }: ProductGridProps) {
   const gridClass =
     columns === 3
-      ? "grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 lg:grid-cols-3"
-      : "grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-3 xl:grid-cols-4";
+      ? "grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3"
+      : "grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 xl:grid-cols-4";
 
   if (isLoading) {
     return (
       <div className={gridClass}>
         {Array.from({ length: columns === 3 ? 6 : 8 }).map((_, i) => (
-          <div key={i}>
+          <div key={i} className="adjy-pixel-card">
             <Skeleton className="aspect-square rounded-none" />
-            <Skeleton className="mt-4 h-3 w-1/3" />
-            <Skeleton className="mt-2.5 h-4 w-3/4" />
-            <Skeleton className="mt-2 h-4 w-1/4" />
+            <div className="border-t-2 border-dashed border-foreground/30 px-3.5 py-3">
+              <Skeleton className="h-3 w-1/3" />
+              <Skeleton className="mt-2.5 h-4 w-3/4" />
+              <Skeleton className="mt-2 h-4 w-1/4" />
+            </div>
           </div>
         ))}
       </div>
@@ -42,7 +45,7 @@ export function ProductGrid({ products, isLoading, columns = 4 }: ProductGridPro
 
   if (products.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center border border-dashed border-border px-6 py-20 text-center">
+      <div className="adjy-pixel-box flex flex-col items-center justify-center px-6 py-20 text-center">
         <SearchX className="mb-4 h-7 w-7 text-muted-foreground" aria-hidden />
         <h3 className="text-base font-medium">Ürün bulunamadı</h3>
         <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
