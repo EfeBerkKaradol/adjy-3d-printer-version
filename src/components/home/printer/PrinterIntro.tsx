@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, ChevronDown, Upload } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { PixelPrinter, type PrinterTick } from "./PixelPrinter";
 import type { PrintItem } from "./catalog";
 
@@ -11,7 +11,8 @@ import type { PrintItem } from "./catalog";
 // İLK KARŞILAMA — ATÖLYE
 //
 // Sağ altta piksel bir 3D yazıcı kataloğumuzdaki ürünleri sırayla
-// basıyor; solda başlık daktilo gibi yazılıyor. Aşağı kaydırıldıkça
+// basıyor, hemen altında küçük bir durum satırı (ürün, yüzde)
+// var; sol altta kısa başlık daktilo gibi yazılıyor. Aşağı kaydırıldıkça
 // yazıcı sağ alta doğru kayıp kaybolur, yazılar yukarı süzülür ve
 // sayfa mağazanın kendisine (HomeHero) geçer.
 //
@@ -156,20 +157,15 @@ export function PrinterIntro({ items }: Props) {
       aria-labelledby="atolye-baslik"
       className="relative overflow-hidden"
     >
-      <div className="adjy-container relative grid gap-2 pb-16 pt-6 sm:gap-6 sm:pt-8 lg:min-h-[calc(100svh-7rem)] lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-center lg:gap-10 lg:pb-20 lg:pt-6">
-        {/* ---------- sol: yazılar ---------- */}
+      <div className="adjy-container relative grid gap-8 pb-16 pt-6 sm:pt-8 lg:min-h-[calc(100svh-7rem)] lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-end lg:gap-10 lg:pb-20 lg:pt-6">
+        {/* ---------- sol alt: kısa yazı ---------- */}
         <motion.div
           style={reduce ? undefined : { y: textY, opacity: textOpacity }}
-          className="relative z-10 max-w-xl"
+          className="relative z-10 max-w-md lg:self-end lg:pb-4"
         >
-          <p className="adjy-eyebrow mb-5 flex items-center gap-2">
-            <span className="inline-block h-1.5 w-1.5 bg-emerald-500" aria-hidden />
-            ADJY Atölye · Kendi üretimimiz
-          </p>
-
           <h1
             id="atolye-baslik"
-            className="adjy-display text-[clamp(2.4rem,6.2vw,4.6rem)] leading-[1.0]"
+            className="adjy-display text-[clamp(2rem,4.4vw,3.4rem)] leading-[1.02]"
           >
             <span className="sr-only">{BASLIK.join(" ")}</span>
             <span aria-hidden>
@@ -188,61 +184,19 @@ export function PrinterIntro({ items }: Props) {
             </span>
           </h1>
 
-          <p className="mt-6 hidden max-w-md text-base leading-relaxed text-muted-foreground sm:block">
-            Vazodan gece lambasına, biblodan saksıya; her parça kendi
-            atölyemizde, siparişe göre ve çoğu istediğiniz ölçüde üretiliyor.
-          </p>
-
-          {/* Yazıcıda şu an ne var */}
-          {item && (
-            <div className="mt-6 inline-flex sm:mt-7 max-w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-border/70 bg-background/60 px-3.5 py-2.5 font-mono text-xs backdrop-blur-sm">
-              <span className="flex items-center gap-2 uppercase tracking-[0.14em] text-muted-foreground">
-                <span className="relative flex h-2 w-2" aria-hidden>
-                  {!reduce && (
-                    <span className="absolute inline-flex h-full w-full animate-ping bg-emerald-500/70" />
-                  )}
-                  <span className="relative inline-flex h-2 w-2 bg-emerald-500" />
-                </span>
-                Şu an baskıda
-              </span>
-              <Link
-                href={item.href}
-                className="font-semibold text-foreground underline-offset-4 hover:underline"
-              >
-                <span className="sr-only">{item.name}</span>
-                <span aria-hidden>
-                  <TypedLine text={item.name} shown={adYazilan} caret={false} />
-                </span>
-              </Link>
-              <span ref={pctRef} className="tabular-nums text-muted-foreground" aria-hidden>
-                ısınıyor…
-              </span>
-              {item.price && (
-                <span className="tabular-nums text-muted-foreground">· {item.price}</span>
-              )}
-            </div>
-          )}
-
-          <div className="mt-6 flex flex-wrap items-center gap-2.5 sm:mt-8 sm:gap-3">
-            <Link
-              href="/products"
-              className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm sm:px-7 sm:py-3.5 font-medium text-background transition-opacity hover:opacity-90"
-            >
-              Ürünleri keşfet
-              <ArrowRight className="h-4 w-4" aria-hidden />
-            </Link>
-            <Link
-              href="/uret"
-              className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-3 text-sm sm:px-7 sm:py-3.5 font-medium transition-colors hover:bg-muted"
-            >
-              <Upload className="h-4 w-4" aria-hidden />
-              <span className="hidden sm:inline">Kendi modelini bastır</span>
-              <span className="sm:hidden">Modelini bastır</span>
-            </Link>
-          </div>
+          <Link
+            href="/products"
+            className="group mt-5 inline-flex items-center gap-2 border-b border-foreground pb-1 text-sm font-medium transition-colors hover:border-muted-foreground hover:text-muted-foreground"
+          >
+            Ürünleri keşfet
+            <ArrowRight
+              className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
+              aria-hidden
+            />
+          </Link>
         </motion.div>
 
-        {/* ---------- sağ alt: yazıcı ---------- */}
+        {/* ---------- sağ alt: yazıcı ve altında küçük durum satırı ---------- */}
         <motion.div
           style={
             reduce
@@ -255,7 +209,7 @@ export function PrinterIntro({ items }: Props) {
                   opacity: printerOpacity,
                 }
           }
-          className="relative justify-self-end lg:self-end"
+          className="relative flex flex-col items-center justify-self-end lg:self-end"
         >
           {/* Arka plandaki piksel ızgara */}
           <div
@@ -269,6 +223,39 @@ export function PrinterIntro({ items }: Props) {
             onTick={onTick}
             className="relative block h-auto w-[312px] md:w-[416px] xl:w-[520px]"
           />
+
+          {/* Yazıcıda şu an ne var — küçük, yazıcının hemen altında */}
+          {item && (
+            <div className="relative mt-2 inline-flex max-w-full items-center gap-2 whitespace-nowrap rounded-full border border-border/70 bg-background/70 px-3 py-1 font-mono text-[10.5px] backdrop-blur-sm">
+              <span className="relative flex h-1.5 w-1.5" aria-hidden>
+                {!reduce && (
+                  <span className="absolute inline-flex h-full w-full animate-ping bg-emerald-500/70" />
+                )}
+                <span className="relative inline-flex h-1.5 w-1.5 bg-emerald-500" />
+              </span>
+              <Link
+                href={item.href}
+                className="font-semibold text-foreground underline-offset-4 hover:underline"
+              >
+                <span className="sr-only">Şu an baskıda: {item.name}</span>
+                <span aria-hidden>
+                  <TypedLine text={item.name} shown={adYazilan} caret={false} />
+                </span>
+              </Link>
+              <span
+                ref={pctRef}
+                className="min-w-[4.5em] tabular-nums text-muted-foreground"
+                aria-hidden
+              >
+                ısınıyor…
+              </span>
+              {item.price && (
+                <span className="hidden tabular-nums text-muted-foreground sm:inline">
+                  · {item.price}
+                </span>
+              )}
+            </div>
+          )}
         </motion.div>
       </div>
 
