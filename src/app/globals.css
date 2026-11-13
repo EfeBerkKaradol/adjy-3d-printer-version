@@ -428,3 +428,58 @@
     justify-content: center;
   }
 }
+
+/* ==========================================
+   DOCK NAVİGATÖR — BUZLU CAM
+   macOS Dock'u ve iPhone'daki klasör / ikon
+   arka planları gibi: saydam ama yarı buzlu.
+   Arkadan geçen içerik bulanık ve biraz daha
+   doygun görünür; üst kenardaki ince ışık
+   çizgisi camın kalınlığını verir.
+   ========================================== */
+.adjy-glass {
+  background: rgb(255 255 255 / 0.26);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgb(255 255 255 / 0.55);
+  box-shadow:
+    0 10px 40px -12px rgb(0 0 0 / 0.18),
+    0 2px 6px -2px rgb(0 0 0 / 0.06),
+    inset 0 1px 0 rgb(255 255 255 / 0.75),
+    inset 0 -1px 0 rgb(0 0 0 / 0.04);
+}
+.dark .adjy-glass {
+  background: rgb(38 38 44 / 0.34);
+  border-color: rgb(255 255 255 / 0.1);
+  box-shadow:
+    0 12px 44px -12px rgb(0 0 0 / 0.6),
+    0 2px 6px -2px rgb(0 0 0 / 0.3),
+    inset 0 1px 0 rgb(255 255 255 / 0.1),
+    inset 0 -1px 0 rgb(0 0 0 / 0.25);
+}
+
+/* Dock içindeki karo — iOS ikon zemini gibi: camın
+   üstünde bir kat daha buzlu, köşeleri yumuşak */
+.adjy-glass-tile {
+  background: rgb(255 255 255 / 0.45);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  backdrop-filter: blur(12px) saturate(160%);
+  border: 1px solid rgb(255 255 255 / 0.5);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.05),
+    inset 0 1px 0 rgb(255 255 255 / 0.7);
+}
+.dark .adjy-glass-tile {
+  background: rgb(255 255 255 / 0.07);
+  border-color: rgb(255 255 255 / 0.09);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.3),
+    inset 0 1px 0 rgb(255 255 255 / 0.08);
+}
+
+/* Bulanıklığı desteklemeyen tarayıcılarda cam okunaksız
+   kalmasın: zemini koyulaştır */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .adjy-glass { background: rgb(255 255 255 / 0.92); }
+  .dark .adjy-glass { background: rgb(30 30 36 / 0.94); }
+}
