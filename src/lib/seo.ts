@@ -149,3 +149,38 @@ export function productKeywords(p: ProductSeoInput): string[] {
 
   return [...out];
 }
+
+/**
+ * Basit içerik sayfaları için metadata.
+ *
+ * Sayfa yalnızca title/description verdiğinde Next.js paylaşım
+ * kartını (openGraph/twitter) kök layout'tan alıyordu: yasal
+ * sayfalar WhatsApp'ta, Instagram'da ana sayfa başlığıyla
+ * görünüyordu. Bu yardımcı ikisini sayfanın kendi başlığıyla
+ * doldurur ve kanonik adresi ekler.
+ */
+export function pageMetadata(input: {
+  title: string;
+  description: string;
+  path: string;
+}) {
+  const fullTitle = `${input.title} | ADJY`;
+  return {
+    title: input.title,
+    description: input.description,
+    alternates: { canonical: input.path },
+    openGraph: {
+      type: "website" as const,
+      locale: "tr_TR",
+      siteName: "ADJY",
+      url: input.path,
+      title: fullTitle,
+      description: input.description,
+    },
+    twitter: {
+      card: "summary_large_image" as const,
+      title: fullTitle,
+      description: input.description,
+    },
+  };
+}

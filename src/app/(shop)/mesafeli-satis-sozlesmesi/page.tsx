@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { LegalPage, LegalNote } from "@/components/legal/LegalPage";
 import { COMPANY, formatAddress, sellerName } from "@/lib/company";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Mesafeli Satış Sözleşmesi",
-  description: "ADJY mesafeli satış sözleşmesi. Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği kapsamında düzenlenmiştir.",
-};
+  description:
+    "ADJY mesafeli satış sözleşmesi. Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği kapsamında düzenlenmiştir.",
+  path: "/mesafeli-satis-sozlesmesi",
+});
 
 export default function MesafeliSatisSozlesmesiPage() {
   return (

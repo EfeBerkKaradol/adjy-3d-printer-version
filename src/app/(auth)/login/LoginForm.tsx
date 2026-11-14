@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, getProviders } from "next-auth/react";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 
 export default function LoginClient() {
@@ -41,13 +41,41 @@ function GoogleIcon() {
   );
 }
 
+function authErrorMessage(code: string): string {
+  switch (code) {
+    case "OAuthAccountNotLinked":
+      return "Bu e-posta başka bir giriş yöntemiyle kayıtlı. E-posta ve şifrenizle giriş yapın.";
+    case "AccessDenied":
+      return "Google girişine izin verilmedi.";
+    case "Configuration":
+      return "Google ile giriş şu anda kullanılamıyor. E-posta ve şifrenizle giriş yapabilirsiniz.";
+    case "CredentialsSignin":
+      return "E-posta veya şifre hatalı";
+    default:
+      return "Giriş tamamlanamadı, lütfen tekrar deneyin.";
+  }
+}
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
-  const [serverError, setServerError] = useState<string | null>(null);
+  // Google girişi başarısız olunca Auth.js buraya ?error=… ile
+  // döner. Eskiden bu okunmuyordu: müşteri sessizce giriş
+  // sayfasına geri düşüyor, ne olduğunu anlamıyordu.
+  const authError = searchParams.get("error");
+  const [serverError, setServerError] = useState<string | null>(
+    authError ? authErrorMessage(authError) : null
+  );
   const [showPassword, setShowPassword] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  // Google düğmesi yalnızca sunucuda Google girişi açıksa görünür
+  const [googleEnabled, setGoogleEnabled] = useState(false);
+  useEffect(() => {
+    getProviders()
+      .then((p) => setGoogleEnabled(Boolean(p?.google)))
+      .catch(() => setGoogleEnabled(false));
+  }, []);
 
   const {
     register,
@@ -165,38 +193,42 @@ function LoginForm() {
               )}
             </Button>
 
-            <div className="relative w-full">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t-2 border-dashed border-foreground/25" />
+            {googleEnabled && (
+              <>
+              <div className="relative w-full">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t-2 border-dashed border-foreground/25" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">veya</span>
+                </div>
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">veya</span>
-              </div>
-            </div>
 
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full gap-2"
-              disabled={isSubmitting || googleLoading}
-              onClick={async () => {
-                setGoogleLoading(true);
-                setServerError(null);
-                try {
-                  await signIn("google", { callbackUrl });
-                } catch {
-                  setServerError("Google ile giriş sırasında bir hata oluştu");
-                  setGoogleLoading(false);
-                }
-              }}
-            >
-              {googleLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <GoogleIcon />
-              )}
-              Google ile Giriş Yap
-            </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full gap-2"
+                disabled={isSubmitting || googleLoading}
+                onClick={async () => {
+                  setGoogleLoading(true);
+                  setServerError(null);
+                  try {
+                    await signIn("google", { callbackUrl });
+                  } catch {
+                    setServerError("Google ile giriş sırasında bir hata oluştu");
+                    setGoogleLoading(false);
+                  }
+                }}
+              >
+                {googleLoading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <GoogleIcon />
+                )}
+                Google ile Giriş Yap
+              </Button>
+              </>
+            )}
 
             <p className="text-sm text-center text-muted-foreground">
               Hesabınız yok mu?{" "}

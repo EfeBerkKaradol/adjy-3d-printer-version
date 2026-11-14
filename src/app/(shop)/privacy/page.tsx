@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { LegalPage } from "@/components/legal/LegalPage";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Gizlilik Politikası",
-  description: "ADJY'nin hangi kişisel verileri topladığı, nasıl kullandığı ve nasıl koruduğu.",
-};
+  description:
+    "ADJY'nin hangi kişisel verileri topladığı, nasıl kullandığı ve nasıl koruduğu.",
+  path: "/privacy",
+});
 
 export default function PrivacyPage() {
   return (

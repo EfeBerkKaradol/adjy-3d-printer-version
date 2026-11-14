@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, getProviders } from "next-auth/react";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 
 // ==========================================
@@ -46,6 +46,13 @@ export default function RegisterPage() {
   const [serverError, setServerError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  // Google düğmesi yalnızca sunucuda Google girişi açıksa görünür
+  const [googleEnabled, setGoogleEnabled] = useState(false);
+  useEffect(() => {
+    getProviders()
+      .then((p) => setGoogleEnabled(Boolean(p?.google)))
+      .catch(() => setGoogleEnabled(false));
+  }, []);
 
   // ==========================================
   // React Hook Form kurulumu
@@ -213,38 +220,42 @@ export default function RegisterPage() {
               )}
             </Button>
 
-            <div className="relative w-full">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t-2 border-dashed border-foreground/25" />
+            {googleEnabled && (
+              <>
+              <div className="relative w-full">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t-2 border-dashed border-foreground/25" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">veya</span>
+                </div>
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">veya</span>
-              </div>
-            </div>
 
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full gap-2"
-              disabled={isSubmitting || googleLoading}
-              onClick={async () => {
-                setGoogleLoading(true);
-                setServerError(null);
-                try {
-                  await signIn("google", { callbackUrl: "/" });
-                } catch {
-                  setServerError("Google ile kayıt sırasında bir hata oluştu");
-                  setGoogleLoading(false);
-                }
-              }}
-            >
-              {googleLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <GoogleIcon />
-              )}
-              Google ile Devam Et
-            </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full gap-2"
+                disabled={isSubmitting || googleLoading}
+                onClick={async () => {
+                  setGoogleLoading(true);
+                  setServerError(null);
+                  try {
+                    await signIn("google", { callbackUrl: "/" });
+                  } catch {
+                    setServerError("Google ile kayıt sırasında bir hata oluştu");
+                    setGoogleLoading(false);
+                  }
+                }}
+              >
+                {googleLoading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <GoogleIcon />
+                )}
+                Google ile Devam Et
+              </Button>
+              </>
+            )}
 
             <p className="text-sm text-center text-muted-foreground">
               Zaten hesabınız var mı?{" "}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import {
   Accordion,
   AccordionContent,
@@ -22,12 +23,12 @@ import { PixelLink } from "@/components/ui/pixel-link";
 // üretim çalışıyor. Seramik ve alçıdan da hiç söz edilmiyordu.
 // ==========================================
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Sıkça Sorulan Sorular",
   description:
     "Ölçü değiştirme, 3D baskı, seramik ve alçı üretim, kargo, iade ve sipariş takibi hakkında merak edilenler.",
-  alternates: { canonical: "/faq" },
-};
+  path: "/faq",
+});
 
 const FAQ: FaqEntry[] = [
   {

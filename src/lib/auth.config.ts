@@ -7,7 +7,9 @@ export const authConfig = {
   session: { strategy: "jwt" as const },
   pages: {
     signIn: "/login",
-    newUser: "/register",
+    // newUser: "/register" kaldırıldı — Google ile ilk kez giren
+    // müşteri, hesabı açılmış olduğu hâlde kayıt formuna
+    // düşüyordu. Artık geldiği sayfaya (callbackUrl) döner.
     error: "/login",
   },
   callbacks: {
