@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { PixelLink } from "@/components/ui/pixel-link";
 import { prisma } from "@/lib/db";
 import { AboutOpening, type AcilisGorsel } from "@/components/home/AboutOpening";
 import { ConfiguratorShowcase } from "@/components/home/ConfiguratorShowcase";
@@ -291,19 +290,10 @@ export default async function AboutPage() {
             </div>
 
             <div className="mt-9 flex flex-wrap gap-3">
-              <Link
-                href="/products"
-                className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background transition-opacity hover:opacity-90"
-              >
+              <PixelLink href="/products" variant="solid">
                 Ürünleri görün
-                <ArrowRight className="h-4 w-4" aria-hidden />
-              </Link>
-              <Link
-                href="/contact"
-                className="inline-flex items-center gap-2 rounded-full adjy-pixel-frame px-6 py-3 text-sm font-medium transition-colors hover:bg-muted"
-              >
-                Bize yazın
-              </Link>
+              </PixelLink>
+              <PixelLink href="/contact">Bize yazın</PixelLink>
             </div>
           </div>
         </div>
