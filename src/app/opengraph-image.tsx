@@ -47,15 +47,20 @@ export default function OpengraphImage() {
           >
             ADJY
           </div>
+          {/* Logodaki parametre kaydırıcısı: dolu ray, boş ray, topuz */}
           <div
             style={{
-              marginTop: 18,
-              height: 1,
+              marginTop: 16,
+              height: 12,
               width: 132,
-              background: FOREGROUND,
+              position: "relative",
               display: "flex",
             }}
-          />
+          >
+            <div style={{ position: "absolute", left: 0, right: 0, top: 5, height: 2, background: BORDER, display: "flex" }} />
+            <div style={{ position: "absolute", left: 0, top: 4.5, height: 3, width: 100, background: FOREGROUND, display: "flex" }} />
+            <div style={{ position: "absolute", left: 94, top: 0, height: 12, width: 12, borderRadius: 6, background: FOREGROUND, display: "flex" }} />
+          </div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
