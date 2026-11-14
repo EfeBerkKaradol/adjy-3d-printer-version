@@ -128,3 +128,20 @@ export async function tumTasarimUrunleri(): Promise<Map<string, string>> {
   }
   return sonuc;
 }
+
+let hazirlik: Promise<void> | null = null;
+
+/**
+ * Mağaza listesi için: araçların ürün satırlarını sunucu başına bir
+ * kez hazırlar. Biri /tasarla'ya hiç girmeden mağazaya gelse de
+ * parametrik ürünler listede görünür. Bir satır açılamadıysa
+ * (ör. veritabanına ulaşılamadı) sonraki istekte yeniden denenir.
+ */
+export function tasarimUrunleriniHazirla(): Promise<void> {
+  if (!hazirlik) {
+    hazirlik = tumTasarimUrunleri().then((sonuc) => {
+      if (sonuc.size < TASARIM_ARACLARI.length) hazirlik = null;
+    });
+  }
+  return hazirlik;
+}

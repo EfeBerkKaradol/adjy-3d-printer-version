@@ -134,9 +134,10 @@ export const MAIN_NAV: NavLink[] = [
       { label: "Banyo", href: "/mobilya/banyo" },
       { label: "Dekoratif Raf", href: "/mobilya/dekoratif-raf" },
       { label: "Basit Şekiller", href: "/mobilya/basit-sekiller" },
+      { label: "Oda ve Mobilya Maketi", href: "/tasarla/moduler-dolap" },
     ],
     menu: {
-      width: 460,
+      width: 640,
       groups: [
         {
           title: "Odalar",
@@ -156,6 +157,16 @@ export const MAIN_NAV: NavLink[] = [
             { label: "Genç Odası", href: "/mobilya/genc-odasi" },
             { label: "Dekoratif Raf", href: "/mobilya/dekoratif-raf" },
             { label: "Basit Şekiller", href: "/mobilya/basit-sekiller" },
+          ],
+        },
+        {
+          title: "Maket",
+          links: [
+            {
+              // Kendin Tasarla aracı: odanın ölçekli maketi
+              label: "Oda ve Mobilya Maketi",
+              href: "/tasarla/moduler-dolap",
+            },
           ],
         },
       ],

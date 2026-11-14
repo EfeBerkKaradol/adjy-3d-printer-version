@@ -1,12 +1,7 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
-import { TASARIM_ARACLARI, aracAdresi, aracGorseli } from "@/lib/tasarim/catalog";
-import { tasarimBaslangicFiyati } from "@/lib/tasarim/pricing";
+import { TASARIM_ARACLARI } from "@/lib/tasarim/catalog";
 import { tumTasarimUrunleri } from "@/lib/tasarim/ensure";
-import { resolvePublicImage } from "@/lib/publicAsset";
-import { ProductImageFallback } from "@/components/product/ProductImageFallback";
-import { formatTRY } from "@/lib/slicer";
+import { TasarimAracKartlari } from "@/components/tasarim/TasarimAracKartlari";
 
 // ==========================================
 // KENDİN TASARLA — GİRİŞ
@@ -68,60 +63,7 @@ export default async function TasarlaPage() {
       </section>
 
       <div className="adjy-container py-10 lg:py-14">
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {TASARIM_ARACLARI.map((a, i) => {
-            const gorsel = resolvePublicImage(aracGorseli(a.id));
-            return (
-              <li key={a.id}>
-                <Link
-                  href={aracAdresi(a.id)}
-                  className="group flex h-full flex-col overflow-hidden rounded-xl adjy-pixel-frame transition-colors hover:border-foreground/40"
-                >
-                  <div className="relative aspect-[4/3] overflow-hidden bg-surface-2">
-                    {gorsel ? (
-                      <Image
-                        src={gorsel}
-                        alt={a.ad}
-                        fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        priority={i < 3}
-                        className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                      />
-                    ) : (
-                      <ProductImageFallback slug={a.id} />
-                    )}
-                  </div>
-                  <div className="flex flex-1 flex-col p-4">
-                    <h2 className="text-base font-medium leading-snug tracking-tight">
-                      {a.ad}
-                    </h2>
-                    <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                      {a.ozet}
-                    </p>
-                    <ul className="mt-3 flex flex-1 flex-wrap content-start gap-1.5">
-                      {a.ayarlar.map((ayar) => (
-                        <li
-                          key={ayar}
-                          className="rounded-full bg-muted px-2.5 py-1 text-[11px] text-muted-foreground"
-                        >
-                          {ayar}
-                        </li>
-                      ))}
-                    </ul>
-                    <p className="mt-4 flex items-baseline justify-between gap-3">
-                      <span className="text-base font-medium tabular-nums">
-                        {formatTRY(tasarimBaslangicFiyati(a))}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        varsayılan ölçüde
-                      </span>
-                    </p>
-                  </div>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        <TasarimAracKartlari araclar={TASARIM_ARACLARI} />
       </div>
 
       <section className="border-t-2 border-dashed border-foreground/25">

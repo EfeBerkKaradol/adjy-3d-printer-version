@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { MODELLER } from "@/lib/furniture/catalog";
 import { OdaDuzeni } from "@/components/furniture/OdaDuzeni";
+import { bolumAraclari } from "@/lib/tasarim/catalog";
+import { TasarimAracKartlari } from "@/components/tasarim/TasarimAracKartlari";
 
 // ==========================================
 // MOBİLYA — GİRİŞ
@@ -59,6 +61,28 @@ export default function MobilyaPage() {
         baslik="Bütün ürünler"
         aciklama={`${MODELLER.length} ürün tipi. Bir tanesini seçin, ölçüsünü kendi odanıza göre kurun; fiyat siz değiştirdikçe güncellensin.`}
       />
+
+      {/* Mobilyanın ölçekli maketi: Kendin Tasarla aracıyla kurulur,
+          mağazada ve Üret'te de aynı ürün olarak durur. */}
+      <section
+        className="border-t-2 border-dashed border-foreground/25"
+        aria-labelledby="mobilya-maket"
+      >
+        <div className="adjy-container py-12 lg:py-16">
+          <div className="mb-6 max-w-2xl">
+            <p className="adjy-eyebrow mb-3">Mobilya maketi</p>
+            <h2 id="mobilya-maket" className="text-2xl font-medium tracking-tight">
+              Mobilyayı önce elinizde görün.
+            </h2>
+            <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
+              Odanızı dolapları, tezgâhı ve sehpasıyla ölçekli maket olarak
+              kurun; her modül ayrı basılır ve odaya oturur. Mobilya planını
+              sunmak ya da karar vermeden önce görmek için.
+            </p>
+          </div>
+          <TasarimAracKartlari araclar={bolumAraclari("mobilya")} oncelikli={0} baslikEtiketi="h3" />
+        </div>
+      </section>
 
       <section className="border-t-2 border-dashed border-foreground/25">
         <div className="adjy-container py-12 lg:py-16">

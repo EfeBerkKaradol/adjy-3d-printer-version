@@ -40,6 +40,11 @@ export interface TasarimAraci {
   ayarlar: string[];
   /** Tercih sırasıyla mağaza kategorileri; hiçbiri yoksa ortak kategori */
   kategoriler: string[];
+  /**
+   * Mağaza ve Üret'in dışında ayrıca listelendiği bölümler.
+   * "mobilya": Mobilya sayfasında da gösterilir (oda ve mobilya maketi).
+   */
+  bolumler?: "mobilya"[];
   malzeme: string;
   /** Araçta malzeme seçimi yoksa: ürün sayfası "değiştirilebilir" demesin */
   malzemeSabit?: boolean;
@@ -327,6 +332,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       "Odanızın küçültülmüş hâli: duvarları, dolapları, tezgâhı ve sehpasıyla. Odayı seçin, ölçeği belirleyin, modülleri yerleştirip ölçülerini ayarlayın. Her dolap ayrı bir parça olarak basılır ve odaya oturur — mobilya planını elinizde tutarak görmek ya da bir projeyi sunmak için.",
     ayarlar: ["Oda tipi ve ölçek", "Dolap, tezgâh ve sehpa modülleri", "Modül ölçüleri ve yerleşimi", "Yüzey renkleri"],
     kategoriler: ["mimari-maket"],
+    bolumler: ["mobilya"],
     malzeme: "PLA",
     varsayilan: { kutleG: 288, sureSaat: 6.3 },
     sinir: { kutleG: [20, 3000], sureSaat: [0.5, 80] },
@@ -381,6 +387,11 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     anahtarKelimeler: ["çekmece organizeri", "ölçüye özel çekmece düzenleyici", "çekmece içi kutu", "duvar ızgarası", "askılı kutu"],
   },
 ];
+
+/** Belirli bir bölümde (ör. Mobilya) ayrıca listelenen araçlar */
+export function bolumAraclari(bolum: "mobilya"): TasarimAraci[] {
+  return TASARIM_ARACLARI.filter((a) => a.bolumler?.includes(bolum));
+}
 
 export function aracBul(id: string | null | undefined): TasarimAraci | null {
   if (!id) return null;

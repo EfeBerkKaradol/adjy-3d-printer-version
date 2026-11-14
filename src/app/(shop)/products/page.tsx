@@ -20,6 +20,15 @@ import {
   type CollectionTag,
 } from "@/lib/categoryTree";
 import type { FilterCategory } from "@/components/product/ProductFilters";
+import { tasarimUrunleriniHazirla } from "@/lib/tasarim/ensure";
+
+/**
+ * Parametrik ürün: ölçü parametresi olan ürün ya da bir tasarım
+ * aracıyla kurulan "Kendin Tasarla" ürünü (slug: tasarla-…).
+ */
+const PARAMETRIK = {
+  OR: [{ parameters: { some: {} } }, { slug: { startsWith: "tasarla-" } }],
+};
 
 // ==========================================
 // MAĞAZA (Server Component)
@@ -86,7 +95,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   if (params.featured === "true") where.featured = true;
   if (params.inStock === "true") where.stockQty = { gt: 0 };
   // Parametrik ürün = en az bir Parameter kaydı olan ürün
-  if (params.customizable === "true") where.parameters = { some: {} };
+  // ya da tasarım aracıyla kurulan ürün (bkz. PARAMETRIK)
+  if (params.customizable === "true") where.AND = [PARAMETRIK];
   // Malzeme filtresi aile bazlı çalışır: "seramik" seçildiğinde
   // o aileye giren bütün malzeme adları eşleşir. Tekil bir
   // malzeme adı verilirse (eski bağlantılar) o da çalışır.
@@ -114,6 +124,10 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   let failed = false;
 
   async function loadProducts() {
+    // Kendin Tasarla ürünlerinin satırları yoksa açılır ki mağazada
+    // her zaman görünsünler (sunucu başına bir kez çalışır).
+    await tasarimUrunleriniHazirla();
+
     // Aile filtresi için önce hangi malzemeler var, onu bilmek
     // gerekiyor: "seramik" seçimi, o aileye giren bütün malzeme
     // adlarına çevrilerek sorguya giriyor.
@@ -171,7 +185,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       }),
       prisma.product.count({ where }),
       prisma.product.count({
-        where: { isActive: true, parameters: { some: {} } },
+        where: { isActive: true, ...PARAMETRIK },
       }),
       loadCategoryTree(prisma),
       loadCollectionTags(prisma),

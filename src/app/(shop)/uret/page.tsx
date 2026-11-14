@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Camera, Upload } from "lucide-react";
+import { TASARIM_ARACLARI } from "@/lib/tasarim/catalog";
+import { tumTasarimUrunleri } from "@/lib/tasarim/ensure";
+import { TasarimAracKartlari } from "@/components/tasarim/TasarimAracKartlari";
 
 export const metadata: Metadata = {
   title: "Üret",
   description:
-    "Elindeki 3D modeli yükle ya da bir fotoğraftan yeni bir ürün oluştur. Ölçüyü sen belirle, ADJY üretsin.",
+    "Parametrik ürünlerimizi kendi ölçünde kur, elindeki 3D modeli yükle ya da bir fotoğraftan yeni bir ürün oluştur. Ölçüyü sen belirle, ADJY üretsin.",
   openGraph: {
     title: "Üret | ADJY Shopping",
     description:
@@ -16,10 +19,16 @@ export const metadata: Metadata = {
 // ==========================================
 // ÜRET
 //
-// Bu sayfa iki niyeti ayırır: elinde model olan yükler,
-// olmayan fotoğraftan başlar. İkisi de aynı yere çıkar —
-// ölçü, fiyat, üretim.
+// Üret, parametrik ürün altyapısının vitrini: mağazadaki
+// "Kendin Tasarla" ürünlerinin hepsi burada da listelenir ve
+// aynı tasarım aracına, aynı sepete, aynı üretim ekranına
+// bağlanır. Altında iki serbest başlangıç durur: elinde model
+// olan yükler, olmayan fotoğraftan başlar.
 // ==========================================
+
+// Ürün satırları ilk ziyarette açılır (ensure.ts);
+// derleme anında veritabanına yazılmasın.
+export const dynamic = "force-dynamic";
 
 const OPTIONS = [
   {
@@ -40,7 +49,11 @@ const OPTIONS = [
   },
 ] as const;
 
-export default function UretPage() {
+export default async function UretPage() {
+  // Araçların sepete bağlanacağı ürün satırları yoksa açılır —
+  // mağaza listesinde de görünmeleri buna bağlı.
+  await tumTasarimUrunleri();
+
   return (
     <div className="adjy-container adjy-section">
       <p className="adjy-eyebrow mb-5">ADJY Shopping</p>
@@ -48,10 +61,37 @@ export default function UretPage() {
         Fikrini ürüne dönüştür.
       </h1>
       <p className="mt-4 max-w-lg text-[15px] leading-relaxed text-muted-foreground">
-        Elindeki modeli yükle veya bir fotoğraftan yeni bir 3D ürün oluştur.
+        Parametrik ürünlerimizi kendi ölçünde kur, elindeki modeli yükle
+        ya da bir fotoğraftan yeni bir 3D ürün oluştur.
       </p>
 
-      <div className="mt-14 grid gap-px overflow-hidden rounded-lg adjy-pixel-frame bg-border md:grid-cols-2">
+      <section className="mt-14" aria-labelledby="uret-parametrik">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+          <div className="max-w-xl">
+            <p className="adjy-eyebrow mb-3">Kendin Tasarla</p>
+            <h2 id="uret-parametrik" className="text-2xl font-medium tracking-tight">
+              Parametrik ürünler
+            </h2>
+            <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
+              Her biri kendi tasarım aracıyla gelir: ölçüsünü ve ayrıntısını
+              sen kurarsın, fiyat anında güncellenir, sipariş verdiğinde model
+              atölyeye olduğu gibi ulaşır.
+            </p>
+          </div>
+          <Link
+            href="/tasarla"
+            className="inline-flex items-center gap-2 border-b border-foreground pb-1 text-sm font-medium"
+          >
+            Tümü
+            <ArrowRight className="h-4 w-4" aria-hidden />
+          </Link>
+        </div>
+        <TasarimAracKartlari araclar={TASARIM_ARACLARI} baslikEtiketi="h3" />
+      </section>
+
+      <h2 className="mt-16 text-2xl font-medium tracking-tight">Kendi fikrinden başla</h2>
+
+      <div className="mt-6 grid gap-px overflow-hidden rounded-lg adjy-pixel-frame bg-border md:grid-cols-2">
         {OPTIONS.map(({ href, eyebrow, title, body, cta, Icon }) => (
           <Link
             key={href}
