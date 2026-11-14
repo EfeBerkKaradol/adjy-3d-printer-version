@@ -18,6 +18,7 @@ import { SearchOverlay } from "./SearchOverlay";
 import { MobileNav } from "./MobileNav";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { Dock, DockItem } from "./Dock";
+import { Logo } from "./Logo";
 import { NavDropdown, useShopGroups } from "./NavDropdown";
 import { MAIN_NAV, type NavMenu } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
@@ -144,10 +145,10 @@ export function Header() {
           <DockItem max={1.18}>
             <Link
               href="/"
-              className="flex h-10 items-center rounded-[14px] px-3 font-[family-name:var(--font-orbitron)] text-lg font-extrabold tracking-[0.22em] transition-opacity hover:opacity-70 md:text-xl"
+              className="group/logo flex h-10 items-center rounded-[14px] px-3 text-lg md:text-xl"
               aria-label="ADJY ana sayfa"
             >
-              ADJY
+              <Logo />
             </Link>
           </DockItem>
 

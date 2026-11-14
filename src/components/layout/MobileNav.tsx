@@ -9,6 +9,7 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { ModeToggle } from "@/components/ui/mode-toggle";
+import { Logo } from "./Logo";
 import { MAIN_NAV, SECONDARY_NAV } from "@/lib/navigation";
 import { ArrowUpRight, LogOut, MapPin, Package, Shield, User } from "lucide-react";
 
@@ -38,8 +39,8 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
         className="adjy-nav flex w-full flex-col gap-0 border-l border-border bg-background p-0 sm:max-w-sm"
       >
         <div className="border-b border-border px-5 py-4">
-          <SheetTitle className="font-[family-name:var(--font-orbitron)] text-lg font-extrabold tracking-[0.22em]">
-            ADJY
+          <SheetTitle className="text-lg">
+            <Logo />
           </SheetTitle>
         </div>
         <SheetDescription className="sr-only">Site navigasyonu</SheetDescription>

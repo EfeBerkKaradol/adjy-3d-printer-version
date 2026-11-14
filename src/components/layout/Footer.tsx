@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { FOOTER_NAV } from "@/lib/navigation";
+import { Logo } from "./Logo";
 
 // ==========================================
 // FOOTER
@@ -16,9 +17,7 @@ export function Footer() {
         <div className="grid gap-12 lg:grid-cols-[1.4fr_3fr]">
           {/* Marka */}
           <div className="max-w-sm">
-            <span className="font-[family-name:var(--font-orbitron)] text-xl font-extrabold tracking-[0.22em]">
-              ADJY
-            </span>
+            <Logo className="text-xl" />
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
               Adaptive Design Joy. Kendi atölyemizde üretilen tasarım ürünleri:
               hazır alın, ölçüyü kendinize göre belirleyin ya da kendi modelinizi
