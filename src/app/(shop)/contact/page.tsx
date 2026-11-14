@@ -168,6 +168,15 @@ export default function ContactPage() {
           </p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="mt-7 space-y-5">
+            {/* Bot tuzağı — ekranda ve klavye sırasında yok */}
+            <input
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              className="absolute -left-[9999px] h-px w-px opacity-0"
+              {...register("website")}
+            />
             <div className="grid gap-5 sm:grid-cols-2">
               <div className="space-y-2">
                 <label htmlFor="contact-name" className="text-sm font-medium">

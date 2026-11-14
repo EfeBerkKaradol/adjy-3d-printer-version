@@ -17,7 +17,6 @@ import { parseAttachmentIds, getAttachmentPriceMap } from "@/lib/panelAttachment
 import { CUSTOM_PRINT_SLUG, isCustomPrintParams } from "@/lib/customPrint";
 import { estimatePrint, calculatePrintPrice } from "@/lib/slicer";
 import { ZodError } from "zod";
-import { sendOrderConfirmation } from "@/lib/email";
 import { invalidateCache, CACHE_KEYS } from "@/lib/cache";
 
 // ==========================================
@@ -103,15 +102,11 @@ export async function POST(request: NextRequest) {
     // e-postasını bilen herkes o hesaba sipariş iliştirebilirdi.
     // ==========================================
     let buyerId: string;
-    let buyerEmail: string;
-    let buyerName: string;
     let isGuest = false;
     let guestToken: string | null = null;
 
     if (session?.user?.id) {
       buyerId = session.user.id;
-      buyerEmail = session.user.email ?? "";
-      buyerName = session.user.name ?? "Müşteri";
     } else {
       const guest = validatedData.guest;
       if (!guest) {
@@ -146,8 +141,6 @@ export async function POST(request: NextRequest) {
         }));
 
       buyerId = buyer.id;
-      buyerEmail = email;
-      buyerName = guest.fullName.trim();
       isGuest = true;
       guestToken = randomUUID();
     }
@@ -325,12 +318,9 @@ export async function POST(request: NextRequest) {
               : Math.min(val, totalAmount);
             discountAmount = Math.round(discountAmount * 100) / 100;
             couponCode = coupon.code;
-
-            // usedCount artir
-            await tx.coupon.update({
-              where: { id: coupon.id },
-              data: { usedCount: { increment: 1 } },
-            });
+            // Kullanım sayısı burada artmıyor: ödeme onaylanınca
+            // (lib/paymentResult → markPaymentPaid) artar. Eskiden
+            // ödemesi yarım kalan her deneme bir hak harcıyordu.
           }
         }
       }
@@ -413,20 +403,10 @@ export async function POST(request: NextRequest) {
       return newOrder;
     });
 
-    // E-posta bildirimi gönder (async, response'u bekletmez)
-    if (buyerEmail) {
-      sendOrderConfirmation(
-        buyerEmail,
-        buyerName || "Müşteri",
-        orderNumber,
-        order.items.map((i) => ({
-          name: i.productName,
-          quantity: i.quantity,
-          price: Number(i.unitPrice),
-        })),
-        Number(order.grandTotal)
-      ).catch(() => { });
-    }
+    // "Siparişiniz alındı" e-postası artık ödeme onaylanınca
+    // gidiyor (lib/paymentResult → notifyOrderPaid). Eskiden
+    // burada, ödemeden önce gönderiliyordu: kartı reddedilen
+    // müşteri de "siparişiniz alındı" mesajı alıyordu.
 
     // Admin stats cache'ini invalidate et
     invalidateCache(CACHE_KEYS.ADMIN_STATS).catch(() => { });

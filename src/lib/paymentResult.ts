@@ -9,7 +9,9 @@
 // ==========================================
 
 import { prisma } from "@/lib/db";
-import { sendEmail } from "@/lib/email";
+import { sendEmail, sendOrderConfirmation } from "@/lib/email";
+import { COMPANY } from "@/lib/company";
+import { getAbsoluteUrl } from "@/lib/url";
 import { CUSTOM_PRINT_SLUG, isCustomPrintParams } from "@/lib/customPrint";
 import { LAYER_HEIGHTS } from "@/lib/slicer";
 import { tasarimSiparisiniBildir } from "@/lib/tasarim/bildirim";
@@ -74,6 +76,73 @@ export async function notifyCustomPrintItems(orderId: string) {
   });
 }
 
+// Yeni ödenmiş siparişin size bildirileceği adres.
+// ORDER_NOTIFY_EMAIL ayarlanmazsa iletişim e-postasına gider.
+const ORDER_NOTIFY_EMAIL = process.env.ORDER_NOTIFY_EMAIL || COMPANY.email;
+
+const escapeHtml = (v: unknown) =>
+  String(v ?? "").replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!
+  );
+
+/**
+ * Ödeme onaylanınca: müşteriye "siparişiniz alındı" e-postası,
+ * size "yeni sipariş" bildirimi. Eskiden müşteri e-postası
+ * sipariş oluşturulurken (ödemeden önce) gidiyordu, size ise
+ * yalnızca özel baskı siparişlerinde haber geliyordu.
+ */
+export async function notifyOrderPaid(orderId: string) {
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    include: {
+      user: { select: { fullName: true, email: true, phone: true } },
+      items: true,
+      address: true,
+    },
+  });
+  if (!order) return;
+
+  const items = order.items.map((i) => ({
+    name: i.productName,
+    quantity: i.quantity,
+    price: Number(i.unitPrice),
+  }));
+
+  if (order.user?.email) {
+    await sendOrderConfirmation(
+      order.user.email,
+      order.user.fullName || "Müşteri",
+      order.orderNumber,
+      items,
+      Number(order.grandTotal)
+    );
+  }
+
+  if (ORDER_NOTIFY_EMAIL) {
+    const rows = order.items
+      .map(
+        (i) =>
+          `<tr><td style="padding:4px 12px 4px 0;">${escapeHtml(i.productName)}</td><td style="padding:4px 12px 4px 0;">× ${i.quantity}</td><td style="text-align:right;">${Number(i.lineTotal).toFixed(2)} TL</td></tr>`
+      )
+      .join("");
+    const a = order.address;
+    await sendEmail({
+      to: ORDER_NOTIFY_EMAIL,
+      subject: `Yeni sipariş — ${order.orderNumber} — ${Number(order.grandTotal).toFixed(2)} TL`,
+      html: `
+        <h2>Yeni ödenmiş sipariş</h2>
+        <p>Sipariş No: <b>${escapeHtml(order.orderNumber)}</b>${order.isGuest ? " (misafir)" : ""}</p>
+        <p>Müşteri: <b>${escapeHtml(order.user?.fullName || "-")}</b> — ${escapeHtml(order.user?.email || "-")}${order.user?.phone ? ` — ${escapeHtml(order.user.phone)}` : ""}</p>
+        ${a ? `<p>Teslimat: ${escapeHtml(a.shippingLine1)}, ${escapeHtml(a.shippingState)}/${escapeHtml(a.shippingCity)}</p>` : ""}
+        <table style="font-size:14px;">${rows}</table>
+        <p>Kargo: ${Number(order.shippingCost).toFixed(2)} TL${Number(order.discountAmount) > 0 ? ` · İndirim: −${Number(order.discountAmount).toFixed(2)} TL (${escapeHtml(order.couponCode)})` : ""}</p>
+        <p><b>Toplam: ${Number(order.grandTotal).toFixed(2)} TL</b></p>
+        <p><a href="${getAbsoluteUrl()}/admin/orders/${order.id}">Siparişi panelde aç</a></p>
+      `,
+    });
+  }
+}
+
 export interface PaidResult {
   paymentId?: string | number;
   lastFourDigits?: string;
@@ -103,13 +172,23 @@ export async function markPaymentPaid(
       },
     });
 
-    await tx.order.update({
+    const order = await tx.order.update({
       where: { id: payment.orderId },
       data: {
         paymentStatus: "PAID",
         status: "CONFIRMED",
       },
+      select: { couponCode: true },
     });
+
+    // Kupon hakkı ödeme onaylanınca harcanır (sipariş
+    // oluşturulurken değil — yarım kalan ödemeler hak yemesin)
+    if (order.couponCode) {
+      await tx.coupon.updateMany({
+        where: { code: order.couponCode },
+        data: { usedCount: { increment: 1 } },
+      });
+    }
 
     await tx.orderHistory.create({
       data: {
@@ -128,6 +207,12 @@ export async function markPaymentPaid(
       },
     });
   });
+
+  try {
+    await notifyOrderPaid(payment.orderId);
+  } catch (emailErr) {
+    console.error("Sipariş e-postaları gönderilemedi:", emailErr);
+  }
 
   // Müşteri yüklemesi modeller varsa üretim e-postasına bildir
   try {

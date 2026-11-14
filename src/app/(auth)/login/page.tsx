@@ -1,6 +1,12 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import LoginClient from "./LoginForm";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Giriş Yap",
+  description: "ADJY hesabınıza giriş yapın.",
+};
 
 export default async function LoginPage({
   searchParams,

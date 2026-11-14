@@ -18,6 +18,18 @@ const SECRET_KEY = process.env.IYZICO_SECRET_KEY || "";
 const BASE_URL =
   process.env.IYZICO_BASE_URL || "https://sandbox-api.iyzipay.com";
 
+// Canlıda adres unutulursa ödemeler sessizce test ortamına
+// gidiyor ve hiçbiri gerçekten tahsil edilmiyordu. Günlüğe
+// açıkça yazılsın ki Vercel loglarında hemen görünsün.
+if (
+  process.env.VERCEL_ENV === "production" &&
+  !process.env.IYZICO_BASE_URL
+) {
+  console.error(
+    "UYARI: IYZICO_BASE_URL ayarlı değil — ödemeler iyzico TEST ortamına (sandbox) gidiyor. Canlı için https://api.iyzipay.com yazılmalı."
+  );
+}
+
 // ==========================================
 // Authorization Header Oluşturma (IYZWSv2)
 // ==========================================

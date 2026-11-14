@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { LegalPage, LegalNote } from "@/components/legal/LegalPage";
 import { COMPANY, formatAddress, sellerName } from "@/lib/company";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Ön Bilgilendirme Formu",
-  description: "ADJY ön bilgilendirme formu. Ürün, fiyat, teslimat ve cayma hakkına ilişkin bilgileri içerir.",
-};
+  description:
+    "ADJY ön bilgilendirme formu. Ürün, fiyat, teslimat ve cayma hakkına ilişkin bilgileri içerir.",
+  path: "/on-bilgilendirme",
+});
 
 export default function OnBilgilendirmePage() {
   return (
