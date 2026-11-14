@@ -13,6 +13,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import {
+  aracAdresi,
   aracGorseli,
   aracKaynagi,
   type TasarimAraci,
@@ -70,8 +71,9 @@ export function TasarimStudyo({ arac, urunId }: Props) {
   const [ekleniyor, setEkleniyor] = useState(false);
   const [eklendi, setEklendi] = useState(false);
   const [hata, setHata] = useState<string | null>(null);
-  // Araç sade açılır: birkaç temel ayar. Geri kalanı bu düğmeyle gelir.
-  const [tumAyarlar, setTumAyarlar] = useState(false);
+  // Buraya ürün sayfasından, özelleştirmek için gelinir: bütün ayarlar
+  // açık başlar. Kalabalık gelirse bu düğme temel ayarlara indirir.
+  const [tumAyarlar, setTumAyarlar] = useState(true);
   const [ayrintiVar, setAyrintiVar] = useState(false);
   const [eklenenOzet, setEklenenOzet] = useState<string | null>(null);
 
@@ -92,8 +94,12 @@ export function TasarimStudyo({ arac, urunId }: Props) {
       if (e.origin !== window.location.origin) return;
       if (!aracMesajiMi(e.data, arac.id)) return;
       if (e.data.tur === "hazir") {
+        const arayuz = aracArayuzu(cerceveRef.current);
+        // Köprü müşteri kipinde sade açılır; özelleştirme sayfasında
+        // bütün ayarlar istenir.
+        arayuz?.ayar("tum");
         setHazir(true);
-        setAyrintiVar(!!aracArayuzu(cerceveRef.current)?.gelismisVar);
+        setAyrintiVar(!!arayuz?.gelismisVar);
       }
       if (e.data.tur === "durum" && e.data.veri) {
         setPaket(e.data.veri);
@@ -174,11 +180,11 @@ export function TasarimStudyo({ arac, urunId }: Props) {
       {/* ---------- BAŞLIK ---------- */}
       <div className="flex items-center gap-3 border-b-2 border-dashed border-foreground/25 bg-background px-4 py-3 lg:px-6">
         <Link
-          href="/tasarla"
+          href={aracAdresi(arac.id)}
           className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-muted px-3 text-sm transition-colors hover:bg-accent"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden />
-          <span className="hidden sm:inline">Kendin Tasarla</span>
+          <span className="hidden sm:inline">Ürün sayfası</span>
         </Link>
         <div className="min-w-0">
           <h1 className="truncate text-base font-medium tracking-tight lg:text-lg">

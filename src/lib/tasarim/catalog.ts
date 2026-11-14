@@ -54,6 +54,10 @@ export interface TasarimAraci {
   /** Müşterinin dosya yüklemesi şart mı (litofanda fotoğraf) */
   dosyaGerekli?: { giris: string; uyari: string };
   teslim: string;
+  /** Ürün sayfasında öne çıkan üç özellik */
+  vurgular: { baslik: string; metin: string }[];
+  /** Ürün sayfasındaki görsellerin altyazıları — sayısı kadar görsel aranır */
+  gorseller: string[];
   ciktilar: TasarimCiktisi[];
   anahtarKelimeler: string[];
 }
@@ -87,6 +91,12 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     sinir: { kutleG: [60, 2500], sureSaat: [1, 45] },
     tabanFiyat: 350,
     teslim: "Sipariş sonrası üretilir, 3–5 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Bitkinize göre ölçü", metin: "Çapı 8 ile 22, yüksekliği 8 ile 24 santim arasında santim santim seçersiniz; saksı rafınıza ve bitkinizin köküne göre üretilir." },
+      { baslik: "Dokuyu siz kurarsınız", metin: "Dilim sayısı ve burgu açısı gövdenin karakterini belirler: düz yivli de olur, sarmal da." },
+      { baslik: "Kilitlenen alt tabak", metin: "Alt tabak gövdeye çevrilerek oturur ve fazla suyu tutar; saksıyı taşırken düşmez." },
+    ],
+    gorseller: ["Orta boy, pişmiş toprak","Sarmal doku, adaçayı yeşili","Yivli doku, kemik rengi","Büyük boy, antrasit"],
     ciktilar: [
       { ad: "Saksı STL", sec: "#btn-stl-planter", tur: "stl" },
       { ad: "Alt tabak STL", sec: "#btn-stl-tray", tur: "stl" },
@@ -111,6 +121,12 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ekMaliyetAciklamasi: "Duy ve ampul",
     tabanFiyat: 650,
     teslim: "Sipariş sonrası üretilir, 4–6 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Işık dilimlerden süzülür", metin: "Gövde tek parça ve ince cidarlı basılır; ışık dalgaların arasından yumuşayarak geçer." },
+      { baslik: "Odanıza göre ölçü", metin: "Çapı 14 ile 25, yüksekliği 15 ile 25 santim arasında seçersiniz; dalga ve burgu sizin elinizde." },
+      { baslik: "Duyu ve ampulü birlikte", metin: "E27 ya da E14 duya göre üretilir; duy ve ampul kutudan çıkar." },
+    ],
+    gorseller: ["Klasik dalga, E27","Mimari plise","Yalın silindir","Kompakt, E14"],
     ciktilar: [
       { ad: "Avize STL", sec: "#btn-export-stl", tur: "stl" },
       { ad: "İmalat anteti (SVG)", sec: "#btn-export-svg", tur: "belge" },
@@ -132,6 +148,12 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     sinir: { kutleG: [40, 500], sureSaat: [1, 14] },
     tabanFiyat: 350,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Masanızı delmez", metin: "Kelepçe masanın kenarına vidayla sıkılır; iz bırakmadan sökülür, başka masaya taşınır." },
+      { baslik: "Masa kalınlığınıza göre", metin: "1,8 ile 5,5 santim arasındaki tablalar için üretilir; kalınlığı siz girersiniz, kelepçe ona göre açılır." },
+      { baslik: "Kulaklık da çanta da", metin: "Üstte kulaklık beşiği, altta çanta ve kablo için kanca; dört ayrı gövde modelinden biri." },
+    ],
+    gorseller: ["Üst beşik ve alt kanca","Derin kancalı model","Kafes gövdeli model","Stüdyo modeli"],
     ciktilar: [
       { ad: "Gövde STL", sec: "#btn-stl-body", tur: "stl" },
       { ad: "Vida STL", sec: "#btn-stl-screw", tur: "stl" },
@@ -158,6 +180,12 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ekMaliyetAciklamasi: "Pirinç yuvalar, vidalar ve ayaklar",
     tabanFiyat: 450,
     teslim: "Sipariş sonrası üretilir, 3–5 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Kartınıza göre ölçü", metin: "Kartın enini, boyunu ve gereken iç yüksekliği girersiniz; kutu tam ona göre çıkar." },
+      { baslik: "Kesitler yerinde", metin: "USB, güç, anten ve ağ kesitlerini istediğiniz duvara, istediğiniz konuma yerleştirirsiniz." },
+      { baslik: "Defalarca açılır", metin: "Kapak pirinç vida yuvalarına vidalanır; plastik diş gibi birkaç açışta sıyırmaz." },
+    ],
+    gorseller: ["Raspberry Pi boyutunda kutu","Kompakt sensör kutusu","Geniş denetleyici kutusu","Güç kaynağı kutusu"],
     ciktilar: [
       { ad: "Alt kutu STL", sec: "#btn-dl-base-stl", tur: "stl" },
       { ad: "Kapak STL", sec: "#btn-dl-lid-stl", tur: "stl" },
@@ -186,6 +214,12 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       uyari: "Lamba fotoğrafınızla üretilecek. Sepete eklemeden önce kendi fotoğrafınızı yükleyin.",
     },
     teslim: "Sipariş sonrası üretilir, 4–6 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Fotoğrafınız ışıkta belirir", metin: "Lamba kapalıyken düz beyaz bir gövdedir; yandığında fotoğrafınız kabartmanın içinden ortaya çıkar." },
+      { baslik: "Sonucu önceden görürsünüz", metin: "Fotoğrafı yükleyip ışığı açar kapatırsınız; lamba nasıl görünecekse modelde öyle görünür." },
+      { baslik: "Üç form, kendi ölçünüz", metin: "Silindir, kavisli panel ya da altıgen; çap ve yükseklik sizden. Duylu tabanıyla birlikte gelir." },
+    ],
+    gorseller: ["Silindir, ışık açık","Altıgen form","Kavisli panel","Portre fotoğrafıyla"],
     ciktilar: [
       { ad: "Litofan gövde STL", sec: "#btn-dl-litho-stl", tur: "stl" },
       { ad: "Taban STL", sec: "#btn-dl-base-stl", tur: "stl" },
@@ -210,6 +244,12 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ekMaliyetAciklamasi: "NFC etiketi",
     tabanFiyat: 290,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Yaklaştır ya da okut", metin: "İçine gömülü NFC etiketi telefon yaklaşınca, kabartma QR kod kamera tutulunca bağlantınızı açar." },
+      { baslik: "Yazı ve simge sizden", metin: "Bağlantıyı, başlığı ve alt yazıyı girersiniz; gövde şeklini ve renk çiftini seçersiniz." },
+      { baslik: "Stand ya da anahtarlık", metin: "Masada duran eğik stand olarak da, halkalı anahtarlık olarak da üretilir." },
+    ],
+    gorseller: ["Kafe masası standı","Otel madalyonu","Anahtarlık","Sosyal medya rozeti"],
     ciktilar: [
       { ad: "Tekil üretim STL", sec: "#btn-dl-stl-unit", tur: "stl" },
       { ad: "Tabla dizilimi STL", sec: "#btn-dl-stl-plate", tur: "cad" },
@@ -232,6 +272,12 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     sinir: { kutleG: [40, 2500], sureSaat: [1, 60] },
     tabanFiyat: 650,
     teslim: "Sipariş sonrası üretilir, 3–5 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Her seferinde aynı yer", metin: "Ürünler yuvalara oturur; markalama ya da baskı her parçada aynı noktaya düşer." },
+      { baslik: "Ürününüze göre yuva", metin: "Kart, kalem, jeton için ölçü girersiniz; şekli farklıysa modelini yükler, yuvayı ondan çıkarırsınız." },
+      { baslik: "Masanıza oturur", metin: "Tabla M6 delikli optik masaların 25 ve 50 mm aralığına göre delinir; vidalayıp çalışmaya başlarsınız." },
+    ],
+    gorseller: ["Kart fikstürü, 2×3","Kalem fikstürü","Jeton fikstürü","Matara fikstürü"],
     ciktilar: [
       { ad: "Fikstür STL", sec: "#btnExportSTL", tur: "stl" },
       { ad: "LightBurn şablonu (SVG)", sec: "#btnExportPureLB", tur: "belge" },
@@ -255,6 +301,12 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     sinir: { kutleG: [30, 8000], sureSaat: [1, 300] },
     tabanFiyat: 900,
     teslim: "Sipariş sonrası üretilir; kat sayısına göre 5–10 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Kat kat ayrılır", metin: "Her kat ayrı basılır ve köşe pimleriyle üst üste oturur; maketi açıp içini gösterebilirsiniz." },
+      { baslik: "Ölçek sizden", metin: "1:50'den 1:500'e ölçeği seçersiniz; bina ölçüsünü metre olarak girersiniz, maket ona göre küçülür." },
+      { baslik: "Kendi modeliniz de olur", metin: "Revit, Rhino ya da SketchUp'tan çıkardığınız modeli yüklersiniz; aynı şekilde katlara bölünür." },
+    ],
+    gorseller: ["Konut bloğu, 1:200","Ofis kulesi, 1:500","Pavyon, 1:50","Karma kullanım, 1:100"],
     ciktilar: [
       { ad: "Tüm katlar, ayrı ayrı (STL)", sec: "#btn-download-all-stl", tur: "stl" },
       { ad: "Tabla dizilimi, tek dosya (STL)", sec: "#btn-exp-plate-stl", tur: "cad" },
@@ -278,6 +330,12 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     sinir: { kutleG: [20, 3000], sureSaat: [0.5, 80] },
     tabanFiyat: 650,
     teslim: "Sipariş sonrası üretilir; modül sayısına göre 4–8 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Odanız avucunuzda", metin: "Mutfağı, salonu ya da gardırobu ölçekli olarak kurarsınız; mobilya planını elinizde çevirerek görürsünüz." },
+      { baslik: "Modül modül", metin: "Dolap, tezgâh ve sehpaları tek tek ekler, ölçülerini ayarlar, odaya yerleştirirsiniz." },
+      { baslik: "Her parça ayrı", metin: "Dolaplar odadan ayrı basılır ve yerine oturur; yerlerini değiştirip başka bir dizilimi deneyebilirsiniz." },
+    ],
+    gorseller: ["Mutfak","Salon ve sehpa","Yatak odası ve gardırop","Çalışma odası ve kitaplık"],
     ciktilar: [
       { ad: "Tam set STL", sec: "#btnExportAllSTL", tur: "stl" },
       { ad: "Dolap gövdeleri STL", sec: "#btnExportCabinetsSTL", tur: "cad" },
@@ -297,9 +355,14 @@ export function aracBul(id: string | null | undefined): TasarimAraci | null {
   return TASARIM_ARACLARI.find((a) => a.id === id) ?? null;
 }
 
-/** Müşterinin gördüğü sayfanın adresi */
+/** Ürünün tanıtım sayfası */
 export function aracAdresi(id: string): string {
   return `/tasarla/${id}`;
+}
+
+/** Tasarım aracının açıldığı sayfa — ürün sayfasından gidilir */
+export function aracOzellestirmeAdresi(id: string): string {
+  return `/tasarla/${id}/ozellestir`;
 }
 
 /** Aracın müşteri yüzü (çerçevenin kaynağı) */
@@ -315,6 +378,22 @@ export function aracUretimKaynagi(id: string): string {
 /** Ürün kartlarında ve sepette kullanılan hazır görsel */
 export function aracGorseli(id: string): string {
   return `/tasarim-araclari/_gorsel/${id}.jpg`;
+}
+
+/**
+ * Ürün sayfasındaki görseller, altyazılarıyla. İlki kart görseliyle
+ * aynı dosya; sonrakiler "-2", "-3"… ekiyle durur. Hepsi aracın
+ * kendi 3B sahnesinden alındı: her biri gerçekten üretilebilen bir
+ * yapılandırmayı gösterir.
+ */
+export function aracGorselleri(arac: TasarimAraci): { adres: string; altyazi: string }[] {
+  return arac.gorseller.map((altyazi, i) => ({
+    adres:
+      i === 0
+        ? aracGorseli(arac.id)
+        : `/tasarim-araclari/_gorsel/${arac.id}-${i + 1}.jpg`,
+    altyazi,
+  }));
 }
 
 /** Veritabanındaki ürünün adres parçası */

@@ -32,3 +32,9 @@ html[data-adjy-mod="musteri"] .workspace-grid {
 html[data-adjy-mod="musteri"] .app-shell {
   grid-template-rows: minmax(0, 1fr);
 }
+
+/* Araç çubuğu ve alt şerit müşteri kipinde gizli. Sahne, özgün
+   ızgaranın "auto" satırına düşüp 360 piksele sıkışıyordu. */
+html[data-adjy-mod="musteri"] .panel-viewport {
+  grid-template-rows: auto minmax(0, 1fr);
+}
