@@ -1,70 +1,80 @@
 import type { Metadata } from "next";
+import { LegalPage } from "@/components/legal/LegalPage";
 
 export const metadata: Metadata = {
-  title: "Gizlilik Politikasi",
+  title: "Gizlilik Politikası",
+  description: "ADJY'nin hangi kişisel verileri topladığı, nasıl kullandığı ve nasıl koruduğu.",
 };
 
 export default function PrivacyPage() {
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-12">
-      <h1 className="text-3xl font-bold mb-6">Gizlilik Politikasi</h1>
-      <div className="prose prose-sm prose-invert max-w-none space-y-6 text-muted-foreground">
-        <section>
-          <h2 className="text-lg font-semibold text-foreground">1. Toplanan Veriler</h2>
-          <p>Hizmetlerimizi sunabilmek icin asagidaki kisisel verileri topluyoruz:</p>
-          <ul className="list-disc list-inside space-y-1 ml-2">
-            <li>Ad, soyad ve iletisim bilgileri</li>
-            <li>E-posta adresi ve telefon numarasi</li>
-            <li>Teslimat ve fatura adresleri</li>
-            <li>Siparis gecmisi ve odeme bilgileri</li>
-            <li>Cerez verileri ve site kullanim istatistikleri</li>
-          </ul>
-        </section>
+    <LegalPage current="/privacy" title="Gizlilik Politikası" updated="Mart 2026">
+      <section>
+        <h2>Toplanan Veriler</h2>
+        <p>Hizmetlerimizi sunabilmek için aşağıdaki kişisel verileri topluyoruz:</p>
+        <ul>
+          <li>Ad, soyad ve iletişim bilgileri</li>
+          <li>E-posta adresi ve telefon numarası</li>
+          <li>Teslimat ve fatura adresleri</li>
+          <li>Sipariş geçmişi ve ödeme bilgileri</li>
+          <li>Çerez verileri ve site kullanım istatistikleri</li>
+        </ul>
+      </section>
 
-        <section>
-          <h2 className="text-lg font-semibold text-foreground">2. Verilerin Kullanimi</h2>
-          <p>Toplanan veriler asagidaki amaclarla kullanilir:</p>
-          <ul className="list-disc list-inside space-y-1 ml-2">
-            <li>Siparis islemlerinin gerceklestirilmesi</li>
-            <li>Musteri hizmetleri ve destek</li>
-            <li>Odeme islemlerinin guvenli sekilde yapilmasi</li>
-            <li>Hizmet kalitesinin iyilestirilmesi</li>
-          </ul>
-        </section>
+      <section>
+        <h2>Verilerin Kullanımı</h2>
+        <p>Toplanan veriler aşağıdaki amaçlarla kullanılır:</p>
+        <ul>
+          <li>Sipariş işlemlerinin gerçekleştirilmesi</li>
+          <li>Müşteri hizmetleri ve destek</li>
+          <li>Ödeme işlemlerinin güvenli şekilde yapılması</li>
+          <li>Hizmet kalitesinin iyileştirilmesi</li>
+        </ul>
+      </section>
 
-        <section>
-          <h2 className="text-lg font-semibold text-foreground">3. Veri Guvenligi</h2>
-          <p>Kisisel verileriniz SSL sifreleme, guvenli sunucular ve erisim kontrolleri ile korunmaktadir. Odeme bilgileri dogrudan iyzico guvenli altyapisi tarafindan islenir ve sunucularimizda saklanmaz.</p>
-        </section>
+      <section>
+        <h2>Veri Güvenliği</h2>
+        <p>
+          Kişisel verileriniz SSL şifreleme, güvenli sunucular ve erişim kontrolleri ile korunmaktadır.
+          Ödeme bilgileri doğrudan iyzico güvenli altyapısı tarafından işlenir ve sunucularımızda saklanmaz.
+        </p>
+      </section>
 
-        <section>
-          <h2 className="text-lg font-semibold text-foreground">4. Cerezler</h2>
-          <p>Sitemiz, kullanici deneyimini iyilestirmek ve oturum yonetimi icin cerezler kullanmaktadir. Cerez tercihlerinizi tarayici ayarlarindan yonetebilirsiniz.</p>
-        </section>
+      <section>
+        <h2>Çerezler</h2>
+        <p>
+          Sitemiz, kullanıcı deneyimini iyileştirmek ve oturum yönetimi için çerezler kullanmaktadır.
+          Çerez tercihlerinizi tarayıcı ayarlarından yönetebilirsiniz. Ayrıntılar için{" "}
+          <a href="/cerez-politikasi">Çerez Politikası</a> sayfasına bakın.
+        </p>
+      </section>
 
-        <section>
-          <h2 className="text-lg font-semibold text-foreground">5. Ucuncu Taraf Paylasimi</h2>
-          <p>Kisisel verileriniz, yasal zorunluluklar disinda ucuncu taraflarla paylasilmaz. Kargo ve odeme hizmet saglayicilari ile yalnizca islem icin gerekli bilgiler paylasilir.</p>
-        </section>
+      <section>
+        <h2>Üçüncü Taraf Paylaşımı</h2>
+        <p>
+          Kişisel verileriniz, yasal zorunluluklar dışında üçüncü taraflarla paylaşılmaz. Kargo ve ödeme
+          hizmet sağlayıcıları ile yalnızca işlem için gerekli bilgiler paylaşılır.
+        </p>
+      </section>
 
-        <section>
-          <h2 className="text-lg font-semibold text-foreground">6. Kullanici Haklari</h2>
-          <p>KVKK kapsaminda asagidaki haklara sahipsiniz:</p>
-          <ul className="list-disc list-inside space-y-1 ml-2">
-            <li>Verilerinize erisim ve duzeltme talep etme</li>
-            <li>Verilerin silinmesini isteme</li>
-            <li>Veri islemesine itiraz etme</li>
-            <li>Veri tasinabilirligini talep etme</li>
-          </ul>
-        </section>
+      <section>
+        <h2>Kullanıcı Hakları</h2>
+        <p>KVKK kapsamında aşağıdaki haklara sahipsiniz:</p>
+        <ul>
+          <li>Verilerinize erişim ve düzeltme talep etme</li>
+          <li>Verilerin silinmesini isteme</li>
+          <li>Veri işlemesine itiraz etme</li>
+          <li>Veri taşınabilirliğini talep etme</li>
+        </ul>
+      </section>
 
-        <section>
-          <h2 className="text-lg font-semibold text-foreground">7. Iletisim</h2>
-          <p>Gizlilik ile ilgili sorulariniz icin destek@adjy.com adresinden bize ulasabilirsiniz.</p>
-        </section>
-
-        <p className="text-xs">Son guncelleme: Mart 2026</p>
-      </div>
-    </div>
+      <section>
+        <h2>İletişim</h2>
+        <p>
+          Gizlilik ile ilgili sorularınız için <a href="mailto:destek@adjy.com">destek@adjy.com</a>{" "}
+          adresinden bize ulaşabilirsiniz.
+        </p>
+      </section>
+    </LegalPage>
   );
 }

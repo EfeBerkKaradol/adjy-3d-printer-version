@@ -65,7 +65,7 @@ export function HowWeMake({ gorsel }: { gorsel: string | null }) {
             </p>
 
             {gorsel && (
-              <div className="relative mt-9 hidden aspect-[4/3] overflow-hidden rounded-2xl bg-muted lg:block">
+              <div className="adjy-pixel-card relative mt-9 hidden aspect-[4/3] overflow-hidden bg-muted lg:block">
                 <Image
                   src={gorsel}
                   alt=""
@@ -78,10 +78,10 @@ export function HowWeMake({ gorsel }: { gorsel: string | null }) {
             )}
           </div>
 
-          <ol className="divide-y divide-border border-y border-border">
+          <ol className="divide-y-2 divide-dashed divide-foreground/25 border-y-2 border-dashed border-foreground/25">
             {ADIMLAR.map((a) => (
               <li key={a.n} className="grid gap-4 py-8 sm:grid-cols-[auto_1fr_auto] sm:gap-8">
-                <span className="font-mono text-xs tabular-nums text-muted-foreground">
+                <span className="adjy-pixel-box h-fit w-fit bg-background px-1.5 py-0.5 font-mono text-[10px] font-semibold tabular-nums tracking-[0.1em]">
                   {a.n}
                 </span>
                 <div>
@@ -91,7 +91,7 @@ export function HowWeMake({ gorsel }: { gorsel: string | null }) {
                   </p>
                 </div>
                 <div className="sm:text-right">
-                  <p className="text-lg font-medium tabular-nums">{a.deger}</p>
+                  <p className="font-mono text-base font-semibold tabular-nums">{a.deger}</p>
                   <p className="text-xs text-muted-foreground">{a.etiket}</p>
                 </div>
               </li>

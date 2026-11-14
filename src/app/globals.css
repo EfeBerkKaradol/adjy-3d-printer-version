@@ -825,6 +825,122 @@ input[type="number"] {
   padding-top: 2px;
 }
 
+/* Dolu piksel düğme: koyu zemin, açık yazı. Kalkınca gölge
+   zeminle aynı renkte kalır (PixelLink variant="solid") */
+.adjy-pixel-card.adjy-pixel-card-solid {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+/* ==========================================
+ * YASAL BELGELER (LegalPage)
+ * Bölümler kesikli çizgiyle ayrılır, her başlığın üstünde mono
+ * numara durur (01, 02 …; sectionLabel verilirse "MADDE 01").
+ * Madde imleri yuvarlak nokta değil, küçük piksel kare.
+ * ========================================== */
+.adjy-legal {
+  counter-reset: legal;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--muted-foreground);
+}
+.adjy-legal > section {
+  counter-increment: legal;
+  padding-block: 2rem;
+  border-top: 2px dashed color-mix(in oklab, var(--foreground) 20%, transparent);
+}
+.adjy-legal > section:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.adjy-legal > section > h2 {
+  color: var(--foreground);
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  margin-bottom: 0.875rem;
+}
+.adjy-legal > section > h2::before {
+  content: var(--legal-label, "") counter(legal, decimal-leading-zero);
+  display: block;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+.adjy-legal h3 {
+  color: var(--foreground);
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+.adjy-legal p + p {
+  margin-top: 0.5rem;
+}
+.adjy-legal ul {
+  margin-top: 0.75rem;
+  display: grid;
+  gap: 0.4rem;
+}
+.adjy-legal ul > li {
+  position: relative;
+  padding-left: 1.25rem;
+}
+.adjy-legal ul > li::before {
+  content: "";
+  position: absolute;
+  left: 0.15rem;
+  top: 0.68em;
+  width: 6px;
+  height: 6px;
+  background: var(--foreground);
+}
+.adjy-legal strong {
+  color: var(--foreground);
+  font-weight: 600;
+}
+.adjy-legal a {
+  color: var(--foreground);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+.adjy-legal a:hover {
+  text-decoration-style: dashed;
+}
+.adjy-legal table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.adjy-legal th {
+  text-align: left;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--foreground);
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid var(--foreground);
+}
+.adjy-legal td {
+  padding: 0.65rem 1rem;
+  border-top: 2px dashed color-mix(in oklab, var(--foreground) 15%, transparent);
+}
+.adjy-legal tbody tr:first-child td {
+  border-top: 0;
+}
+
+/* SSS: her soru kendi piksel kartında; kartlar arası boşluk
+   olduğu için akordeonun kesikli alt çizgisi gerekmez */
+.adjy-pixel-card[data-slot="accordion-item"] {
+  border-bottom-width: 0 !important;
+}
+
 /* ==========================================================
    PİKSEL ÖDEME KARTI (checkout/pixel-card)
    Basamaklı köşeli, sert gölgeli, iki yüzlü kart. Dönüş ve
