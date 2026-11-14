@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { initializeThreeDS } from "@/lib/iyzico";
-import { prepareOrderPayment } from "@/lib/paymentOrder";
+import { clientIp, prepareOrderPayment } from "@/lib/paymentOrder";
+import { rateLimit } from "@/lib/rate-limit";
 import { digitsOnly, parseExpiry, validateCard } from "@/lib/card";
 import { getAbsoluteUrl } from "@/lib/url";
 
@@ -27,6 +28,22 @@ export async function POST(request: NextRequest) {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Geçersiz istek" }, { status: 400 });
+  }
+
+  // ==========================================
+  // KART DENEME (carding) KORUMASI
+  // Çalıntı kart listesini bu uçta denemek isteyen biri her
+  // seferinde yeni misafir sipariş açarak sipariş başına sınırı
+  // aşabilir; bu yüzden IP başına da sınır var.
+  // ==========================================
+  const ip = clientIp(request);
+  const perMinute = await rateLimit(`payment3ds:ip:${ip}`, { windowMs: 60_000, max: 5 });
+  const perHour = await rateLimit(`payment3ds:ip-hour:${ip}`, { windowMs: 3_600_000, max: 20 });
+  if (!perMinute.success || !perHour.success) {
+    return NextResponse.json(
+      { error: "Çok fazla ödeme denemesi. Lütfen biraz sonra tekrar deneyin." },
+      { status: 429 }
+    );
   }
 
   const card = {
