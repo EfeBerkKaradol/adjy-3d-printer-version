@@ -1,0 +1,162 @@
+/* Çekmece organizeri ve duvar ızgarası — ADJY görünümü */
+html[data-adjy-tema] {
+  --bg: var(--a-zemin);
+  --panel: var(--a-yuzey);
+  --panel2: var(--a-cukur);
+  --raise: var(--a-cukur);
+  --line: var(--a-cizgi);
+  --line2: var(--a-cizgi-koyu);
+  --line3: var(--a-cizgi-koyu);
+  --ink: var(--a-yazi);
+  --mute: var(--a-soluk);
+  --dim: var(--a-silik);
+  --dowel: var(--a-amber);
+  --kor: var(--a-yesil);
+  --mono: var(--a-mono);
+  --disp: var(--a-sans);
+  --sans: var(--a-sans);
+}
+
+/* Araçta sabit koyu yazılmış yüzeyler */
+html[data-adjy-tema] ::-webkit-scrollbar-thumb {
+  background: var(--a-cizgi-koyu);
+}
+html[data-adjy-tema] ::selection {
+  background: var(--a-vurgu);
+}
+html[data-adjy-tema] input[type="number"],
+html[data-adjy-tema] select,
+html[data-adjy-tema] .chips .sz input,
+html[data-adjy-tema] .bed {
+  background: var(--a-girdi);
+}
+html[data-adjy-tema] input[type="number"]:focus,
+html[data-adjy-tema] select:focus {
+  outline-color: var(--a-vurgu);
+}
+html[data-adjy-tema] input[type="range"]::-webkit-slider-runnable-track {
+  background: linear-gradient(90deg, var(--a-vurgu) var(--p, 50%), var(--a-cizgi-koyu) var(--p, 50%));
+}
+html[data-adjy-tema] input[type="range"]::-moz-range-track {
+  background: var(--a-cizgi-koyu);
+}
+html[data-adjy-tema] input[type="range"]::-moz-range-progress {
+  background: var(--a-vurgu);
+}
+html[data-adjy-tema] .sheetwrap {
+  background: var(--a-cukur);
+}
+html[data-adjy-tema] table.t tfoot td {
+  color: var(--a-yazi);
+}
+html[data-adjy-tema] .rep .ok b {
+  color: var(--a-soluk);
+}
+html[data-adjy-tema] #bottom .ex.primary {
+  background: var(--a-yazi);
+  color: var(--a-yuzey);
+}
+html[data-adjy-tema] #bottom .ex.primary em {
+  color: var(--a-silik);
+}
+html[data-adjy-tema] #bottom .ex.primary:hover {
+  background: var(--a-yazi);
+  opacity: 0.86;
+}
+html[data-adjy-tema] .mob-nav button.on {
+  box-shadow: inset 0 -2px 0 var(--a-vurgu);
+}
+
+/* Sahnenin üstündeki araç grupları */
+html[data-adjy-tema] .chips {
+  background: var(--a-ortu);
+  border-color: var(--a-cizgi-koyu);
+}
+html[data-adjy-tema] .chips button {
+  color: var(--a-soluk);
+  border-right-color: var(--a-cizgi);
+}
+html[data-adjy-tema] .chips button:hover {
+  color: var(--a-yazi);
+}
+html[data-adjy-tema] .chips button.on {
+  background: var(--a-yazi);
+  color: var(--a-yuzey);
+}
+html[data-adjy-tema] .chips button.tool.on {
+  background: var(--a-vurgu);
+  color: var(--a-vurgu-ustu);
+}
+html[data-adjy-tema] .chips label,
+html[data-adjy-tema] .chips .sz {
+  color: var(--a-soluk);
+}
+html[data-adjy-tema] .chips input[type="checkbox"] {
+  accent-color: var(--a-vurgu);
+}
+html[data-adjy-tema] .mob-quick-btn {
+  background: var(--a-ortu);
+  border-color: var(--a-cizgi-koyu);
+  box-shadow: none;
+}
+html[data-adjy-tema] .toast {
+  border-left-color: var(--a-vurgu);
+}
+
+/* Ürün görünümünün zemini: mağazanın kırık beyazı */
+html[data-adjy-tema] #view.product {
+  background: radial-gradient(120% 90% at 45% 30%, #ffffff 0%, #ebe9e3 52%, #cfccc2 100%);
+}
+html[data-adjy-tema="koyu"] #view.product {
+  background: radial-gradient(120% 90% at 45% 30%, #a9abb4 0%, #6c6e79 50%, #2b2c34 100%);
+}
+html[data-adjy-tema="koyu"] #view.product .hint {
+  color: #e6e6ea;
+}
+
+/* Atölye: dar pencerede kare sayacı sistem düğmelerinin üstüne biniyordu */
+@media (max-width: 1500px) {
+  html[data-adjy-mod="uretim"] .hud-desk {
+    display: none;
+  }
+}
+
+/* ---------- Müşteri kipi ---------- */
+@media (min-width: 1025px) {
+  html[data-adjy-mod="musteri"] #app {
+    grid-template-columns: 320px minmax(0, 1fr);
+    grid-template-rows: 46px minmax(0, 1fr);
+    grid-template-areas: "top top" "params view";
+  }
+}
+html[data-adjy-mod="musteri"] .sysw button span {
+  letter-spacing: 0.01em;
+  font-weight: 600;
+}
+html[data-adjy-mod="musteri"] .sysw button.on::after {
+  background: var(--a-vurgu);
+}
+html[data-adjy-mod="musteri"] .sec h3 {
+  font: 600 13px/1.2 var(--a-sans);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--a-yazi);
+}
+html[data-adjy-mod="musteri"] .prm-h label {
+  font: 13px var(--a-sans);
+  letter-spacing: 0;
+}
+html[data-adjy-mod="musteri"] .note {
+  font-size: 12.5px;
+  color: var(--a-soluk);
+}
+html[data-adjy-mod="musteri"] .chips button,
+html[data-adjy-mod="musteri"] .chips label,
+html[data-adjy-mod="musteri"] .chips .sz,
+html[data-adjy-mod="musteri"] .hint {
+  font-family: var(--a-sans);
+}
+/* Kamera düğmeleri gizlenince boş kalan çerçeve görünmesin */
+html[data-adjy-mod="musteri"][data-adjy-ayar="sade"] .ov-top {
+  justify-content: flex-start;
+}

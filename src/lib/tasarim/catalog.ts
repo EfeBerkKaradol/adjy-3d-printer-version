@@ -41,6 +41,8 @@ export interface TasarimAraci {
   /** Tercih sırasıyla mağaza kategorileri; hiçbiri yoksa ortak kategori */
   kategoriler: string[];
   malzeme: string;
+  /** Araçta malzeme seçimi yoksa: ürün sayfası "değiştirilebilir" demesin */
+  malzemeSabit?: boolean;
   /** Varsayılan yapılandırmanın ölçümü — başlangıç fiyatı buradan */
   varsayilan: { kutleG: number; sureSaat: number };
   /** Aracın üretebildiği en küçük ve en büyük parça */
@@ -347,6 +349,36 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { ad: "Proje dosyası (JSON)", sec: "#btnExportConfigJson", tur: "cad" },
     ],
     anahtarKelimeler: ["oda maketi", "mutfak maketi", "mobilya maketi", "ölçekli dolap maketi"],
+  },
+  {
+    id: "organizator",
+    ad: "Çekmece Organizeri ve Duvar Izgarası",
+    ozet: "Çekmecenizin iç ölçüsüne göre kurulan, kutuları yerinden oynamayan düzen sistemi.",
+    aciklama:
+      "Çekmecenizin iç genişliğini ve derinliğini girin; taban ızgarası o ölçüye göre kurulur, kutular ızgaradaki yuvalarına oturur ve çekmeceyi açıp kapatırken kaymaz. Kutuların yerini, boyunu ve iç bölmelerini modelin üstünde kendiniz düzenlersiniz. Büyük çekmecelerde taban birkaç parça hâlinde basılır ve papyon kilitlerle birbirine geçer. Aynı sistemin duvar tipi de var: duvara vidalanan ızgara panolar ve üstüne asılan kutular.",
+    ayarlar: ["Çekmece ya da duvar ölçüsü", "Kutu yüksekliği", "Kutu yerleşimi ve iç bölmeler", "Hücre boyu"],
+    kategoriler: ["duzen-kutular", "duzen-depolama", "masa-ofis-duzenleyiciler"],
+    malzeme: "PLA",
+    malzemeSabit: true,
+    varsayilan: { kutleG: 2817, sureSaat: 56.5 },
+    // En küçük: 15 × 15 cm taban, kutusuz. En büyük: 120 × 90 cm duvar, tam dolu.
+    sinir: { kutleG: [25, 27000], sureSaat: [0.5, 520] },
+    tabanFiyat: 250,
+    teslim: "Sipariş sonrası üretilir; ölçüye ve kutu sayısına göre 5–15 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Milimetresine oturur", metin: "Çekmecenizin iç ölçüsünü milimetre olarak girersiniz; taban o ölçüye göre üretilir, kenarda kalan boşluk kör şeritlerle kapatılır." },
+      { baslik: "Kutular kaymaz", metin: "Her kutu tabandaki yuvasına oturur; çekmeceyi hızlı çekseniz de yerinde kalır. Yerlerini dilediğiniz zaman değiştirirsiniz." },
+      { baslik: "Yerleşimi siz kurarsınız", metin: "Kutuları tek tek ekler, siler, içlerine bölme koyarsınız; büyük, küçük ve bölmeli kutular aynı çekmecede yan yana durur." },
+    ],
+    gorseller: ["Çekmece organizeri, 59 × 48 cm","Üstten: kutu yerleşimi","Duvar ızgarası ve askılı kutular","Küçük çekmece, 33 × 28 cm"],
+    ciktilar: [
+      { ad: "Tabla ve kilit STL", sec: "#exPlates", tur: "stl" },
+      { ad: "Kutular STL", sec: "#exBins", tur: "stl" },
+      { ad: "İmalat anteti (SVG)", sec: "#exSvg", tur: "belge" },
+      { ad: "Parça listesi (CSV)", sec: "#exCsv", tur: "belge" },
+      { ad: "Ürün görseli (PNG)", sec: "#exPng", tur: "cad" },
+    ],
+    anahtarKelimeler: ["çekmece organizeri", "ölçüye özel çekmece düzenleyici", "çekmece içi kutu", "duvar ızgarası", "askılı kutu"],
   },
 ];
 

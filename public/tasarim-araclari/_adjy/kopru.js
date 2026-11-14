@@ -753,6 +753,9 @@
     dosyaVar: function (id) { return !!(dosyalar[id] && dosyalar[id].length); },
     dosyaSayisi: dosyaSayisi,
     dosyalariBirak: dosyalariBirak,
+    // Panelini baştan çizen araçlar (organizatör) çizimden hemen sonra çağırır;
+    // müşteri bir an bile değişken adlarını görmesin.
+    metinleriYenile: function () { musteriMetinleri(); },
     hazirMi: function () {
       if (typeof AYAR.hazirMi !== "function") return yuklendi;
       try { return !!AYAR.hazirMi(); } catch (e) { return false; }

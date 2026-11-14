@@ -214,7 +214,10 @@ export default async function TasarimUrunPage({
             <dl className="mt-8 grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
               <div>
                 <dt className="adjy-eyebrow">Malzeme</dt>
-                <dd className="mt-1.5">{arac.malzeme} (araçta değiştirilebilir)</dd>
+                <dd className="mt-1.5">
+                  {arac.malzeme}
+                  {arac.malzemeSabit ? "" : " (araçta değiştirilebilir)"}
+                </dd>
               </div>
               <div>
                 <dt className="adjy-eyebrow">Üretim</dt>
