@@ -99,7 +99,7 @@ export function ARShowcase({ product }: { product: ARProduct | null }) {
         </div>
 
         <div className="order-1 lg:order-2">
-          <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-muted">
+          <div className="adjy-pixel-card relative aspect-[4/5] overflow-hidden bg-muted">
             {product.thumbnailUrl && (
               <Image
                 src={product.thumbnailUrl}
@@ -109,7 +109,7 @@ export function ARShowcase({ product }: { product: ARProduct | null }) {
                 className="object-cover"
               />
             )}
-            <div className="absolute inset-x-4 bottom-4 rounded-xl bg-background/90 p-4 backdrop-blur">
+            <div className="adjy-pixel-box absolute inset-x-4 bottom-4 bg-background p-4">
               <p className="adjy-eyebrow">{product.category.name}</p>
               <p className="mt-1.5 text-sm font-medium leading-snug">{product.name}</p>
               {olcu && (

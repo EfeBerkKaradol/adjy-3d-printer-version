@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { PixelLink } from "@/components/ui/pixel-link";
 
 // ==========================================
 // HAKKIMIZDA AÇILIŞI
@@ -46,29 +46,24 @@ export function AboutOpening({ gorsel, urunSayisi, olcuSayisi }: Props) {
             ürünü almak zorunda kalmayın diye.
           </p>
 
-          <Link
-            href="/products"
-            className="group mt-8 inline-flex items-center gap-2 rounded-full bg-foreground px-7 py-3.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
-          >
-            Ürünleri görün
-            <ArrowRight
-              className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
-              aria-hidden
-            />
-          </Link>
+          <div className="mt-8">
+            <PixelLink href="/products" variant="solid">
+              Ürünleri görün
+            </PixelLink>
+          </div>
         </div>
 
         {gorsel?.thumbnailUrl && (
           <Link
             href={`/products/${gorsel.slug}`}
-            className="group relative block aspect-[4/5] overflow-hidden rounded-2xl bg-muted"
+            className="adjy-pixel-card group relative block aspect-[4/5] overflow-hidden bg-muted"
           >
             <Image
               src={gorsel.thumbnailUrl}
               alt={gorsel.name}
               fill
               sizes="(max-width: 1024px) 100vw, 42vw"
-              className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+              className="object-cover"
               priority
             />
           </Link>
@@ -76,26 +71,26 @@ export function AboutOpening({ gorsel, urunSayisi, olcuSayisi }: Props) {
       </div>
 
       {/* Soyut vaat yerine sayılabilir dört şey */}
-      <dl className="mt-14 grid gap-x-10 gap-y-8 border-t-2 border-dashed border-foreground/25 pt-10 sm:grid-cols-2 lg:grid-cols-4">
-        <div>
-          <dt className="text-sm text-muted-foreground">Katalogdaki ürün</dt>
-          <dd className="mt-2 text-3xl font-medium tabular-nums">{urunSayisi}</dd>
+      <dl className="mt-14 grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
+        <div className="adjy-pixel-card p-4 sm:p-5">
+          <dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Katalogdaki ürün</dt>
+          <dd className="mt-3 text-2xl font-semibold sm:text-3xl tabular-nums">{urunSayisi}</dd>
         </div>
-        <div>
-          <dt className="text-sm text-muted-foreground">Ölçüsünü siz verirsiniz</dt>
-          <dd className="mt-2 text-3xl font-medium tabular-nums">{olcuSayisi}</dd>
+        <div className="adjy-pixel-card p-4 sm:p-5">
+          <dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Ölçüsünü siz verirsiniz</dt>
+          <dd className="mt-3 text-2xl font-semibold sm:text-3xl tabular-nums">{olcuSayisi}</dd>
         </div>
-        <div>
-          <dt className="text-sm text-muted-foreground">Malzeme</dt>
-          <dd className="mt-2 text-3xl font-medium">3</dd>
-          <dd className="mt-1 text-sm text-muted-foreground">
+        <div className="adjy-pixel-card p-4 sm:p-5">
+          <dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Malzeme</dt>
+          <dd className="mt-3 text-2xl font-semibold sm:text-3xl">3</dd>
+          <dd className="mt-1 text-xs text-muted-foreground sm:text-sm">
             3D baskı · seramik · alçı
           </dd>
         </div>
-        <div>
-          <dt className="text-sm text-muted-foreground">Üretim</dt>
-          <dd className="mt-2 text-3xl font-medium">Beşiktaş</dd>
-          <dd className="mt-1 text-sm text-muted-foreground">Kendi atölyemiz</dd>
+        <div className="adjy-pixel-card p-4 sm:p-5">
+          <dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Üretim</dt>
+          <dd className="mt-3 text-2xl font-semibold sm:text-3xl">Beşiktaş</dd>
+          <dd className="mt-1 text-xs text-muted-foreground sm:text-sm">Kendi atölyemiz</dd>
         </div>
       </dl>
     </section>

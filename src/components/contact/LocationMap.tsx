@@ -28,7 +28,7 @@ export function LocationMap({ address, href, embedUrl }: Props) {
   const [yuklendi, setYuklendi] = useState(false);
 
   return (
-    <div className="overflow-hidden rounded-xl adjy-pixel-frame">
+    <div className="adjy-pixel-card overflow-hidden">
       <div className="relative aspect-[16/10] bg-muted">
         {yuklendi && embedUrl ? (
           <iframe

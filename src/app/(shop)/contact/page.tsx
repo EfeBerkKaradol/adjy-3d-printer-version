@@ -6,11 +6,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { contactSchema, type ContactInput } from "@/lib/validations/contact";
 import { toast } from "react-hot-toast";
+import { PixelArrow } from "@/components/home/PixelMoreButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { LocationMap } from "@/components/contact/LocationMap";
-import { ArrowRight, Clock, Mail, MapPin, Phone, Send } from "lucide-react";
+import { Clock, Mail, MapPin, Phone, Send } from "lucide-react";
 import { COMPANY, formatAddress, mapsEmbedUrl, mapsLink } from "@/lib/company";
 
 // ==========================================
@@ -89,11 +90,11 @@ export default function ContactPage() {
       </header>
 
       {/* Ulaşım yolları */}
-      <section className="mt-12 grid gap-px overflow-hidden rounded-xl adjy-pixel-frame bg-border sm:grid-cols-2 lg:grid-cols-3">
+      <section className="mt-12 grid gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
         {COMPANY.email && (
-          <div className="bg-background p-6">
+          <div className="adjy-pixel-card p-6">
             <Mail className="h-5 w-5 text-muted-foreground" aria-hidden />
-            <h2 className="mt-4 text-[15px] font-medium tracking-tight">E-posta</h2>
+            <h2 className="mt-4 font-mono text-[11px] font-semibold uppercase tracking-[0.14em]">E-posta</h2>
             <a
               href={`mailto:${COMPANY.email}`}
               className="mt-2 inline-block break-all text-sm underline-offset-4 hover:underline"
@@ -107,9 +108,9 @@ export default function ContactPage() {
         )}
 
         {COMPANY.phone && (
-          <div className="bg-background p-6">
+          <div className="adjy-pixel-card p-6">
             <Phone className="h-5 w-5 text-muted-foreground" aria-hidden />
-            <h2 className="mt-4 text-[15px] font-medium tracking-tight">Telefon</h2>
+            <h2 className="mt-4 font-mono text-[11px] font-semibold uppercase tracking-[0.14em]">Telefon</h2>
             <a
               href={`tel:${COMPANY.phone.replace(/[^+\d]/g, "")}`}
               className="mt-2 inline-block text-sm underline-offset-4 hover:underline"
@@ -120,9 +121,9 @@ export default function ContactPage() {
         )}
 
         {COMPANY.address && (
-          <div className="bg-background p-6">
+          <div className="adjy-pixel-card p-6">
             <MapPin className="h-5 w-5 text-muted-foreground" aria-hidden />
-            <h2 className="mt-4 text-[15px] font-medium tracking-tight">Atölye ve ofis</h2>
+            <h2 className="mt-4 font-mono text-[11px] font-semibold uppercase tracking-[0.14em]">Atölye ve ofis</h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {COMPANY.address.line1}
               <br />
@@ -144,9 +145,9 @@ export default function ContactPage() {
         )}
 
         {COMPANY.workingHours && (
-          <div className="bg-background p-6">
+          <div className="adjy-pixel-card p-6">
             <Clock className="h-5 w-5 text-muted-foreground" aria-hidden />
-            <h2 className="mt-4 text-[15px] font-medium tracking-tight">Çalışma saatleri</h2>
+            <h2 className="mt-4 font-mono text-[11px] font-semibold uppercase tracking-[0.14em]">Çalışma saatleri</h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {COMPANY.workingHours}
             </p>
@@ -160,7 +161,8 @@ export default function ContactPage() {
       <div className="mt-14 grid gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-14">
         {/* Form */}
         <div>
-          <h2 className="text-xl font-medium tracking-tight">Mesaj yaz</h2>
+          <p className="adjy-eyebrow mb-3">Form</p>
+          <h2 className="text-xl font-semibold tracking-tight">Mesaj yaz</h2>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             Ne kadar anlatırsan o kadar hızlı yardımcı oluruz.
           </p>
@@ -243,22 +245,23 @@ export default function ContactPage() {
         </div>
 
         {/* Harita ve kısayollar */}
-        <aside className="space-y-8">
+        <aside className="flex flex-col gap-8">
           {adres && (
             <LocationMap address={adres} href={harita} embedUrl={mapsEmbedUrl()} />
           )}
 
           <div>
-            <h2 className="text-xl font-medium tracking-tight">Önce buraya bak</h2>
+            <p className="adjy-eyebrow mb-3">Kısayollar</p>
+            <h2 className="text-xl font-semibold tracking-tight">Önce buraya bak</h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               Çok sorulanların cevabı hazır — beklemene gerek kalmaz.
             </p>
-            <ul className="mt-5 grid gap-px overflow-hidden rounded-xl adjy-pixel-frame bg-border">
+            <ul className="mt-5 grid gap-4">
               {KISAYOLLAR.map((k) => (
                 <li key={k.href}>
                   <Link
                     href={k.href}
-                    className="group flex items-center justify-between gap-4 bg-background p-4 transition-colors hover:bg-muted"
+                    className="adjy-pixel-card group flex items-center justify-between gap-4 p-4"
                   >
                     <span>
                       <span className="block text-[15px] font-medium tracking-tight">
@@ -268,10 +271,7 @@ export default function ContactPage() {
                         {k.body}
                       </span>
                     </span>
-                    <ArrowRight
-                      className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5"
-                      aria-hidden
-                    />
+                    <PixelArrow className="h-3.5 w-3.5 shrink-0" />
                   </Link>
                 </li>
               ))}

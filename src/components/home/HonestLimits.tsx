@@ -1,4 +1,3 @@
-import { Minus } from "lucide-react";
 
 // ==========================================
 // NEYE HAYIR DİYORUZ
@@ -37,6 +36,24 @@ const SINIRLAR = [
   },
 ];
 
+/** Piksel çarpı: koyu bantta "yapmıyoruz" işareti */
+function PikselCarpi() {
+  return (
+    <svg
+      viewBox="0 0 7 7"
+      className="mt-1 h-4 w-4 shrink-0 text-background/60"
+      shapeRendering="crispEdges"
+      fill="currentColor"
+      aria-hidden
+    >
+      {[0, 1, 2, 3, 4, 5, 6].flatMap((i) => [
+        <rect key={`a${i}`} x={i} y={i} width={1} height={1} />,
+        i !== 3 ? <rect key={`b${i}`} x={6 - i} y={i} width={1} height={1} /> : null,
+      ])}
+    </svg>
+  );
+}
+
 export function HonestLimits() {
   return (
     <section className="border-t-2 border-dashed border-foreground/25 bg-foreground text-background">
@@ -55,8 +72,8 @@ export function HonestLimits() {
 
         <ul className="mt-12 grid gap-x-12 gap-y-10 sm:grid-cols-2">
           {SINIRLAR.map((s) => (
-            <li key={s.baslik} className="flex gap-4">
-              <Minus className="mt-1 h-5 w-5 shrink-0 text-background/40" aria-hidden />
+            <li key={s.baslik} className="flex gap-4 border-t-2 border-dashed border-background/25 pt-6">
+              <PikselCarpi />
               <div>
                 <h3 className="text-[17px] font-medium tracking-tight">{s.baslik}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-background/70">
