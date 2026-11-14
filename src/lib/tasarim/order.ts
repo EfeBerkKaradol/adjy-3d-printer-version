@@ -142,6 +142,20 @@ export function durumuSinirla(durum: unknown): Record<string, unknown> | null {
   return durum as Record<string, unknown>;
 }
 
+/**
+ * Sepette gösterilecek temel seçimler: sade görünümde açık duran
+ * ayarlar. Ayrıntı ayarları (müşteri "Tüm ayarlar"ı açmadıkça
+ * dokunmadığı) kısa özeti kalabalıklaştırmasın.
+ */
+export function temelSecimler(ham: unknown): TasarimSecimi[] {
+  if (!Array.isArray(ham)) return [];
+  return secimleriTemizle(
+    ham.filter(
+      (s) => s && typeof s === "object" && !(s as { ayrinti?: unknown }).ayrinti
+    )
+  );
+}
+
 /** Sepette ve listelerde gösterilen kısa metin: ilk birkaç seçim */
 export function kisaOzet(secimler: TasarimSecimi[], adet = 3): string {
   return secimler

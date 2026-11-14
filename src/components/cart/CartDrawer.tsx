@@ -99,8 +99,16 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                       </button>
                     </div>
 
-                    {item.customization && (
-                      <p className="mt-0.5 text-xs text-brand-lime">Özelleştirilmiş</p>
+                    {typeof item.customization?.parameters?.tasarimAraci ===
+                    "string" ? (
+                      // Tasarım aracı ürünü: ayarların kısa verisi
+                      <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
+                        {String(item.customization.parameters.ozet || "Sizin tasarımınız")}
+                      </p>
+                    ) : (
+                      item.customization && (
+                        <p className="mt-0.5 text-xs text-brand-lime">Özelleştirilmiş</p>
+                      )
                     )}
 
                     <div className="mt-auto flex items-center justify-between pt-3">

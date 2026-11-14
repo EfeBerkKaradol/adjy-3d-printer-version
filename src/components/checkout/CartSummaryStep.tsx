@@ -49,8 +49,15 @@ export function CartSummaryStep({ items, totalPrice, onNext }: CartSummaryStepPr
 
             <div className="flex-1 min-w-0">
               <h3 className="font-medium text-sm truncate">{item.product.name}</h3>
-              {item.customization && (
-                <span className="text-xs text-primary">Özelleştirilmiş</span>
+              {typeof item.customization?.parameters?.tasarimAraci === "string" ? (
+                // Tasarım aracı ürünü: ayarların kısa verisi
+                <span className="line-clamp-2 block text-xs text-muted-foreground">
+                  {String(item.customization.parameters.ozet || "Sizin tasarımınız")}
+                </span>
+              ) : (
+                item.customization && (
+                  <span className="text-xs text-primary">Özelleştirilmiş</span>
+                )
               )}
               <p className="text-xs text-muted-foreground mt-1">
                 Adet: {item.quantity}

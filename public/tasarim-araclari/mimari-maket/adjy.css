@@ -27,3 +27,8 @@ html[data-adjy-mod="musteri"] .workspace-grid {
     height: 56vh;
   }
 }
+
+/* Üst şerit müşteri kipinde gizli; ızgaranın ilk satırı boşa çıkmasın */
+html[data-adjy-mod="musteri"] .app-shell {
+  grid-template-rows: minmax(0, 1fr);
+}

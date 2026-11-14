@@ -30,6 +30,27 @@
   html.setAttribute("data-adjy-mod", URETIM ? "uretim" : "musteri");
   html.setAttribute("data-adjy-arac", AYAR.id || "");
 
+  // ---------- SADE / TÜM AYARLAR ----------
+  // Araçlar mühendis için yazıldı; bir saksı için on kaydırıcı müşteriyi
+  // boğuyor. Müşteri kipinde yalnızca temel ayarlar açık gelir, geri kalanı
+  // (AYAR.gelismis) mağazadaki "Tüm ayarlar" düğmesiyle açılır. Atölye
+  // kipinde her şey açıktır.
+  function ayarKipi(kip) {
+    html.setAttribute("data-adjy-ayar", kip === "tum" ? "tum" : "sade");
+    window.dispatchEvent(new Event("resize"));
+  }
+  html.setAttribute("data-adjy-ayar", URETIM ? "tum" : "sade");
+  if (AYAR.gelismis && AYAR.gelismis.length) {
+    var gelismisStil = document.createElement("style");
+    gelismisStil.textContent =
+      AYAR.gelismis
+        .map(function (sec) {
+          return 'html[data-adjy-ayar="sade"] ' + sec;
+        })
+        .join(",") + "{display:none!important}";
+    document.head.appendChild(gelismisStil);
+  }
+
   // ---------- TEMA ----------
   // Aracın kendi tema düğmesi gizli; tema mağazadan gelir.
   // Bazı araçlar 3B sahnenin renklerini de temaya göre kuruyor; onlarda
@@ -62,12 +83,83 @@
   // Araçların bütün çıktıları (STL, pafta, tablo) geçici bir bağlantıya
   // "tıklanarak" iniyor. Müşteri kipinde bu tıklama hiçbir şey yapmaz:
   // çıktı düğmeleri gizli, ama gizliliği aşan biri de dosya alamasın.
-  if (!URETIM) {
-    var asilTikla = HTMLAnchorElement.prototype.click;
-    HTMLAnchorElement.prototype.click = function () {
-      if (this.hasAttribute("download")) return;
-      return asilTikla.call(this);
-    };
+  //
+  // Atölye kipinde aynı tıklama iki şekilde sonuçlanabilir: olduğu gibi
+  // bırakılırsa dosya tarayıcının indirilenlerine düşer; toplama açıksa
+  // (ADJY.topla) dosya indirilmez, yönetim paneline verilir. Panel onları
+  // sipariş klasörüne kendi yazar.
+  var toplanan = null; // dizi iken toplama açık
+  var sonDosyaAni = 0;
+  var asilTikla = HTMLAnchorElement.prototype.click;
+  HTMLAnchorElement.prototype.click = function () {
+    if (this.hasAttribute("download")) {
+      if (!URETIM) return;
+      if (toplanan) {
+        var ad = this.download || "dosya";
+        // Araç geçici adresi bir iki saniye sonra bırakıyor; içerik hemen alınır
+        toplanan.push(
+          fetch(this.href)
+            .then(function (r) { return r.blob(); })
+            .then(function (blob) { return { ad: ad, blob: blob }; })
+            .catch(function () { return null; })
+        );
+        sonDosyaAni = Date.now();
+        return;
+      }
+    }
+    return asilTikla.call(this);
+  };
+
+  /**
+   * Verilen çıktı düğmelerine sırayla basar ve üretilen dosyaları döndürür.
+   * Bir düğme birden çok dosya üretebilir (mimari makette her kat ayrı);
+   * yeni dosya gelmesi kesilene kadar beklenir.
+   */
+  function topla(seciciler, secenek) {
+    if (!URETIM) return Promise.resolve([]);
+    var sessizlik = (secenek && secenek.sessizlik) || 700;
+    var liste = [];
+    toplanan = liste;
+
+    function bekle(once) {
+      var basla = Date.now();
+      return new Promise(function (bitti) {
+        var t = setInterval(function () {
+          var gecen = Date.now() - basla;
+          var geldi = liste.length > once;
+          if (
+            (geldi && Date.now() - sonDosyaAni > sessizlik) ||
+            (!geldi && gecen > 6000) ||
+            gecen > 45000
+          ) {
+            clearInterval(t);
+            bitti();
+          }
+        }, 120);
+      });
+    }
+
+    var sira = Promise.resolve();
+    (seciciler || []).forEach(function (sec) {
+      sira = sira.then(function () {
+        var el = document.querySelector(sec);
+        if (!el) return null;
+        var once = liste.length;
+        el.click();
+        return bekle(once);
+      });
+    });
+
+    return sira
+      .then(function () { return Promise.all(liste); })
+      .then(function (dosyalar) {
+        toplanan = null;
+        return dosyalar.filter(Boolean);
+      })
+      .catch(function () {
+        toplanan = null;
+        return [];
+      });
   }
 
   // ---------- EKRAN GÖRÜNTÜSÜ ----------
@@ -446,20 +538,36 @@
   }
 
   /** Atölyenin okuyacağı metin: müşterinin seçtiği her şey, satır satır */
+  var GELISMIS = (AYAR.gelismis || []).join(",");
+
+  /** Sade görünümde kapalı duran bir ayrıntı ayarı mı */
+  function ayrintiMi(el) {
+    if (!GELISMIS || !el) return false;
+    try {
+      return !!el.closest(GELISMIS);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Her satır "ayrinti" işareti taşır. Sepette ve listelerde yalnızca
+  // temel seçimler görünür; atölye bütün listeyi görür.
   function ozet() {
     var satirlar = [];
     var gorulen = {};
-    function ekle(ad, deger) {
+    function ekle(ad, deger, ayrinti) {
       ad = temizMetin(ad);
       deger = temizMetin(deger);
       if (!ad || deger === "" || gorulen[ad]) return;
       gorulen[ad] = true;
-      satirlar.push({ ad: ad, deger: deger });
+      var satir = { ad: ad, deger: deger };
+      if (ayrinti) satir.ayrinti = true;
+      satirlar.push(satir);
     }
     (AYAR.gruplar || []).forEach(function (grup) {
       if (grup.gorunum || !grup.etiket) return;
       var d = grupDurumu(grup);
-      if (d) ekle(grup.etiket, d.metin);
+      if (d) ekle(grup.etiket, d.metin, ayrintiMi(document.querySelector(grup.kap)));
     });
     alanlar().forEach(function (el) {
       if (ureticiMi(el)) return;
@@ -467,7 +575,7 @@
       if ((AYAR.ozetHaric || []).indexOf(anahtar(el.id)) !== -1) return;
       if (el.type === "radio" && !el.checked) return;
       if (el.type === "checkbox" && !el.checked && !AYAR.kutularHep) return;
-      ekle(etiket(el), okunurDeger(el));
+      ekle(etiket(el), okunurDeger(el), ayrintiMi(el));
     });
     Object.keys(dosyalar).forEach(function (id) {
       var adlar = dosyalar[id].map(function (d) { return d.ad; }).join(", ");
@@ -475,7 +583,7 @@
     });
     if (typeof AYAR.ozetEk === "function") {
       try {
-        (AYAR.ozetEk() || []).forEach(function (s) { ekle(s.ad, s.deger); });
+        (AYAR.ozetEk() || []).forEach(function (s) { ekle(s.ad, s.deger, s.ayrinti); });
       } catch (e) { /* yok say */ }
     }
     return satirlar;
@@ -638,6 +746,9 @@
     gorsel: gorsel,
     tema: temaUygula,
     tikla: tikla,
+    topla: topla,
+    ayar: ayarKipi,
+    gelismisVar: !!(AYAR.gelismis && AYAR.gelismis.length),
     dosyalariYukle: dosyalariYukle,
     dosyaVar: function (id) { return !!(dosyalar[id] && dosyalar[id].length); },
     dosyaSayisi: dosyaSayisi,
@@ -702,7 +813,11 @@
     // Form alanına bağlı olmayan etiketler (dosya girişi, düğme grubu)
     Object.keys(harita).forEach(function (kimlik) {
       var l = document.querySelector('label[for="' + kimlik + '"]');
-      if (l && !l.classList.contains("adjy-etiket")) yaz(l.querySelector(etiketSec) || l, harita[kimlik]);
+      if (!l || l.classList.contains("adjy-etiket")) return;
+      var ic = l.querySelector(etiketSec);
+      // İçinde başka öğeler olan etiket bir yükleme alanıdır; metni silinmez
+      if (!ic && l.children.length > 0) return;
+      yaz(ic || l, harita[kimlik]);
     });
     (AYAR.metinler || []).forEach(function (m) {
       Array.prototype.slice.call(document.querySelectorAll(m.sec)).forEach(function (n) {

@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TasarimKalemi } from "@/components/tasarim/TasarimKalemi";
+import { tasarimUrunuMu } from "@/lib/tasarim/order";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -180,6 +181,13 @@ export default function AdminOrderDetailPage() {
   const o = order as Record<string, unknown>;
   const user = o.user as Record<string, string>;
   const items = o.items as Record<string, unknown>[];
+  // Siparişte birden çok tasarım ürünü varsa indirilen dosyalar
+  // sipariş klasörünün içinde ürün başına alt klasöre girer.
+  const tasarimKalemleri = items.filter((i) =>
+    tasarimUrunuMu(
+      ((i.product as Record<string, unknown> | null)?.sku as string | null) ?? null
+    )
+  );
   const address = o.address as Record<string, string> | null;
   const payments = o.payments as Record<string, unknown>[];
   const history = o.history as Record<string, unknown>[];
@@ -408,13 +416,29 @@ export default function AdminOrderDetailPage() {
                     </div>
                   </div>
                   {/* Tasarım aracıyla kurulan ürün: seçimler metin
-                      olarak, STL ve imalat dosyaları üretim ekranında */}
+                      olarak; "İndir" STL ve imalat dosyalarını
+                      müşteri adı + sipariş numarası klasörüne yazar */}
                   <TasarimKalemi
                     orderId={orderId}
                     itemId={item.id as string}
                     sku={product?.sku ? String(product.sku) : null}
                     customParams={
                       (item.customParams as Record<string, unknown> | null) ?? null
+                    }
+                    adet={item.quantity as number}
+                    birimFiyat={Number(item.unitPrice)}
+                    siparis={{
+                      no: String(o.orderNumber),
+                      musteri: user?.fullName || user?.email || "Müşteri",
+                      eposta: user?.email || "",
+                      telefon: user?.phone || null,
+                      not: o.notes ? String(o.notes) : null,
+                      tarih: String(o.createdAt),
+                    }}
+                    altKlasor={
+                      tasarimKalemleri.length > 1
+                        ? `${tasarimKalemleri.indexOf(item) + 1} - ${String(item.productName)}`
+                        : null
                     }
                   />
                   </div>

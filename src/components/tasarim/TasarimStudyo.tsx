@@ -4,14 +4,21 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { ArrowLeft, Check, ChevronDown, Loader2, ShoppingCart } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  ChevronDown,
+  Loader2,
+  ShoppingCart,
+  SlidersHorizontal,
+} from "lucide-react";
 import {
   aracGorseli,
   aracKaynagi,
   type TasarimAraci,
 } from "@/lib/tasarim/catalog";
 import { tasarimFiyati } from "@/lib/tasarim/pricing";
-import { kisaOzet, secimleriTemizle } from "@/lib/tasarim/order";
+import { kisaOzet, secimleriTemizle, temelSecimler } from "@/lib/tasarim/order";
 import { useCartStore } from "@/store/cartStore";
 import { formatTRY } from "@/lib/slicer";
 import { aracArayuzu, aracMesajiMi, type AracPaketi } from "./kopru";
@@ -63,6 +70,17 @@ export function TasarimStudyo({ arac, urunId }: Props) {
   const [ekleniyor, setEkleniyor] = useState(false);
   const [eklendi, setEklendi] = useState(false);
   const [hata, setHata] = useState<string | null>(null);
+  // Araç sade açılır: birkaç temel ayar. Geri kalanı bu düğmeyle gelir.
+  const [tumAyarlar, setTumAyarlar] = useState(false);
+  const [ayrintiVar, setAyrintiVar] = useState(false);
+  const [eklenenOzet, setEklenenOzet] = useState<string | null>(null);
+
+  const ayarlariDegistir = useCallback(() => {
+    setTumAyarlar((acik) => {
+      aracArayuzu(cerceveRef.current)?.ayar(acik ? "sade" : "tum");
+      return !acik;
+    });
+  }, []);
 
   useEffect(() => {
     if (!hazir || !resolvedTheme) return;
@@ -73,10 +91,15 @@ export function TasarimStudyo({ arac, urunId }: Props) {
     function dinle(e: MessageEvent) {
       if (e.origin !== window.location.origin) return;
       if (!aracMesajiMi(e.data, arac.id)) return;
-      if (e.data.tur === "hazir") setHazir(true);
+      if (e.data.tur === "hazir") {
+        setHazir(true);
+        setAyrintiVar(!!aracArayuzu(cerceveRef.current)?.gelismisVar);
+      }
       if (e.data.tur === "durum" && e.data.veri) {
         setPaket(e.data.veri);
         setHata(null);
+        // Ayar değişti: az önce eklenenin özeti artık ekrandakini anlatmıyor
+        setEklenenOzet(null);
       }
     }
     window.addEventListener("message", dinle);
@@ -85,7 +108,8 @@ export function TasarimStudyo({ arac, urunId }: Props) {
 
   const secimler = useMemo(() => secimleriTemizle(paket?.ozet), [paket]);
   const fiyat = useMemo(() => tasarimFiyati(arac, paket?.olcum ?? null), [arac, paket]);
-  const ozetMetni = kisaOzet(secimler, 3);
+  // Çubukta ve sepette kısa veri: yalnızca temel seçimler
+  const ozetMetni = kisaOzet(temelSecimler(paket?.ozet), 4);
 
   const sepeteEkle = useCallback(async () => {
     const arayuz = aracArayuzu(cerceveRef.current);
@@ -117,7 +141,7 @@ export function TasarimStudyo({ arac, urunId }: Props) {
           id: null,
           parameters: {
             tasarimAraci: arac.id,
-            ozet: kisaOzet(sonSecimler, 4),
+            ozet: kisaOzet(temelSecimler(son.ozet), 5),
             secimler: sonSecimler,
             olcum: son.olcum,
             durum: son.durum,
@@ -127,6 +151,7 @@ export function TasarimStudyo({ arac, urunId }: Props) {
         calculatedPrice: sonFiyat,
       });
       setEklendi(true);
+      setEklenenOzet(kisaOzet(temelSecimler(son.ozet), 5));
       setTimeout(() => setEklendi(false), 2400);
       router.refresh();
     } catch (e) {
@@ -163,6 +188,21 @@ export function TasarimStudyo({ arac, urunId }: Props) {
             {arac.ozet}
           </p>
         </div>
+        {ayrintiVar && (
+          <button
+            type="button"
+            onClick={ayarlariDegistir}
+            aria-pressed={tumAyarlar}
+            className={`ml-auto inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3 text-sm transition-colors ${
+              tumAyarlar
+                ? "bg-foreground text-background"
+                : "bg-muted hover:bg-accent"
+            }`}
+          >
+            <SlidersHorizontal className="h-4 w-4" aria-hidden />
+            {tumAyarlar ? "Sade görünüm" : "Tüm ayarlar"}
+          </button>
+        )}
       </div>
 
       {/* ---------- ARAÇ ---------- */}
@@ -206,6 +246,26 @@ export function TasarimStudyo({ arac, urunId }: Props) {
         {hata && (
           <p role="alert" className="mb-3 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {hata}
+          </p>
+        )}
+
+        {/* Sepete giren ayarların kısa hâli: müşteri neyi eklediğini
+            sepete gitmeden görsün. */}
+        {eklenenOzet !== null && !hata && (
+          <p
+            role="status"
+            className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-muted/60 px-3 py-2 text-sm"
+          >
+            <span className="inline-flex items-center gap-1.5 font-medium">
+              <Check className="h-4 w-4 text-brand-lime" aria-hidden />
+              Sepete eklendi
+            </span>
+            <span className="min-w-0 flex-1 truncate text-muted-foreground">
+              {eklenenOzet || "Varsayılan ayarlarla"}
+            </span>
+            <Link href="/cart" className="shrink-0 underline underline-offset-2">
+              Sepete git
+            </Link>
           </p>
         )}
 

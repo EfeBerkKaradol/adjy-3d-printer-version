@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Check, Copy, Download, Paperclip } from "lucide-react";
+import { Check, Copy, Paperclip, SquareArrowOutUpRight } from "lucide-react";
 import {
   secimlerMetni,
   secimleriTemizle,
@@ -11,17 +11,19 @@ import {
 } from "@/lib/tasarim/order";
 import { aracBul } from "@/lib/tasarim/catalog";
 import { uretimEkraniAdresi } from "@/lib/tasarim/adresler";
+import { TasarimIndirici } from "./TasarimIndirici";
 
 // ==========================================
 // SİPARİŞ DETAYINDA TASARIM KALEMİ
 //
-// Sipariş kaleminin altında, yalnızca tasarım aracıyla
-// kurulan ürünlerde görünür. Atölyenin ilk bakışta ihtiyaç
-// duyduğu iki şey burada:
+// Sipariş kaleminin altında, yalnızca tasarım aracıyla kurulan
+// ürünlerde görünür. Atölyenin ihtiyaç duyduğu üç şey burada:
 //
 //   - müşterinin seçtiği her şey, okunur metin olarak;
-//   - üretim ekranına giden düğme. STL orada, müşterinin
-//     kaydıyla açılan araçtan indirilir.
+//   - "İndir": STL ve imalat dosyaları, sayfadan ayrılmadan,
+//     müşterinin adı ve sipariş numarasıyla açılan klasöre iner;
+//   - "Üretim paneli": isteğe bağlı. Araç müşterinin ayarlarıyla
+//     açılır; modeli incelemek ya da tek tek dosya almak için.
 // ==========================================
 
 interface Props {
@@ -29,9 +31,31 @@ interface Props {
   itemId: string;
   sku: string | null;
   customParams: Record<string, unknown> | null;
+  /** Kalemin adedi ve birim fiyatı — sipariş bilgisi dosyasına yazılır */
+  adet: number;
+  birimFiyat: number;
+  siparis: {
+    no: string;
+    musteri: string;
+    eposta: string;
+    telefon: string | null;
+    not: string | null;
+    tarih: string;
+  };
+  /** Siparişte birden çok tasarım ürünü varsa dosyaların gireceği alt klasör */
+  altKlasor: string | null;
 }
 
-export function TasarimKalemi({ orderId, itemId, sku, customParams }: Props) {
+export function TasarimKalemi({
+  orderId,
+  itemId,
+  sku,
+  customParams,
+  adet,
+  birimFiyat,
+  siparis,
+  altKlasor,
+}: Props) {
   const [kopyalandi, setKopyalandi] = useState(false);
 
   const arac =
@@ -41,11 +65,19 @@ export function TasarimKalemi({ orderId, itemId, sku, customParams }: Props) {
   if (!arac) return null;
 
   const secimler = secimleriTemizle(customParams?.secimler);
-  const dosyalar = tasarimDosyalari(customParams?.durum);
-  const olcum =
+  const durum =
+    customParams && typeof customParams.durum === "object" && customParams.durum !== null
+      ? (customParams.durum as Record<string, unknown>)
+      : null;
+  const dosyalar = tasarimDosyalari(durum);
+  const hamOlcum =
     customParams && typeof customParams.olcum === "object" && customParams.olcum !== null
       ? (customParams.olcum as { kutleG?: number; sureSaat?: number })
       : null;
+  const olcum = {
+    kutleG: Number(hamOlcum?.kutleG) || null,
+    sureSaat: Number(hamOlcum?.sureSaat) || null,
+  };
 
   async function kopyala() {
     try {
@@ -63,7 +95,7 @@ export function TasarimKalemi({ orderId, itemId, sku, customParams }: Props) {
         <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
           Müşterinin tasarımı
         </p>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           {secimler.length > 0 && (
             <button
               type="button"
@@ -80,10 +112,10 @@ export function TasarimKalemi({ orderId, itemId, sku, customParams }: Props) {
           )}
           <Link
             href={uretimEkraniAdresi(orderId, itemId)}
-            className="inline-flex h-8 items-center gap-1.5 rounded-md bg-foreground px-3 text-xs font-medium text-background transition-opacity hover:opacity-90"
+            className="inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
-            <Download className="h-3.5 w-3.5" aria-hidden />
-            STL ve üretim dosyaları
+            <SquareArrowOutUpRight className="h-3.5 w-3.5" aria-hidden />
+            Üretim paneli
           </Link>
         </div>
       </div>
@@ -105,10 +137,10 @@ export function TasarimKalemi({ orderId, itemId, sku, customParams }: Props) {
         </dl>
       )}
 
-      {(dosyalar.length > 0 || olcum) && (
-        <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1.5 border-t-2 border-dashed border-foreground/25 pt-2.5 text-xs text-muted-foreground">
-          {olcum?.kutleG ? <span>{olcum.kutleG} g filament</span> : null}
-          {olcum?.sureSaat ? <span>{olcum.sureSaat} saat baskı</span> : null}
+      {(dosyalar.length > 0 || olcum.kutleG || olcum.sureSaat) && (
+        <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-muted-foreground">
+          {olcum.kutleG ? <span>{olcum.kutleG} g filament</span> : null}
+          {olcum.sureSaat ? <span>{olcum.sureSaat} saat baskı</span> : null}
           {dosyalar.map((d) =>
             d.url ? (
               <a
@@ -125,6 +157,15 @@ export function TasarimKalemi({ orderId, itemId, sku, customParams }: Props) {
           )}
         </div>
       )}
+
+      <div className="mt-3 border-t-2 border-dashed border-foreground/25 pt-3">
+        <TasarimIndirici
+          arac={arac}
+          siparis={{ id: orderId, ...siparis }}
+          kalem={{ id: itemId, adet, birimFiyat, secimler, dosyalar, durum, olcum }}
+          altKlasor={altKlasor}
+        />
+      </div>
     </div>
   );
 }

@@ -2,6 +2,12 @@
 window.ADJY_ARAC = {
   id: "mimari-maket",
 
+  // Başlık ve düğmelerdeki teknik adlar — okunur adla gösterilir
+  ceviri: {
+      "01 · MODEL YÜKLE & PARAMETRİK DFM": "Maketinizi kurun",
+      "00 · Kendi 3B Modelini Yükle": "Kendi 3B modelini yükle",
+  },
+
   tema: { oznitelik: "data-theme", acik: "paper", koyu: "dark", ilk: "dark", dugme: "#btn-theme-toggle" },
 
   gizle: [
@@ -25,6 +31,23 @@ window.ADJY_ARAC = {
     '[data-mode="blueprint"]',
     '[data-mode="xray"]',
     '[data-mode="wire"]',
+    // Sadeleştirme: kamera, kesit ve gösterim araçları müşteriye kapalı
+    ".topbar",
+    ".viewport-toolbar",
+    ".viewport-dock",
+    "#tier-Floating-Inspector",
+    "section.ctrl-group.compact",
+    ".tr-desc",
+  ],
+
+  // Sade görünümde kapalı duran ayrıntı ayarları. Müşteri "Tüm ayarlar"
+  // derse açılır; atölye kipinde hep açıktır ve sipariş metnine her
+  // durumda girer.
+  gelismis: [
+    "section.upload-card",
+    "section.ctrl-group:has(#Kat_Yuksekligi_m)",
+    "section.ctrl-group:has(#Balkon_Cikma_m)",
+    "section.ctrl-group:has(#Pencere_Orani_Yuzde)",
   ],
 
   gruplar: [

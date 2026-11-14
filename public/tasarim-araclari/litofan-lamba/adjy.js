@@ -9,7 +9,8 @@ window.ADJY_ARAC = {
       "Curved_Panel": "Kavisli panel",
       "Hexagon": "Altıgen",
       "Ic_Isik_Test_Slider": "Işık önizlemesi",
-      "Fotograf_Yukle": "Fotoğrafınız"
+      "Fotograf_Yukle": "Fotoğrafınız",
+      "01 · PARAMETRİK KONTROLLER": "Lambanızı kurun",
   },
 
   gizle: [
@@ -32,6 +33,19 @@ window.ADJY_ARAC = {
     '#sel-render-mode option[value="wireframe"]',
     "label:has(#chk-section-cut)",
     "#rng-section-offset",
+    // Sadeleştirme: kamera, kesit ve gösterim araçları müşteriye kapalı
+    ".vp-toolbar",
+    ".vp-subbar",
+    ".kelvin-pills",
+    ".param-sub",
+  ],
+
+  // Sade görünümde kapalı duran ayrıntı ayarları. Müşteri "Tüm ayarlar"
+  // derse açılır; atölye kipinde hep açıktır ve sipariş metnine her
+  // durumda girer.
+  gelismis: [
+    ".micro-toggles",
+    ".sub-ctrl-row:has(#sel-wrap-mode)",
   ],
 
   gruplar: [{ kap: ".segmented-form", oz: "data-form", etiket: "Form" }],

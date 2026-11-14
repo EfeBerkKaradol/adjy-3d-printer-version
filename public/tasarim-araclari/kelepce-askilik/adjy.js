@@ -2,6 +2,14 @@
 window.ADJY_ARAC = {
   id: "kelepce-askilik",
 
+  // Başlık ve düğmelerdeki teknik adlar — okunur adla gösterilir
+  ceviri: {
+      "Askı Gövde Mimarisi Seçimi": "Model",
+      "C-Gövde & Askı Parametreleri": "Ölçüler",
+      "Montaj Hareketi & Üretim Girdisi": "Malzeme",
+      "ŞABLON": "Hazır model",
+  },
+
   gizle: [
     ".status-cluster",
     ".mode-switch-group",
@@ -20,6 +28,20 @@ window.ADJY_ARAC = {
     '[data-display="wireframe"]',
     ".panel-right",
     "#antet-modal",
+    // Sadeleştirme: kamera, kesit ve gösterim araçları müşteriye kapalı
+    ".topbar-controls .seg-group",
+    ".hud-top-right",
+    ".param-row:has(#rng-Sikma_Pozisyonu_pct)",
+    ".toggle-grid",
+    ".param-desc",
+    ".section-idx",
+  ],
+
+  // Sade görünümde kapalı duran ayrıntı ayarları. Müşteri "Tüm ayarlar"
+  // derse açılır; atölye kipinde hep açıktır ve sipariş metnine her
+  // durumda girer.
+  gelismis: [
+    ".param-row:has(#num-Aparat_Eni_mm)",
   ],
 
   gruplar: [{ kap: ".arch-grid", oz: "data-style", etiket: "Model" }],

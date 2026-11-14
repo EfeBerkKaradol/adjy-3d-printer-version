@@ -7,7 +7,13 @@ window.ADJY_ARAC = {
       "Urun_Tipi": "Ürün tipi",
       "Angled_Stand / Keychain": "Stand ya da anahtarlık",
       "Angled_Stand (68° Stand)": "Masa standı",
-      "En_Boy_Orani": "En-boy oranı"
+      "En_Boy_Orani": "En-boy oranı",
+      "[ 01 / HAZIR ÖZEL TASARIM ŞABLONLARI ]": "Hazır tasarımlar",
+      "[ 02 / TEMEL PARAMETRİK GİRDİLER ]": "Bağlantı ve yazı",
+      "[ DIŞ GÖVDE SİLÜETİ / ŞEKİL SEÇİMİ ]": "Gövde şekli",
+      "[ M600 ÇİFT RENK & MALZEME ]": "Renk",
+      "[ YERLEŞİM DÜZENİ & METİN İÇERİĞİ ]": "Alt yazı ve simge",
+      "[ HASSAS KONUM & ÖLÇEK AYARI ]": "İnce ayar",
   },
 
   tema: { oznitelik: "data-theme", acik: "light", koyu: "dark", ilk: "dark", dugme: "#btn-theme-toggle" },
@@ -33,6 +39,31 @@ window.ADJY_ARAC = {
     "#antet-modal",
     '#sel-material option[value="ALU"]',
     '#sel-material option[value="SS304"]',
+    // Sadeleştirme: kamera, kesit ve gösterim araçları müşteriye kapalı
+    ".studio-tabs",
+    ".cad-toolbar",
+    ".clipping-bar",
+    "#btn-pose-assembled",
+    "#btn-pose-exploded",
+    ".param-group:has(#inp-ust-baslik-2)",
+    ".param-unit",
+    ".vp-index",
+  ],
+
+  // Sade görünümde kapalı duran ayrıntı ayarları. Müşteri "Tüm ayarlar"
+  // derse açılır; atölye kipinde hep açıktır ve sipariş metnine her
+  // durumda girer.
+  gelismis: [
+    ".param-group:has(#seg-aspect)",
+    ".param-group:has(#rng-kose-radyus)",
+    ".param-group:has(#sel-border-style)",
+    ".param-group:has(#sel-lug-pos)",
+    ".param-group:has(#sel-material)",
+    ".custom-color-pickers",
+    ".param-group:has(#sel-layout)",
+    ".two-col-row:has(#sel-font)",
+    ".panel-section:has(#rng-qr-scale)",
+    ".vp-quick-nudge",
   ],
 
   gruplar: [

@@ -22,6 +22,17 @@ window.ADJY_ARAC = {
     ".panel-right",
     "#svg-modal",
     ".range-minmax",
+    // Sadeleştirme: kamera, kesit ve gösterim araçları müşteriye kapalı
+    ".vp-bar-top",
+    ".vp-bar-bottom",
+  ],
+
+  // Sade görünümde kapalı duran ayrıntı ayarları. Müşteri "Tüm ayarlar"
+  // derse açılır; atölye kipinde hep açıktır ve sipariş metnine her
+  // durumda girer.
+  gelismis: [
+    ".param-control:has(#num-Kanat_Derinligi_mm)",
+    ".param-control:has(#num-Alt_Tabak_Yukseklik_mm)",
   ],
 
   gruplar: [

@@ -4,7 +4,11 @@ window.ADJY_ARAC = {
 
   // Düğmelerdeki değişken adları — iki kipte de okunur adla gösterilir
   ceviri: {
-      "Duy_Tipi": "Duy tipi"
+      "Duy_Tipi": "Duy tipi",
+      "01 / GEOMETRİ PARAMETRELERİ": "Ölçü ve biçim",
+      "02 / DUY BİLEZİĞİ & TERMAL TAHLİYE": "Duy",
+      "03 / İÇ AYDINLATMA & KESİT ANALİZİ": "Işık önizlemesi",
+      "ŞABLON": "Hazır model",
   },
 
   // Malzeme seçimi üretici panelinde duruyor ama müşterinin seçimi
@@ -25,6 +29,20 @@ window.ADJY_ARAC = {
     ".telemetry-hud",
     ".right-rail",
     "#antet-modal",
+    // Sadeleştirme: kamera, kesit ve gösterim araçları müşteriye kapalı
+    ".topbar-controls .seg-group",
+    ".viewport-mode-bar",
+    ".range-ticks",
+    ".mono-sub",
+    ".mono-unit",
+  ],
+
+  // Sade görünümde kapalı duran ayrıntı ayarları. Müşteri "Tüm ayarlar"
+  // derse açılır; atölye kipinde hep açıktır ve sipariş metnine her
+  // durumda girer.
+  gelismis: [
+    ".param-row:has(#num-Kanat_Sayisi)",
+    ".panel-section:has(#chk-light-on)",
   ],
 
   gruplar: [{ kap: ".duy-selector", oz: "data-duy", etiket: "Duy tipi" }],

@@ -71,6 +71,35 @@ window.ADJY_ARAC = {
     '[data-mobnav="order"]',
     ".scale-cell:has(#readClampedWall)",
     ".scale-cell:has(#readModuleSummary)",
+    // Sadeleştirme: kamera, kesit ve gösterim araçları müşteriye kapalı
+    ".friendly-hint",
+    ".viewport-hud-top .hud-group:nth-child(2)",
+    ".module-tag",
+    ".field-label .unit",
+  ],
+
+  // Sade görünümde kapalı duran ayrıntı ayarları. Müşteri "Tüm ayarlar"
+  // derse açılır; atölye kipinde hep açıktır ve sipariş metnine her
+  // durumda girer.
+  gelismis: [
+    ".field-label:has(+ #odaKabukGroup)",
+    "#odaKabukGroup",
+    ".field-label:has(+ #roomQuickScaleBar)",
+    "#roomQuickScaleBar",
+    "#roomSizePresets",
+    ".scale-readout-box",
+    "#Adim_02B_Oda_Olculeri_ve_DFM",
+    "#Kendi_Modellerinle_Ozellestir",
+    ".param-row:has(#selModType)",
+    ".cm-grid-2:has(#selModFrontStyle)",
+    "#tglModExtra",
+    "#tglModSplitTop",
+    ".field-label:has(+ #modWallSnapGroup)",
+    "#modWallSnapGroup",
+    ".field-label:has(+ #modRotGroup)",
+    "#modRotGroup",
+    ".cm-grid-2:has(#rngModX)",
+    ".param-row:has(#rngModY)",
   ],
 
   // Oda ve modüller form alanı değil, bir veri yapısı: düzenleyicideki
@@ -108,8 +137,18 @@ window.ADJY_ARAC = {
     });
   },
 
+  // Sepette kısa kalsın: oda, ölçek ve kaç modül olduğu. Modüllerin tek
+  // tek dökümü atölye içindir (ayrıntı).
   ozetEk: function () {
-    return window.__ADJY_ODA ? window.__ADJY_ODA.ozet() : [];
+    if (!window.__ADJY_ODA) return [];
+    var satirlar = window.__ADJY_ODA.ozet();
+    var modul = 0;
+    satirlar.forEach(function (s) {
+      if (/^Modül \d/.test(s.ad)) modul += 1;
+      if (/^(Modül \d|Özel model|Oda kabuğu|Oda ölçüsü)/.test(s.ad)) s.ayrinti = true;
+    });
+    satirlar.splice(2, 0, { ad: "Modül sayısı", deger: String(modul) });
+    return satirlar;
   },
 
   olcum: {

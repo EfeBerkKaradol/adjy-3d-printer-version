@@ -10,10 +10,22 @@
 
 import type { TasarimSecimi } from "@/lib/tasarim/order";
 
+/** Köprünün bildirdiği seçim: ayrıntı ayarları işaretli gelir */
+export interface AracSecimi extends TasarimSecimi {
+  /** Sade görünümde kapalı duran ayar — kısa özete girmez */
+  ayrinti?: boolean;
+}
+
+/** Araçtan gelen (ya da indirilen) tek dosya */
+export interface AracDosyasi {
+  ad: string;
+  blob: Blob;
+}
+
 /** Aracın her değişiklikte gönderdiği paket */
 export interface AracPaketi {
   durum: Record<string, unknown>;
-  ozet: TasarimSecimi[];
+  ozet: AracSecimi[];
   olcum: { kutleG?: number; sureSaat?: number };
 }
 
@@ -25,6 +37,11 @@ export interface AracArayuzu {
   gorsel: (genislik?: number) => string | null;
   tema: (tema: "acik" | "koyu") => void;
   tikla: (secici: string) => boolean;
+  /** Çıktı düğmelerine basar, dosyaları indirmek yerine döndürür (atölye) */
+  topla: (seciciler: string[], secenek?: { sessizlik?: number }) => Promise<AracDosyasi[]>;
+  /** Sade görünüm ile bütün ayarlar arasında geçiş */
+  ayar: (kip: "sade" | "tum") => void;
+  gelismisVar: boolean;
   dosyalariYukle: () => Promise<Record<string, unknown>>;
   dosyaVar: (girisId: string) => boolean;
   dosyaSayisi: () => number;

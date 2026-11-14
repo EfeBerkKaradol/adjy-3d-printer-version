@@ -4,7 +4,10 @@ window.ADJY_ARAC = {
 
   // Düğmelerdeki değişken adları — iki kipte de okunur adla gösterilir
   ceviri: {
-      "Pirinc_Insert_Tipi": "Vida yuvası"
+      "Pirinc_Insert_Tipi": "Vida yuvası",
+      "TÜRKÇE CAD PARAMETRELERİ": "Kart ve kutu ölçüsü",
+      "DFM PANJUR & G/Ç KESİTLERİ": "Havalandırma ve kesitler",
+      "ŞABLON": "Hazır model",
   },
 
   tema: { oznitelik: "data-theme", acik: "paper", koyu: "dark", ilk: "dark", dugme: "#btn-theme-toggle" },
@@ -26,6 +29,20 @@ window.ADJY_ARAC = {
     ".right-panel",
     "#blueprint-modal",
     '#sel-material option[value="AL6061"]',
+    // Sadeleştirme: kamera, kesit ve gösterim araçları müşteriye kapalı
+    ".cad-toolbar.top-overlay",
+    ".cad-rig-bar.bottom-overlay",
+    ".section-idx",
+    "#insert-bore-badge",
+  ],
+
+  // Sade görünümde kapalı duran ayrıntı ayarları. Müşteri "Tüm ayarlar"
+  // derse açılır; atölye kipinde hep açıktır ve sipariş metnine her
+  // durumda girer.
+  gelismis: [
+    ".param-control:has(#num-duvar)",
+    ".param-control:has(#num-kenar-mesafe)",
+    ".io-builder",
   ],
 
   gruplar: [{ kap: "#insert-type-group", oz: "data-insert", etiket: "Vida yuvası" }],

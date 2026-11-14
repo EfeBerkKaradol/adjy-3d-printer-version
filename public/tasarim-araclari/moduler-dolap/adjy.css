@@ -48,3 +48,13 @@ html[data-adjy-tema] .hud-move-pad {
   background: var(--a-ortu);
   border-color: var(--a-cizgi);
 }
+
+/* Sade görünüm: üst şeritte müşteriye ait bir şey kalmıyor */
+@media (min-width: 961px) {
+  html[data-adjy-mod="musteri"] .top-bar {
+    display: none;
+  }
+  html[data-adjy-mod="musteri"] .app-shell {
+    grid-template-rows: minmax(0, 1fr);
+  }
+}

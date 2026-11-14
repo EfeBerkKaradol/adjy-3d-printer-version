@@ -43,3 +43,13 @@ html[data-adjy-mod="musteri"] .workspace-grid {
     height: 52vh;
   }
 }
+
+/* Sade görünüm: üç sekme tek akışta. Müşteri hangi ayarın hangi sekmede
+   olduğunu aramasın; sekme şeridi köprü tarafından gizleniyor. */
+html[data-adjy-mod="musteri"] .tab-pane {
+  display: block !important;
+}
+/* Kamera ve kesit şeritleri gizli; sahne bütün yüksekliği alır */
+html[data-adjy-mod="musteri"] .stage-center {
+  grid-template-rows: minmax(0, 1fr);
+}

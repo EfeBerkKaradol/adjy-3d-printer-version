@@ -9,7 +9,14 @@ window.ADJY_ARAC = {
       "Cylindrical_Pen": "Kalem",
       "Round_Token": "Yuvarlak",
       "Custom_Model": "Kendi modelin",
-      "Parmak_Alma_Oyugu": "Parmak oyuğu"
+      "Parmak_Alma_Oyugu": "Parmak oyuğu",
+      "PARAMETRİK KONTROLLER": "Fikstürünüzü kurun",
+      "00 // KENDİ MODELİNİ YÜKLE": "Kendi modelini yükle",
+      "01 // Ürün şekli": "Ürün şekli",
+      "02 // Ürün Nominal Ölçüleri": "Ürün ölçüsü",
+      "04 // Çoklu Dizilim Matrisi": "Kaç yuva",
+      "05 // Optik Masa & Ergonomi": "Masa ve tutuş",
+      "06 // Gövde Et Kalınlığı & Malzeme": "Malzeme",
   },
 
   tema: { oznitelik: "data-theme", acik: "light", koyu: "dark", ilk: "dark", dugme: "#btnThemeToggle" },
@@ -34,6 +41,20 @@ window.ADJY_ARAC = {
     '[data-display="wire"]',
     '#sel_Malzeme option[value="DELRIN_POM"]',
     '#sel_Malzeme option[value="ALU_6061"]',
+    // Sadeleştirme: kamera, kesit ve gösterim araçları müşteriye kapalı
+    ".vp-toolbar",
+    ".vp-bottom-hud",
+    ".ctrl-hint",
+  ],
+
+  // Sade görünümde kapalı duran ayrıntı ayarları. Müşteri "Tüm ayarlar"
+  // derse açılır; atölye kipinde hep açıktır ve sipariş metnine her
+  // durumda girer.
+  gelismis: [
+    "section.upload-group",
+    "#btnUploadModelTop",
+    '[data-shape="Custom_Model"]',
+    "section.ctrl-group:has(.pitch-segmented)",
   ],
 
   gruplar: [

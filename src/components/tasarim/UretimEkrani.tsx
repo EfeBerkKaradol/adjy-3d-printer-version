@@ -18,6 +18,7 @@ import {
   Copy,
   Download,
   FileText,
+  FolderDown,
   Loader2,
   Paperclip,
 } from "lucide-react";
@@ -30,6 +31,13 @@ import {
 } from "@/lib/tasarim/order";
 import { formatTRY } from "@/lib/slicer";
 import { aracArayuzu, aracMesajiMi, type AracPaketi } from "./kopru";
+import {
+  klasoreYaz,
+  klasoruHazirla,
+  siparisKlasoruAdi,
+  type KayitSonucu,
+} from "@/lib/tasarim/kaydet";
+import { stlVarMi, uretimDosyalari } from "./indirme";
 
 // ==========================================
 // ÜRETİM EKRANI
@@ -113,6 +121,9 @@ export function UretimEkrani({ arac, siparis, kalem }: Props) {
   const secimlerAcik = panelTercihi ?? genisEkran;
   const [kopyalandi, setKopyalandi] = useState(false);
   const [indirilen, setIndirilen] = useState<string | null>(null);
+  const [kayit, setKayit] = useState<
+    { tur: "tamam"; sonuc: KayitSonucu } | { tur: "hata"; mesaj: string } | null
+  >(null);
   const yuklendiRef = useRef(false);
 
   useEffect(() => {
@@ -194,6 +205,35 @@ export function UretimEkrani({ arac, siparis, kalem }: Props) {
     []
   );
 
+  // Bütün üretim dosyaları tek seferde, "Müşteri - Sipariş No"
+  // klasörüne. Klasör penceresi yalnızca tıklamanın hemen ardından
+  // açılabildiği için hedef dosyalardan önce hazırlanır.
+  const klasoreKaydet = useCallback(async () => {
+    const arayuz = aracArayuzu(cerceveRef.current);
+    if (!arayuz) return;
+    const hedef = await klasoruHazirla();
+    if (!hedef) return;
+    setKayit(null);
+    setIndirilen("Üretim dosyaları");
+    try {
+      const dosyalar = await uretimDosyalari(arayuz, arac, siparis, kalem);
+      if (!stlVarMi(dosyalar)) throw new Error("Araç STL üretmedi");
+      const sonuc = await klasoreYaz(
+        hedef,
+        siparisKlasoruAdi(siparis.musteri, siparis.no),
+        null,
+        dosyalar
+      );
+      setKayit({ tur: "tamam", sonuc });
+    } catch (e) {
+      setKayit({
+        tur: "hata",
+        mesaj: e instanceof Error && e.message ? e.message : "Dosyalar kaydedilemedi",
+      });
+    }
+    setIndirilen(null);
+  }, [arac, kalem, siparis]);
+
   const kopyala = useCallback(async () => {
     const baslik = [
       `Sipariş ${siparis.no} — ${arac.ad} × ${kalem.adet}`,
@@ -265,28 +305,24 @@ export function UretimEkrani({ arac, siparis, kalem }: Props) {
 
       {/* ---------- DOSYALAR ---------- */}
       <div className="flex flex-wrap items-center gap-2 border-b-2 border-dashed border-foreground/25 bg-background px-4 py-2.5">
-        {stller.length > 1 && (
-          <button
-            type="button"
-            disabled={!hazir || !!indirilen}
-            onClick={() => indir(stller)}
-            className={`${DUGME} bg-foreground font-medium text-background hover:opacity-90`}
-          >
-            <Download className="h-4 w-4" aria-hidden />
-            Tüm STL&apos;ler
-          </button>
-        )}
-        {stller.map((c, i) => (
+        <button
+          type="button"
+          disabled={!hazir || !!indirilen}
+          onClick={klasoreKaydet}
+          className={`${DUGME} bg-foreground font-medium text-background hover:opacity-90`}
+        >
+          <FolderDown className="h-4 w-4" aria-hidden />
+          Klasöre kaydet
+        </button>
+
+        <span className="mx-1 hidden h-5 w-px bg-border sm:block" aria-hidden />
+        {stller.map((c) => (
           <button
             key={c.sec}
             type="button"
             disabled={!hazir || !!indirilen}
             onClick={() => indir([c])}
-            className={`${DUGME} ${
-              stller.length === 1 && i === 0
-                ? "bg-foreground font-medium text-background hover:opacity-90"
-                : "adjy-pixel-frame hover:bg-muted"
-            }`}
+            className={`${DUGME} adjy-pixel-frame hover:bg-muted`}
           >
             <Download className="h-4 w-4" aria-hidden />
             {c.ad}
@@ -336,6 +372,19 @@ export function UretimEkrani({ arac, siparis, kalem }: Props) {
           <span className="ml-auto inline-flex items-center gap-1.5 text-xs text-muted-foreground">
             <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
             {indirilen} hazırlanıyor
+          </span>
+        )}
+        {!indirilen && kayit?.tur === "tamam" && (
+          <span className="ml-auto inline-flex min-w-0 items-center gap-1.5 text-xs text-brand-lime">
+            <Check className="h-3.5 w-3.5 shrink-0" aria-hidden />
+            <span className="truncate">
+              {kayit.sonuc.dosyalar.length} dosya → {kayit.sonuc.yer}
+            </span>
+          </span>
+        )}
+        {!indirilen && kayit?.tur === "hata" && (
+          <span role="alert" className="ml-auto text-xs text-destructive">
+            {kayit.mesaj}
           </span>
         )}
       </div>
