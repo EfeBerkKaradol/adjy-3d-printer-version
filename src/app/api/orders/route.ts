@@ -5,6 +5,13 @@ import { randomUUID } from "node:crypto";
 import { createOrderSchema } from "@/lib/validations/order";
 import { calculatePrice } from "@/lib/priceCalculator";
 import { mobilyaUrunuMu, yapilandirmayiCoz } from "@/lib/furniture/order";
+import {
+  durumuSinirla,
+  kisaOzet,
+  secimleriTemizle,
+  skudanArac,
+  tasarimiCoz,
+} from "@/lib/tasarim/order";
 import { getShippingPrice } from "@/lib/shipping";
 import { parseAttachmentIds, getAttachmentPriceMap } from "@/lib/panelAttachmentPricing";
 import { CUSTOM_PRINT_SLUG, isCustomPrintParams } from "@/lib/customPrint";
@@ -199,7 +206,7 @@ export async function POST(request: NextRequest) {
         if (!product) throw new Error(`Ürün bulunamadı: ${item.productId}`);
 
         const basePrice = Number(product.basePrice);
-        const customParams = item.customParams as Record<string, number | string> | null;
+        let customParams = item.customParams as Record<string, number | string> | null;
 
         // Sunucu tarafında fiyat hesapla (manipülasyon önleme)
         let unitPrice: number;
@@ -222,6 +229,27 @@ export async function POST(request: NextRequest) {
             colorId: String(customParams.colorId || ""),
           });
           unitPrice = breakdown.unitPriceGross;
+        } else if (skudanArac(product.sku)) {
+          // Tasarım aracıyla kurulan ürün. Fiyat, aracın bildirdiği
+          // filament ve süreden yeniden hesaplanır; ölçüm aracın
+          // üretim aralığına oturtulduğu için tarayıcıdan gelen bir
+          // sayı fiyatı en küçük ürünün fiyatının altına çekemez.
+          //
+          // Kayıt, yapılandırma hiç gelmese de yazılır: mağaza
+          // kartından eklenen ürün aracın varsayılan hâlidir ve
+          // atölye onu da aynı ekrandan açar.
+          const arac = skudanArac(product.sku)!;
+          const ham = customParams as Record<string, unknown> | null;
+          const cozum = tasarimiCoz(arac, ham);
+          const secimler = secimleriTemizle(ham?.secimler);
+          unitPrice = cozum.fiyat;
+          customParams = {
+            tasarimAraci: arac.id,
+            ozet: kisaOzet(secimler, 4) || "Varsayılan yapılandırma",
+            secimler,
+            olcum: cozum.olcum,
+            durum: durumuSinirla(ham?.durum),
+          } as unknown as Record<string, number | string>;
         } else if (mobilyaUrunuMu(product.sku)) {
           // Mobilyanın veritabanında parametre satırı yok; fiyat
           // kesim listesinden çıkıyor. Genel formül motoruna

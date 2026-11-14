@@ -17,6 +17,7 @@ import {
   FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { TasarimKalemi } from "@/components/tasarim/TasarimKalemi";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -366,8 +367,9 @@ export default function AdminOrderDetailPage() {
                 return (
                   <div
                     key={item.id as string}
-                    className="flex items-center justify-between py-3 border-b-2 border-dashed border-foreground/25 last:border-0"
+                    className="py-3 border-b-2 border-dashed border-foreground/25 last:border-0"
                   >
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 flex-1">
                       {thumbUrl ? (
                         <img
@@ -404,6 +406,17 @@ export default function AdminOrderDetailPage() {
                         {formatCurrency(item.lineTotal as number)}
                       </p>
                     </div>
+                  </div>
+                  {/* Tasarım aracıyla kurulan ürün: seçimler metin
+                      olarak, STL ve imalat dosyaları üretim ekranında */}
+                  <TasarimKalemi
+                    orderId={orderId}
+                    itemId={item.id as string}
+                    sku={product?.sku ? String(product.sku) : null}
+                    customParams={
+                      (item.customParams as Record<string, unknown> | null) ?? null
+                    }
+                  />
                   </div>
                 );
               })}

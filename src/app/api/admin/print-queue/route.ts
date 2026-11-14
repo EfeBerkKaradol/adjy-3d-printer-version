@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
           user: { select: { fullName: true, email: true } },
         },
       },
-      product: { select: { name: true, thumbnailUrl: true } },
+      product: { select: { name: true, sku: true, thumbnailUrl: true } },
     },
   });
 
@@ -38,6 +38,7 @@ export async function GET(request: NextRequest) {
       orderStatus: i.order.status,
       productName: i.productName,
       productThumbnail: i.product.thumbnailUrl,
+      productSku: i.product.sku,
       quantity: i.quantity,
       printStatus: i.printStatus,
       customParams: i.customParams,

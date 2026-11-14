@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NFC &amp; 3D QR B2B Seri Üretim &amp; Özel Tasarım CAD Konfigüratörü</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+  <!-- ADJY mağaza köprüsü: tema, müşteri/atölye kipi, durum kaydı -->
+  <meta name="robots" content="noindex" />
+  <link rel="stylesheet" href="../_adjy/kopru.css" />
+  <link rel="stylesheet" href="./adjy.css" />
+  <script src="./adjy.js"></script>
+  <script src="../_adjy/kopru.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- TOP SWISS EDITORIAL CAD HEADER -->
+    <header class="topbar">
+      <div class="brand-block">
+        <span class="index-tag">[ 00 / ÖZELLEŞTİRİLEBİLİR CAD &amp; DİLİMLEYİCİ STÜDYOSU ]</span>
+        <div class="brand-title-row">
+          <h1>NFC GÖMÜLÜ &amp; 3D QR B2B KONFİGÜRATÖR</h1>
+          <span class="unit-badge">1 BİRİM = 1.00 MM</span>
+          <span id="manifold-badge" class="manifold-badge ok">MANIFOLD: DOĞRULANIYOR...</span>
+        </div>
+      </div>
+
+      <div class="topbar-telemetry">
+        <div class="tele-pill amber">
+          <span class="tele-lbl">DURAKLATMA #1 (NFC YUVA)</span>
+          <strong id="hud-nfc-pause">KATMAN #11 · Z=2.00mm</strong>
+        </div>
+        <div class="tele-pill vermilion">
+          <span class="tele-lbl">DURAKLATMA #2 (M600 RENK)</span>
+          <strong id="hud-m600-pause">KATMAN #17 · Z=3.20mm</strong>
+        </div>
+        <div class="tele-pill">
+          <span class="tele-lbl">TABLA KAPASİTE / PARTİ</span>
+          <strong id="hud-plate-cap">4 ADET / 25 TABLA</strong>
+        </div>
+        <div class="tele-pill emerald">
+          <span class="tele-lbl">B2B BİRİM / TOPLAM NET</span>
+          <strong id="hud-b2b-price">-- TL</strong>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <button id="btn-theme-toggle" class="btn-ghost" title="Koyu / Arşiv Kağıt Tema Değiştir">AÇIK / KOYU TEMA</button>
+        <button id="btn-preview-antet" class="btn-secondary">ANTET ÖNİZLE</button>
+        <button id="btn-export-stl" class="btn-primary">SU GEÇİRMEZ .STL İNDİR</button>
+      </div>
+    </header>
+
+    <!-- MAIN 3-COLUMN SWISS CAD WORKSPACE -->
+    <main class="workspace-grid">
+      <!-- LEFT PANEL: 3-TAB DESIGN, SHAPE, TYPOGRAPHY, POSITION & PRODUCTION PARAMETERS -->
+      <aside class="panel-left">
+        <!-- STICKY LEFT STUDIO TABS -->
+        <nav class="studio-tabs" role="tablist">
+          <button type="button" class="st-tab active" data-tab="tab-uretim">1. ÖLÇÜ &amp; ŞABLON</button>
+          <button type="button" class="st-tab" data-tab="tab-sekil">2. ŞEKİL &amp; GÖVDE</button>
+          <button type="button" class="st-tab" data-tab="tab-yazi">3. YAZI &amp; KONUM</button>
+        </nav>
+
+        <!-- ================================================================ -->
+        <!-- TAB 1: TEMPLATES + 10 CORE TURKISH PRODUCTION PARAMETERS         -->
+        <!-- ================================================================ -->
+        <div id="tab-uretim" class="tab-pane active">
+          <div class="panel-section">
+            <div class="section-hdr">
+              <span class="index-tag">[ 01 / HAZIR ÖZEL TASARIM ŞABLONLARI ]</span>
+            </div>
+            <div class="preset-grid">
+              <button class="preset-btn active" data-preset="cafe_arch">Kemerli Kafe Stand (Kahve)</button>
+              <button class="preset-btn" data-preset="hotel_medallion">Daire Otel Wi-Fi Madalyon</button>
+              <button class="preset-btn" data-preset="landscape_split">Yatay Kart (Sol QR + Sağ Yazı)</button>
+              <button class="preset-btn" data-preset="corner_keychain">Köşe Halkalı VIP Anahtarlık</button>
+              <button class="preset-btn" data-preset="octagon_ind">Sekizgen Sanayi NFC Plaka</button>
+              <button class="preset-btn" data-preset="crest_social">Arma Rozet Instagram Stand</button>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <div class="section-hdr">
+              <span class="index-tag">[ 02 / TEMEL PARAMETRİK GİRDİLER ]</span>
+            </div>
+
+            <!-- 1. Urun_Tipi -->
+            <div class="param-group">
+              <div class="param-label-row">
+                <label>Urun_Tipi</label>
+                <span class="param-code">Angled_Stand / Keychain</span>
+              </div>
+              <div class="segmented-toggle" id="seg-urun-tipi">
+                <button type="button" class="seg-btn active" data-val="Angled_Stand">Angled_Stand (68° Stand)</button>
+                <button type="button" class="seg-btn" data-val="Keychain">Keychain (Anahtarlık)</button>
+              </div>
+              <input type="hidden" id="inp-urun-tipi" value="Angled_Stand" />
+            </div>
+
+            <!-- 2. QR_Baglanti_URL -->
+            <div class="param-group">
+              <div class="param-label-row">
+                <label for="inp-qr-url">QR_Baglanti_URL</label>
+                <span id="qr-meta-tag" class="param-code">V2-M · 25×25</span>
+              </div>
+              <div class="qr-input-row">
+                <input type="text" id="inp-qr-url" class="text-input" value="https://menu.ornekfirma.com.tr/masa-12" placeholder="https://..." spellcheck="false" />
+                <canvas id="qr-2d-preview" width="54" height="54" title="Gerçek Taranabilir QR Önizleme"></canvas>
+              </div>
+            </div>
+
+            <!-- 3. Ust_Baslik_Metni (Synced with Tab 3) -->
+            <div class="param-group">
+              <div class="param-label-row">
+                <label for="inp-ust-baslik">Ust_Baslik_Metni</label>
+                <span class="param-code">3D Kabartma</span>
+              </div>
+              <input type="text" id="inp-ust-baslik" class="text-input" value="MENÜ &amp; NFC" maxlength="28" placeholder="MENÜ &amp; Wİ-Fİ" />
+            </div>
+
+            <!-- 4. Taban_En_Boy_mm (60-120) -->
+            <div class="param-group">
+              <div class="param-label-row">
+                <label for="num-taban-en-boy">Taban_En_Boy_mm</label>
+                <span class="param-unit">60 – 120 mm</span>
+              </div>
+              <div class="slider-num-row">
+                <input type="range" id="rng-taban-en-boy" min="60" max="120" step="1" value="85" />
+                <input type="number" id="num-taban-en-boy" min="60" max="120" step="1" value="85" />
+              </div>
+            </div>
+
+            <!-- 5. Taban_Kalinligi_mm -->
+            <div class="param-group">
+              <div class="param-label-row">
+                <label for="num-taban-kalinlik">Taban_Kalinligi_mm</label>
+                <span class="param-unit">Varsayılan 3.20 mm</span>
+              </div>
+              <div class="slider-num-row">
+                <input type="range" id="rng-taban-kalinlik" min="2.4" max="6.0" step="0.2" value="3.2" />
+                <input type="number" id="num-taban-kalinlik" min="2.4" max="6.0" step="0.2" value="3.2" />
+              </div>
+            </div>
+
+            <!-- 6. QR_Kabartma_mm -->
+            <div class="param-group">
+              <div class="param-label-row">
+                <label for="num-qr-kabartma">QR_Kabartma_mm</label>
+                <span class="param-unit">Varsayılan 1.00 mm</span>
+              </div>
+              <div class="slider-num-row">
+                <input type="range" id="rng-qr-kabartma" min="0.4" max="2.4" step="0.2" value="1.0" />
+                <input type="number" id="num-qr-kabartma" min="0.4" max="2.4" step="0.2" value="1.0" />
+              </div>
+            </div>
+
+            <!-- 7. Katman_Yuksekligi_mm -->
+            <div class="param-group">
+              <div class="param-label-row">
+                <label for="num-katman-yukseklik">Katman_Yuksekligi_mm</label>
+                <span class="param-unit">Nozzle Z-Adımı</span>
+              </div>
+              <div class="slider-num-row">
+                <input type="range" id="rng-katman-yukseklik" min="0.08" max="0.32" step="0.04" value="0.20" />
+                <input type="number" id="num-katman-yukseklik" min="0.08" max="0.32" step="0.04" value="0.20" />
+              </div>
+            </div>
+
+            <!-- 8. NFC_Yuva_Capi_mm -->
+            <div class="param-group">
+              <div class="param-label-row">
+                <label for="num-nfc-cap">NFC_Yuva_Capi_mm</label>
+                <span class="param-unit">İç Cep × 1.20 mm</span>
+              </div>
+              <div class="slider-num-row">
+                <input type="range" id="rng-nfc-cap" min="18" max="38" step="0.5" value="26" />
+                <input type="number" id="num-nfc-cap" min="18" max="38" step="0.5" value="26" />
+              </div>
+            </div>
+
+            <!-- 9. Siparis_Adedi -->
+            <div class="param-group">
+              <div class="param-label-row">
+                <label for="num-siparis-adedi">Siparis_Adedi</label>
+                <span class="param-unit">B2B Parti Adedi</span>
+              </div>
+              <div class="slider-num-row">
+                <input type="range" id="rng-siparis-adedi" min="1" max="1000" step="1" value="100" />
+                <input type="number" id="num-siparis-adedi" min="1" max="50000" step="1" value="100" />
+              </div>
+            </div>
+
+            <!-- 10. Tabla_Boyutu_mm -->
+            <div class="param-group">
+              <div class="param-label-row">
+                <label for="num-tabla-boyutu">Tabla_Boyutu_mm</label>
+                <div class="quick-beds">
+                  <button type="button" class="mini-chip" data-bed="180">180</button>
+                  <button type="button" class="mini-chip active" data-bed="220">220</button>
+                  <button type="button" class="mini-chip" data-bed="256">256</button>
+                  <button type="button" class="mini-chip" data-bed="300">300</button>
+                </div>
+              </div>
+              <div class="slider-num-row">
+                <input type="range" id="rng-tabla-boyutu" min="160" max="350" step="2" value="220" />
+                <input type="number" id="num-tabla-boyutu" min="160" max="350" step="1" value="220" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================================================================ -->
+        <!-- TAB 2: CUSTOM SILHOUETTE SHAPE, PROPORTIONS, BORDER & COLORS     -->
+        <!-- ================================================================ -->
+        <div id="tab-sekil" class="tab-pane">
+          <div class="panel-section">
+            <div class="section-hdr">
+              <span class="index-tag">[ DIŞ GÖVDE SİLÜETİ / ŞEKİL SEÇİMİ ]</span>
+            </div>
+
+            <div class="shape-cards-grid" id="shape-selector-grid">
+              <button type="button" class="shape-card active" data-shape="Yuvarlatilmis_Kare">
+                <svg viewBox="0 0 36 36"><rect x="5" y="5" width="26" height="26" rx="6" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>
+                <span>Klasik Kare</span>
+              </button>
+              <button type="button" class="shape-card" data-shape="Daire_Madalyon">
+                <svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="13" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>
+                <span>Daire Madalyon</span>
+              </button>
+              <button type="button" class="shape-card" data-shape="Kemer_Stand">
+                <svg viewBox="0 0 36 36"><path d="M6,30 L30,30 L30,17 A12,12 0 0,0 6,17 Z" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>
+                <span>Kemerli Stand</span>
+              </button>
+              <button type="button" class="shape-card" data-shape="Sekizgen_Plaka">
+                <svg viewBox="0 0 36 36"><polygon points="12,5 24,5 31,12 31,24 24,31 12,31 5,24 5,12" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>
+                <span>Pahlı Sekizgen</span>
+              </button>
+              <button type="button" class="shape-card" data-shape="Altigen_Rozet">
+                <svg viewBox="0 0 36 36"><polygon points="11,6 25,6 32,18 25,30 11,30 4,18" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>
+                <span>Altıgen Petek</span>
+              </button>
+              <button type="button" class="shape-card" data-shape="Kalkan_Rozet">
+                <svg viewBox="0 0 36 36"><polygon points="7,6 29,6 30,20 23,30 13,30 6,20" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>
+                <span>Kurumsal Arma</span>
+              </button>
+            </div>
+
+            <!-- En / Boy Oranı -->
+            <div class="param-group" style="margin-top:12px">
+              <div class="param-label-row">
+                <label>En_Boy_Orani</label>
+                <span class="param-code">Plaka Formu</span>
+              </div>
+              <div class="segmented-3" id="seg-aspect">
+                <button type="button" class="seg-btn active" data-aspect="1:1">1:1 Kare</button>
+                <button type="button" class="seg-btn" data-aspect="3:4">3:4 Dikey</button>
+                <button type="button" class="seg-btn" data-aspect="4:3">4:3 Yatay</button>
+              </div>
+            </div>
+
+            <!-- Köşe Radyüsü -->
+            <div class="param-group" id="grp-corner-radius">
+              <div class="param-label-row">
+                <label for="num-kose-radyus">Kose_Radyus_mm</label>
+                <span class="param-unit">2 – 24 mm</span>
+              </div>
+              <div class="slider-num-row">
+                <input type="range" id="rng-kose-radyus" min="2" max="24" step="0.5" value="7" />
+                <input type="number" id="num-kose-radyus" min="2" max="24" step="0.5" value="7" />
+              </div>
+            </div>
+
+            <!-- Çerçeve Stili -->
+            <div class="param-group">
+              <div class="param-label-row">
+                <label for="sel-border-style">Cerceve_Stili</label>
+                <span class="param-code">Kenar Detayı</span>
+              </div>
+              <select id="sel-border-style" class="select-input">
+                <option value="Kabartma_Cerceve" selected>Kabartma Çerçeve (M600 Kontrast)</option>
+                <option value="Duz_Cercevesiz">Çerçevesiz Minimalist (Düz Zemin)</option>
+                <option value="Cift_Cizgi_Cerceve">İnce İç Çizgi Çerçeve (Pinstripe)</option>
+              </select>
+            </div>
+
+            <!-- Anahtarlık / Askı Halkası Konumu -->
+            <div class="param-group">
+              <div class="param-label-row">
+                <label for="sel-lug-pos">Halka_Konumu</label>
+                <span class="param-code">Ø5.2mm Askı Kulakçığı</span>
+              </div>
+              <select id="sel-lug-pos" class="select-input">
+                <option value="Yok">Deliksiz (Stand / Masaüstü Etiket)</option>
+                <option value="Ust_Orta">Üst Merkez Kulakçık</option>
+                <option value="Sol_Ust">Sol Üst Köşe Kulakçık</option>
+                <option value="Sag_Ust">Sağ Üst Köşe Kulakçık</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- MALZEME & ÖZEL RENK SEÇİCİ -->
+          <div class="panel-section">
+            <div class="section-hdr">
+              <span class="index-tag">[ M600 ÇİFT RENK &amp; MALZEME ]</span>
+            </div>
+            <div class="param-group">
+              <label for="sel-material" class="sub-lbl">Üretim Malzemesi</label>
+              <select id="sel-material" class="select-input">
+                <option value="PLA" selected>PLA Mat / Pro (1.24 g/cm³)</option>
+                <option value="PETG">PETG Endüstriyel (1.27 g/cm³)</option>
+                <option value="ABS">ABS Teknik (1.04 g/cm³)</option>
+                <option value="ASA">ASA Dış Mekan UV (1.07 g/cm³)</option>
+                <option value="ALU">Alüminyum 6061 Referans (2.70 g/cm³)</option>
+                <option value="SS304">Paslanmaz Çelik 304 Referans (8.00 g/cm³)</option>
+              </select>
+            </div>
+
+            <div class="swatch-row" id="color-pair-swatches">
+              <button type="button" class="swatch-pair active" data-base="#17181C" data-emboss="#F4F1EA" title="Karbon Siyah + Kemik Beyaz">
+                <span style="background:#17181C"></span><span style="background:#F4F1EA"></span>
+              </button>
+              <button type="button" class="swatch-pair" data-base="#F2EFE9" data-emboss="#141518" title="Arşiv Beyaz + Karbon Siyah">
+                <span style="background:#F2EFE9"></span><span style="background:#141518"></span>
+              </button>
+              <button type="button" class="swatch-pair" data-base="#18191D" data-emboss="#E04F33" title="Obsidyen + Sinyal Vermilyon">
+                <span style="background:#18191D"></span><span style="background:#E04F33"></span>
+              </button>
+              <button type="button" class="swatch-pair" data-base="#142238" data-emboss="#E8C266" title="Kurumsal Lacivert + Altın">
+                <span style="background:#142238"></span><span style="background:#E8C266"></span>
+              </button>
+              <button type="button" class="swatch-pair" data-base="#162B24" data-emboss="#F3EFE6" title="Koyu Zümrüt + Krem">
+                <span style="background:#162B24"></span><span style="background:#F3EFE6"></span>
+              </button>
+            </div>
+
+            <div class="custom-color-pickers">
+              <label class="color-pick-box">
+                <span>1. Renk (Taban)</span>
+                <input type="color" id="clr-custom-base" value="#17181C" />
+              </label>
+              <label class="color-pick-box">
+                <span>2. Renk (M600 QR)</span>
+                <input type="color" id="clr-custom-emboss" value="#F4F1EA" />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================================================================ -->
+        <!-- TAB 3: TYPOGRAPHY, ICONS, LAYOUT & FREE X/Y POSITION CONTROLS    -->
+        <!-- ================================================================ -->
+        <div id="tab-yazi" class="tab-pane">
+          <div class="panel-section">
+            <div class="section-hdr">
+              <span class="index-tag">[ YERLEŞİM DÜZENİ &amp; METİN İÇERİĞİ ]</span>
+            </div>
+
+            <!-- Yerlesim_Duzeni -->
+            <div class="param-group">
+              <div class="param-label-row">
+                <label for="sel-layout">Yerlesim_Duzeni</label>
+                <span class="param-code">Kompozisyon</span>
+              </div>
+              <select id="sel-layout" class="select-input">
+                <option value="Ust_Baslik_Alt_QR" selected>Üst Başlık + Alt QR</option>
+                <option value="Ust_QR_Alt_Baslik">Üst QR + Alt Başlık</option>
+                <option value="Cift_Satir_Simetrik">Çift Satır (Üst Başlık + QR + Alt Metin)</option>
+                <option value="Sol_QR_Sag_Metin">Yatay Bölünmüş: Sol QR + Sağ Yazı</option>
+                <option value="Sag_QR_Sol_Metin">Yatay Bölünmüş: Sağ QR + Sol Yazı</option>
+              </select>
+            </div>
+
+            <!-- Üst Başlık (Synced) -->
+            <div class="param-group">
+              <div class="param-label-row">
+                <label for="inp-ust-baslik-2">Ust_Baslik_Metni</label>
+                <span class="param-code">Ana Başlık</span>
+              </div>
+              <input type="text" id="inp-ust-baslik-2" class="text-input" value="MENÜ &amp; NFC" maxlength="28" placeholder="MENÜ &amp; NFC" />
+            </div>
+
+            <!-- Alt Metin -->
+            <div class="param-group">
+              <div class="param-label-row">
+                <label for="inp-alt-metin">Alt_Metin</label>
+                <span class="param-code">İkinci Satır / Çağrı</span>
+              </div>
+              <input type="text" id="inp-alt-metin" class="text-input" value="" maxlength="30" placeholder="TELEFONU YAKLAŞTIR / MASA 12" />
+            </div>
+
+            <!-- Font & Hizalama -->
+            <div class="two-col-row">
+              <div class="param-group">
+                <label for="sel-font" class="sub-lbl">Yazi_Fontu</label>
+                <select id="sel-font" class="select-input">
+                  <option value="Kalin_Tabela" selected>Kalın Tabela (Maks. Okunurluk)</option>
+                  <option value="Modern_Sans">Modern Net Sans (Kurumsal)</option>
+                  <option value="Teknik_Mono">Endüstriyel DIN (Teknik Net)</option>
+                  <option value="Klasik_Serif">Klasik Kalın Serif</option>
+                  <option value="Yuvarlak_Soft">Geniş Açık Sans (Verdana)</option>
+                </select>
+              </div>
+              <div class="param-group">
+                <label for="sel-align" class="sub-lbl">Hizalama</label>
+                <select id="sel-align" class="select-input">
+                  <option value="Orta" selected>Ortala</option>
+                  <option value="Sol">Sola Yasla</option>
+                  <option value="Sag">Sağa Yasla</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 3D İkon & Konumu -->
+            <div class="two-col-row">
+              <div class="param-group">
+                <label for="sel-icon" class="sub-lbl">Sembol_Ikon (3D)</label>
+                <select id="sel-icon" class="select-input">
+                  <option value="Kahve_Fincan" selected>Kahve / Kafe</option>
+                  <option value="NFC_Dalga">NFC Temassız</option>
+                  <option value="WiFi_Sinyal">Wi-Fi Sinyal</option>
+                  <option value="Instagram_Kamera">Instagram / Kamera</option>
+                  <option value="Konum_Pin">Konum / Harita</option>
+                  <option value="Yildiz_VIP">VIP Yıldız</option>
+                  <option value="Yok">İkon Yok</option>
+                </select>
+              </div>
+              <div class="param-group">
+                <label for="sel-icon-pos" class="sub-lbl">İkon Yeri</label>
+                <select id="sel-icon-pos" class="select-input">
+                  <option value="Baslik_Solu" selected>Başlık Yanı</option>
+                  <option value="Ust_Merkez">Üst Merkez Rozet</option>
+                  <option value="Alt_Kose">Alt Köşe</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- SERBEST KONUM & ÖLÇEK SÜRGÜLERİ -->
+          <div class="panel-section">
+            <div class="section-hdr-flex">
+              <span class="index-tag">[ HASSAS KONUM &amp; ÖLÇEK AYARI ]</span>
+              <button type="button" id="btn-reset-offsets" class="mini-chip">SIFIRLA</button>
+            </div>
+
+            <div class="param-group">
+              <div class="param-label-row">
+                <label for="num-qr-scale">QR Boyut Ölçeği (%)</label>
+                <span class="param-unit">55% – 100%</span>
+              </div>
+              <div class="slider-num-row">
+                <input type="range" id="rng-qr-scale" min="55" max="100" step="1" value="88" />
+                <input type="number" id="num-qr-scale" min="55" max="100" step="1" value="88" />
+              </div>
+            </div>
+
+            <div class="param-group">
+              <div class="param-label-row">
+                <label for="num-qr-off-x">QR Konum Kaydır X (mm)</label>
+                <span class="param-unit">Sol / Sağ</span>
+              </div>
+              <div class="slider-num-row">
+                <input type="range" id="rng-qr-off-x" min="-30" max="30" step="0.5" value="0" />
+                <input type="number" id="num-qr-off-x" min="-30" max="30" step="0.5" value="0" />
+              </div>
+            </div>
+
+            <div class="param-group">
+              <div class="param-label-row">
+                <label for="num-qr-off-y">QR Konum Kaydır Y (mm)</label>
+                <span class="param-unit">Aşağı / Yukarı</span>
+              </div>
+              <div class="slider-num-row">
+                <input type="range" id="rng-qr-off-y" min="-30" max="30" step="0.5" value="0" />
+                <input type="number" id="num-qr-off-y" min="-30" max="30" step="0.5" value="0" />
+              </div>
+            </div>
+
+            <div class="param-group">
+              <div class="param-label-row">
+                <label for="num-txt-scale">Yazı Boyutu Ölçeği (%)</label>
+                <span class="param-unit">60% – 145%</span>
+              </div>
+              <div class="slider-num-row">
+                <input type="range" id="rng-txt-scale" min="60" max="145" step="2" value="100" />
+                <input type="number" id="num-txt-scale" min="60" max="145" step="1" value="100" />
+              </div>
+            </div>
+
+            <div class="param-group">
+              <div class="param-label-row">
+                <label for="num-txt-off-x">Yazı Konum Kaydır X (mm)</label>
+                <span class="param-unit">Sol / Sağ</span>
+              </div>
+              <div class="slider-num-row">
+                <input type="range" id="rng-txt-off-x" min="-25" max="25" step="0.5" value="0" />
+                <input type="number" id="num-txt-off-x" min="-25" max="25" step="0.5" value="0" />
+              </div>
+            </div>
+
+            <div class="param-group">
+              <div class="param-label-row">
+                <label for="num-txt-off-y">Yazı Konum Kaydır Y (mm)</label>
+                <span class="param-unit">Aşağı / Yukarı</span>
+              </div>
+              <div class="slider-num-row">
+                <input type="range" id="rng-txt-off-y" min="-25" max="25" step="0.5" value="0" />
+                <input type="number" id="num-txt-off-y" min="-25" max="25" step="0.5" value="0" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- CENTER STAGE: DUAL 3D CAD VIEWPORTS + CROSS-SECTION INSPECTOR -->
+      <section class="stage-center">
+        <!-- CAD TOOLBAR -->
+        <div class="cad-toolbar">
+          <div class="toolbar-group">
+            <span class="toolbar-lbl">SAHNE DÜZENİ:</span>
+            <button type="button" class="tb-btn active" data-layout="split">ÇİFT EKRAN</button>
+            <button type="button" class="tb-btn" data-layout="part">TEKİL PARÇA</button>
+            <button type="button" class="tb-btn" data-layout="plate">DİZİLİM TABLASI</button>
+          </div>
+
+          <div class="toolbar-group">
+            <span class="toolbar-lbl">GÖRÜNÜM MODU:</span>
+            <button type="button" class="tb-btn active" data-display="shaded">GÖLGELİ + KENAR</button>
+            <button type="button" class="tb-btn" data-display="xray">NFC X-RAY</button>
+            <button type="button" class="tb-btn" data-display="blueprint">OZALİT</button>
+            <button type="button" class="tb-btn" data-display="wireframe">TEL KAFES</button>
+          </div>
+
+          <div class="toolbar-group">
+            <span class="toolbar-lbl">KAMERA:</span>
+            <button type="button" class="tb-btn" id="btn-cam-proj" data-proj="persp">PERSPEKTİF</button>
+            <button type="button" class="tb-btn" data-camview="iso">ISO</button>
+            <button type="button" class="tb-btn" data-camview="top">ÜST (Z+)</button>
+            <button type="button" class="tb-btn" data-camview="front">ÖN (Y-)</button>
+            <button type="button" class="tb-btn" data-camview="right">SAĞ (X+)</button>
+          </div>
+        </div>
+
+        <!-- DUAL VIEWPORT CONTAINER -->
+        <div id="viewports-stage" class="viewports-stage layout-split">
+          <canvas id="webgl-shared-canvas"></canvas>
+
+          <!-- VIEWPORT 1: SINGLE 3D PART CAD -->
+          <div id="vp-part" class="viewport-pane">
+            <div class="vp-overlay-top">
+              <div>
+                <span class="vp-index">[ GÖRÜNÜM A / 3D ÖZEL TASARIM &amp; İÇ NFC YUVASI ]</span>
+                <div id="vp-part-subtitle" class="vp-sub">68° Masaüstü Stand · QR Modül Adımı: 2.20 mm</div>
+              </div>
+              <div class="vp-pose-btns">
+                <button type="button" class="pose-btn active" id="btn-pose-assembled" title="Masaüstü Kurulu 3D Görünüm">KURULU POZ</button>
+                <button type="button" class="pose-btn" id="btn-pose-flat" title="Slicer Z=0 Yatay Üretim Pozu">YATAY BASKI (Z)</button>
+                <button type="button" class="pose-btn" id="btn-pose-exploded" title="NFC Etiket &amp; Stand Ayaklarını Patlat">PATLATILMIŞ NFC</button>
+              </div>
+            </div>
+
+            <!-- FLOATING QUICK POSITION NUDGE PAD ON PART VIEWPORT -->
+            <div class="vp-quick-nudge" title="QR ve Yazı Hızlı Konum Kaydırma">
+              <div class="nudge-hdr">
+                <button type="button" class="nudge-target active" data-ntarget="qr">QR KONUM</button>
+                <button type="button" class="nudge-target" data-ntarget="txt">YAZI KONUM</button>
+              </div>
+              <div class="nudge-pad">
+                <span></span>
+                <button type="button" data-ndir="up" title="Yukarı (+Y)">▲</button>
+                <span></span>
+                <button type="button" data-ndir="left" title="Sola (-X)">◀</button>
+                <button type="button" data-ndir="center" title="Merkeze Sıfırla">●</button>
+                <button type="button" data-ndir="right" title="Sağa (+X)">▶</button>
+                <span></span>
+                <button type="button" data-ndir="down" title="Aşağı (-Y)">▼</button>
+                <span></span>
+              </div>
+            </div>
+
+            <div class="vp-overlay-bottom">
+              <span id="vp-part-dims">85.0 × 85.0 × 4.20 mm</span>
+              <span id="vp-part-vol">Hacim: -- cm³ · -- g</span>
+            </div>
+          </div>
+
+          <!-- VIEWPORT 2: 220x220mm NESTED BUILD PLATE -->
+          <div id="vp-plate" class="viewport-pane">
+            <div class="vp-overlay-top">
+              <div>
+                <span class="vp-index" id="vp-plate-title">[ GÖRÜNÜM B / 220×220mm ÇOKLU ÜRETİM TABLASI ]</span>
+                <div id="vp-plate-subtitle" class="vp-sub">Otomatik Maksimum Dizilim · Çarpışmasız Yerleşim</div>
+              </div>
+              <div class="vp-pose-btns">
+                <button type="button" class="pose-btn active" id="btn-plate-full">TAM KAPASİTE</button>
+                <button type="button" class="pose-btn" id="btn-plate-order">SON TABLA</button>
+              </div>
+            </div>
+
+            <div class="vp-overlay-bottom">
+              <span id="vp-plate-stats">4 Adet / Tabla · %58 Doluluk</span>
+              <span id="vp-plate-time">Tahmini Tabla Süresi: -- dk</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- BOTTOM CROSS-SECTION CLIPPING BAR -->
+        <div class="clipping-bar">
+          <div class="clip-left">
+            <span class="index-tag">[ KESİT İNCELEME ]</span>
+            <select id="sel-clip-axis" class="select-compact">
+              <option value="none" selected>Kesit Kapalı</option>
+              <option value="z">Z Ekseni (Katman Kesiti)</option>
+              <option value="x">X Ekseni (Merkez NFC Kesiti)</option>
+              <option value="y">Y Ekseni (Yan Profil Kesiti)</option>
+            </select>
+            <button type="button" class="mini-chip amber-chip" id="btn-jump-nfc">NFC Yuva (Z=1.4mm)</button>
+            <button type="button" class="mini-chip vermilion-chip" id="btn-jump-m600">M600 Katmanı (Z=3.2mm)</button>
+          </div>
+          <div class="clip-slider-wrap">
+            <input type="range" id="rng-clip-offset" min="0" max="10" step="0.05" value="2.0" disabled />
+            <span id="lbl-clip-val" class="mono-readout">KAPALI</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT PANEL: SLICER Z-PAUSE LAYER LOG, B2B PRICING & EXPORTS -->
+      <aside class="panel-right">
+        <div class="panel-section">
+          <div class="section-hdr">
+            <span class="index-tag">[ 04 / SLICER Z-KATMAN &amp; DURAKLATMA PLANI ]</span>
+          </div>
+
+          <div class="z-stack-card">
+            <div class="z-band emboss">
+              <div class="z-band-hdr">
+                <strong>2. RENK: 3D QR, İKON &amp; YAZI</strong>
+                <span id="z-lbl-emboss">Katman 17–21</span>
+              </div>
+              <div class="z-band-sub" id="z-sub-emboss">Z = 3.20 → 4.20 mm (1.00 mm Kabartma)</div>
+            </div>
+
+            <div class="z-pause-callout m600">
+              <span class="pause-badge">M600 RENK DEĞİŞİMİ</span>
+              <strong id="z-callout-m600">Katman #17 Başlangıcı (Z = 3.20 mm)</strong>
+              <small id="z-ruler-m600">Slicer Cetveli: 3.40 mm · Stand ayakları bu katmandan önce biter</small>
+            </div>
+
+            <div class="z-band bridge">
+              <div class="z-band-hdr">
+                <strong>1. RENK: NFC ÜST KÖPRÜ</strong>
+                <span id="z-lbl-bridge">Katman 11–16</span>
+              </div>
+              <div class="z-band-sub" id="z-sub-bridge">Z = 2.00 → 3.20 mm (6 Katman Kapak)</div>
+            </div>
+
+            <div class="z-pause-callout nfc">
+              <span class="pause-badge">M601 / M0 NFC YERLEŞTİR</span>
+              <strong id="z-callout-nfc">Katman #11 Başlangıcı (Z = 2.00 mm)</strong>
+              <small id="z-ruler-nfc">Ø26.0 × 1.20 mm yuva içerisine NTAG213/215 etiketi bırakın</small>
+            </div>
+
+            <div class="z-band pocket">
+              <div class="z-band-hdr">
+                <strong>İÇ NFC ETİKET YUVASI</strong>
+                <span id="z-lbl-pocket">Katman 5–10</span>
+              </div>
+              <div class="z-band-sub" id="z-sub-pocket">Z = 0.80 → 2.00 mm (Ø26.0 × 1.20 mm Cep)</div>
+            </div>
+
+            <div class="z-band floor">
+              <div class="z-band-hdr">
+                <strong>1. RENK: ALT TABAN</strong>
+                <span id="z-lbl-floor">Katman 1–4</span>
+              </div>
+              <div class="z-band-sub" id="z-sub-floor">Z = 0.00 → 0.80 mm (Sızdırmaz Alt Kabuk)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- METROLOGY & B2B BATCH PRICING -->
+        <div class="panel-section">
+          <div class="section-hdr">
+            <span class="index-tag">[ 05 / METROLOJİ &amp; B2B MALİYET ANALİZİ ]</span>
+          </div>
+
+          <div class="kv-table">
+            <div class="kv-row"><span>Birim Hacim / Kütle</span><strong id="m-vol-mass">--</strong></div>
+            <div class="kv-row"><span>Filament Kırılımı</span><strong id="m-fil-split">--</strong></div>
+            <div class="kv-row"><span>Üçgen / Kenar Topolojisi</span><strong id="m-tris">--</strong></div>
+            <div class="kv-row"><span>Tabla Dizilim / Parti</span><strong id="m-plates">--</strong></div>
+            <div class="kv-row"><span>Toplam Üretim Süresi</span><strong id="m-hours">--</strong></div>
+            <div class="kv-row"><span>Birim Üretim Maliyeti</span><strong id="m-raw-cost">--</strong></div>
+            <div class="kv-row highlight"><span>B2B Birim Satış (Net)</span><strong id="m-unit-sale">--</strong></div>
+            <div class="kv-row highlight-total"><span>Parti Toplam (+%20 KDV)</span><strong id="m-grand-total">--</strong></div>
+          </div>
+
+          <div class="tier-mini-wrap">
+            <div class="tier-hdr">Hacimsel B2B İskonto Kademeleri (Birim Net)</div>
+            <div id="b2b-tiers-grid" class="b2b-tiers-grid"></div>
+          </div>
+        </div>
+
+        <!-- PRODUCTION OUTPUTS & CAD EXPORTS -->
+        <div class="panel-section">
+          <div class="section-hdr">
+            <span class="index-tag">[ 06 / ÜRETİM ÇIKTILARI &amp; İNDİRMELER ]</span>
+          </div>
+
+          <div class="export-stack">
+            <button type="button" id="btn-dl-stl-unit" class="exp-btn primary">
+              <span>TEKİL PARÇA (.STL)</span>
+              <small>Su Geçirmez Binary · Özel Şekil &amp; Yazı Dahil</small>
+            </button>
+
+            <button type="button" id="btn-dl-stl-plate" class="exp-btn accent">
+              <span>TAM TABLA DİZİLİM (.STL)</span>
+              <small id="lbl-dl-plate-sub">220×220mm Çoklu Üretim STL</small>
+            </button>
+
+            <button type="button" id="btn-dl-antet-svg" class="exp-btn">
+              <span>İMALAT ANTETİ (.SVG)</span>
+              <small>Özel Silüet, Z-Duraklatma &amp; Kesit Paftası</small>
+            </button>
+
+            <button type="button" id="btn-dl-b2b-csv" class="exp-btn">
+              <span>B2B FİYAT TEKLİFİ (.CSV)</span>
+              <small>Excel Uyumlu Maliyet &amp; Kademe Tablosu</small>
+            </button>
+
+            <div class="secondary-cad-row">
+              <button type="button" id="btn-dl-obj" class="mini-exp">.OBJ</button>
+              <button type="button" id="btn-dl-glb" class="mini-exp">.GLB</button>
+              <button type="button" id="btn-dl-dxf" class="mini-exp">.DXF (2D)</button>
+              <button type="button" id="btn-dl-scad" class="mini-exp">.SCAD</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- IMALAT ANTETI (.SVG) LIVE OPERATOR SHEET PREVIEW MODAL -->
+  <div id="antet-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-sheet">
+      <div class="modal-hdr">
+        <div>
+          <span class="index-tag">[ TEKNİK RESİM PAFTASI ÖNİZLEME ]</span>
+          <h2>İMALAT ANTETİ — OPERATÖR Z-DURAKLATMA &amp; DİZİLİM FÖYÜ (.SVG)</h2>
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="btn-modal-dl-svg" class="btn-primary">.SVG OLARAK İNDİR</button>
+          <button type="button" id="btn-modal-close" class="btn-ghost">KAPAT [ESC]</button>
+        </div>
+      </div>
+      <div id="antet-svg-container" class="modal-svg-body"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

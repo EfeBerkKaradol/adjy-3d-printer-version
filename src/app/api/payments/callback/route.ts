@@ -5,6 +5,7 @@ import { getAbsoluteUrl } from "@/lib/url";
 import { sendEmail } from "@/lib/email";
 import { CUSTOM_PRINT_SLUG, isCustomPrintParams } from "@/lib/customPrint";
 import { LAYER_HEIGHTS } from "@/lib/slicer";
+import { tasarimSiparisiniBildir } from "@/lib/tasarim/bildirim";
 
 // Müşteri yüklemesi (özel baskı) siparişlerinin dosya + özelleştirme
 // bilgilerinin gönderileceği üretim e-postası
@@ -180,6 +181,14 @@ export async function POST(request: NextRequest) {
           await notifyCustomPrintItems(payment.orderId);
         } catch (emailErr) {
           console.error("Özel baskı e-postası gönderilemedi:", emailErr);
+        }
+
+        // Tasarım aracıyla kurulan ürünler: atölyeye seçimler ve
+        // üretim ekranının bağlantısı gider.
+        try {
+          await tasarimSiparisiniBildir(payment.orderId);
+        } catch (emailErr) {
+          console.error("Tasarım siparişi e-postası gönderilemedi:", emailErr);
         }
 
         return NextResponse.redirect(

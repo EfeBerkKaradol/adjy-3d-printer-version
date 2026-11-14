@@ -14,7 +14,7 @@ import { usePathname } from "next/navigation";
 // ==========================================
 
 /** Tam ekran açılan yollar (bu yol ve altındakiler) */
-const TAM_EKRAN = ["/admin/ajan"];
+const TAM_EKRAN = ["/admin/ajan", "/admin/uretim"];
 
 interface Props {
   /** Üstteki hizmet şeridi — tam ekran sayfalarda da gösterilmez */

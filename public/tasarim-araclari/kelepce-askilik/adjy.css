@@ -1,0 +1,59 @@
+/* Masa kelepçeli askı — ADJY görünümü */
+html[data-adjy-tema] {
+  --bg-paper: var(--a-zemin);
+  --bg-panel: var(--a-yuzey);
+  --bg-card: var(--a-yuzey);
+  --bg-elevated: var(--a-cukur);
+  --ink-primary: var(--a-yazi);
+  --ink-secondary: var(--a-soluk);
+  --ink-muted: var(--a-silik);
+  --hairline: var(--a-cizgi);
+  --hairline-strong: var(--a-cizgi-koyu);
+  --accent-vermilion: var(--a-vurgu);
+  --accent-vermilion-soft: var(--a-vurgu-soluk);
+  --safe-green: var(--a-yesil);
+  --safe-green-soft: var(--a-yesil-soluk);
+  --warn-amber: var(--a-amber);
+  --font-display: var(--a-sans);
+  --font-sans: var(--a-sans);
+  --font-mono: var(--a-mono);
+}
+html[data-adjy-tema] .viewport-stage {
+  background: var(--a-cukur);
+}
+html[data-adjy-mod="musteri"] .workspace-grid {
+  grid-template-columns: 334px 1fr;
+}
+@media (max-width: 1320px) {
+  html[data-adjy-mod="musteri"] .workspace-grid {
+    grid-template-columns: 300px 1fr;
+  }
+}
+/* Aracın kendi dar ekran yerleşimi yok */
+@media (max-width: 860px) {
+  html,
+  body {
+    overflow: auto !important;
+    height: auto !important;
+  }
+  .workbench-shell {
+    height: auto !important;
+    width: 100% !important;
+  }
+  .topbar {
+    height: auto !important;
+    flex-wrap: wrap;
+  }
+  .topbar-controls {
+    flex-wrap: wrap !important;
+  }
+  html[data-adjy-mod="musteri"] .workspace-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+    overflow: visible;
+  }
+  .viewport-stage {
+    order: -1;
+    height: 46vh !important;
+  }
+}

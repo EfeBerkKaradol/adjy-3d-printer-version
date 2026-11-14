@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Loader2, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { tasarimUrunuMu } from "@/lib/tasarim/order";
+import { uretimEkraniAdresi } from "@/lib/tasarim/adresler";
 import {
   Select,
   SelectContent,
@@ -19,6 +21,7 @@ interface PrintItem {
   orderStatus: string;
   productName: string;
   productThumbnail: string | null;
+  productSku: string | null;
   quantity: number;
   printStatus: string;
   customParams: Record<string, unknown> | null;
@@ -186,6 +189,16 @@ export default function AdminPrintQueuePage() {
                           )}
                           <span className="font-medium text-sm">
                             {item.productName}
+                            {/* Tasarım aracı ürünü: STL üretim
+                                ekranından, müşterinin kaydıyla iner */}
+                            {tasarimUrunuMu(item.productSku) && (
+                              <Link
+                                href={uretimEkraniAdresi(item.orderId, item.id)}
+                                className="mt-0.5 block text-xs font-normal text-primary hover:underline"
+                              >
+                                Üretim dosyaları (STL)
+                              </Link>
+                            )}
                           </span>
                         </div>
                       </td>

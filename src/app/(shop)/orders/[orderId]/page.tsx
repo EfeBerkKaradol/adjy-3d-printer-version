@@ -373,6 +373,14 @@ export default function OrderDetailPage() {
                     >
                       {item.productName}
                     </Link>
+                    {/* Tasarım aracıyla kurulan ürün: müşteri ne
+                        seçtiğini siparişinde de görsün */}
+                    {typeof item.customParams?.tasarimAraci === "string" &&
+                      typeof item.customParams?.ozet === "string" && (
+                        <p className="text-xs text-muted-foreground line-clamp-2">
+                          {item.customParams.ozet}
+                        </p>
+                      )}
                     <p className="text-xs text-muted-foreground">
                       Adet: {item.quantity} | Birim: {Number(item.unitPrice).toFixed(2)} TL
                     </p>

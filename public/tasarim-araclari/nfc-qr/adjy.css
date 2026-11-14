@@ -1,0 +1,45 @@
+/* NFC / QR stand ve anahtarlık — ADJY görünümü */
+html[data-adjy-tema] {
+  --bg-ground: var(--a-zemin);
+  --bg-panel: var(--a-yuzey);
+  --bg-elevated: var(--a-cukur);
+  --bg-input: var(--a-girdi);
+  --ink-primary: var(--a-yazi);
+  --ink-secondary: var(--a-soluk);
+  --ink-muted: var(--a-silik);
+  --hairline: var(--a-cizgi);
+  --hairline-strong: var(--a-cizgi-koyu);
+  --accent-vermilion: var(--a-vurgu);
+  --accent-amber: var(--a-amber);
+  --accent-emerald: var(--a-yesil);
+  --vp-bg: var(--a-cukur);
+  --overlay-bg: var(--a-ortu);
+}
+html[data-adjy-mod="musteri"] .app-shell {
+  grid-template-rows: 1fr;
+}
+html[data-adjy-mod="musteri"] .workspace-grid {
+  grid-template-columns: 344px 1fr !important;
+  height: 100vh;
+}
+/* Aracın kendi dar ekran yerleşimi yok */
+@media (max-width: 860px) {
+  html,
+  body {
+    overflow: auto !important;
+    height: auto !important;
+  }
+  .app-shell {
+    height: auto !important;
+    width: 100% !important;
+  }
+  html[data-adjy-mod="musteri"] .workspace-grid {
+    grid-template-columns: 1fr !important;
+    height: auto;
+    overflow: visible;
+  }
+  .stage-center {
+    order: -1;
+    height: 52vh;
+  }
+}

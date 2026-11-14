@@ -1,0 +1,32 @@
+/* PCB elektronik kutusu — ADJY görünümü */
+html[data-adjy-tema] {
+  --bg-canvas: var(--a-cukur);
+  --bg-panel: var(--a-yuzey);
+  --bg-elevated: var(--a-cukur);
+  --bg-input: var(--a-girdi);
+  --ink-primary: var(--a-yazi);
+  --ink-secondary: var(--a-soluk);
+  --ink-muted: var(--a-silik);
+  --accent: var(--a-vurgu);
+  --accent-soft: var(--a-vurgu-soluk);
+  --brass: var(--a-amber);
+  --ok: var(--a-yesil);
+  --hairline: var(--a-cizgi);
+  --hairline-strong: var(--a-cizgi-koyu);
+  --overlay-bg: var(--a-ortu);
+}
+html[data-adjy-mod="musteri"] .studio-grid {
+  grid-template-columns: 340px minmax(0, 1fr) !important;
+}
+html[data-adjy-mod="musteri"] .left-panel .material-row {
+  margin-top: 14px;
+}
+@media (max-width: 1180px) {
+  html[data-adjy-mod="musteri"] .studio-grid {
+    grid-template-columns: 1fr !important;
+  }
+  html[data-adjy-mod="musteri"] .viewport-stage {
+    order: -1;
+    height: 46vh;
+  }
+}

@@ -1,0 +1,38 @@
+/* Dokulu saksı — ADJY görünümü */
+html[data-adjy-tema] {
+  --bg-obsidian: var(--a-zemin);
+  --bg-panel: var(--a-yuzey);
+  --bg-elevated: var(--a-cukur);
+  --bg-stage: var(--a-cukur);
+  --ink-primary: var(--a-yazi);
+  --ink-secondary: var(--a-soluk);
+  --ink-muted: var(--a-silik);
+  --accent: var(--a-vurgu);
+  --accent-soft: var(--a-vurgu-soluk);
+  --pass: var(--a-yesil);
+  --warn: var(--a-amber);
+  --hairline: var(--a-cizgi);
+  --hairline-strong: var(--a-cizgi-koyu);
+}
+
+/* Sağ ray gizlenince ızgara kendiliğinden daralmıyor */
+html[data-adjy-mod="musteri"] .app-shell {
+  grid-template-rows: 1fr;
+}
+html[data-adjy-mod="musteri"] .topbar {
+  display: none;
+}
+html[data-adjy-mod="musteri"] .studio-grid {
+  grid-template-columns: 332px 1fr;
+}
+@media (max-width: 1180px) {
+  html[data-adjy-mod="musteri"] .studio-grid {
+    grid-template-columns: 1fr;
+  }
+  html[data-adjy-mod="musteri"] .viewport-panel {
+    order: -1;
+  }
+  html[data-adjy-mod="musteri"] .canvas-stage {
+    height: 46vh;
+  }
+}

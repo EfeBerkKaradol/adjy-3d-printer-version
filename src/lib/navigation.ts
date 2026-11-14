@@ -60,6 +60,7 @@ export const MAIN_NAV: NavLink[] = [
             { label: "Tüm Ürünler", href: "/products" },
             { label: "Öne Çıkanlar", href: "/products?featured=true" },
             { label: "Ölçüsü Ayarlanabilir", href: "/products?customizable=true" },
+            { label: "Kendin Tasarla", href: "/tasarla" },
             { label: "Hediye Fikirleri", href: "/products?koleksiyon=koleksiyon-hediye" },
             { label: "Kişiye Özel", href: "/products?koleksiyon=koleksiyon-kisiye-ozel" },
             { label: "Yılbaşı", href: "/products?koleksiyon=koleksiyon-yilbasi" },
@@ -77,6 +78,7 @@ export const MAIN_NAV: NavLink[] = [
     href: "/uret",
     description: "Modelini yükle ya da fotoğraftan oluştur",
     children: [
+      { label: "Kendin Tasarla", href: "/tasarla" },
       { label: "Fotoğraftan Oluştur", href: "/uret/fotograftan-olustur" },
       { label: "Kendi Modelini Yükle", href: "/uret/model-yukle" },
     ],
@@ -86,6 +88,13 @@ export const MAIN_NAV: NavLink[] = [
         {
           title: "Nereden başlıyorsun?",
           links: [
+            {
+              // Hazır tasarım araçları: müşteri model getirmez,
+              // ürünü ölçüsü ve ayrıntısıyla burada kurar.
+              label: "Kendin Tasarla",
+              href: "/tasarla",
+              description: "Saksı, avize, lamba, kutu — ölçüsünü sen kur",
+            },
             {
               label: "Fotoğraftan Oluştur",
               href: "/uret/fotograftan-olustur",
@@ -249,6 +258,7 @@ export const FOOTER_NAV: { title: string; links: { label: string; href: string }
       { label: "Mobilya", href: "/mobilya" },
       { label: "Koleksiyonlar", href: "/collections" },
       { label: "Üret", href: "/uret" },
+      { label: "Kendin Tasarla", href: "/tasarla" },
       { label: "Fotoğraftan oluştur", href: "/uret/fotograftan-olustur" },
       { label: "Öne Çıkanlar", href: "/products?featured=true" },
     ],

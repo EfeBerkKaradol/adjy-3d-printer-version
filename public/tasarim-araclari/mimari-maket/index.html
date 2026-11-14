@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mimari Ölçekli Maket Kat Ayırıcı, DFM Duvar Kelepçesi &amp; Köşe Pimli CAD Konfigüratörü</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three/build/three.module.js",
+      "three/addons/": "./vendor/three/examples/jsm/"
+    }
+  }
+  </script>
+  <!-- ADJY mağaza köprüsü: tema, müşteri/atölye kipi, durum kaydı -->
+  <meta name="robots" content="noindex" />
+  <link rel="stylesheet" href="../_adjy/kopru.css" />
+  <link rel="stylesheet" href="./adjy.css" />
+  <script src="./adjy.js"></script>
+  <script src="../_adjy/kopru.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- ÜST İSVİÇRE EDİTÖRYAL CAD TELEMETRİ BANDI -->
+    <header class="topbar">
+      <div class="brand-block">
+        <span class="index-tag">[ 01 / MİMARİ MAKET İMALAT CAD · 0.4MM NOZUL DFM &amp; KÖŞE PİMLİ İSTİFLEME ]</span>
+        <div class="brand-title-row">
+          <h1>MİMARİ MAKET KAT AYIRICI &amp; DFM KONFİGÜRATÖRÜ</h1>
+          <span class="unit-badge">1 BİRİM = 1.00 MM</span>
+          <span id="dfm-status-badge" class="dfm-badge ok">DFM ≥1.20MM · 3 PERİMETRE ONAYLI</span>
+        </div>
+      </div>
+
+      <div class="topbar-telemetry">
+        <div class="tele-cell">
+          <span class="tele-lbl">MAKET NET KÜTLE (MM)</span>
+          <strong id="hud-net-dims">120.0 × 180.0 × 154.0 mm</strong>
+        </div>
+        <div class="tele-cell accent">
+          <span class="tele-lbl">DFM DUVAR / PARAPET</span>
+          <strong id="hud-wall-clamp">1.50 / 1.20 mm (3×0.4)</strong>
+        </div>
+        <div class="tele-cell teal">
+          <span class="tele-lbl">KÖŞE PİM / YUVA</span>
+          <strong id="hud-pin-spec">Ø3.20 / Ø3.60 (+0.20mm)</strong>
+        </div>
+        <div class="tele-cell">
+          <span class="tele-lbl">B2B ATÖLYE TEKLİFİ (NET)</span>
+          <strong id="hud-b2b-price">-- TL</strong>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <button id="btn-top-upload" class="btn-upload-cta" title="Kendi 3B bina modelini yükle (.STL, .OBJ, .GLB, .GLTF) ve katlara böl">+ KENDİ MODELİNİ YÜKLE</button>
+        <button id="btn-theme-toggle" class="btn-ghost" title="Arşiv Kâğıdı ve Koyu Atölye teması arasında geçiş yap">ARŞİV KÂĞIDI</button>
+        <button id="btn-top-svg" class="btn-secondary" title="2B İmalat Anteti ve Kat Montaj Paftasını (.SVG) indir">İMALAT ANTETİ (.SVG)</button>
+        <button id="btn-top-csv" class="btn-primary" title="B2B Mimari Maket Atölyesi Teklif ve Metraj Tablosunu (.CSV) indir">B2B TEKLİF (.CSV)</button>
+      </div>
+    </header>
+
+    <!-- 3 SÜTUNLU MİMARİ MÜHENDİSLİK ÇALIŞMA ALANI -->
+    <main class="workspace-grid">
+      <!-- SÜTUN 1: TÜRKÇE PARAMETRİK KONTROLLER VE ÖLÇEK DFM DENETÇİSİ -->
+      <aside class="panel-controls" aria-label="Parametrik Mimari Maket Kontrolleri">
+        <div class="panel-header">
+          <span class="sec-index">01 · MODEL YÜKLE &amp; PARAMETRİK DFM</span>
+          <span id="build-ms-tag" class="mono-tag">1.8 ms</span>
+        </div>
+
+        <div class="controls-scroll">
+          <!-- 00. KENDİ 3B MİMARİ MODELİNİ YÜKLE (.STL / .OBJ / .GLB / .GLTF) -->
+          <section class="ctrl-group upload-card">
+            <div class="ctrl-title-row">
+              <div>
+                <span class="param-key">00 · Kendi 3B Modelini Yükle</span>
+                <span class="tr-desc">Katlara Böl · ≥1.2mm DFM · Köşe Pim + Baza</span>
+              </div>
+              <span class="scaled-pill">STL·OBJ·GLB</span>
+            </div>
+
+            <input type="file" id="custom-model-file-input" accept=".stl,.obj,.glb,.gltf" hidden />
+
+            <div id="custom-model-dropzone" class="custom-dropzone" tabindex="0" role="button" aria-label="3B Mimari Model Dosyası Yükle">
+              <strong>+ 3B BİNA DOSYASI SEÇ VEYA SÜRÜKLE</strong>
+              <span>Revit, Rhino, SketchUp, Blender (.STL / .OBJ / .GLB)</span>
+            </div>
+
+            <button type="button" id="btn-load-demo-custom" class="demo-custom-btn">
+              ★ Örnek Özel 3B Model Dene (Kademeli L-Kule .STL)
+            </button>
+
+            <!-- Yüklü Özel Model Aktif Kontrol Kutusu -->
+            <div id="custom-model-active-panel" class="custom-active-panel hidden">
+              <div class="cap-head">
+                <div class="cap-meta">
+                  <strong id="cap-filename">ozel_bina.stl</strong>
+                  <span id="cap-detected-info">Algılanan: --</span>
+                </div>
+                <button type="button" id="btn-clear-custom-model" class="cap-clear-btn" title="Özel modeli kaldırıp parametrik moda dön">× KALDIR</button>
+              </div>
+
+              <div class="cap-row">
+                <label class="mini-lbl" for="custom-unit-select">Dosya Kaynak Birimi</label>
+                <select id="custom-unit-select" class="cad-select">
+                  <option value="auto" selected>Otomatik Algıla → Maket_Olcegi Uygula</option>
+                  <option value="real_m">Gerçek Metre (m) → Ölçekle Küçült</option>
+                  <option value="real_cm">Gerçek Santimetre (cm) → Ölçekle Küçült</option>
+                  <option value="real_mm">Gerçek Milimetre (mm) → Ölçekle Küçült</option>
+                  <option value="maket_mm">1:1 Hazır Maket Boyutu (mm)</option>
+                </select>
+              </div>
+
+              <div class="cap-axis-row">
+                <label class="pin-toggle-lbl" title="Revit / Rhino / Blender STL Z-Yukarı eksenini dikey Y eksenine çevirir">
+                  <input type="checkbox" id="chk-custom-zup" />
+                  <span>Z-Yukarı</span>
+                </label>
+                <div class="rot-btns">
+                  <button type="button" class="vp-btn" data-crot="x">X 90°</button>
+                  <button type="button" class="vp-btn" data-crot="y">Y 90°</button>
+                  <button type="button" class="vp-btn" data-crot="z">Z 90°</button>
+                  <button type="button" class="vp-btn" data-crot="reset">0°</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Hazır Mimari Örnekler (Hızlı Seçim) -->
+          <section class="ctrl-group compact">
+            <div class="ctrl-title-row">
+              <label class="param-key" for="preset-select">Hazır Mimari Örnekler (6 Tipoloji)</label>
+              <span class="param-sub">TEK TIK YÜKLE</span>
+            </div>
+            <select id="preset-select" class="cad-select">
+              <option value="konut_200" selected>01 · Çağdaş Konut Bloğu (1:200 · 8 Kat)</option>
+              <option value="kule_500">02 · Gökdelen Ofis Kulesi (1:500 · 22 Kat · Agresif DFM)</option>
+              <option value="pavyon_50">03 · Müze &amp; Kültür Pavyonu (1:50 · 4 Kat · Detay)</option>
+              <option value="karma_100">04 · Kentsel Karma Rezidans (1:100 · 10 Kat)</option>
+              <option value="apartman_200">05 · Köşe Parsel Apartmanı (1:200 · 5 Kat)</option>
+              <option value="kampus_500">06 · Yatay Fakülte Kampüsü (1:500 · 4 Kat · Masterplan)</option>
+            </select>
+          </section>
+
+          <!-- 7. Maket_Olcegi -->
+          <section class="ctrl-group highlight-scale">
+            <div class="ctrl-title-row">
+              <div>
+                <label class="param-key" for="Maket_Olcegi">Maket_Olcegi</label>
+                <span class="tr-desc">Mimari Küçültme Oranı</span>
+              </div>
+              <select id="Maket_Olcegi" class="cad-select mini-scale-select" aria-label="Maket Ölçeği">
+                <option value="50">1:50</option>
+                <option value="100">1:100</option>
+                <option value="200" selected>1:200</option>
+                <option value="500">1:500</option>
+              </select>
+            </div>
+            <div class="scale-segmented" role="group" aria-label="Maket Ölçeği Seçici">
+              <button type="button" class="scale-btn" data-scale="50">1:50</button>
+              <button type="button" class="scale-btn" data-scale="100">1:100</button>
+              <button type="button" class="scale-btn active" data-scale="200">1:200</button>
+              <button type="button" class="scale-btn" data-scale="500">1:500</button>
+            </div>
+          </section>
+
+          <!-- 1. Bina_En_m (10-60m) -->
+          <section class="ctrl-group">
+            <div class="ctrl-title-row">
+              <div>
+                <label class="param-key" for="Bina_En_m">Bina_En_m</label>
+                <span class="tr-desc">Bina Cephe Eni (10–60 m)</span>
+              </div>
+              <span id="scaled-en-tag" class="scaled-pill">120.0 mm</span>
+            </div>
+            <div class="slider-num-row">
+              <input type="range" id="Bina_En_m_range" min="10" max="60" step="0.5" value="24" />
+              <div class="num-unit-box">
+                <input type="number" id="Bina_En_m" min="10" max="60" step="0.5" value="24" />
+                <span>m</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- 2. Bina_Boy_m (10-60m) -->
+          <section class="ctrl-group">
+            <div class="ctrl-title-row">
+              <div>
+                <label class="param-key" for="Bina_Boy_m">Bina_Boy_m</label>
+                <span class="tr-desc">Bina Derinlik Boyu (10–60 m)</span>
+              </div>
+              <span id="scaled-boy-tag" class="scaled-pill">180.0 mm</span>
+            </div>
+            <div class="slider-num-row">
+              <input type="range" id="Bina_Boy_m_range" min="10" max="60" step="0.5" value="36" />
+              <div class="num-unit-box">
+                <input type="number" id="Bina_Boy_m" min="10" max="60" step="0.5" value="36" />
+                <span>m</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3. Kat_Sayisi (3-25) -->
+          <section class="ctrl-group">
+            <div class="ctrl-title-row">
+              <div>
+                <label class="param-key" for="Kat_Sayisi">Kat_Sayisi</label>
+                <span class="tr-desc">Sökülebilir Bina Kat Adedi (3–25)</span>
+              </div>
+              <span id="scaled-tiers-tag" class="scaled-pill">10 Modül</span>
+            </div>
+            <div class="slider-num-row">
+              <input type="range" id="Kat_Sayisi_range" min="3" max="25" step="1" value="8" />
+              <div class="num-unit-box">
+                <input type="number" id="Kat_Sayisi" min="3" max="25" step="1" value="8" />
+                <span>kat</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- 4. Kat_Yuksekligi_m (3.0-4.5m) -->
+          <section class="ctrl-group">
+            <div class="ctrl-title-row">
+              <div>
+                <label class="param-key" for="Kat_Yuksekligi_m">Kat_Yuksekligi_m</label>
+                <span class="tr-desc">Kat Yüksekliği (3.0–4.5 m)</span>
+              </div>
+              <span id="scaled-kat-h-tag" class="scaled-pill">17.0 mm</span>
+            </div>
+            <div class="slider-num-row">
+              <input type="range" id="Kat_Yuksekligi_m_range" min="3.0" max="4.5" step="0.1" value="3.4" />
+              <div class="num-unit-box">
+                <input type="number" id="Kat_Yuksekligi_m" min="3.0" max="4.5" step="0.1" value="3.4" />
+                <span>m</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- 5. Balkon_Cikma_m (0-2.0m) -->
+          <section class="ctrl-group">
+            <div class="ctrl-title-row">
+              <div>
+                <label class="param-key" for="Balkon_Cikma_m">Balkon_Cikma_m</label>
+                <span class="tr-desc">Balkon Konsol Çıkması (0–2.0 m)</span>
+              </div>
+              <span id="scaled-balkon-tag" class="scaled-pill">7.5 mm</span>
+            </div>
+            <div class="slider-num-row">
+              <input type="range" id="Balkon_Cikma_m_range" min="0" max="2.0" step="0.1" value="1.5" />
+              <div class="num-unit-box">
+                <input type="number" id="Balkon_Cikma_m" min="0" max="2.0" step="0.1" value="1.5" />
+                <span>m</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- 6. Pencere_Orani_Yuzde (20-70%) -->
+          <section class="ctrl-group">
+            <div class="ctrl-title-row">
+              <div>
+                <label class="param-key" for="Pencere_Orani_Yuzde">Pencere_Orani_Yuzde</label>
+                <span class="tr-desc">Cephe Pencere Boşluk Oranı (%20–70)</span>
+              </div>
+              <span id="scaled-win-tag" class="scaled-pill">5×8 Aks</span>
+            </div>
+            <div class="slider-num-row">
+              <input type="range" id="Pencere_Orani_Yuzde_range" min="20" max="70" step="1" value="45" />
+              <div class="num-unit-box">
+                <input type="number" id="Pencere_Orani_Yuzde" min="20" max="70" step="1" value="45" />
+                <span>%</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- 8. Min_Basilir_Duvar_mm (1.2mm) -->
+          <section class="ctrl-group dfm-highlight">
+            <div class="ctrl-title-row">
+              <div>
+                <label class="param-key" for="Min_Basilir_Duvar_mm">Min_Basilir_Duvar_mm</label>
+                <span class="tr-desc">0.4mm Nozul Min. Cidar Kelepçesi</span>
+              </div>
+              <button type="button" id="btn-reset-wall" class="mini-reset-pill" title="3× 0.40mm nozul standardı olan 1.20mm değerine sıfırla">1.20mm (3×0.4)</button>
+            </div>
+            <div class="slider-num-row">
+              <input type="range" id="Min_Basilir_Duvar_mm_range" min="0.80" max="3.00" step="0.05" value="1.20" />
+              <div class="num-unit-box">
+                <input type="number" id="Min_Basilir_Duvar_mm" min="0.80" max="3.00" step="0.05" value="1.20" />
+                <span>mm</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- 9. Kat_Pim_Toleransi_mm (0.20mm) -->
+          <section class="ctrl-group dfm-highlight">
+            <div class="ctrl-title-row">
+              <div>
+                <label class="param-key" for="Kat_Pim_Toleransi_mm">Kat_Pim_Toleransi_mm</label>
+                <span class="tr-desc">Köşe Hizalama Pimi Geçme Boşluğu</span>
+              </div>
+              <button type="button" id="btn-reset-tol" class="mini-reset-pill" title="Standart 0.20mm FDM geçme toleransına sıfırla">0.20mm FDM</button>
+            </div>
+            <div class="slider-num-row">
+              <input type="range" id="Kat_Pim_Toleransi_mm_range" min="0.05" max="0.50" step="0.01" value="0.20" />
+              <div class="num-unit-box">
+                <input type="number" id="Kat_Pim_Toleransi_mm" min="0.05" max="0.50" step="0.01" value="0.20" />
+                <span>mm</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- CANLI ÖLÇEK DFM MÜHENDİSLİK DENETİM KARTI -->
+          <section class="dfm-audit-card" aria-live="polite">
+            <div class="audit-head">
+              <strong>ÖLÇEK DFM CİDAR KELEPÇE RAPORU</strong>
+              <span id="audit-nozzle-badge">0.4MM NOZUL</span>
+            </div>
+            <ul id="dfm-audit-list" class="audit-list">
+              <li>Yükleniyor...</li>
+            </ul>
+            <div id="bed-status-banner" class="bed-banner ok">STANDART 256×256MM TABLAYA UYGUN</div>
+          </section>
+        </div>
+      </aside>
+
+      <!-- SÜTUN 2: ETKİLEŞİMLİ PATLATILMIŞ 3B MİMARİ CAD GÖRÜNÜMÜ -->
+      <section class="panel-viewport" aria-label="3B Patlatılmış Kat Görünümü">
+        <!-- GÖRSEL HAZIR MİMARİ ÖRNEKLER VİTRİN ŞERİDİ (6 ÖRNEK BİNA TİPOLOJİSİ) -->
+        <div class="examples-showcase" aria-label="Hazır Mimari Maket Örnekleri">
+          <div class="examples-head">
+            <span class="examples-label">HAZIR MİMARİ ÖRNEKLER:</span>
+          </div>
+          <div id="example-cards-strip" class="examples-grid">
+            <button type="button" class="example-card active" data-example="konut_200">
+              <svg viewBox="0 0 44 38" class="ex-thumb" aria-hidden="true">
+                <rect x="4" y="33" width="36" height="3" fill="currentColor" opacity="0.35"/>
+                <rect x="11" y="8" width="22" height="25" fill="none" stroke="currentColor" stroke-width="1.6"/>
+                <line x1="8" y1="14" x2="36" y2="14" stroke="#E04F33" stroke-width="1.4"/>
+                <line x1="8" y1="20" x2="36" y2="20" stroke="#E04F33" stroke-width="1.4"/>
+                <line x1="8" y1="26" x2="36" y2="26" stroke="#E04F33" stroke-width="1.4"/>
+              </svg>
+              <div class="ex-meta">
+                <strong>01 · Konut Bloğu</strong>
+                <span>1:200 · 8 Kat · Balkonlu</span>
+              </div>
+            </button>
+
+            <button type="button" class="example-card" data-example="kule_500">
+              <svg viewBox="0 0 44 38" class="ex-thumb" aria-hidden="true">
+                <rect x="6" y="33" width="32" height="3" fill="currentColor" opacity="0.35"/>
+                <rect x="15" y="3" width="14" height="30" fill="none" stroke="currentColor" stroke-width="1.6"/>
+                <line x1="15" y1="9" x2="29" y2="9" stroke="#2FA89E" stroke-width="1.1"/>
+                <line x1="15" y1="15" x2="29" y2="15" stroke="#2FA89E" stroke-width="1.1"/>
+                <line x1="15" y1="21" x2="29" y2="21" stroke="#2FA89E" stroke-width="1.1"/>
+                <line x1="15" y1="27" x2="29" y2="27" stroke="#2FA89E" stroke-width="1.1"/>
+              </svg>
+              <div class="ex-meta">
+                <strong>02 · Ofis Kulesi</strong>
+                <span>1:500 · 22 Kat · DFM 1.2mm</span>
+              </div>
+            </button>
+
+            <button type="button" class="example-card" data-example="pavyon_50">
+              <svg viewBox="0 0 44 38" class="ex-thumb" aria-hidden="true">
+                <rect x="3" y="33" width="38" height="3" fill="currentColor" opacity="0.35"/>
+                <rect x="7" y="16" width="30" height="17" fill="none" stroke="currentColor" stroke-width="1.6"/>
+                <line x1="4" y1="21" x2="40" y2="21" stroke="#E04F33" stroke-width="1.5"/>
+                <line x1="4" y1="27" x2="40" y2="27" stroke="#E04F33" stroke-width="1.5"/>
+              </svg>
+              <div class="ex-meta">
+                <strong>03 · Müze Pavyonu</strong>
+                <span>1:50 · 4 Kat · Detay Maket</span>
+              </div>
+            </button>
+
+            <button type="button" class="example-card" data-example="karma_100">
+              <svg viewBox="0 0 44 38" class="ex-thumb" aria-hidden="true">
+                <rect x="5" y="33" width="34" height="3" fill="currentColor" opacity="0.35"/>
+                <rect x="12" y="6" width="20" height="27" fill="none" stroke="currentColor" stroke-width="1.6"/>
+                <line x1="9" y1="12" x2="35" y2="12" stroke="#2FA89E" stroke-width="1.3"/>
+                <line x1="9" y1="19" x2="35" y2="19" stroke="#2FA89E" stroke-width="1.3"/>
+                <line x1="9" y1="26" x2="35" y2="26" stroke="#2FA89E" stroke-width="1.3"/>
+              </svg>
+              <div class="ex-meta">
+                <strong>04 · Karma Rezidans</strong>
+                <span>1:100 · 10 Kat · Yarışma</span>
+              </div>
+            </button>
+
+            <button type="button" class="example-card" data-example="apartman_200">
+              <svg viewBox="0 0 44 38" class="ex-thumb" aria-hidden="true">
+                <rect x="6" y="33" width="32" height="3" fill="currentColor" opacity="0.35"/>
+                <rect x="13" y="13" width="18" height="20" fill="none" stroke="currentColor" stroke-width="1.6"/>
+                <line x1="11" y1="19" x2="33" y2="19" stroke="#E04F33" stroke-width="1.3"/>
+                <line x1="11" y1="25" x2="33" y2="25" stroke="#E04F33" stroke-width="1.3"/>
+              </svg>
+              <div class="ex-meta">
+                <strong>05 · Köşe Apartman</strong>
+                <span>1:200 · 5 Kat · Hızlı Etüt</span>
+              </div>
+            </button>
+
+            <button type="button" class="example-card" data-example="kampus_500">
+              <svg viewBox="0 0 44 38" class="ex-thumb" aria-hidden="true">
+                <rect x="2" y="33" width="40" height="3" fill="currentColor" opacity="0.4"/>
+                <rect x="4" y="30" width="36" height="3" fill="currentColor" opacity="0.22"/>
+                <rect x="6" y="19" width="32" height="11" fill="none" stroke="currentColor" stroke-width="1.6"/>
+                <line x1="6" y1="24" x2="38" y2="24" stroke="#2FA89E" stroke-width="1.2"/>
+              </svg>
+              <div class="ex-meta">
+                <strong>06 · Kampüs Bloğu</strong>
+                <span>1:500 · 4 Kat · Masterplan</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Üst CAD Araç Çubuğu -->
+        <div class="viewport-toolbar">
+          <div class="tool-cluster">
+            <span class="cluster-lbl">KAMERA</span>
+            <button type="button" id="btn-cam-persp" class="vp-btn active">PERSP 35°</button>
+            <button type="button" id="btn-cam-ortho" class="vp-btn">ORTO CAD</button>
+          </div>
+
+          <div class="tool-cluster">
+            <span class="cluster-lbl">YÖN</span>
+            <button type="button" class="vp-btn" data-view="iso">İZO</button>
+            <button type="button" class="vp-btn" data-view="top">ÜST (Z+)</button>
+            <button type="button" class="vp-btn" data-view="front">ÖN (Y-)</button>
+            <button type="button" class="vp-btn" data-view="right">SAĞ (X+)</button>
+            <button type="button" class="vp-btn" data-view="bottom" title="Alt yüzeydeki 4× Dişi Pim Yuvalarını incele">ALT (YUVA)</button>
+          </div>
+
+          <div class="tool-cluster">
+            <span class="cluster-lbl">MOD</span>
+            <button type="button" class="vp-btn active" data-mode="shaded">GÖLGELİ+KENAR</button>
+            <button type="button" class="vp-btn" data-mode="blueprint">PAFTA</button>
+            <button type="button" class="vp-btn" data-mode="xray">X-RAY</button>
+            <button type="button" class="vp-btn" data-mode="wire">KAFES</button>
+          </div>
+
+          <div class="tool-cluster">
+            <select id="finish-appearance-select" class="vp-select" aria-label="Maket Görünüm Dokusu">
+              <option value="plaster" selected>Müze Beyaz PLA</option>
+              <option value="basswood">Ihlamur Ahşap Maket</option>
+              <option value="monolith">Antrasit Monolit</option>
+            </select>
+            <label class="pin-toggle-lbl" title="Köşe hizalama pimlerini vermilyon kırmızısı ile vurgula">
+              <input type="checkbox" id="chk-pin-axes" checked />
+              <span>Pim Aksları</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 3B Tuval ve Yüzen Metroloji HUD -->
+        <div id="canvas-wrap" class="canvas-wrap">
+          <canvas id="webgl-canvas"></canvas>
+
+          <!-- Sol Üst Yüzen Metroloji Kutusu -->
+          <div class="floating-metrology">
+            <div class="fm-title" id="fm-active-label">TÜM MAKET İSTİFİ (KADEMELİ BAZA DAHİL)</div>
+            <div class="fm-grid">
+              <span>Zarf (X×Z×Y):</span><strong id="fm-bbox">-- × -- × -- mm</strong>
+              <span>Net Hacim:</span><strong id="fm-vol">-- cm³ (-- mm³)</strong>
+              <span>Yüzey Alanı:</span><strong id="fm-area">-- cm²</strong>
+              <span>Üçgen / Kütle:</span><strong id="fm-tri-mass">-- Δ · -- g PLA</strong>
+            </div>
+            <div class="fm-hint">İpucu: 3B sahnede herhangi bir kata tıklayarak üst katları kaldırıp iç planı ve pimleri inceleyebilirsiniz.</div>
+          </div>
+
+          <!-- Sağ Üst Seçili Kat Hızlı Eylem Rozeti -->
+          <div id="tier-Floating-Inspector" class="floating-inspector hidden">
+            <span id="insp-tier-name">01 · Zemin Kat</span>
+            <button type="button" id="btn-insp-isolate" class="mini-vp-cta">Yalnız Bu Kat</button>
+            <button type="button" id="btn-insp-download" class="mini-vp-cta primary">.STL İndir</button>
+            <button type="button" id="btn-insp-clear" class="mini-vp-cta">Tümünü Göster</button>
+          </div>
+        </div>
+
+        <!-- Alt Patlatma (Explode) & Kesit Düzlemi Kontrol İskelesi -->
+        <div class="viewport-dock">
+          <div class="dock-row">
+            <button type="button" id="btn-toggle-explode" class="btn-explode-toggle">KATLARI PATLAT</button>
+            <div class="explode-slider-wrap">
+              <div class="dock-lbl-row">
+                <label for="explode-range">PATLATILMIŞ KAT AÇILIMI (EXPLODED VIEW)</label>
+                <strong id="explode-pct-lbl">%38</strong>
+              </div>
+              <input type="range" id="explode-range" min="0" max="100" step="1" value="38" />
+            </div>
+
+            <div class="inspect-mode-wrap">
+              <label for="inspect-tier-select">KAT İNCELEME SEÇİMİ</label>
+              <select id="inspect-tier-select" class="cad-select compact-select">
+                <option value="all" selected>Tüm Katlar (Serbest İstif)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="dock-row clip-row">
+            <div class="clip-btns">
+              <span class="cluster-lbl">CANLI KESİT:</span>
+              <button type="button" class="vp-btn active" data-clip="none">KAPALI</button>
+              <button type="button" class="vp-btn" data-clip="x">X KESİTİ</button>
+              <button type="button" class="vp-btn" data-clip="y">Y (PLAN)</button>
+              <button type="button" class="vp-btn" data-clip="z">Z KESİTİ</button>
+              <button type="button" id="btn-clip-pin-axis" class="vp-btn accent-btn" title="Kesit düzlemini doğrudan köşe hizalama pimi merkezinden geçirerek 0.20mm geçme boşluğunu gösterir">PİM AKSI KESİTİ</button>
+            </div>
+            <div class="clip-slider-wrap">
+              <input type="range" id="clip-offset-range" min="-200" max="200" step="0.5" value="0" disabled />
+              <span id="clip-offset-lbl" class="mono-tag">Kapalı</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SÜTUN 3: 2B İMALAT ANTETİ (.SVG), KAT BAZLI .STL İHRACATÇISI VE B2B TEKLİF (.CSV) -->
+      <aside class="panel-outputs" aria-label="İmalat Çıktıları ve Kat Bazlı STL İhracatı">
+        <div class="output-tabs" role="tablist">
+          <button type="button" class="out-tab active" data-tab="stl" role="tab">01 · KAT BAZLI .STL</button>
+          <button type="button" class="out-tab" data-tab="antet" role="tab">02 · İMALAT ANTETİ (.SVG)</button>
+          <button type="button" class="out-tab" data-tab="quote" role="tab">03 · B2B TEKLİF (.CSV)</button>
+        </div>
+
+        <!-- SEKME 1: KAT BAZLI .STL VE ÇOKLU CAD İHRACAT RAFİ -->
+        <div id="tab-panel-stl" class="tab-panel active">
+          <div class="tab-cta-bar">
+            <div>
+              <strong>KAT BAZLI SÖKÜLEBİLİR .STL LİSTESİ</strong>
+              <span id="stl-tier-count-sub">Tüm parçalar Z=0 düz tabanlı ve desteksiz (support-free) üretilir.</span>
+            </div>
+            <button type="button" id="btn-download-all-stl" class="btn-primary small">TÜM KATLARI AYRI .STL İNDİR</button>
+          </div>
+
+          <div id="per-floor-stl-list" class="stl-tier-list">
+            <!-- JS tarafından her kat için ayrı .STL butonu ve metroloji satırı doldurulur -->
+          </div>
+
+          <div class="multi-cad-footer">
+            <span class="sec-index">ÇOKLU CAD &amp; TABLA PAKETİ (1 BİRİM = 1 MM)</span>
+            <div class="cad-export-grid">
+              <button type="button" id="btn-exp-plate-stl" class="btn-secondary small" title="Tüm katları Z=0 tablasında yan yana dizilmiş tek .STL olarak indir">Tabla Dizilimi (.STL)</button>
+              <button type="button" id="btn-exp-stacked-stl" class="btn-secondary small" title="Tam istiflenmiş mimari kütle .STL">Tam İstif (.STL)</button>
+              <button type="button" id="btn-exp-obj" class="btn-ghost small">Wavefront (.OBJ)</button>
+              <button type="button" id="btn-exp-glb" class="btn-ghost small">3B Sahne (.GLB)</button>
+              <button type="button" id="btn-exp-dxf" class="btn-ghost small">Kat Planı (.DXF)</button>
+              <button type="button" id="btn-exp-scad" class="btn-ghost small">OpenSCAD (.SCAD)</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SEKME 2: CANLI 2B "Imalat_Anteti" (.SVG) MONTAJ PAFTASI -->
+        <div id="tab-panel-antet" class="tab-panel">
+          <div class="tab-cta-bar">
+            <div>
+              <strong>2B "Imalat_Anteti" MONTAJ PAFTASI (.SVG)</strong>
+              <span>ISO A3 Yatay · Kat Planı, İstif Kesiti &amp; 5:1 Pim Tolerans Detayı</span>
+            </div>
+            <div class="inline-actions">
+              <button type="button" id="btn-zoom-svg" class="btn-ghost small">TAM EKRAN</button>
+              <button type="button" id="btn-download-svg" class="btn-primary small">.SVG İNDİR</button>
+            </div>
+          </div>
+
+          <div id="svg-preview-container" class="svg-preview-box" title="Tam ekran incelemek için tıklayın">
+            <!-- Canlı vektörel SVG buraya işlenir -->
+          </div>
+
+          <div class="antet-quick-notes">
+            <div><span>Pim Koordinatları:</span> <strong id="antet-pin-coords">X=±-- / Z=±-- mm</strong></div>
+            <div><span>Erkek Pim / Dişi Yuva:</span> <strong id="antet-pin-fit">Ø-- / Ø-- mm</strong></div>
+            <div><span>DFM Duvar / Parapet:</span> <strong id="antet-wall-dfm">-- / -- mm</strong></div>
+          </div>
+        </div>
+
+        <!-- SEKME 3: B2B MİMARİ STÜDYO TEKLİFİ & METRAJ TABLOSU (.CSV) -->
+        <div id="tab-panel-quote" class="tab-panel">
+          <div class="tab-cta-bar">
+            <div>
+              <strong>B2B MİMARİ MAKET ATÖLYESİ TEKLİFİ</strong>
+              <span>UTF-8 BOM Noktalı Virgül (.CSV) · Türkçe Excel Uyumlu</span>
+            </div>
+            <button type="button" id="btn-download-csv" class="btn-primary small">B2B .CSV İNDİR</button>
+          </div>
+
+          <div class="quote-config-row">
+            <div>
+              <label class="mini-lbl" for="quote-material-select">Baskı / Referans Malzemesi</label>
+              <select id="quote-material-select" class="cad-select">
+                <option value="PLA_ARCH_WHITE" selected>Mat Alçı Beyazı Mimari PLA (1.24 g/cm³)</option>
+                <option value="PETG_TECH">Yarı-Mat Teknik PETG (1.27 g/cm³)</option>
+                <option value="ASA_MUSEUM">UV Dayanımlı Müze ASA (1.07 g/cm³)</option>
+                <option value="ABS_PRO">Endüstriyel Mat ABS (1.04 g/cm³)</option>
+                <option value="AL_6061">Alüminyum 6061 Referans (2.70 g/cm³)</option>
+                <option value="SS_304">Paslanmaz Çelik 304 Ref. (8.00 g/cm³)</option>
+                <option value="BRASS_C360">Pirinç C360 Sergi Ref. (8.50 g/cm³)</option>
+              </select>
+            </div>
+            <div>
+              <label class="mini-lbl" for="quote-finish-select">Sunum &amp; İşçilik Sınıfı</label>
+              <select id="quote-finish-select" class="cad-select">
+                <option value="ETUT">Konsept Etüt Maketi (Ham 0.20mm)</option>
+                <option value="YARISMA" selected>Mimari Yarışma &amp; Jüri (0.16mm + Boya)</option>
+                <option value="MUZE_LANSMAN">Lansman / Müze Sergi (0.12mm + Cam)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="quote-table-wrap">
+            <table class="quote-table">
+              <thead>
+                <tr>
+                  <th>Kalem</th>
+                  <th>Modül Tanımı</th>
+                  <th>Adet</th>
+                  <th>Ağırlık</th>
+                  <th>Süre</th>
+                  <th>Tutar</th>
+                </tr>
+              </thead>
+              <tbody id="quote-tbody"></tbody>
+            </table>
+          </div>
+
+          <div class="quote-summary-card">
+            <div class="qs-row"><span>Toplam Brüt Filament / Kütle:</span><strong id="qs-mass">-- g</strong></div>
+            <div class="qs-row"><span>Toplam 0.4mm Nozul Baskı Süresi:</span><strong id="qs-hours">-- saat</strong></div>
+            <div class="qs-row"><span>Tahmini Atölye Teslim Süresi:</span><strong id="qs-lead">-- iş günü</strong></div>
+            <div class="qs-row"><span>Ara Toplam (KDV Hariç B2B):</span><strong id="qs-sub">-- TL</strong></div>
+            <div class="qs-row"><span>KDV (%20):</span><strong id="qs-vat">-- TL</strong></div>
+            <div class="qs-row grand"><span>GENEL TOPLAM (KDV DAHİL):</span><strong id="qs-grand">-- TL</strong></div>
+            <div id="qs-ref-metals" class="qs-metals">Referans Kütleler: PLA --g · Al6061 --g · Çelik --g</div>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- TAM EKRAN 2B İMALAT ANTETİ (.SVG) İNCELEME MODALI -->
+  <div id="svg-modal" class="svg-modal hidden" role="dialog" aria-modal="true" aria-label="Tam Ekran İmalat Anteti">
+    <div class="svg-modal-card">
+      <div class="svg-modal-header">
+        <strong>İMALAT ANTETİ — TAM ÖLÇEK VEKTÖREL PAFTA ÖNİZLEME (.SVG)</strong>
+        <div class="inline-actions">
+          <button type="button" id="btn-modal-download-svg" class="btn-primary small">.SVG PAFTAYI İNDİR</button>
+          <button type="button" id="btn-modal-close" class="btn-ghost small">KAPAT (ESC)</button>
+        </div>
+      </div>
+      <div id="svg-modal-body" class="svg-modal-body"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

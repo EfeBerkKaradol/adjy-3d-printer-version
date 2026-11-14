@@ -1,3 +1,4 @@
+import { TASARIM_ARACLARI, aracAdresi } from "@/lib/tasarim/catalog";
 import { MetadataRoute } from "next";
 import { prisma } from "@/lib/db";
 import { getAbsoluteUrl } from "@/lib/url";
@@ -108,10 +109,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ),
   ];
 
+  // Tasarım araçları
+  //
+  // Bunların veritabanında ürün satırı var ama o satırın adresi
+  // (/products/tasarla-…) araca yönleniyor. Arama motoruna
+  // yönlenen adres değil, aracın kendi adresi bildirilir.
+  const tasarimPages: MetadataRoute.Sitemap = [
+    {
+      url: `${BASE_URL}/tasarla`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    ...TASARIM_ARACLARI.map((a) => ({
+      url: `${BASE_URL}${aracAdresi(a.id)}`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
+  ];
+
   return [
     ...staticPages,
     ...categoryPages,
-    ...productPages,
+    ...productPages.filter((p) => !p.url.includes("/products/tasarla-")),
     ...mobilyaPages,
+    ...tasarimPages,
   ];
 }

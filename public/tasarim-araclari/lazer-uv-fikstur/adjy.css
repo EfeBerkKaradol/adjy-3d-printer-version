@@ -1,0 +1,48 @@
+/* Lazer / UV baskı hizalama fikstürü — ADJY görünümü */
+html[data-adjy-tema] {
+  --bg-canvas: var(--a-cukur);
+  --bg-panel: var(--a-yuzey);
+  --bg-elevated: var(--a-cukur);
+  --bg-input: var(--a-girdi);
+  --ink-primary: var(--a-yazi);
+  --ink-secondary: var(--a-soluk);
+  --ink-muted: var(--a-silik);
+  --hairline: var(--a-cizgi);
+  --hairline-strong: var(--a-cizgi-koyu);
+  --accent: var(--a-vurgu);
+  --accent-soft: var(--a-vurgu-soluk);
+  --green: var(--a-yesil);
+  --green-soft: var(--a-yesil-soluk);
+  --blue: var(--a-vurgu);
+}
+html[data-adjy-mod="musteri"] .studio-grid {
+  grid-template-columns: 340px minmax(0, 1fr);
+}
+html[data-adjy-mod="musteri"] #stageSplitContainer {
+  grid-template-rows: 1fr;
+}
+@media (max-width: 1260px) {
+  html[data-adjy-mod="musteri"] .studio-grid {
+    grid-template-columns: 300px minmax(0, 1fr);
+  }
+}
+/* Aracın kendi dar ekran yerleşimi yok */
+@media (max-width: 860px) {
+  html,
+  body {
+    overflow: auto !important;
+    height: auto !important;
+  }
+  .topbar {
+    height: auto !important;
+    flex-wrap: wrap;
+  }
+  html[data-adjy-mod="musteri"] .studio-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .stage-column {
+    order: -1;
+    height: 48vh;
+  }
+}

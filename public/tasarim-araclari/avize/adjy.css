@@ -1,0 +1,36 @@
+/* Parametrik avize — ADJY görünümü.
+   Sahne bilerek koyu kalıyor: avizenin ışığı ancak koyu zeminde okunuyor. */
+html[data-adjy-tema] {
+  --bg-obsidian: var(--a-zemin);
+  --bg-panel: var(--a-yuzey);
+  --bg-elevated: var(--a-cukur);
+  --bg-input: var(--a-girdi);
+  --ink-bone: var(--a-yazi);
+  --ink-secondary: var(--a-soluk);
+  --ink-muted: var(--a-silik);
+  --hairline: var(--a-cizgi);
+  --hairline-strong: var(--a-cizgi-koyu);
+  --signal-vermilion: var(--a-vurgu);
+  --signal-vermilion-hover: var(--a-vurgu);
+  --warm-amber: var(--a-amber);
+  --pass-jade: var(--a-yesil);
+  --font-display: var(--a-sans);
+  --font-sans: var(--a-sans);
+  --font-mono: var(--a-mono);
+}
+html[data-adjy-mod="musteri"] .main-grid {
+  grid-template-columns: 338px 1fr;
+}
+.adjy-malzeme {
+  display: grid;
+  gap: 8px;
+}
+@media (max-width: 1180px) {
+  html[data-adjy-mod="musteri"] .main-grid {
+    grid-template-columns: 1fr;
+  }
+  html[data-adjy-mod="musteri"] .viewport-stage {
+    order: -1;
+    height: 46vh;
+  }
+}

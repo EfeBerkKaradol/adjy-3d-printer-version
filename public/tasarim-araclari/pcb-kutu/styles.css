@@ -1,0 +1,1055 @@
+/* ============================================================================
+   ELEKTRO-KASA CAD // İnsan İşçilikli İsviçre Endüstriyel UI/UX Sistemi
+   Anti-AI-Slop Manifesto: Kalibre Obsidyen Koyu & Arşiv Teknik Kağıt Temaları
+   ============================================================================ */
+
+:root,
+[data-theme="dark"] {
+  --bg-canvas: #09090b;
+  --bg-panel: #101114;
+  --bg-elevated: #17191e;
+  --bg-input: #0c0d10;
+  --ink-primary: #ece8e1;
+  --ink-secondary: #9a9d9e;
+  --ink-muted: #686b72;
+  --accent: #e04f33;
+  --accent-soft: rgba(224, 79, 51, 0.14);
+  --brass: #d4a843;
+  --brass-soft: rgba(212, 168, 67, 0.16);
+  --ok: #2ea96b;
+  --hairline: rgba(236, 232, 225, 0.10);
+  --hairline-strong: rgba(236, 232, 225, 0.20);
+  --overlay-bg: rgba(14, 15, 18, 0.86);
+}
+
+[data-theme="paper"] {
+  --bg-canvas: #ebe6db;
+  --bg-panel: #f4f1ea;
+  --bg-elevated: #eae5da;
+  --bg-input: #fdfbf7;
+  --ink-primary: #121211;
+  --ink-secondary: #494742;
+  --ink-muted: #78746b;
+  --accent: #d9381e;
+  --accent-soft: rgba(217, 56, 30, 0.11);
+  --brass: #9a6b16;
+  --brass-soft: rgba(154, 107, 22, 0.14);
+  --ok: #1d7a49;
+  --hairline: rgba(18, 18, 17, 0.12);
+  --hairline-strong: rgba(18, 18, 17, 0.24);
+  --overlay-bg: rgba(244, 241, 234, 0.90);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-canvas);
+  color: var(--ink-primary);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mono,
+.mono-label,
+.mono-val,
+.param-code,
+.index-badge,
+.cluster-tag,
+.spec-table,
+.metro-card .m-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ANA KABUK */
+.workbench-shell {
+  display: grid;
+  grid-template-rows: 54px minmax(0, 1fr);
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ÜST BAŞLIK ÇUBUĞU */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 0 16px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.brand-cluster {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.index-badge {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  padding: 4px 7px;
+  border: 1px solid var(--accent-soft);
+  background: var(--accent-soft);
+  white-space: nowrap;
+}
+
+.brand-titles {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+.brand-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 26px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.brand-title em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.brand-subtitle {
+  font-size: 11.5px;
+  color: var(--ink-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.preset-group {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.mono-label {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+}
+
+.tech-select,
+.tech-input {
+  background: var(--bg-input);
+  color: var(--ink-primary);
+  border: 1px solid var(--hairline-strong);
+  padding: 6px 9px;
+  font-size: 11.5px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.tech-select:focus,
+.tech-input:focus {
+  border-color: var(--accent);
+}
+
+.tech-select.full,
+.tech-input.full {
+  width: 100%;
+}
+
+.tech-select.compact {
+  padding: 4px 6px;
+  font-size: 11px;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  font-size: 10.5px;
+  font-family: 'JetBrains Mono', monospace;
+  border: 1px solid var(--hairline);
+  background: var(--bg-elevated);
+  white-space: nowrap;
+}
+
+.status-pill.ok {
+  border-color: rgba(46, 169, 107, 0.35);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ok);
+}
+
+.status-pill.warn .status-dot {
+  background: var(--brass);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--ink-primary);
+  border: 1px solid var(--hairline-strong);
+  padding: 6px 10px;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btn-outline:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* 3 SÜTUNLU ÇALIŞMA IZGARASI */
+.studio-grid {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr) 356px;
+  height: 100%;
+  min-height: 0;
+}
+
+.panel {
+  background: var(--bg-panel);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--hairline-strong) transparent;
+}
+
+.left-panel {
+  border-right: 1px solid var(--hairline);
+}
+
+.right-panel {
+  border-left: 1px solid var(--hairline);
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-section {
+  padding: 14px 15px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.section-idx {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--accent);
+  padding: 2px 5px;
+  border: 1px solid var(--accent-soft);
+}
+
+.section-head h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--ink-secondary);
+  flex: 1;
+}
+
+/* PARAMETRE KONTROLLERİ */
+.param-control {
+  margin-bottom: 12px;
+}
+
+.param-control:last-child {
+  margin-bottom: 0;
+}
+
+.param-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.param-code {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-primary);
+}
+
+.param-hint {
+  font-size: 10.5px;
+  color: var(--ink-muted);
+}
+
+.mini-reset {
+  background: var(--brass-soft);
+  color: var(--brass);
+  border: 1px solid rgba(212, 168, 67, 0.35);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+
+.mini-reset:hover {
+  border-color: var(--brass);
+}
+
+.param-inputs {
+  display: grid;
+  grid-template-columns: 1fr 84px;
+  align-items: center;
+  gap: 9px;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--hairline-strong);
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  background: var(--accent);
+  border: 2px solid var(--bg-panel);
+  cursor: grab;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  background: var(--accent);
+  border: 2px solid var(--bg-panel);
+  border-radius: 0;
+  cursor: grab;
+}
+
+.num-wrap {
+  display: flex;
+  align-items: center;
+  background: var(--bg-input);
+  border: 1px solid var(--hairline-strong);
+  padding-right: 6px;
+}
+
+.num-wrap input[type="number"] {
+  width: 100%;
+  background: transparent;
+  color: var(--ink-primary);
+  border: none;
+  padding: 5px 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  text-align: right;
+  outline: none;
+}
+
+.num-wrap .unit {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-muted);
+}
+
+/* PİRİNÇ INSERT SEGMENT BUTONLARI */
+.seg-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--hairline-strong);
+  background: var(--bg-input);
+}
+
+.seg-btn {
+  background: transparent;
+  color: var(--ink-secondary);
+  border: none;
+  border-right: 1px solid var(--hairline);
+  padding: 7px 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.seg-btn:last-child {
+  border-right: none;
+}
+
+.seg-btn.active {
+  background: var(--brass-soft);
+  color: var(--brass);
+}
+
+/* ANAHTARLAR (TOGGLES) */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 10px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--hairline);
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.toggle-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toggle-desc {
+  font-size: 10.5px;
+  color: var(--ink-secondary);
+}
+
+.toggle-row input[type="checkbox"] {
+  display: none;
+}
+
+.switch-ui {
+  position: relative;
+  width: 34px;
+  height: 18px;
+  background: var(--bg-input);
+  border: 1px solid var(--hairline-strong);
+  flex-shrink: 0;
+}
+
+.switch-ui::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  background: var(--ink-muted);
+  transition: transform 0.16s ease, background 0.16s ease;
+}
+
+.toggle-row input:checked + .switch-ui {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.toggle-row input:checked + .switch-ui::after {
+  transform: translateX(16px);
+  background: var(--accent);
+}
+
+.usb-subbox {
+  padding: 9px 10px;
+  margin-bottom: 10px;
+  border: 1px dashed var(--hairline-strong);
+  background: var(--bg-input);
+}
+
+.sub-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.tiny-label {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+  margin-bottom: 4px;
+}
+
+/* YAN G/Ç PORT YÖNETİCİSİ */
+.io-builder {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--hairline);
+}
+
+.io-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.io-add-bar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+}
+
+.btn-accent-sm {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.io-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.io-card {
+  padding: 7px 8px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--hairline);
+}
+
+.io-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.io-card-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--brass);
+}
+
+.io-del-btn {
+  background: transparent;
+  color: var(--ink-muted);
+  border: 1px solid var(--hairline);
+  padding: 1px 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.io-del-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.io-card-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr 0.8fr 0.8fr;
+  gap: 5px;
+}
+
+.io-card-grid input,
+.io-card-grid select {
+  width: 100%;
+  background: var(--bg-input);
+  color: var(--ink-primary);
+  border: 1px solid var(--hairline);
+  padding: 3px 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+}
+
+.warnings-box {
+  margin-top: 10px;
+  padding: 8px 9px;
+  border: 1px solid rgba(212, 168, 67, 0.45);
+  background: var(--brass-soft);
+  color: var(--brass);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ============================================================================
+   MERKEZ SAHNE: 3B CAD VIEWPORT
+   ============================================================================ */
+.viewport-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.04), transparent 70%), var(--bg-canvas);
+  overflow: hidden;
+}
+
+#webgl-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  outline: none;
+}
+
+.top-overlay {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.tool-cluster {
+  display: inline-flex;
+  align-items: center;
+  background: var(--overlay-bg);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--hairline-strong);
+  pointer-events: auto;
+}
+
+.cluster-tag {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--ink-muted);
+  padding: 0 8px;
+}
+
+.cad-btn {
+  background: transparent;
+  color: var(--ink-secondary);
+  border: none;
+  border-left: 1px solid var(--hairline);
+  padding: 6px 9px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s;
+}
+
+.cad-btn:hover {
+  color: var(--ink-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.cad-btn.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.cad-btn.accent {
+  background: var(--accent);
+  color: #fff;
+}
+
+.cad-btn.warn {
+  color: var(--brass);
+}
+
+.viewport-telemetry {
+  position: absolute;
+  top: 54px;
+  left: 12px;
+  padding: 8px 11px;
+  background: var(--overlay-bg);
+  border: 1px solid var(--hairline);
+  pointer-events: none;
+  z-index: 9;
+}
+
+.v-tele-line {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  line-height: 1.55;
+}
+
+.v-tele-line .k {
+  color: var(--ink-muted);
+  margin-right: 4px;
+}
+
+.bottom-overlay {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 10px;
+  z-index: 10;
+}
+
+.rig-block {
+  background: var(--overlay-bg);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--hairline-strong);
+  padding: 9px 11px;
+}
+
+.rig-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 7px;
+}
+
+.rig-head .cluster-tag {
+  padding: 0;
+}
+
+.rig-inline-btns {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rig-inline-btns .cad-btn {
+  border: 1px solid var(--hairline);
+  padding: 3px 7px;
+}
+
+.mono-val {
+  font-size: 10.5px;
+  color: var(--ink-primary);
+  min-width: 48px;
+  text-align: right;
+}
+
+.vis-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 7px;
+}
+
+.vis-pill {
+  background: var(--bg-input);
+  color: var(--ink-muted);
+  border: 1px solid var(--hairline);
+  padding: 3px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.8px;
+  cursor: pointer;
+}
+
+.vis-pill.active {
+  color: var(--ink-primary);
+  border-color: var(--brass);
+  background: var(--brass-soft);
+}
+
+.inline-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.inline-check input {
+  accent-color: var(--accent);
+}
+
+.sec-slider-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* ============================================================================
+   SAĞ PANEL: METROLOJİ, ANTET ÖNİZLEME VE İHRACAT
+   ============================================================================ */
+.material-row {
+  margin-bottom: 10px;
+}
+
+.metro-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin-bottom: 11px;
+}
+
+.metro-card {
+  padding: 8px 9px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--hairline);
+}
+
+.metro-card.accent {
+  border-color: rgba(224, 79, 51, 0.4);
+  background: var(--accent-soft);
+}
+
+.m-label {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: var(--ink-muted);
+  margin-bottom: 4px;
+}
+
+.m-val {
+  font-size: 11.5px;
+  color: var(--ink-primary);
+}
+
+.spec-table {
+  border-top: 1px solid var(--hairline);
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 10.5px;
+}
+
+.spec-row {
+  display: flex;
+  justify-content: space-between;
+  color: var(--ink-secondary);
+}
+
+.spec-row strong {
+  color: var(--ink-primary);
+}
+
+/* CANLI 2B İMALAT ANTETİ MİNYATÜR ÖNİZLEME */
+.blueprint-thumb {
+  width: 100%;
+  aspect-ratio: 1240 / 876;
+  background: #f7f4ec;
+  border: 1px solid var(--hairline-strong);
+  overflow: hidden;
+  cursor: zoom-in;
+  transition: border-color 0.15s ease;
+}
+
+.blueprint-thumb:hover {
+  border-color: var(--accent);
+}
+
+.blueprint-thumb svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* İHRACAT BUTONLARI */
+.export-section {
+  margin-top: auto;
+}
+
+.stl-split-grid,
+.doc-split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.btn-primary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 11px;
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid var(--accent);
+  cursor: pointer;
+  text-align: left;
+  transition: filter 0.15s;
+}
+
+.btn-primary.secondary-tone {
+  background: #1f5c87;
+  border-color: #2b75a8;
+}
+
+.btn-primary.compact {
+  flex-direction: row;
+  align-items: center;
+  padding: 7px 13px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.1);
+}
+
+.btn-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  opacity: 0.86;
+  letter-spacing: 0.06em;
+}
+
+.btn-primary strong {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+}
+
+.btn-doc {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 8px 10px;
+  background: var(--bg-elevated);
+  color: var(--ink-primary);
+  border: 1px solid var(--hairline-strong);
+  cursor: pointer;
+  text-align: left;
+}
+
+.btn-doc:hover {
+  border-color: var(--brass);
+  background: var(--brass-soft);
+}
+
+.btn-doc span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--ink-muted);
+}
+
+.btn-doc strong {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+}
+
+.cad-extra-row {
+  display: grid;
+  grid-template-columns: 1.3fr 0.8fr 0.8fr 0.9fr;
+  gap: 6px;
+}
+
+.btn-chip {
+  background: var(--bg-input);
+  color: var(--ink-secondary);
+  border: 1px solid var(--hairline);
+  padding: 6px 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-chip:hover {
+  color: var(--ink-primary);
+  border-color: var(--accent);
+}
+
+/* TAM EKRAN TEKNİK RESİM MODALI */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 6, 8, 0.84);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  z-index: 100;
+}
+
+.modal-sheet {
+  width: min(1320px, 96vw);
+  height: min(920px, 94vh);
+  background: var(--bg-panel);
+  border: 1px solid var(--hairline-strong);
+  display: grid;
+  grid-template-rows: 52px minmax(0, 1fr);
+}
+
+.modal-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.modal-title {
+  margin-left: 10px;
+  font-size: 13px;
+}
+
+.modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-svg-stage {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  padding: 16px;
+  background: #e5e0d4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-svg-stage svg {
+  max-width: 100%;
+  max-height: 100%;
+  height: auto;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.28);
+}
+
+@media (max-width: 1180px) {
+  html,
+  body {
+    overflow: auto;
+  }
+  .workbench-shell {
+    height: auto;
+    min-height: 100vh;
+  }
+  .studio-grid {
+    grid-template-columns: 1fr;
+  }
+  .viewport-stage {
+    height: 620px;
+  }
+  .bottom-overlay {
+    grid-template-columns: 1fr;
+  }
+}

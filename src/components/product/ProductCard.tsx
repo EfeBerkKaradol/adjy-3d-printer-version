@@ -11,6 +11,7 @@ import { PixelArrow, PixelTag } from "@/components/home/PixelMoreButton";
 import { getPriceInfo, formatPrice } from "@/lib/pricing";
 import { formatCmValue } from "@/lib/units";
 import { CardSizeControls, type KartParametre } from "./CardSizeControls";
+import { aracAdresi, slugdanAracId } from "@/lib/tasarim/catalog";
 
 // ==========================================
 // ÜRÜN KARTI — PİKSEL ÇERÇEVE
@@ -60,6 +61,11 @@ interface ProductCardProps {
 export function ProductCard({ product, index = 0, priority = false }: ProductCardProps) {
   const addItem = useCartStore((s) => s.addItem);
   const [added, setAdded] = useState(false);
+
+  // Tasarım aracıyla kurulan ürün: kartta eklenecek hazır bir
+  // hâli yok, kart doğrudan araca açılır.
+  const tasarimAraci = slugdanAracId(product.slug);
+  const adres = tasarimAraci ? aracAdresi(tasarimAraci) : `/products/${product.slug}`;
 
   const customizable =
     product.isCustomizable ?? (product._count?.parameters ?? 0) > 0;
@@ -121,7 +127,7 @@ export function ProductCard({ product, index = 0, priority = false }: ProductCar
       className="adjy-pixel-card group adjy-rise relative flex h-full flex-col"
       style={{ animationDelay: `${Math.min(index, 7) * 55}ms` }}
     >
-      <Link href={`/products/${product.slug}`} className="flex flex-1 flex-col">
+      <Link href={adres} className="flex flex-1 flex-col">
         {/* Görsel */}
         <div className="relative aspect-square overflow-hidden bg-surface-2">
           <ProductCardImage
@@ -137,6 +143,7 @@ export function ProductCard({ product, index = 0, priority = false }: ProductCar
           <div className="pointer-events-none absolute left-3 top-3 flex flex-col items-start gap-2">
             {product.featured && <PixelTag>Öne çıkan</PixelTag>}
             {customizable && <PixelTag>Özel ölçü</PixelTag>}
+            {tasarimAraci && <PixelTag>Kendin tasarla</PixelTag>}
             {priceInfo.hasDiscount && <PixelTag>%{priceInfo.percent}</PixelTag>}
           </div>
 
@@ -144,7 +151,9 @@ export function ProductCard({ product, index = 0, priority = false }: ProductCar
           <div className="absolute inset-x-3 bottom-3 z-10 hidden opacity-0 transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100 md:block">
             <button
               type="button"
-              onClick={handleQuickAction}
+              // Tasarım aracı ürününde tıklama bağlantıya bırakılır:
+              // kart araca gider, sepete varsayılan bir ürün düşmez.
+              onClick={tasarimAraci ? undefined : handleQuickAction}
               className={cn(
                 "adjy-pixel-box flex h-9 w-full items-center justify-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors",
                 added
@@ -162,7 +171,7 @@ export function ProductCard({ product, index = 0, priority = false }: ProductCar
                   <Plus className="h-3.5 w-3.5" aria-hidden />
                   {/* Ölçüsü değişen üründe de buradan eklenir:
                       kaydırıcıda seçilen ölçüyle. */}
-                  {customizable ? "Bu ölçüde ekle" : "Hızlı ekle"}
+                  {tasarimAraci ? "Tasarlamaya başla" : customizable ? "Bu ölçüde ekle" : "Hızlı ekle"}
                 </>
               )}
             </button>
@@ -183,7 +192,7 @@ export function ProductCard({ product, index = 0, priority = false }: ProductCar
             <PixelArrow className="mt-1 h-3.5 w-3.5 shrink-0 transition-transform duration-150 group-hover:translate-x-0.5" />
           </div>
           <p className="mt-1.5 flex flex-wrap items-baseline gap-x-2 font-mono text-xs tabular-nums">
-            {customizable && (
+            {(customizable || tasarimAraci) && (
               <span className="text-muted-foreground">Başlangıç</span>
             )}
             <span className="font-semibold">{formatPrice(price)}</span>

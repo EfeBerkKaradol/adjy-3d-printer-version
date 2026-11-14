@@ -53,6 +53,24 @@ const nextConfig: NextConfig = {
     ];
   },
 
+  // Tasarım araçlarının atölye kipi.
+  //
+  // Araçlar public/ altında duran sayfalar; müşteri onları
+  // /tasarim-araclari adresinden, yalnızca biçim kontrolleriyle
+  // görüyor. Aynı dosyalar /admin/uretim-araci adresinden
+  // istendiğinde STL, pafta ve maliyet dâhil her şey açılıyor.
+  // /admin altındaki her istek middleware'den geçtiği için bu
+  // adres yönetici oturumu olmadan hiç sunulmuyor — kip bir
+  // sorgu parametresiyle değil, adresin kendisiyle belirleniyor.
+  async rewrites() {
+    return [
+      {
+        source: "/admin/uretim-araci/:path*",
+        destination: "/tasarim-araclari/:path*",
+      },
+    ];
+  },
+
   async headers() {
     return [
       // Guvenlik basiklari — tum route'lar
@@ -72,6 +90,18 @@ const nextConfig: NextConfig = {
             value: "camera=(self), microphone=(), geolocation=()",
           },
         ],
+      },
+      // Tasarım araçları mağaza sayfasının içinde bir çerçevede
+      // açılıyor. Genel kural (DENY) bunu da engellerdi; yalnızca
+      // bu iki yol için, yalnızca aynı kökenden çerçevelemeye izin
+      // verilir. Sonraki kural öncekini ezer.
+      {
+        source: "/tasarim-araclari/:path*",
+        headers: [{ key: "X-Frame-Options", value: "SAMEORIGIN" }],
+      },
+      {
+        source: "/admin/uretim-araci/:path*",
+        headers: [{ key: "X-Frame-Options", value: "SAMEORIGIN" }],
       },
       // AR model dosyalari /api/ar GET handler uzerinden servis edilir
       // (headers response'a eklenir, static config gerekmez)

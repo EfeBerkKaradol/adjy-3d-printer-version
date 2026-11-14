@@ -1,0 +1,50 @@
+/* Oda ve modüler dolap maketi — ADJY görünümü */
+html[data-adjy-tema] {
+  --bg-main: var(--a-zemin);
+  --bg-panel: var(--a-yuzey);
+  --bg-elev: var(--a-cukur);
+  --bg-input: var(--a-girdi);
+  --border: var(--a-cizgi);
+  --border-strong: var(--a-cizgi-koyu);
+  --text-main: var(--a-yazi);
+  --text-dim: var(--a-soluk);
+  --text-muted: var(--a-silik);
+  --accent-pin: var(--a-vurgu);
+  --accent-pin-dim: var(--a-vurgu-soluk);
+  --accent-dim: var(--a-yesil);
+  --accent-dim-bg: var(--a-yesil-soluk);
+  --warn: var(--a-amber);
+  --danger: var(--a-kirmizi);
+  --font-sans: var(--a-sans);
+  --font-mono: var(--a-mono);
+}
+html[data-adjy-mod="musteri"] .workspace-grid {
+  grid-template-columns: 356px minmax(300px, 1fr);
+}
+@media (min-width: 961px) {
+  html[data-adjy-mod="musteri"] .app-shell {
+    grid-template-rows: 46px 1fr;
+  }
+}
+@media (max-width: 1360px) and (min-width: 961px) {
+  html[data-adjy-mod="musteri"] .workspace-grid {
+    grid-template-columns: 324px minmax(260px, 1fr);
+  }
+}
+@media (max-width: 960px) {
+  html[data-adjy-mod="musteri"] .mobile-bottom-nav {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Sahne zemini aracın kodunda sabit koyuydu; temayı izler (bkz. index.html) */
+html[data-adjy-tema] .viewport-pane {
+  background: var(--a-cukur);
+}
+
+/* Sahnenin üstündeki araç grupları da sabit koyuydu */
+html[data-adjy-tema] .hud-group,
+html[data-adjy-tema] .hud-move-pad {
+  background: var(--a-ortu);
+  border-color: var(--a-cizgi);
+}

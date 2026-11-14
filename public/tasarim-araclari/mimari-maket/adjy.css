@@ -1,0 +1,29 @@
+/* Mimari maket — ADJY görünümü */
+html[data-adjy-tema] {
+  --bg-page: var(--a-zemin);
+  --bg-panel: var(--a-yuzey);
+  --bg-well: var(--a-cukur);
+  --bg-viewport: var(--a-cukur);
+  --ink-primary: var(--a-yazi);
+  --ink-secondary: var(--a-soluk);
+  --ink-muted: var(--a-silik);
+  --hairline: var(--a-cizgi);
+  --hairline-strong: var(--a-cizgi-koyu);
+  --accent: var(--a-vurgu);
+  --accent-soft: var(--a-vurgu-soluk);
+  --teal: var(--a-yesil);
+  --teal-soft: var(--a-yesil-soluk);
+  --amber: var(--a-amber);
+  --card-shadow: none;
+}
+html[data-adjy-mod="musteri"] .workspace-grid {
+  grid-template-columns: 300px minmax(0, 1fr);
+}
+@media (max-width: 980px) {
+  html[data-adjy-mod="musteri"] .workspace-grid {
+    grid-template-columns: 1fr;
+  }
+  html[data-adjy-mod="musteri"] .panel-viewport {
+    height: 56vh;
+  }
+}

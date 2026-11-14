@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ELEKTRO-KASA CAD // Özel PCB Elektronik Kutu &amp; Pirinç Insert Konfigüratörü</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="./styles.css" />
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+  <!-- ADJY mağaza köprüsü: tema, müşteri/atölye kipi, durum kaydı -->
+  <meta name="robots" content="noindex" />
+  <link rel="stylesheet" href="../_adjy/kopru.css" />
+  <link rel="stylesheet" href="./adjy.css" />
+  <script src="./adjy.js"></script>
+  <script src="../_adjy/kopru.js"></script>
+</head>
+<body>
+  <div class="workbench-shell">
+    <!-- =================================================================== -->
+    <!-- ÜST MİMARİ CAD BAŞLIK ÇUBUĞU                                        -->
+    <!-- =================================================================== -->
+    <header class="topbar">
+      <div class="brand-cluster">
+        <span class="index-badge">[ CAD-DFM // 1 BİRİM = 1.00 MM ]</span>
+        <div class="brand-titles">
+          <h1 class="brand-title">Elektro<em>Kasa</em></h1>
+          <span class="brand-subtitle">Özel PCB Muhafaza &amp; Konik Pirinç Insert (Heat-Set) Mühendislik İstasyonu</span>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <div class="preset-group">
+          <label for="preset-select" class="mono-label">ŞABLON</label>
+          <select id="preset-select" class="tech-select">
+            <option value="rpi_iot">01 / Endüstriyel IoT &amp; SBC Kutusu (85×56mm · M3)</option>
+            <option value="esp32_sensor">02 / ESP32-S3 Sensör Düğümü (52×38mm · M2.5)</option>
+            <option value="stm32_plc">03 / STM32 Otomasyon &amp; RJ45 Denetleyici (120×80mm · M3)</option>
+            <option value="power_psu">04 / Güç Dağıtım &amp; Röle Muhafazası (150×105mm · M4)</option>
+          </select>
+        </div>
+
+        <div class="status-pill ok" id="dfm-status-pill">
+          <span class="status-dot"></span>
+          <span id="dfm-status-text">DFM ONAYLI · 0.20mm DUDAK · Ø4.20mm YUVA</span>
+        </div>
+
+        <div class="status-pill mono" id="sku-pill">PK-85x56x32-M3</div>
+
+        <button type="button" class="btn-outline mono" id="btn-theme-toggle" title="Tema Değiştir">
+          TEMA: OBSİDYEN
+        </button>
+      </div>
+    </header>
+
+    <!-- =================================================================== -->
+    <!-- ANA 3 SÜTUNLU İSVİÇRE ENDÜSTRİYEL CAD ÇALIŞMA ALANI                  -->
+    <!-- =================================================================== -->
+    <main class="studio-grid">
+      <!-- SOL SÜTUN: TÜRKÇE PARAMETRİK CAD KONTROLLERİ -->
+      <aside class="panel left-panel">
+        <div class="panel-section">
+          <div class="section-head">
+            <span class="section-idx">01</span>
+            <h2>TÜRKÇE CAD PARAMETRELERİ</h2>
+          </div>
+
+          <!-- PCB_En_mm -->
+          <div class="param-control">
+            <div class="param-top">
+              <label for="num-pcb-en" class="param-code">PCB_En_mm</label>
+              <span class="param-hint">Kart Genişliği (X)</span>
+            </div>
+            <div class="param-inputs">
+              <input type="range" id="rng-pcb-en" min="30" max="180" step="0.5" value="85" />
+              <div class="num-wrap">
+                <input type="number" id="num-pcb-en" min="30" max="180" step="0.5" value="85.0" />
+                <span class="unit">mm</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- PCB_Boy_mm -->
+          <div class="param-control">
+            <div class="param-top">
+              <label for="num-pcb-boy" class="param-code">PCB_Boy_mm</label>
+              <span class="param-hint">Kart Derinliği (Y/Z)</span>
+            </div>
+            <div class="param-inputs">
+              <input type="range" id="rng-pcb-boy" min="30" max="180" step="0.5" value="56" />
+              <div class="num-wrap">
+                <input type="number" id="num-pcb-boy" min="30" max="180" step="0.5" value="56.0" />
+                <span class="unit">mm</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Kutu_Ic_Yukseklik_mm -->
+          <div class="param-control">
+            <div class="param-top">
+              <label for="num-ic-yukseklik" class="param-code">Kutu_Ic_Yukseklik_mm</label>
+              <span class="param-hint">Net İç Boşluk (20–80)</span>
+            </div>
+            <div class="param-inputs">
+              <input type="range" id="rng-ic-yukseklik" min="20" max="80" step="0.5" value="32" />
+              <div class="num-wrap">
+                <input type="number" id="num-ic-yukseklik" min="20" max="80" step="0.5" value="32.0" />
+                <span class="unit">mm</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Duvar_Kalinligi_mm -->
+          <div class="param-control">
+            <div class="param-top">
+              <label for="num-duvar" class="param-code">Duvar_Kalinligi_mm</label>
+              <button type="button" class="mini-reset" id="btn-reset-wall" title="Standart 2.4mm DFM değerine dön">DFM 2.4mm</button>
+            </div>
+            <div class="param-inputs">
+              <input type="range" id="rng-duvar" min="1.8" max="4.8" step="0.2" value="2.4" />
+              <div class="num-wrap">
+                <input type="number" id="num-duvar" min="1.8" max="4.8" step="0.1" value="2.4" />
+                <span class="unit">mm</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pirinc_Insert_Tipi -->
+          <div class="param-control">
+            <div class="param-top">
+              <span class="param-code">Pirinc_Insert_Tipi</span>
+              <span class="param-hint" id="insert-bore-badge">Yuva Ø4.20 mm</span>
+            </div>
+            <div class="seg-group" id="insert-type-group" role="radiogroup" aria-label="Pirinc_Insert_Tipi">
+              <button type="button" class="seg-btn" data-insert="M2.5">M2.5</button>
+              <button type="button" class="seg-btn active" data-insert="M3">M3 (Ø4.2)</button>
+              <button type="button" class="seg-btn" data-insert="M4">M4</button>
+            </div>
+          </div>
+
+          <!-- Delik_Kenar_Mesafesi_mm -->
+          <div class="param-control">
+            <div class="param-top">
+              <label for="num-kenar-mesafe" class="param-code">Delik_Kenar_Mesafesi_mm</label>
+              <span class="param-hint">PCB Köşe Ofseti</span>
+            </div>
+            <div class="param-inputs">
+              <input type="range" id="rng-kenar-mesafe" min="2.5" max="15.0" step="0.1" value="3.5" />
+              <div class="num-wrap">
+                <input type="number" id="num-kenar-mesafe" min="2.5" max="15.0" step="0.1" value="3.5" />
+                <span class="unit">mm</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DFM ÖZELLİK ANAHTARLARI VE YAN G/Ç KESİT EDİTÖRÜ -->
+        <div class="panel-section">
+          <div class="section-head">
+            <span class="section-idx">02</span>
+            <h2>DFM PANJUR &amp; G/Ç KESİTLERİ</h2>
+          </div>
+
+          <!-- Havalandirma_Izgarasi -->
+          <label class="toggle-row" for="chk-havalandirma">
+            <div class="toggle-meta">
+              <span class="param-code">Havalandirma_Izgarasi</span>
+              <span class="toggle-desc">45° yan panjur kanatları + üst kapak termal ızgara</span>
+            </div>
+            <input type="checkbox" id="chk-havalandirma" checked />
+            <span class="switch-ui"></span>
+          </label>
+
+          <!-- USB_Konnektor_Deligi_Ekle -->
+          <label class="toggle-row" for="chk-usb">
+            <div class="toggle-meta">
+              <span class="param-code">USB_Konnektor_Deligi_Ekle</span>
+              <span class="toggle-desc">USB Type-C (9.4×3.6mm) + dış kablo fiş havşası</span>
+            </div>
+            <input type="checkbox" id="chk-usb" checked />
+            <span class="switch-ui"></span>
+          </label>
+
+          <!-- USB Konum Ayarı -->
+          <div class="usb-subbox" id="usb-config-box">
+            <div class="sub-grid-2">
+              <div>
+                <label class="tiny-label" for="sel-usb-wall">USB DUVARI</label>
+                <select id="sel-usb-wall" class="tech-select full">
+                  <option value="front">Ön Duvar (-Y)</option>
+                  <option value="back">Arka Duvar (+Y)</option>
+                  <option value="left">Sol Duvar (-X)</option>
+                  <option value="right">Sağ Duvar (+X)</option>
+                </select>
+              </div>
+              <div>
+                <label class="tiny-label" for="num-usb-offset">YATAY OFSET (mm)</label>
+                <input type="number" id="num-usb-offset" class="tech-input full" step="0.5" value="0.0" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Özelleştirilebilir Yan G/Ç (Side I/O) Kesit Yöneticisi -->
+          <div class="io-builder">
+            <div class="io-header">
+              <span class="tiny-label">ÖZELLEŞTİRİLEBİLİR YAN G/Ç KESİTLERİ</span>
+              <div class="io-add-bar">
+                <select id="sel-io-preset" class="tech-select compact">
+                  <option value="DC_JACK">+ DC Soket Ø8.2</option>
+                  <option value="RJ45">+ RJ45 Ethernet</option>
+                  <option value="SMA_ANT">+ SMA Anten Ø6.5</option>
+                  <option value="MICRO_SD">+ MicroSD Yuva</option>
+                  <option value="CUSTOM_RECT">+ Özel Kesit</option>
+                </select>
+                <button type="button" class="btn-accent-sm" id="btn-add-io">EKLE</button>
+              </div>
+            </div>
+            <div id="io-ports-list" class="io-list"></div>
+          </div>
+
+          <div id="dfm-warnings-box" class="warnings-box hidden"></div>
+        </div>
+      </aside>
+
+      <!-- MERKEZ SAHNE: THREE.JS 3B MÜHENDİSLİK GÖRÜNÜMÜ -->
+      <section class="viewport-stage">
+        <!-- Üst Yüzen CAD Araç Çubuğu -->
+        <div class="cad-toolbar top-overlay">
+          <div class="tool-cluster">
+            <span class="cluster-tag">KAMERA</span>
+            <button type="button" class="cad-btn active" id="btn-proj-persp">PERSP</button>
+            <button type="button" class="cad-btn" id="btn-proj-ortho">ORTO</button>
+          </div>
+
+          <div class="tool-cluster">
+            <span class="cluster-tag">AÇI</span>
+            <button type="button" class="cad-btn" data-view="iso">İZO</button>
+            <button type="button" class="cad-btn" data-view="top">ÜST Z+</button>
+            <button type="button" class="cad-btn" data-view="front">ÖN Y-</button>
+            <button type="button" class="cad-btn" data-view="right">SAĞ X+</button>
+            <button type="button" class="cad-btn" data-view="bottom">ALT Z-</button>
+          </div>
+
+          <div class="tool-cluster">
+            <span class="cluster-tag">MOD</span>
+            <button type="button" class="cad-btn active" data-mode="shaded">GÖLGELİ+KENAR</button>
+            <button type="button" class="cad-btn" data-mode="blueprint">TEKNİK ÇİZİM</button>
+            <button type="button" class="cad-btn" data-mode="xray">X-RAY</button>
+            <button type="button" class="cad-btn" data-mode="wireframe">TEL KAFES</button>
+          </div>
+        </div>
+
+        <!-- Sol Üst Canlı Koordinat & DFM Telemetri Rozeti -->
+        <div class="viewport-telemetry">
+          <div class="v-tele-line"><span class="k">DIŞ ZARF:</span> <strong id="vt-outer">105.4 × 76.4 × 36.8 mm</strong></div>
+          <div class="v-tele-line"><span class="k">INSERT YUVA:</span> <strong id="vt-insert">M3 · Ø4.55 → Ø4.20 → Ø4.00 mm</strong></div>
+          <div class="v-tele-line"><span class="k">DUDAK GEÇME:</span> <strong id="vt-seam">0.20 mm Radyal &amp; Eksenel Boşluk</strong></div>
+        </div>
+
+        <!-- 3B WEBGL CANVAS -->
+        <canvas id="webgl-canvas"></canvas>
+
+        <!-- Alt Yüzen Patlatılmış Montaj & Canlı Kesit (Cross-Section) Paneli -->
+        <div class="cad-rig-bar bottom-overlay">
+          <!-- Patlatılmış 3B Montaj -->
+          <div class="rig-block">
+            <div class="rig-head">
+              <span class="cluster-tag">PATLATILMIŞ MONTAJ (BASE + PCB + LID)</span>
+              <div class="rig-inline-btns">
+                <span class="mono-val" id="explode-pct">0%</span>
+                <button type="button" class="cad-btn accent" id="btn-toggle-explode">PATLAT</button>
+              </div>
+            </div>
+            <input type="range" id="rng-explode" min="0" max="100" step="1" value="0" />
+            <div class="vis-pills">
+              <button type="button" class="vis-pill active" data-part="base">Alt Kutu</button>
+              <button type="button" class="vis-pill active" data-part="pcb">PCB Kartı</button>
+              <button type="button" class="vis-pill active" data-part="lid">Üst Kapak</button>
+              <button type="button" class="vis-pill active" data-part="hardware">Pirinç Insert &amp; Vida</button>
+            </div>
+          </div>
+
+          <!-- Canlı Kesit Düzlemi -->
+          <div class="rig-block">
+            <div class="rig-head">
+              <label class="inline-check">
+                <input type="checkbox" id="chk-section" />
+                <span class="cluster-tag">CANLI KESİT DÜZLEMİ</span>
+              </label>
+              <div class="rig-inline-btns">
+                <button type="button" class="cad-btn" data-sec-axis="x">X</button>
+                <button type="button" class="cad-btn" data-sec-axis="y">Y</button>
+                <button type="button" class="cad-btn active" data-sec-axis="z">Z</button>
+                <button type="button" class="cad-btn warn" id="btn-inspect-insert" title="Konik insert yuvası ve 0.20mm dudak-oluk birleşimini tam ortadan keser">INSERT &amp; DUDAK KESİTİ</button>
+              </div>
+            </div>
+            <div class="sec-slider-row">
+              <input type="range" id="rng-section" min="-100" max="100" step="0.5" value="0" />
+              <span class="mono-val" id="section-mm-val">0.0 mm</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SAĞ SÜTUN: METROLOJİ, CANLI İMALAT ANTETİ & İHRACAT MERKEZİ -->
+      <aside class="panel right-panel">
+        <!-- Metroloji & Kütle Hesabı -->
+        <div class="panel-section">
+          <div class="section-head">
+            <span class="section-idx">03</span>
+            <h2>METROLOJİ &amp; DFM KONTROLÜ</h2>
+          </div>
+
+          <div class="material-row">
+            <label for="sel-material" class="tiny-label">MALZEME</label>
+            <select id="sel-material" class="tech-select full">
+              <option value="PETG">PETG Endüstriyel (1.27 g/cm³ · 235°C)</option>
+              <option value="ABS">ABS Teknik Muhafaza (1.04 g/cm³ · 245°C)</option>
+              <option value="ASA">ASA Dış Ortam UV (1.07 g/cm³ · 250°C)</option>
+              <option value="PLA">PLA+ Prototip (1.24 g/cm³ · 205°C)</option>
+              <option value="AL6061">Alüminyum 6061 CNC (2.70 g/cm³)</option>
+            </select>
+          </div>
+
+          <div class="metro-grid">
+            <div class="metro-card">
+              <span class="m-label">ALT KUTU HACİM / KÜTLE</span>
+              <strong class="m-val" id="m-base-vol">-- cm³ · -- g</strong>
+            </div>
+            <div class="metro-card">
+              <span class="m-label">ÜST KAPAK HACİM / KÜTLE</span>
+              <strong class="m-val" id="m-lid-vol">-- cm³ · -- g</strong>
+            </div>
+            <div class="metro-card">
+              <span class="m-label">TOPLAM YÜZEY / ÜÇGEN</span>
+              <strong class="m-val" id="m-area-tri">-- cm² · -- tri</strong>
+            </div>
+            <div class="metro-card accent">
+              <span class="m-label">BİRİM BOM MALİYETİ</span>
+              <strong class="m-val" id="m-bom-cost">-- ₺ ($--)</strong>
+            </div>
+          </div>
+
+          <div class="spec-table">
+            <div class="spec-row"><span>Standoff Aks Aralığı (X×Y)</span><strong id="st-pitch">-- × -- mm</strong></div>
+            <div class="spec-row"><span>Standoff Yükseklik / Boss Ø</span><strong id="st-height-od">-- / Ø-- mm</strong></div>
+            <div class="spec-row"><span>Konik Insert Deliği (Giriş→Öz)</span><strong id="st-bore-spec">Ø-- → Ø-- mm</strong></div>
+            <div class="spec-row"><span>Kapak Gömme Vida Havşası</span><strong id="st-cbore-spec">Ø-- × -- mm</strong></div>
+            <div class="spec-row"><span>Geçmeli Dudak &amp; Oluk Payı</span><strong id="st-lip-spec">0.20 mm Boşluk</strong></div>
+          </div>
+        </div>
+
+        <!-- Canlı 2B İmalat Anteti Önizlemesi -->
+        <div class="panel-section">
+          <div class="section-head">
+            <span class="section-idx">04</span>
+            <h2>2B "İMALAT_ANTETİ" ÖNİZLEME</h2>
+            <button type="button" class="mini-reset" id="btn-open-blueprint">BÜYÜT ↗</button>
+          </div>
+
+          <div class="blueprint-thumb" id="blueprint-thumb" title="Tam ekran İmalat Anteti için tıklayın"></div>
+        </div>
+
+        <!-- Üretim Dosyası Çıktıları -->
+        <div class="panel-section export-section">
+          <div class="section-head">
+            <span class="section-idx">05</span>
+            <h2>ÜRETİM &amp; İHRACAT ÇIKTILARI</h2>
+          </div>
+
+          <div class="stl-split-grid">
+            <button type="button" class="btn-primary" id="btn-dl-base-stl">
+              <span class="btn-kicker">3B BASKI · Z=0</span>
+              <strong>ALT KUTU (.STL)</strong>
+            </button>
+            <button type="button" class="btn-primary secondary-tone" id="btn-dl-lid-stl">
+              <span class="btn-kicker">180° DESTEKSİZ · Z=0</span>
+              <strong>ÜST KAPAK (.STL)</strong>
+            </button>
+          </div>
+
+          <div class="doc-split-grid">
+            <button type="button" class="btn-doc" id="btn-dl-svg">
+              <span>TEKNİK RESİM</span>
+              <strong>İmalat_Anteti (.SVG)</strong>
+            </button>
+            <button type="button" class="btn-doc" id="btn-dl-csv">
+              <span>MALZEME &amp; FİYAT</span>
+              <strong>BOM Listesi (.CSV)</strong>
+            </button>
+          </div>
+
+          <div class="cad-extra-row">
+            <button type="button" class="btn-chip" id="btn-dl-glb" title="3B Patlatılmış/Kapalı Montaj GLB">.GLB MONTAJ</button>
+            <button type="button" class="btn-chip" id="btn-dl-obj" title="Wavefront OBJ">.OBJ</button>
+            <button type="button" class="btn-chip" id="btn-dl-dxf" title="AutoCAD 2B Kesit Profili">.DXF</button>
+            <button type="button" class="btn-chip" id="btn-dl-scad" title="Parametrik OpenSCAD Kodu">.SCAD</button>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- TAM EKRAN 2B İMALAT ANTETİ (.SVG) İNCELEME MODALI -->
+  <div class="modal-backdrop hidden" id="blueprint-modal">
+    <div class="modal-sheet">
+      <div class="modal-bar">
+        <div>
+          <span class="index-badge">[ ISO 128 / TSE TEKNİK RESİM ]</span>
+          <strong class="modal-title" id="modal-antet-title">Imalat_Anteti — Standoff Koordinat &amp; Kesit Paftası</strong>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-primary compact" id="btn-modal-dl-svg">İMALAT ANTETİ İNDİR (.SVG)</button>
+          <button type="button" class="btn-outline mono" id="btn-close-blueprint">KAPAT [ESC]</button>
+        </div>
+      </div>
+      <div class="modal-svg-stage" id="modal-svg-stage"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

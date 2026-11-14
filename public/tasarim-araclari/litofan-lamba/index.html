@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3B Litofan Lamba &amp; Snap-Fit LED/E14 Taban CAD &amp; İmalat Stüdyosu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+  <!-- ADJY mağaza köprüsü: tema, müşteri/atölye kipi, durum kaydı -->
+  <meta name="robots" content="noindex" />
+  <link rel="stylesheet" href="../_adjy/kopru.css" />
+  <link rel="stylesheet" href="./adjy.css" />
+  <script src="./adjy.js"></script>
+  <script src="../_adjy/kopru.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- INDUSTRIAL SWISS CAD TOP TELEMETRY HEADER -->
+    <header class="topbar">
+      <div class="brand-block">
+        <span class="index-tag">[ 01 / ENDÜSTRİYEL OPTİK CAD · DFM BASKI &amp; PAFTA ÜRETİCİ ]</span>
+        <div class="brand-title-row">
+          <h1>FOTOĞRAFTAN 3B LİTOFAN LAMBA &amp; SNAP-FIT TABAN</h1>
+          <span class="unit-badge">1 BİRİM = 1.00 MM</span>
+          <span id="manifold-badge" class="manifold-badge ok">2-MANIFOLD DOĞRULANIYOR...</span>
+        </div>
+      </div>
+
+      <div class="topbar-telemetry">
+        <div class="tele-pill amber">
+          <span class="tele-lbl">CİDAR ARALIĞI (OPTİK)</span>
+          <strong id="hud-wall-range">0.80 – 3.20 mm</strong>
+        </div>
+        <div class="tele-pill emerald">
+          <span class="tele-lbl">GEÇME KANALI (TOLERANS)</span>
+          <strong id="hud-groove-spec">3.40 mm (±0.20)</strong>
+        </div>
+        <div class="tele-pill">
+          <span class="tele-lbl">TOPLAM FİLAMENT / SÜRE</span>
+          <strong id="hud-filament-time">-- g · -- sa</strong>
+        </div>
+        <div class="tele-pill vermilion">
+          <span class="tele-lbl">TAHMİNİ SET MALİYETİ</span>
+          <strong id="hud-total-cost">-- TL</strong>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <button id="btn-studio-render" class="btn-render-gold" title="2560×1600 piksel gölgeli fotogerçekçi stüdyo render al ve indir">GERÇEKÇİ RENDER AL (.PNG)</button>
+        <button id="btn-top-litho-stl" class="btn-primary" title="Su geçirmez Z-yukarı Litofan Gövde .STL dosyasını indir">LİTOFAN .STL</button>
+        <button id="btn-top-base-stl" class="btn-secondary" title="0.20mm geçme kanallı ve arka kablo yuvalı Snap-Fit Taban .STL dosyasını indir">TABAN .STL</button>
+      </div>
+    </header>
+
+    <!-- 3-COLUMN INDUSTRIAL CAD WORKSPACE: [ CONTROLS | LEFT 3D VIEWPORT | RIGHT 2D ANTET + BOM ] -->
+    <main class="workspace-grid">
+      <!-- COLUMN 1: PARAMETRIC TURKISH CAD CONTROLS -->
+      <aside class="panel-controls" aria-label="Parametrik CAD Kontrolleri">
+        <div class="panel-header">
+          <span class="sec-index">01 · PARAMETRİK KONTROLLER</span>
+          <span id="build-ms-tag" class="mono-tag">-- ms</span>
+        </div>
+
+        <div class="controls-scroll">
+          <!-- 1. Fotograf_Yukle -->
+          <section class="ctrl-group">
+            <div class="ctrl-title-row">
+              <label class="param-key" for="Fotograf_Yukle">Fotograf_Yukle</label>
+              <span class="param-sub">LÜMINANS HARİTASI</span>
+            </div>
+
+            <div id="photo-dropzone" class="photo-dropzone" tabindex="0">
+              <input type="file" id="Fotograf_Yukle" accept="image/png,image/jpeg,image/webp,image/bmp" />
+              <div class="dropzone-preview-row">
+                <canvas id="luminance-preview-canvas" width="144" height="96"></canvas>
+                <div class="dropzone-meta">
+                  <strong id="active-photo-name">01 · Galata Kulesi &amp; Boğaz Vapuru</strong>
+                  <span id="active-photo-stats">Yükleniyor · USM + ≤52° DFM Eğim Korumalı</span>
+                  <span class="upload-cta">+ Gerçek Fotoğraf Yükle veya Sürükle (.JPG/.PNG)</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="sub-ctrl-row">
+              <label for="preset-specimen-select" class="mini-lbl">Gerçek Fotoğraf</label>
+              <select id="preset-specimen-select" class="cad-select">
+                <option value="galata_bosphorus" selected>01 · Galata Kulesi &amp; Boğaz Vapuru (S/B)</option>
+                <option value="rembrandt_portrait">02 · Stüdyo Rembrandt Portre (Yüksek Detay)</option>
+                <option value="kackar_alpine">03 · Kaçkar Zirveleri &amp; Ayna Göl</option>
+                <option value="marble_botanical">04 · Osmanlı Mermer Rumi &amp; Lotus Rölyefi</option>
+              </select>
+            </div>
+
+            <div class="sub-ctrl-row">
+              <label for="sel-wrap-mode" class="mini-lbl">Silindir Sarım</label>
+              <select id="sel-wrap-mode" class="cad-select">
+                <option value="framed_window" selected>Oran Korumalı Pencere + Flüt Sırt</option>
+                <option value="dual_gallery">Çift Yüzlü (2×180° Ön/Arka Galeri)</option>
+                <option value="full_360">360° Kesintisiz Tam Panoramik</option>
+              </select>
+            </div>
+
+            <div class="micro-toggles">
+              <label class="chk-pill">
+                <input type="checkbox" id="chk-invert-image" />
+                <span>Negatif</span>
+              </label>
+              <label class="chk-pill">
+                <span>Kontrast</span>
+                <input type="number" id="inp-image-contrast" value="1.12" min="0.60" max="1.80" step="0.05" class="mini-num" />
+              </label>
+              <label class="chk-pill">
+                <span>Keskinlik</span>
+                <select id="sel-smooth-pass" class="mini-select">
+                  <option value="0">Maks USM</option>
+                  <option value="1" selected>DFM Dengeli</option>
+                  <option value="2">Yumuşak</option>
+                </select>
+              </label>
+            </div>
+          </section>
+
+          <!-- 2. Form_Tipi & Ic_Isik_Test_Slider -->
+          <section class="ctrl-group highlight-amber">
+            <div class="ctrl-title-row">
+              <label class="param-key" for="Form_Tipi">Form_Tipi</label>
+              <span class="param-sub">GEOMETRİK KABUK</span>
+            </div>
+            <div class="segmented-form" role="radiogroup" aria-label="Form_Tipi">
+              <button type="button" class="seg-btn active" data-form="Cylinder">
+                <strong>Cylinder</strong>
+                <span>360° Silindir</span>
+              </button>
+              <button type="button" class="seg-btn" data-form="Curved_Panel">
+                <strong>Curved_Panel</strong>
+                <span>130° Kavisli</span>
+              </button>
+              <button type="button" class="seg-btn" data-form="Hexagon">
+                <strong>Hexagon</strong>
+                <span>6-Gen Prizma</span>
+              </button>
+            </div>
+            <input type="hidden" id="Form_Tipi" value="Cylinder" />
+
+            <!-- Ic_Isik_Test_Slider -->
+            <div class="backlight-box">
+              <div class="ctrl-title-row">
+                <label class="param-key amber-txt" for="Ic_Isik_Test_Slider">Ic_Isik_Test_Slider</label>
+                <div class="num-unit-wrap">
+                  <input type="number" id="Ic_Isik_Test_Slider_num" min="0" max="100" step="1" value="78" class="cad-num amber-border" />
+                  <span class="u-lbl">%</span>
+                </div>
+              </div>
+              <input type="range" id="Ic_Isik_Test_Slider" min="0" max="100" step="1" value="78" class="cad-slider backlight-slider" />
+              <div class="kelvin-row">
+                <span class="mini-lbl">LED Renk Sıcaklığı:</span>
+                <div class="kelvin-pills">
+                  <button type="button" class="k-pill active" data-kelvin="2700">2700K Sıcak</button>
+                  <button type="button" class="k-pill" data-kelvin="4000">4000K Doğal</button>
+                  <button type="button" class="k-pill" data-kelvin="2200">2200K Mum</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3. Dimensional CAD Sliders -->
+          <section class="ctrl-group">
+            <div class="section-subtitle">ANA BOYUTLAR &amp; OPTİK CİDAR (MM)</div>
+
+            <!-- Capi_veya_En_mm -->
+            <div class="param-field">
+              <div class="ctrl-title-row">
+                <label class="param-key" for="Capi_veya_En_mm">Capi_veya_En_mm</label>
+                <div class="num-unit-wrap">
+                  <input type="number" id="Capi_veya_En_mm_num" min="80" max="200" step="1" value="120" class="cad-num" />
+                  <span class="u-lbl">mm</span>
+                </div>
+              </div>
+              <input type="range" id="Capi_veya_En_mm" min="80" max="200" step="1" value="120" class="cad-slider" />
+              <div class="range-hints"><span>80 mm</span><span>Dış Çap / Kiriş En</span><span>200 mm</span></div>
+            </div>
+
+            <!-- Yukseklik_mm -->
+            <div class="param-field">
+              <div class="ctrl-title-row">
+                <label class="param-key" for="Yukseklik_mm">Yukseklik_mm</label>
+                <div class="num-unit-wrap">
+                  <input type="number" id="Yukseklik_mm_num" min="100" max="220" step="1" value="150" class="cad-num" />
+                  <span class="u-lbl">mm</span>
+                </div>
+              </div>
+              <input type="range" id="Yukseklik_mm" min="100" max="220" step="1" value="150" class="cad-slider" />
+              <div class="range-hints"><span>100 mm</span><span>Litofan Yüksekliği</span><span>220 mm</span></div>
+            </div>
+
+            <!-- Min_Cidar_mm -->
+            <div class="param-field">
+              <div class="ctrl-title-row">
+                <label class="param-key" for="Min_Cidar_mm">Min_Cidar_mm</label>
+                <div class="num-unit-wrap">
+                  <input type="number" id="Min_Cidar_mm_num" min="0.40" max="1.80" step="0.05" value="0.80" class="cad-num" />
+                  <span class="u-lbl">mm</span>
+                </div>
+              </div>
+              <input type="range" id="Min_Cidar_mm" min="0.40" max="1.80" step="0.05" value="0.80" class="cad-slider" />
+              <div class="range-hints"><span>0.40 mm</span><span>En Parlak Piksel (2 Duvar)</span><span>1.80 mm</span></div>
+            </div>
+
+            <!-- Maks_Cidar_mm -->
+            <div class="param-field">
+              <div class="ctrl-title-row">
+                <label class="param-key" for="Maks_Cidar_mm">Maks_Cidar_mm</label>
+                <div class="num-unit-wrap">
+                  <input type="number" id="Maks_Cidar_mm_num" min="1.80" max="4.80" step="0.05" value="3.20" class="cad-num" />
+                  <span class="u-lbl">mm</span>
+                </div>
+              </div>
+              <input type="range" id="Maks_Cidar_mm" min="1.80" max="4.80" step="0.05" value="3.20" class="cad-slider" />
+              <div class="range-hints"><span>1.80 mm</span><span>En Koyu Piksel (Tam Gölge)</span><span>4.80 mm</span></div>
+            </div>
+          </section>
+
+          <!-- 4. Structural Rim & Snap-Fit Base Tolerance -->
+          <section class="ctrl-group">
+            <div class="section-subtitle">YAPISAL ÇERÇEVE &amp; SNAP-FIT GEÇME TABAN</div>
+
+            <!-- Cerceve_Kalinlik_mm -->
+            <div class="param-field">
+              <div class="ctrl-title-row">
+                <label class="param-key" for="Cerceve_Kalinlik_mm">Cerceve_Kalinlik_mm</label>
+                <div class="num-unit-wrap">
+                  <input type="number" id="Cerceve_Kalinlik_mm_num" min="1.6" max="6.0" step="0.1" value="3.0" class="cad-num" />
+                  <span class="u-lbl">mm</span>
+                </div>
+              </div>
+              <input type="range" id="Cerceve_Kalinlik_mm" min="1.6" max="6.0" step="0.1" value="3.0" class="cad-slider" />
+              <div class="range-hints"><span>1.6 mm</span><span>Alt/Üst Çember &amp; Geçme Dili</span><span>6.0 mm</span></div>
+            </div>
+
+            <!-- Taban_Gecme_Toleransi_mm -->
+            <div class="param-field">
+              <div class="ctrl-title-row">
+                <label class="param-key" for="Taban_Gecme_Toleransi_mm">Taban_Gecme_Toleransi_mm</label>
+                <div class="num-unit-wrap">
+                  <input type="number" id="Taban_Gecme_Toleransi_mm_num" min="0.05" max="0.50" step="0.05" value="0.20" class="cad-num" />
+                  <span class="u-lbl">mm</span>
+                </div>
+              </div>
+              <input type="range" id="Taban_Gecme_Toleransi_mm" min="0.05" max="0.50" step="0.05" value="0.20" class="cad-slider" />
+              <div class="range-hints"><span>0.05 (Sıkı)</span><span>Tek Yön Boşluk (Kanal +2c)</span><span>0.50 (Serbest)</span></div>
+            </div>
+
+            <!-- Material & Mesh Resolution -->
+            <div class="dual-mini-grid">
+              <div>
+                <label class="mini-lbl" for="sel-material">Filament Malzeme</label>
+                <select id="sel-material" class="cad-select">
+                  <option value="PLA_WHITE" selected>Beyaz Mat PLA (1.24)</option>
+                  <option value="PETG_WHITE">Beyaz PETG (1.27)</option>
+                  <option value="ASA_IVORY">Fildişi ASA (1.07)</option>
+                </select>
+              </div>
+              <div>
+                <label class="mini-lbl" for="sel-mesh-quality">İmalat Ağ Yoğunluğu</label>
+                <select id="sel-mesh-quality" class="cad-select">
+                  <option value="fast">Hızlı (175K Üçgen)</option>
+                  <option value="high" selected>İmalat HD (370K Üçgen)</option>
+                  <option value="ultra">Ultra 0.4mm (608K Üçgen)</option>
+                </select>
+              </div>
+            </div>
+          </section>
+        </div>
+      </aside>
+
+      <!-- COLUMN 2 (LEFT VIEWPORT): INTERACTIVE 3D CAD & BACKLIGHT SIMULATION -->
+      <section class="viewport-3d-pane" aria-label="3B CAD ve İç Işık Simülasyonu Sahnesi">
+        <div class="vp-toolbar">
+          <div class="vp-tool-cluster">
+            <span class="vp-tag">[ SOL GÖRÜNÜM · 3B OPTİK &amp; MONTAJ ]</span>
+            <button type="button" class="vp-btn active" data-cam-proj="persp" id="btn-proj-persp">PERSPEKTİF</button>
+            <button type="button" class="vp-btn" data-cam-proj="ortho" id="btn-proj-ortho">ORTOGRAFİK</button>
+          </div>
+
+          <div class="vp-tool-cluster">
+            <button type="button" class="vp-btn" data-view="iso">İZO</button>
+            <button type="button" class="vp-btn" data-view="front">ÖN</button>
+            <button type="button" class="vp-btn" data-view="right">SAĞ</button>
+            <button type="button" class="vp-btn" data-view="top">ÜST</button>
+            <button type="button" class="vp-btn" data-view="joint">GEÇME DETAY</button>
+          </div>
+        </div>
+
+        <div class="vp-subbar">
+          <div class="vp-tool-cluster">
+            <select id="sel-render-mode" class="vp-select" title="Görünüm Modu">
+              <option value="optical" selected>Mod: Fotogerçekçi Stüdyo + Gölge</option>
+              <option value="cad_edges">Mod: CAD Gölgeli + Keskin Kenar</option>
+              <option value="xray">Mod: X-Ray Geçme Kontrolü</option>
+              <option value="wireframe">Mod: Tel Kafes (Wireframe)</option>
+            </select>
+
+            <select id="sel-studio-lighting" class="vp-select" title="Stüdyo Işık ve Gölge Sahnesi">
+              <option value="studio_softbox" selected>Işık: Stüdyo Softbox + Yumuşak Gölge</option>
+              <option value="dramatic_raking">Işık: Mimari Yan Işık (Derin Gölge)</option>
+              <option value="night_ambient">Işık: Gece Komodin Sıcak Hale</option>
+            </select>
+
+            <select id="sel-assembly-mode" class="vp-select" title="Montaj Gösterimi">
+              <option value="assembled" selected>Montaj: Birleşik</option>
+              <option value="exploded">Patlatılmış (+42mm)</option>
+              <option value="litho_only">Yalnız Gövde</option>
+              <option value="base_only">Yalnız Taban</option>
+            </select>
+          </div>
+
+          <div class="section-clip-ctrl">
+            <label class="chk-clip" title="Milimetrik CAD tabla ızgarasını göster/gizle">
+              <input type="checkbox" id="chk-show-grid" />
+              <span>Izgara</span>
+            </label>
+            <label class="chk-clip">
+              <input type="checkbox" id="chk-section-cut" />
+              <span>X-Kesit</span>
+            </label>
+            <input type="range" id="rng-section-offset" min="-110" max="110" step="1" value="0" disabled />
+          </div>
+        </div>
+
+        <!-- WebGL Canvas Container -->
+        <div id="webgl-container" class="webgl-container">
+          <canvas id="webgl-canvas"></canvas>
+
+          <!-- Live 3D Engineering Metrology Overlay -->
+          <div class="vp-hud-bottom">
+            <div class="hud-chip">
+              <span>ZARF BOYUTU (X×Y×Z)</span>
+              <strong id="hud-bbox">-- × -- × -- mm</strong>
+            </div>
+            <div class="hud-chip">
+              <span>E14 DUY / KABLO KANALI</span>
+              <strong id="hud-e14-cord">Ø28.4 mm / 7.6×7.0 mm (-Z)</strong>
+            </div>
+            <div class="hud-chip">
+              <span>TOPLAM AĞ (ÜÇGEN)</span>
+              <strong id="hud-triangles">-- üçgen</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- COLUMN 3 (RIGHT VIEWPORT): 2D "IMALAT_ANTETI" (.SVG) + "CANLI_METRAJ_TABLOSU" (.CSV) + STL EXPORTERS -->
+      <section class="sheet-bom-pane" aria-label="2B İmalat Anteti ve Canlı Metraj Tablosu">
+        <!-- TOP HALF: 2D SVG SHOP DRAWING ("Imalat_Anteti") -->
+        <div class="antet-card">
+          <div class="panel-header">
+            <div>
+              <span class="sec-index">02 · SAĞ GÖRÜNÜM: İMALAT_ANTETİ (2B VEKTÖREL .SVG)</span>
+            </div>
+            <div class="antet-actions">
+              <button type="button" id="btn-zoom-antet" class="vp-btn" title="Tam ekran teknik resim incele">BÜYÜT</button>
+              <button type="button" id="btn-export-svg" class="btn-accent-sm">İmalat_Anteti .SVG İndir</button>
+            </div>
+          </div>
+          <div id="antet-svg-stage" class="antet-svg-stage" title="Tıklayarak büyütebilirsiniz"></div>
+        </div>
+
+        <!-- BOTTOM HALF: LIVE BOM ("Canli_Metraj_Tablosu") + MANUFACTURING EXPORTERS -->
+        <div class="bom-card">
+          <div class="panel-header">
+            <span class="sec-index">03 · CANLI_METRAJ_TABLOSU &amp; ÜRETİM İHRACATI</span>
+            <button type="button" id="btn-export-csv" class="btn-accent-sm">Canli_Metraj_Tablosu .CSV İndir</button>
+          </div>
+
+          <div class="bom-table-wrap">
+            <table class="bom-table" id="Canli_Metraj_Tablosu">
+              <thead>
+                <tr>
+                  <th>KOD</th>
+                  <th>PARÇA &amp; PROSES</th>
+                  <th>BOYUT / TOLERANS</th>
+                  <th class="num">HACİM</th>
+                  <th class="num">KÜTLE</th>
+                  <th class="num">SÜRE</th>
+                  <th class="num">TUTAR</th>
+                </tr>
+              </thead>
+              <tbody id="bom-tbody"></tbody>
+              <tfoot id="bom-tfoot"></tfoot>
+            </table>
+          </div>
+
+          <!-- PRIMARY 4-BUTTON MANUFACTURING EXPORT DOCK -->
+          <div class="export-dock">
+            <button type="button" id="btn-dl-litho-stl" class="exp-btn primary">
+              <span class="exp-fmt">.STL · PARÇA 1</span>
+              <strong>Litofan Gövde İndir</strong>
+            </button>
+            <button type="button" id="btn-dl-base-stl" class="exp-btn secondary">
+              <span class="exp-fmt">.STL · PARÇA 2</span>
+              <strong>Snap-Fit Taban İndir</strong>
+            </button>
+            <button type="button" id="btn-dl-antet-svg" class="exp-btn outline">
+              <span class="exp-fmt">.SVG · TEKNİK PAFTA</span>
+              <strong>Imalat_Anteti İndir</strong>
+            </button>
+            <button type="button" id="btn-dl-metraj-csv" class="exp-btn outline">
+              <span class="exp-fmt">.CSV · BOM METRAJ</span>
+              <strong>Canli_Metraj İndir</strong>
+            </button>
+            <button type="button" id="btn-dl-scad" class="exp-btn ghost" title="Parametrik OpenSCAD taban betiğini indir">
+              <span class="exp-fmt">.SCAD</span>
+              <strong>OpenSCAD</strong>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- FULLSCREEN SVG ANTET INSPECTION MODAL -->
+  <div id="antet-modal" class="antet-modal hidden" role="dialog" aria-modal="true" aria-label="Tam Ekran İmalat Anteti">
+    <div class="antet-modal-bar">
+      <span>[ İMALAT_ANTETİ · TAM ÖLÇEK ISO 128 TEKNİK PAFTA ÖNİZLEME ]</span>
+      <div class="modal-btns">
+        <button type="button" id="btn-modal-dl-svg" class="btn-primary">VEKTÖREL .SVG İNDİR</button>
+        <button type="button" id="btn-modal-close" class="btn-secondary">KAPAT [ESC]</button>
+      </div>
+    </div>
+    <div id="antet-modal-body" class="antet-modal-body"></div>
+  </div>
+
+  <!-- FULLSCREEN STUDIO RENDER SHOT MODAL -->
+  <div id="render-modal" class="antet-modal hidden" role="dialog" aria-modal="true" aria-label="Fotogerçekçi Stüdyo Render Önizleme">
+    <div class="antet-modal-bar">
+      <span>[ FOTOGERÇEKÇİ STÜDYO RENDER · 2560×1600 PX · FİZİKSEL GÖLGE + BEER-LAMBERT + BLOOM ]</span>
+      <div class="modal-btns">
+        <button type="button" id="btn-render-dl-png" class="btn-render-gold">YÜKSEK ÇÖZÜNÜRLÜKLÜ .PNG İNDİR</button>
+        <button type="button" id="btn-render-close" class="btn-secondary">KAPAT [ESC]</button>
+      </div>
+    </div>
+    <div class="antet-modal-body">
+      <img id="render-shot-img" class="render-shot-img" alt="Fotogerçekçi Litofan Stüdyo Render" />
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

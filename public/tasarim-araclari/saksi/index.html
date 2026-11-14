@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATÖLYE CAD // Parametrik Dokulu Saksı &amp; Burgu Kilitli Alt Tabak Konfigüratörü</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+      "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js"
+    }
+  }
+  </script>
+  <!-- ADJY mağaza köprüsü: tema, müşteri/atölye kipi, durum kaydı -->
+  <meta name="robots" content="noindex" />
+  <link rel="stylesheet" href="../_adjy/kopru.css" />
+  <link rel="stylesheet" href="./adjy.css" />
+  <script src="./adjy.js"></script>
+  <script src="../_adjy/kopru.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- TOP SWISS INDUSTRIAL HEADER BAR -->
+    <header class="topbar">
+      <div class="brand-group">
+        <span class="index-tag">[ CAD-DFM // 1BİRİM = 1MM ]</span>
+        <h1 class="brand-title">Parametrik Dokulu Saksı <em>&amp; Burgu Kilitli Tabak</em></h1>
+      </div>
+
+      <div class="header-telemetry">
+        <div class="tele-pill" id="hud-dfm-badge">
+          <span class="dot pass"></span>
+          <span id="hud-dfm-text">DFM ≤45° DESTEKSİZ ONAYLI</span>
+        </div>
+        <div class="tele-pill mono" id="hud-manifold-badge">MANIFOLD: 0 AÇIK KENAR</div>
+        <div class="tele-pill mono accent" id="hud-sku-badge">SKU: SK-140x150-K24</div>
+        <button class="btn-ghost mono" id="btn-theme-toggle" title="Tema Değiştir (Koyu Atölye / Arşiv Kağıdı)">
+          TEMA: OBSİDYEN
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN 3-COLUMN ASYMMETRIC CAD STUDIO GRID -->
+    <main class="studio-grid">
+      <!-- LEFT RAIL: TURKISH PARAMETRIC CAD CONTROLS -->
+      <aside class="panel panel-left">
+        <div class="panel-section">
+          <div class="section-header">
+            <span class="mono-label">01 // S-M-L SERİ &amp; KALIP ŞABLONLARI</span>
+          </div>
+          <div class="preset-row">
+            <button class="preset-btn" data-preset="S">
+              <strong>S</strong><span>Ø95×95</span>
+            </button>
+            <button class="preset-btn active" data-preset="M">
+              <strong>M</strong><span>Ø140×150</span>
+            </button>
+            <button class="preset-btn" data-preset="L">
+              <strong>L</strong><span>Ø205×215</span>
+            </button>
+            <button class="preset-btn" data-preset="SPIRAL">
+              <strong>SPİRAL</strong><span>Ø135×195</span>
+            </button>
+            <button class="preset-btn" data-preset="PLEATED">
+              <strong>YİVLİ</strong><span>Ø165×135</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="panel-section controls-scroll">
+          <div class="section-header">
+            <span class="mono-label">02 // PARAMETRİK CAD KONTROLLERİ (MM / °)</span>
+            <button class="link-reset mono" id="btn-reset-params">SIFIRLA</button>
+          </div>
+
+          <!-- 1. Saksi_Capi_mm (80-220) -->
+          <div class="param-control">
+            <div class="param-top">
+              <label for="num-Saksi_Capi_mm">
+                <span class="param-tr">Saksı Dış Çapı</span>
+                <code class="param-code">Saksi_Capi_mm</code>
+              </label>
+              <div class="num-wrap">
+                <input type="number" id="num-Saksi_Capi_mm" min="80" max="220" step="1" value="140" />
+                <span class="unit">mm</span>
+              </div>
+            </div>
+            <input type="range" id="rng-Saksi_Capi_mm" min="80" max="220" step="1" value="140" />
+            <div class="range-minmax mono"><span>80 mm</span><span>220 mm (Standart Tabla)</span></div>
+          </div>
+
+          <!-- 2. Saksi_Yuksekligi_mm (80-240) -->
+          <div class="param-control">
+            <div class="param-top">
+              <label for="num-Saksi_Yuksekligi_mm">
+                <span class="param-tr">Saksı Yüksekliği</span>
+                <code class="param-code">Saksi_Yuksekligi_mm</code>
+              </label>
+              <div class="num-wrap">
+                <input type="number" id="num-Saksi_Yuksekligi_mm" min="80" max="240" step="1" value="150" />
+                <span class="unit">mm</span>
+              </div>
+            </div>
+            <input type="range" id="rng-Saksi_Yuksekligi_mm" min="80" max="240" step="1" value="150" />
+            <div class="range-minmax mono"><span>80 mm</span><span>240 mm</span></div>
+          </div>
+
+          <!-- 3. Doku_Kanat_Sayisi (12-48) -->
+          <div class="param-control">
+            <div class="param-top">
+              <label for="num-Doku_Kanat_Sayisi">
+                <span class="param-tr">Doku Kanat Sayısı</span>
+                <code class="param-code">Doku_Kanat_Sayisi</code>
+              </label>
+              <div class="num-wrap">
+                <input type="number" id="num-Doku_Kanat_Sayisi" min="12" max="48" step="1" value="24" />
+                <span class="unit">adet</span>
+              </div>
+            </div>
+            <input type="range" id="rng-Doku_Kanat_Sayisi" min="12" max="48" step="1" value="24" />
+            <div class="range-minmax mono"><span>12 kanat</span><span>48 kanat</span></div>
+          </div>
+
+          <!-- 4. Kanat_Derinligi_mm (2-10) -->
+          <div class="param-control">
+            <div class="param-top">
+              <label for="num-Kanat_Derinligi_mm">
+                <span class="param-tr">Kanat Derinliği</span>
+                <code class="param-code">Kanat_Derinligi_mm</code>
+              </label>
+              <div class="num-wrap">
+                <input type="number" id="num-Kanat_Derinligi_mm" min="2" max="10" step="0.1" value="4.5" />
+                <span class="unit">mm</span>
+              </div>
+            </div>
+            <input type="range" id="rng-Kanat_Derinligi_mm" min="2" max="10" step="0.1" value="4.5" />
+            <div class="range-minmax mono"><span>2.0 mm</span><span>10.0 mm</span></div>
+          </div>
+
+          <!-- 5. Burulma_Acisi_Derece (0-120) -->
+          <div class="param-control">
+            <div class="param-top">
+              <label for="num-Burulma_Acisi_Derece">
+                <span class="param-tr">Helisel Burulma Açısı</span>
+                <code class="param-code">Burulma_Acisi_Derece</code>
+              </label>
+              <div class="num-wrap">
+                <input type="number" id="num-Burulma_Acisi_Derece" min="0" max="120" step="1" value="45" />
+                <span class="unit">°</span>
+              </div>
+            </div>
+            <input type="range" id="rng-Burulma_Acisi_Derece" min="0" max="120" step="1" value="45" />
+            <div class="dfm-clamp-note mono" id="twist-dfm-note">
+              Aktif: 45.0° // Maks Sarkma: 32.1° ≤ 45° (Desteksiz)
+            </div>
+          </div>
+
+          <!-- 6. Cidar_Kalinligi_mm (2.0mm default) -->
+          <div class="param-control">
+            <div class="param-top">
+              <label for="num-Cidar_Kalinligi_mm">
+                <span class="param-tr">Cidar Kalınlığı</span>
+                <code class="param-code">Cidar_Kalinligi_mm</code>
+              </label>
+              <div class="num-wrap">
+                <input type="number" id="num-Cidar_Kalinligi_mm" min="1.2" max="5.0" step="0.1" value="2.0" />
+                <span class="unit">mm</span>
+              </div>
+            </div>
+            <input type="range" id="rng-Cidar_Kalinligi_mm" min="1.2" max="5.0" step="0.1" value="2.0" />
+            <div class="range-minmax mono"><span>1.2 mm (3 Duvar)</span><span>Standart: 2.0 mm</span><span>5.0 mm</span></div>
+          </div>
+
+          <!-- 7. Kilit_Toleransi_mm (0.25mm default) -->
+          <div class="param-control">
+            <div class="param-top">
+              <label for="num-Kilit_Toleransi_mm">
+                <span class="param-tr">Burgu Kilit Toleransı</span>
+                <code class="param-code">Kilit_Toleransi_mm</code>
+              </label>
+              <div class="num-wrap">
+                <input type="number" id="num-Kilit_Toleransi_mm" min="0.10" max="0.60" step="0.05" value="0.25" />
+                <span class="unit">mm</span>
+              </div>
+            </div>
+            <input type="range" id="rng-Kilit_Toleransi_mm" min="0.10" max="0.60" step="0.05" value="0.25" />
+            <div class="range-minmax mono"><span>0.10 (Sıkı)</span><span>FDM İdeal: 0.25 mm</span><span>0.60</span></div>
+          </div>
+
+          <!-- 8. Alt_Tabak_Yukseklik_mm (20mm default) -->
+          <div class="param-control">
+            <div class="param-top">
+              <label for="num-Alt_Tabak_Yukseklik_mm">
+                <span class="param-tr">Alt Tabak Yüksekliği</span>
+                <code class="param-code">Alt_Tabak_Yukseklik_mm</code>
+              </label>
+              <div class="num-wrap">
+                <input type="number" id="num-Alt_Tabak_Yukseklik_mm" min="15" max="40" step="0.5" value="20" />
+                <span class="unit">mm</span>
+              </div>
+            </div>
+            <input type="range" id="rng-Alt_Tabak_Yukseklik_mm" min="15" max="40" step="0.5" value="20" />
+            <div class="range-minmax mono"><span>15 mm</span><span>Standart: 20.0 mm</span><span>40 mm</span></div>
+          </div>
+
+          <!-- Filament Material & Finish -->
+          <div class="section-header mt-sm">
+            <span class="mono-label">03 // FİLAMENT MALZEME &amp; RENK PALETİ</span>
+          </div>
+          <div class="mat-row">
+            <select id="sel-material" class="cad-select mono">
+              <option value="PLA" selected>Mat PLA (1.24 g/cm³)</option>
+              <option value="PETG">Su Geçirmez PETG (1.27 g/cm³)</option>
+              <option value="ASA">Dış Mekan UV ASA (1.07 g/cm³)</option>
+              <option value="ABS">Teknik ABS (1.04 g/cm³)</option>
+            </select>
+            <div class="swatch-group" id="swatch-group">
+              <button class="swatch active" data-finish="terracotta" style="background:#C85A3A" title="Pişmiş Toprak Terracotta"></button>
+              <button class="swatch" data-finish="bone" style="background:#E5DFD3" title="Kemik Seramik Mat"></button>
+              <button class="swatch" data-finish="sage" style="background:#5E7464" title="Adaçayı Yeşili"></button>
+              <button class="swatch" data-finish="charcoal" style="background:#2B2C2F" title="Karbon Antrasit"></button>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- CENTER VIEWPORT: 3D THREE.JS CAD WORKBENCH -->
+      <section class="viewport-panel">
+        <!-- Top Floating CAD Bar -->
+        <div class="vp-bar vp-bar-top">
+          <div class="seg-group" id="assembly-mode-group">
+            <button class="seg-btn active" data-asm="assembled">MONTAJLI</button>
+            <button class="seg-btn" data-asm="exploded">BURGU AÇIK (PATLATILMIŞ)</button>
+            <button class="seg-btn accent-seg" data-asm="sml">3B S / M / L ÖNİZLEME</button>
+            <button class="seg-btn" data-asm="planter">SADECE SAKSI</button>
+            <button class="seg-btn" data-asm="tray">SADECE TABAK</button>
+          </div>
+
+          <div class="seg-group">
+            <button class="seg-btn mono" id="btn-cam-proj" title="Perspektif / Ortografik CAD Projeksiyonu">PERSPEKTİF</button>
+            <button class="seg-btn mono" data-view="iso">İZO</button>
+            <button class="seg-btn mono" data-view="front">ÖN</button>
+            <button class="seg-btn mono" data-view="right">SAĞ</button>
+            <button class="seg-btn mono" data-view="top">ÜST</button>
+            <button class="seg-btn mono" data-view="bottom">ALT</button>
+          </div>
+        </div>
+
+        <!-- 3D WebGL Canvas + Dynamic S/M/L Overlay Labels -->
+        <div class="canvas-stage" id="canvas-stage">
+          <canvas id="webgl-canvas"></canvas>
+          <div id="sml-overlay-container" class="sml-overlay-container hidden"></div>
+
+          <!-- Corner CAD Spec Telemetry Overlay -->
+          <div class="vp-corner-hud mono">
+            <div id="vp-dim-readout">ZARF: Ø140.0 × 155.8 mm</div>
+            <div id="vp-lock-readout">BURGU KİLİT: 3-TIRNAK BAYONET (0.25 mm BOŞLUK)</div>
+            <div id="vp-drain-readout">GİZLİ DRENAJ: 6× HUNİ + 3× KEMER KANAL</div>
+          </div>
+        </div>
+
+        <!-- Bottom Floating CAD Shading & Live Cross-Section Bar -->
+        <div class="vp-bar vp-bar-bottom">
+          <div class="seg-group" id="display-mode-group">
+            <button class="seg-btn active" data-disp="shaded">GÖLGELİ + KENAR</button>
+            <button class="seg-btn" data-disp="dfm">DFM SARKMA (≤45°)</button>
+            <button class="seg-btn" data-disp="blueprint">TEKNİK ÇİZİM</button>
+            <button class="seg-btn" data-disp="xray">X-RAY KESİT</button>
+            <button class="seg-btn" data-disp="wire">TEL KAFES</button>
+          </div>
+
+          <div class="clip-controls mono">
+            <label class="clip-toggle">
+              <input type="checkbox" id="chk-section" />
+              <span>CANLI KESİT</span>
+            </label>
+            <select id="sel-section-axis" class="cad-select-sm mono">
+              <option value="X" selected>X EKSENİ</option>
+              <option value="Z">Z EKSENİ</option>
+              <option value="Y">YATAY (Y)</option>
+            </select>
+            <input type="range" id="rng-section-offset" min="-115" max="115" step="0.5" value="0" disabled />
+            <span id="lbl-section-val">0.0 mm</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT RAIL: EXPORTS, SOIL/DESI METROLOGY & E-COMMERCE PROFIT TABLE -->
+      <aside class="panel panel-right">
+        <!-- Primary Required Outputs -->
+        <div class="panel-section">
+          <div class="section-header">
+            <span class="mono-label">04 // ÜRETİM (.STL), İMALAT ANTETİ (.SVG) &amp; TABLO (.CSV)</span>
+          </div>
+
+          <div class="export-primary-grid">
+            <button class="btn-export primary" id="btn-stl-planter">
+              <span class="exp-tag">3B BASKI // Z-UP MM</span>
+              <strong>SAKSI .STL İNDİR</strong>
+              <small id="sub-stl-planter">Saksi_140x150mm.stl</small>
+            </button>
+            <button class="btn-export primary-alt" id="btn-stl-tray">
+              <span class="exp-tag">0.25MM KİLİT // Z-UP</span>
+              <strong>ALT TABAK .STL İNDİR</strong>
+              <small id="sub-stl-tray">Alt_Tabak_140mm.stl</small>
+            </button>
+            <button class="btn-export secondary" id="btn-svg-preview">
+              <span class="exp-tag">A3 TEKNİK PAFTA</span>
+              <strong>İMALAT ANTETİ (.SVG)</strong>
+              <small>Önizle &amp; Vektörel İndir</small>
+            </button>
+            <button class="btn-export secondary" id="btn-csv-export">
+              <span class="exp-tag">PAZARYERİ ANALİZİ</span>
+              <strong>KÂR TABLOSU (.CSV)</strong>
+              <small>Excel / E-Ticaret İndir</small>
+            </button>
+          </div>
+
+          <!-- Secondary Multi-Format CAD Exports -->
+          <div class="multi-format-bar mono">
+            <span>EK CAD:</span>
+            <button id="btn-exp-obj" title="Wavefront .OBJ Montaj">.OBJ</button>
+            <button id="btn-exp-glb" title="Binary .GLB 3B Web/AR">.GLB</button>
+            <button id="btn-exp-dxf" title="AutoCAD 2B Kesit .DXF">.DXF</button>
+            <button id="btn-exp-scad" title="Parametrik OpenSCADBetiği">.SCAD</button>
+          </div>
+        </div>
+
+        <!-- Live Engineering, Soil Volume (L) & Shipping Box Desi Cards -->
+        <div class="panel-section right-scroll">
+          <div class="section-header">
+            <span class="mono-label">05 // TOPRAK HACMİ (L), KARGO DESİ &amp; METROLOJİ</span>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="kpi-card highlight">
+              <span class="kpi-label mono">TOPRAK HACMİ (LİTRE)</span>
+              <div class="kpi-val mono" id="kpi-soil-l">1.46 L</div>
+              <div class="kpi-sub mono" id="kpi-soil-sub">Tam: 1.60 L | Hazne: 36 mL</div>
+            </div>
+            <div class="kpi-card highlight">
+              <span class="kpi-label mono">KARGO KUTUSU (DESİ)</span>
+              <div class="kpi-val mono" id="kpi-desi">1.84 Desi</div>
+              <div class="kpi-sub mono" id="kpi-box-cm">17.0 × 17.0 × 19.1 cm</div>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label mono">TOPLAM FİLAMENT &amp; SÜRE</span>
+              <div class="kpi-val mono" id="kpi-mass">168 g</div>
+              <div class="kpi-sub mono" id="kpi-mass-split">Saksı: 132g | Tabak: 36g (~3.1 sa)</div>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label mono">DFM SARKMA &amp; MANİFOLD</span>
+              <div class="kpi-val mono pass-text" id="kpi-overhang">32.1° ≤ 45°</div>
+              <div class="kpi-sub mono" id="kpi-triangles">Desteksiz | Su Geçirmez</div>
+            </div>
+          </div>
+
+          <!-- S / M / L Quick Matrix -->
+          <div class="section-header mt-sm">
+            <span class="mono-label">06 // S / M / L AİLE ÖZETİ (AKTİF DOKU İLE)</span>
+          </div>
+          <table class="cad-table mono" id="sml-summary-table">
+            <thead>
+              <tr>
+                <th>BOY</th>
+                <th>ÖLÇÜ (mm)</th>
+                <th>TOPRAK</th>
+                <th>KARGO</th>
+                <th>AĞIRLIK</th>
+              </tr>
+            </thead>
+            <tbody id="sml-summary-tbody"></tbody>
+          </table>
+
+          <!-- Live E-Commerce Commission & Profit Calculator -->
+          <div class="section-header mt-sm">
+            <span class="mono-label">07 // E-TİCARET KOMİSYON &amp; NET KÂR ANALİZİ</span>
+          </div>
+
+          <div class="econ-inputs-grid mono">
+            <label>
+              <span>SATIŞ FİYATI (₺)</span>
+              <input type="number" id="inp-sale-price" min="0" step="10" placeholder="Oto" />
+            </label>
+            <label>
+              <span>FİLAMENT (₺/kg)</span>
+              <input type="number" id="inp-filament-kg" min="100" step="10" value="480" />
+            </label>
+            <label>
+              <span>KUTU/PAKET (₺)</span>
+              <input type="number" id="inp-pack-cost" min="0" step="2" value="22" />
+            </label>
+          </div>
+          <div class="econ-cogs-bar mono" id="econ-cogs-summary">
+            Birim Üretim Maliyeti (COGS): 149.20 ₺ | Kargo: 69.00 ₺
+          </div>
+
+          <table class="cad-table econ-table mono">
+            <thead>
+              <tr>
+                <th>PAZARYERİ</th>
+                <th>KOM.%</th>
+                <th>NET KÂR</th>
+                <th>MARJ</th>
+              </tr>
+            </thead>
+            <tbody id="econ-tbody"></tbody>
+          </table>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- IMALAT ANTETI (.SVG) INTERACTIVE TECHNICAL DRAWING MODAL -->
+  <div class="modal-backdrop hidden" id="svg-modal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <div>
+          <span class="mono-label">ISO 7200 A3 MÜHENDİSLİK PAFTASI // VEKTÖREL ÖNİZLEME</span>
+          <h2 class="modal-title">İmalat Anteti &amp; Lojistik Spesifikasyon Paftası (.SVG)</h2>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-export primary-inline mono" id="btn-modal-download-svg">.SVG PAFTAYI İNDİR</button>
+          <button class="btn-ghost mono" id="btn-modal-close">KAPAT [ESC]</button>
+        </div>
+      </div>
+      <div class="svg-preview-frame" id="svg-preview-container"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

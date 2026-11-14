@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lazer Markalama &amp; UV Baskı Çoklu Yuvalı Hizalama Fikstürü — Three.js CAD &amp; 1:1 LightBurn Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+  <!-- ADJY mağaza köprüsü: tema, müşteri/atölye kipi, durum kaydı -->
+  <meta name="robots" content="noindex" />
+  <link rel="stylesheet" href="../_adjy/kopru.css" />
+  <link rel="stylesheet" href="./adjy.css" />
+  <script src="./adjy.js"></script>
+  <script src="../_adjy/kopru.js"></script>
+</head>
+<body>
+  <!-- ÜST TEKNİK TELEMETRİ & KOMUT ŞERİDİ -->
+  <header class="topbar">
+    <div class="brand-block">
+      <span class="spec-index">[ 01 / ENDÜSTRİYEL FİKSTÜR CAD — 1 BİRİM = 1.00 MM ]</span>
+      <div class="brand-title-row">
+        <h1>OPTİK FİKSTÜR <span class="accent-slash">//</span> LAZER &amp; UV KALIP STÜDYOSU</h1>
+      </div>
+    </div>
+
+    <div class="preset-bar">
+      <label for="presetSelect" class="mono-label">HAZIR ŞABLON</label>
+      <select id="presetSelect" class="tech-select">
+        <option value="metal_card">ISO Metal Kartvizit / NFC Kart (54×85.6 mm)</option>
+        <option value="laser_pen">Promosyon Metal Kalem V-Yatak (Ø10.5×138 mm)</option>
+        <option value="round_token">Lazer Madalyon / Jeton (Ø42 mm)</option>
+        <option value="industrial_tag">Anodize Sanayi Etiketi (70×35 mm)</option>
+        <option value="uv_flask">UV Silindirik Termos V-Fikstür (Ø68×155 mm)</option>
+        <option value="custom">— Özel Mühendislik Ölçüsü —</option>
+      </select>
+    </div>
+
+    <div class="header-telemetry">
+      <div class="tele-pill">
+        <span class="tele-key">KAPASİTE</span>
+        <strong id="hudCapacity">6 YUVA (2×3)</strong>
+      </div>
+      <div class="tele-pill">
+        <span class="tele-key">DIŞ PLAKA</span>
+        <strong id="hudPlateDim">225.0 × 225.0 × 7.0 mm</strong>
+      </div>
+      <div class="tele-pill">
+        <span class="tele-key">LAZER Z-ODAK</span>
+        <strong id="hudFocusZ" class="text-accent">4.30 mm</strong>
+      </div>
+    </div>
+
+    <div class="topbar-actions">
+      <button id="btnThemeToggle" class="btn-ghost" title="Koyu Atölye / Açık Teknik Kağıt Teması">TEMA</button>
+      <button id="btnUploadModelTop" class="btn-outline" title="Kendi 3D/2D Ürün Modelini Yükle (.STL, .OBJ, .GLB, .SVG)">+ KENDİ MODELİNİ YÜKLE</button>
+      <button id="btnExportSTLTop" class="btn-outline">.STL İNDİR</button>
+      <button id="btnExportLightBurnTop" class="btn-primary">1:1 LIGHTBURN .SVG</button>
+    </div>
+  </header>
+
+  <!-- ANA 3-SÜTUNLU İSVİÇRE MÜHENDİSLİK IZGARASI -->
+  <main class="studio-grid">
+    <!-- SOL PANEL: PARAMETRİK FİKSTÜR KONTROLLERİ (TÜRKÇE ETİKETLİ) -->
+    <aside class="panel panel-left">
+      <div class="panel-header">
+        <span class="mono-tag">PARAMETRİK KONTROLLER</span>
+        <span class="mono-badge">CANLI CSG / MANIFOLD</span>
+      </div>
+
+      <div class="controls-scroll">
+        <!-- 0. KENDİ ÜRÜN MODELİNİ YÜKLE (.STL / .OBJ / .GLB / .SVG) -->
+        <section class="ctrl-group upload-group">
+          <div class="ctrl-title-row">
+            <span class="ctrl-code">00 // KENDİ MODELİNİ YÜKLE</span>
+            <span class="ctrl-hint">STL • OBJ • GLB • SVG</span>
+          </div>
+
+          <input type="file" id="fileCustomModel" accept=".stl,.obj,.glb,.gltf,.svg" hidden />
+
+          <div id="dropZoneModel" class="model-dropzone" tabindex="0" role="button" aria-label="3D veya 2D Ürün Modeli Yükle">
+            <div class="dz-main-text">+ 3D / 2D ÜRÜN DOSYASI SEÇ VEYA SÜRÜKLE</div>
+            <div class="dz-sub-text">.STL, .OBJ, .GLB, .GLTF veya 2D .SVG profilinden otomatik silüet yuva açar</div>
+          </div>
+
+          <div class="demo-model-row">
+            <button type="button" id="btnLoadDemoCustom" class="mini-action-btn">Örnek Özel 3D Parça Dene (NFC Anahtarlık)</button>
+          </div>
+
+          <!-- Yüklü Model Bilgi & Eksen / Yuva Kipi Kartı -->
+          <div id="customModelActivePanel" class="custom-model-panel" hidden>
+            <div class="cm-file-header">
+              <div class="cm-file-meta">
+                <strong id="cmFileName">ozel_model.stl</strong>
+                <span id="cmMeasDim">0 × 0 × 0 mm</span>
+              </div>
+              <button type="button" id="btnClearCustomModel" class="cm-clear-btn" title="Özel Modeli Kaldır">× KALDIR</button>
+            </div>
+
+            <div class="param-field">
+              <label class="block-label">Negatif Yuva Kesim Kipi</label>
+              <div class="cm-mode-pills">
+                <button type="button" class="mini-pill active" data-cmpocket="silhouette" title="Modelin 2D dış konturunu +0.25mm ofsetleyerek tam kalıp yuvası açar">Silüet Kontur</button>
+                <button type="button" class="mini-pill" data-cmpocket="v_groove" title="Silindirik özel modelleri 90° V-Yatak içine oturtur">90° V-Yatak</button>
+                <button type="button" class="mini-pill" data-cmpocket="rect_box" title="Modelin dış zarfı ölçüsünde dikdörtgen cep açar">Dikdörtgen Cep</button>
+              </div>
+            </div>
+
+            <div class="cm-transform-row">
+              <div class="cm-rot-group">
+                <span class="mono-note">Döndür:</span>
+                <button type="button" class="vp-btn" data-cmrot="x">X 90°</button>
+                <button type="button" class="vp-btn" data-cmrot="y">Y 90°</button>
+                <button type="button" class="vp-btn" data-cmrot="z">Z 90°</button>
+                <button type="button" class="vp-btn" data-cmrot="reset" title="Döndürmeyi Sıfırla">0°</button>
+              </div>
+              <select id="selCustomUnitScale" class="mini-select" title="Dosya Birim Çarpanı">
+                <option value="1">1:1 mm</option>
+                <option value="10">cm → mm (×10)</option>
+                <option value="1000">m → mm (×1000)</option>
+                <option value="25.4">inç → mm (×25.4)</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="customModelError" class="cm-error-msg" hidden></div>
+        </section>
+
+        <!-- 1. Urun_Sekli -->
+        <section class="ctrl-group">
+          <div class="ctrl-title-row">
+            <span class="ctrl-code">01 // Urun_Sekli</span>
+            <span class="ctrl-hint">Geometri Profili</span>
+          </div>
+          <div class="shape-segmented shape-grid-4" role="radiogroup" aria-label="Ürün Şekli">
+            <button type="button" class="seg-btn active" data-shape="Rect_Card">
+              <span class="seg-code">Rect_Card</span>
+              <span class="seg-sub">Dikdörtgen Kart</span>
+            </button>
+            <button type="button" class="seg-btn" data-shape="Cylindrical_Pen">
+              <span class="seg-code">Cylindrical_Pen</span>
+              <span class="seg-sub">Silindirik V-Yatak</span>
+            </button>
+            <button type="button" class="seg-btn" data-shape="Round_Token">
+              <span class="seg-code">Round_Token</span>
+              <span class="seg-sub">Yuvarlak Jeton</span>
+            </button>
+            <button type="button" class="seg-btn" data-shape="Custom_Model">
+              <span class="seg-code">Custom_Model</span>
+              <span class="seg-sub">Özel 3D/2D Model</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- 2 & 3. Urun_En_mm & Urun_Boy_mm -->
+        <section class="ctrl-group">
+          <div class="ctrl-title-row">
+            <span class="ctrl-code">02 // Ürün Nominal Ölçüleri</span>
+            <span class="ctrl-hint">10–160 mm</span>
+          </div>
+
+          <div class="param-field">
+            <div class="param-label-line">
+              <label for="num_Urun_En_mm" id="lblUrunEn">Urun_En_mm <small>(Kart Eni X)</small></label>
+              <div class="num-unit-wrap">
+                <input type="number" id="num_Urun_En_mm" min="10" max="120" step="0.1" value="54.0" />
+                <span>mm</span>
+              </div>
+            </div>
+            <input type="range" id="rng_Urun_En_mm" min="10" max="120" step="0.1" value="54.0" />
+          </div>
+
+          <div class="param-field" id="fieldUrunBoy">
+            <div class="param-label-line">
+              <label for="num_Urun_Boy_mm" id="lblUrunBoy">Urun_Boy_mm <small>(Kart Boyu Y)</small></label>
+              <div class="num-unit-wrap">
+                <input type="number" id="num_Urun_Boy_mm" min="20" max="160" step="0.1" value="85.6" />
+                <span>mm</span>
+              </div>
+            </div>
+            <input type="range" id="rng_Urun_Boy_mm" min="20" max="160" step="0.1" value="85.6" />
+          </div>
+
+          <div class="param-field" id="fieldUrunKalinlik">
+            <div class="param-label-line">
+              <label for="num_Urun_Kalinligi_mm">Urun_Kalinligi_mm <small>(Z-Odak İçin)</small></label>
+              <div class="num-unit-wrap">
+                <input type="number" id="num_Urun_Kalinligi_mm" min="0.4" max="25" step="0.1" value="0.8" />
+                <span>mm</span>
+              </div>
+            </div>
+            <input type="range" id="rng_Urun_Kalinligi_mm" min="0.4" max="25" step="0.1" value="0.8" />
+          </div>
+        </section>
+
+        <!-- 4 & 5. Yuva_Derinligi_mm & Yuva_Bosluk_Payi_mm -->
+        <section class="ctrl-group">
+          <div class="ctrl-title-row">
+            <span class="ctrl-code">03 // Negatif Cep &amp; Tolerans</span>
+            <span class="ctrl-hint">+0.25mm Kayıt</span>
+          </div>
+
+          <div class="param-field">
+            <div class="param-label-line">
+              <label for="num_Yuva_Derinligi_mm">Yuva_Derinligi_mm</label>
+              <div class="num-unit-wrap">
+                <input type="number" id="num_Yuva_Derinligi_mm" min="2" max="15" step="0.1" value="3.5" />
+                <span>mm</span>
+              </div>
+            </div>
+            <input type="range" id="rng_Yuva_Derinligi_mm" min="2" max="15" step="0.1" value="3.5" />
+          </div>
+
+          <div class="param-field">
+            <div class="param-label-line">
+              <label for="num_Yuva_Bosluk_Payi_mm">Yuva_Bosluk_Payi_mm</label>
+              <div class="num-unit-wrap">
+                <span class="plus-prefix">+</span>
+                <input type="number" id="num_Yuva_Bosluk_Payi_mm" min="0.05" max="1.00" step="0.05" value="0.25" />
+                <span>mm</span>
+              </div>
+            </div>
+            <input type="range" id="rng_Yuva_Bosluk_Payi_mm" min="0.05" max="1.00" step="0.05" value="0.25" />
+            <div class="sub-inline-toggle">
+              <span id="liveNetPocketLabel" class="mono-note">Net Yuva: 54.25 × 85.85 mm</span>
+              <div class="mini-pills">
+                <button type="button" class="mini-pill active" data-clearmode="toplam" title="Toplam yuva büyümesi = +Pay">Toplam +Δ</button>
+                <button type="button" class="mini-pill" data-clearmode="cevre" title="Her kenardan +Pay (Toplam +2Δ)">Çevre +2Δ</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6 & 7. Satir_Adedi & Sutun_Adedi -->
+        <section class="ctrl-group">
+          <div class="ctrl-title-row">
+            <span class="ctrl-code">04 // Çoklu Dizilim Matrisi</span>
+            <span class="ctrl-hint">1×1 — 6×6 (Maks 36)</span>
+          </div>
+
+          <div class="dual-row">
+            <div class="param-field compact">
+              <div class="param-label-line">
+                <label for="num_Satir_Adedi">Satir_Adedi <small>(Y)</small></label>
+                <input type="number" id="num_Satir_Adedi" min="1" max="6" step="1" value="2" class="short-num" />
+              </div>
+              <input type="range" id="rng_Satir_Adedi" min="1" max="6" step="1" value="2" />
+            </div>
+
+            <div class="param-field compact">
+              <div class="param-label-line">
+                <label for="num_Sutun_Adedi">Sutun_Adedi <small>(X)</small></label>
+                <input type="number" id="num_Sutun_Adedi" min="1" max="6" step="1" value="3" class="short-num" />
+              </div>
+              <input type="range" id="rng_Sutun_Adedi" min="1" max="6" step="1" value="3" />
+            </div>
+          </div>
+        </section>
+
+        <!-- 8 & 9. Lazer_Masa_Vida_Araligi_mm & Parmak_Alma_Oyugu -->
+        <section class="ctrl-group">
+          <div class="ctrl-title-row">
+            <span class="ctrl-code">05 // Optik Masa &amp; Ergonomi</span>
+            <span class="ctrl-hint">M6 DIN 912</span>
+          </div>
+
+          <div class="param-field">
+            <label class="block-label">Lazer_Masa_Vida_Araligi_mm <small>(M6 Breadboard)</small></label>
+            <div class="pitch-segmented">
+              <button type="button" class="pitch-btn active" data-grid="25">
+                <strong>25 mm M6</strong>
+                <span>Galvo Fiber Lazer Tabla</span>
+              </button>
+              <button type="button" class="pitch-btn" data-grid="50">
+                <strong>50 mm M6</strong>
+                <span>Geniş UV / CO₂ Tabla</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="toggle-card">
+            <div class="toggle-info">
+              <span class="toggle-title">Parmak_Alma_Oyugu</span>
+              <span class="toggle-desc">Hızlı parça boşaltma rampası &amp; alt parmak havuzu</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="chk_Parmak_Alma_Oyugu" checked />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+        </section>
+
+        <!-- 10. İkincil Gövde & Malzeme Ayarları -->
+        <section class="ctrl-group">
+          <div class="ctrl-title-row">
+            <span class="ctrl-code">06 // Gövde Et Kalınlığı &amp; Malzeme</span>
+            <span class="ctrl-hint">B2B İmalat</span>
+          </div>
+
+          <div class="dual-row">
+            <div class="param-field compact">
+              <div class="param-label-line">
+                <label for="num_Taban_Kalinligi_mm">Taban Z</label>
+                <div class="num-unit-wrap">
+                  <input type="number" id="num_Taban_Kalinligi_mm" min="2.5" max="10" step="0.5" value="3.5" />
+                  <span>mm</span>
+                </div>
+              </div>
+              <input type="range" id="rng_Taban_Kalinligi_mm" min="2.5" max="10" step="0.5" value="3.5" />
+            </div>
+
+            <div class="param-field compact">
+              <div class="param-label-line">
+                <label for="num_Ara_Duvar_mm">Ara Duvar</label>
+                <div class="num-unit-wrap">
+                  <input type="number" id="num_Ara_Duvar_mm" min="5" max="25" step="0.5" value="8.0" />
+                  <span>mm</span>
+                </div>
+              </div>
+              <input type="range" id="rng_Ara_Duvar_mm" min="5" max="25" step="0.5" value="8.0" />
+            </div>
+          </div>
+
+          <div class="param-field">
+            <label class="block-label" for="sel_Malzeme">İmalat Malzemesi (Kütle &amp; Teklif Hesabı)</label>
+            <select id="sel_Malzeme" class="tech-select full-width">
+              <option value="PETG_CF">PETG-CF Mat Siyah (1.29 g/cm³ — Lazer Yansımasız)</option>
+              <option value="PLA_MAT">PLA-Pro Mat Antrasit (1.24 g/cm³ — UV Baskı)</option>
+              <option value="ABS_ASA">ASA Endüstriyel (1.07 g/cm³ — Termal Dayanım)</option>
+              <option value="DELRIN_POM">POM-C Delrin Siyah CNC (1.41 g/cm³ — ±0.03mm)</option>
+              <option value="ALU_6061">Alüminyum 6061-T6 Siyah Eloksal CNC (2.70 g/cm³)</option>
+            </select>
+          </div>
+        </section>
+      </div>
+    </aside>
+
+    <!-- MERKEZ SAHNE: 3D YÜKLÜ FİKSTÜR + 2D İMALAT ANTETİ & 1:1 LIGHTBURN ŞABLONU -->
+    <section class="stage-column">
+      <!-- Sahne Görünüm Modu Sekmeleri -->
+      <div class="workspace-tabs">
+        <div class="tab-group">
+          <button type="button" class="ws-tab active" data-layout="split">BÖLÜNMÜŞ EKRAN (3D CAD + 2D LIGHTBURN)</button>
+          <button type="button" class="ws-tab" data-layout="3d">TAM EKRAN 3D YÜKLÜ FİKSTÜR</button>
+          <button type="button" class="ws-tab" data-layout="2d">TAM EKRAN 2D İMALAT ANTETİ &amp; .SVG</button>
+        </div>
+        <div class="workspace-status">
+          <span class="status-dot"></span>
+          <span id="manifoldBadge" class="mono-note">MANIFOLD SU GEÇİRMEZ MESH // HAZIR</span>
+        </div>
+      </div>
+
+      <div id="stageSplitContainer" class="stage-split-container layout-split">
+        <!-- 3D WEBGL CAD VIEWPORT -->
+        <div class="viewport-pane pane-3d">
+          <div class="vp-toolbar">
+            <div class="vp-btn-cluster">
+              <span class="cluster-tag">KAMERA</span>
+              <button type="button" class="vp-btn active" data-camproj="persp">PERSP 35°</button>
+              <button type="button" class="vp-btn" data-camproj="ortho">ORTO CAD</button>
+            </div>
+            <div class="vp-btn-cluster">
+              <span class="cluster-tag">AÇI</span>
+              <button type="button" class="vp-btn" data-camview="iso">İZO</button>
+              <button type="button" class="vp-btn" data-camview="top">ÜST (Z+)</button>
+              <button type="button" class="vp-btn" data-camview="front">ÖN (Y-)</button>
+              <button type="button" class="vp-btn" data-camview="right">SAĞ (X+)</button>
+              <button type="button" class="vp-btn" data-camview="bottom">ALT</button>
+            </div>
+            <div class="vp-btn-cluster">
+              <span class="cluster-tag">MOD</span>
+              <button type="button" class="vp-btn active" data-display="shaded">GÖLGELİ+KENAR</button>
+              <button type="button" class="vp-btn" data-display="blueprint">BLUEPRINT</button>
+              <button type="button" class="vp-btn" data-display="xray">X-RAY</button>
+              <button type="button" class="vp-btn" data-display="wire">TEL KAFES</button>
+            </div>
+          </div>
+
+          <div class="canvas-holder" id="threeContainer">
+            <canvas id="webglCanvas"></canvas>
+
+            <!-- Sol-Alt Sahne İçi Görünürlük & Kesit Kontrol Şeridi -->
+            <div class="vp-bottom-hud">
+              <div class="hud-checks">
+                <label class="hud-chk"><input type="checkbox" id="chkShowLoadedParts" checked /> <span>Yüklü Ürünler</span></label>
+                <label class="hud-chk"><input type="checkbox" id="chkShowBreadboard" checked /> <span>M6 Optik Masa</span></label>
+                <label class="hud-chk"><input type="checkbox" id="chkShowFocusPlane" /> <span>Lazer Odak Düzlemi</span></label>
+              </div>
+
+              <div class="hud-sliders">
+                <div class="mini-slider-box">
+                  <span>Ürün Çıkarma: <strong id="lblExplodeMm">0 mm</strong></span>
+                  <input type="range" id="rngExplode" min="0" max="45" step="0.5" value="0" />
+                </div>
+
+                <div class="mini-slider-box">
+                  <div class="clip-header">
+                    <span>Kesit:</span>
+                    <select id="selClipAxis" class="mini-select">
+                      <option value="none">Kapalı</option>
+                      <option value="x">X Ekseni</option>
+                      <option value="y">Y Ekseni (V-Yatak Kesiti)</option>
+                      <option value="z">Z Ekseni (Yatay)</option>
+                    </select>
+                  </div>
+                  <input type="range" id="rngClipOffset" min="-150" max="150" step="0.5" value="0" disabled />
+                </div>
+              </div>
+            </div>
+
+            <div class="vp-corner-tag">
+              <span id="hudVGrooveNote">90° POKAYOKE (0,0) REFERANSLI</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2D İMALAT ANTETİ & 1:1 LIGHTBURN VEKTÖR ÖNİZLEME -->
+        <div class="viewport-pane pane-2d">
+          <div class="vp-toolbar">
+            <div class="vp-btn-cluster">
+              <span class="cluster-tag">ŞABLON KİPİ</span>
+              <button type="button" class="vp-btn active" data-svgmode="dual">İMALAT ANTETİ + 1:1 LIGHTBURN</button>
+              <button type="button" class="vp-btn" data-svgmode="lightburn_1to1">SAF 1:1 LIGHTBURN (0,0 PLAKA)</button>
+            </div>
+            <div class="vp-btn-cluster">
+              <button type="button" class="vp-btn" id="btnSvgZoomOut" title="Uzaklaştır">−</button>
+              <span id="lblSvgZoom" class="zoom-readout">100%</span>
+              <button type="button" class="vp-btn" id="btnSvgZoomIn" title="Yakınlaştır">+</button>
+              <button type="button" class="vp-btn" id="btnSvgReset" title="Ekrana Sığdır">SIĞDIR</button>
+            </div>
+          </div>
+
+          <div class="svg-stage-wrap" id="svgPanContainer">
+            <div id="svgCanvasMount" class="svg-canvas-mount"></div>
+
+            <!-- LightBurn Katman Hızlı Rehber Şeridi -->
+            <div class="lb-layer-bar">
+              <span class="lb-chip"><i class="sw sw-c00"></i>C00 Dış Plaka</span>
+              <span class="lb-chip"><i class="sw sw-c01"></i>C01 Net Ürün Baskı</span>
+              <span class="lb-chip"><i class="sw sw-c02"></i>C02 Yuva + Oyuk</span>
+              <span class="lb-chip"><i class="sw sw-c03"></i>C03 M6 Delikler</span>
+              <span class="lb-chip"><i class="sw sw-t1"></i>T1 Merkez &amp; (0,0)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SAĞ PANEL: CAD METROLOJİ, B2B FİKSTÜR TEKLİFİ & DOSYA İHRACATI -->
+    <aside class="panel panel-right">
+      <div class="panel-header">
+        <span class="mono-tag">METROLOJİ &amp; B2B ÇIKTILAR</span>
+        <span class="mono-badge badge-green">1:1 DOĞRULANDI</span>
+      </div>
+
+      <div class="controls-scroll">
+        <!-- 1. Mühendislik Metroloji Özeti -->
+        <section class="ctrl-group">
+          <div class="ctrl-title-row">
+            <span class="ctrl-code">CAD METROLOJİ &amp; LAZER AYARI</span>
+          </div>
+
+          <div class="kv-grid">
+            <div class="kv-item">
+              <span class="kv-label">Plaka Zarf (X×Y×Z)</span>
+              <strong id="metBBox">—</strong>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">Net Negatif Yuva</span>
+              <strong id="metPocketNet">—</strong>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">Merkez Hatve (Pitch)</span>
+              <strong id="metPitch">—</strong>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">M6 Masa Vida Ağı</span>
+              <strong id="metM6Info" class="text-green">—</strong>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">Galvo / UV Z-Odak</span>
+              <strong id="metFocusZ" class="text-accent">—</strong>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">Net Hacim / Alan</span>
+              <strong id="metVolArea">—</strong>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">Tahmini Kütle</span>
+              <strong id="metMass">—</strong>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">Baskı Verimliliği</span>
+              <strong id="metThroughput">—</strong>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. B2B Fikstür Teklif & Adet İskonto Tablosu -->
+        <section class="ctrl-group">
+          <div class="ctrl-title-row">
+            <span class="ctrl-code">B2B FİKSTÜR MALİYET &amp; TEKLİF</span>
+            <span id="metCycleTime" class="ctrl-hint">— dk</span>
+          </div>
+
+          <div class="quote-hero">
+            <div>
+              <span class="quote-caption">1 ADET ANAHTAR TESLİM TEKLİF</span>
+              <div class="quote-price-line">
+                <strong id="quoteUnitTry">0 ₺</strong>
+                <span id="quoteUnitUsd">(~$0)</span>
+              </div>
+            </div>
+            <span class="quote-hw-tag" id="quoteHwTag">+M6 Civata Seti Dahil</span>
+          </div>
+
+          <div class="cost-breakdown">
+            <div class="cb-row"><span>Hammadde / Kütük</span><strong id="cbRaw">0 ₺</strong></div>
+            <div class="cb-row"><span>3D Baskı / CNC İşleme</span><strong id="cbMach">0 ₺</strong></div>
+            <div class="cb-row"><span>DIN 912 M6 Paslanmaz Kit</span><strong id="cbHw">0 ₺</strong></div>
+            <div class="cb-row"><span>CAM &amp; LightBurn Şablon</span><strong id="cbSetup">0 ₺</strong></div>
+          </div>
+
+          <table class="tier-table">
+            <thead>
+              <tr>
+                <th>Parti Adedi</th>
+                <th>İsk.</th>
+                <th>Birim (TL)</th>
+                <th>Toplam</th>
+              </tr>
+            </thead>
+            <tbody id="tierTableBody"></tbody>
+          </table>
+        </section>
+
+        <!-- 3. Tek Tık İmalat & Şablon İhracat Merkezi -->
+        <section class="ctrl-group export-section">
+          <div class="ctrl-title-row">
+            <span class="ctrl-code">ÜRETİM DOSYALARI İHRACATI</span>
+            <span class="ctrl-hint">1:1 MM</span>
+          </div>
+
+          <div class="export-stack">
+            <button type="button" id="btnExportDualSVG" class="exp-btn exp-primary">
+              <div class="exp-title">İMALAT ANTETİ + 1:1 LIGHTBURN (.SVG)</div>
+              <div class="exp-sub">Çift amaçlı teknik pafta + katmanlı LightBurn şablonu</div>
+            </button>
+
+            <button type="button" id="btnExportPureLB" class="exp-btn exp-accent">
+              <div class="exp-title">SAF 1:1 LIGHTBURN HİZALAMA (.SVG)</div>
+              <div class="exp-sub">Tam (0,0) plaka sınırı — C00/C01/C02/C03/T1 otomatik katman</div>
+            </button>
+
+            <button type="button" id="btnExportSTL" class="exp-btn">
+              <div class="exp-title">3D BASKI / CAM MODELİ (.STL)</div>
+              <div class="exp-sub">Binary STL • Z-Yukarı • Bambu / Prusa / SolidWorks 1:1 mm</div>
+            </button>
+
+            <button type="button" id="btnExportCSV" class="exp-btn">
+              <div class="exp-title">B2B TEKLİF &amp; KOORDİNAT LİSTESİ (.CSV)</div>
+              <div class="exp-sub">Türkçe Excel uyumlu maliyet kırılımı + A1..F6 X/Y tablosu</div>
+            </button>
+
+            <div class="exp-secondary-row">
+              <button type="button" id="btnExportDXF" class="exp-mini-btn">1:1 AUTOCAD (.DXF)</button>
+              <button type="button" id="btnExportSCAD" class="exp-mini-btn">OPENSCAD (.SCAD)</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </aside>
+  </main>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { aracAdresi, slugdanAracId } from "@/lib/tasarim/catalog";
 import { prisma } from "@/lib/db";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -189,6 +190,12 @@ export async function generateMetadata({
 
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
   const { slug } = await params;
+
+  // Tasarım aracıyla kurulan ürünlerin bakılacak hazır bir hâli
+  // yok; ürün sayfası yerine araca gidilir. Mağaza kartları zaten
+  // oraya bağlanıyor — bu, dışarıdan gelen bağlantılar için.
+  const tasarimAraci = slugdanAracId(slug);
+  if (tasarimAraci) redirect(aracAdresi(tasarimAraci));
   const product = await getProduct(slug);
 
   if (!product) notFound();

@@ -1,0 +1,135 @@
+/* ==========================================================================
+   ADJY GÖRÜNÜMÜ — TASARIM ARAÇLARI
+
+   Araçların her biri kendi renk ve yazı tipiyle geldi (koyu "atölye"
+   temaları, serif başlıklar, kiremit vurgular). Mağazanın içinde açıldıkları
+   için mağazanın diliyle konuşmaları gerekiyor: kırık beyaz zemin, nötr
+   griler, Geist, ölçülü mor vurgu.
+
+   Renkler burada tek yerde durur; her aracın kendi adjy.css dosyası kendi
+   değişken adlarını bunlara bağlar. Mağazanın paleti değişirse yalnızca bu
+   blok güncellenir.
+   ========================================================================== */
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap");
+
+html {
+  /* Açık tema — globals.css ile aynı değerler */
+  --a-zemin: #f5f4f0;
+  --a-yuzey: #ffffff;
+  --a-cukur: #ebe9e3;
+  --a-girdi: #ffffff;
+  --a-yazi: #171717;
+  --a-soluk: #6f6f6f;
+  --a-silik: #9a9a96;
+  --a-cizgi: #e2e0d9;
+  --a-cizgi-koyu: #cfccc2;
+  --a-vurgu: #5b34d6;
+  --a-vurgu-ustu: #ffffff;
+  --a-vurgu-soluk: rgba(91, 52, 214, 0.1);
+  --a-yesil: #2f7d42;
+  --a-yesil-soluk: rgba(47, 125, 66, 0.12);
+  --a-amber: #9a6212;
+  --a-kirmizi: #c2362b;
+  --a-ortu: rgba(255, 255, 255, 0.9);
+  --a-sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --a-mono: "Geist Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  color-scheme: light;
+}
+
+html[data-adjy-tema="koyu"] {
+  --a-zemin: #0d0e11;
+  --a-yuzey: #14151a;
+  --a-cukur: #1b1c22;
+  --a-girdi: #101116;
+  --a-yazi: #f4f4f6;
+  --a-soluk: #a0a2aa;
+  --a-silik: #6d6f78;
+  --a-cizgi: #2a2c34;
+  --a-cizgi-koyu: #3b3d47;
+  --a-vurgu: #8f73f2;
+  --a-vurgu-ustu: #ffffff;
+  --a-vurgu-soluk: rgba(143, 115, 242, 0.16);
+  --a-yesil: #6fd08a;
+  --a-yesil-soluk: rgba(111, 208, 138, 0.14);
+  --a-amber: #e2b05a;
+  --a-kirmizi: #f0766a;
+  --a-ortu: rgba(20, 21, 26, 0.9);
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: var(--a-zemin) !important;
+  color: var(--a-yazi);
+}
+
+html,
+body,
+button,
+input,
+select,
+textarea {
+  font-family: var(--a-sans) !important;
+}
+
+code,
+kbd,
+.mono,
+[class*="mono"],
+input[type="number"] {
+  font-family: var(--a-mono) !important;
+}
+
+input[type="range"] {
+  accent-color: var(--a-vurgu);
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--a-cizgi-koyu);
+  border-radius: 4px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* --------------------------------------------------------------------------
+   MÜŞTERİ KİPİ
+   Üretici bölümleri köprü tarafından (AYAR.gizle) gizlenir. Buradakiler her
+   araçta ortak olan ayrıntılar.
+   -------------------------------------------------------------------------- */
+
+/* Değişken adları ("Saksi_Capi_mm") müşteriye bir şey söylemiyor */
+html[data-adjy-mod="musteri"] .param-code:not(.adjy-etiket),
+html[data-adjy-mod="musteri"] .brand-group,
+html[data-adjy-mod="musteri"] .brand-cluster,
+html[data-adjy-mod="musteri"] .brand-block,
+html[data-adjy-mod="musteri"] .brand {
+  display: none !important;
+}
+
+/* Köprünün okunur adla değiştirdiği etiketler: kod görünümünden çıkar */
+.adjy-etiket {
+  font-family: var(--a-sans) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: var(--a-yazi) !important;
+  background: none !important;
+  border: 0 !important;
+  padding: 0 !important;
+}
+
+/* Bölüm başlıkları mağazadaki "eyebrow" ile aynı dilde */
+html[data-adjy-mod="musteri"] .mono-label,
+html[data-adjy-mod="musteri"] .section-title,
+html[data-adjy-mod="musteri"] .group-title {
+  font-family: var(--a-sans) !important;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--a-soluk);
+}

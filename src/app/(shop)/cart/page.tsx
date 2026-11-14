@@ -91,7 +91,14 @@ export default function CartPage() {
                     <h2 className="truncate text-[15px] font-medium">
                       {item.product.name}
                     </h2>
-                    {item.customization ? (
+                    {typeof item.customization?.parameters?.tasarimAraci ===
+                    "string" ? (
+                      // Tasarım aracıyla kurulan ürün: ne seçildiği
+                      // sepette de okunabilsin.
+                      <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                        {String(item.customization.parameters.ozet ?? "Sizin tasarımınız")}
+                      </p>
+                    ) : item.customization ? (
                       <p className="mt-1 text-xs text-brand-lime">
                         Özelleştirilmiş ölçülerle
                       </p>

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATÖLYE MENGENE / CAD-02 — Ağır Hizmet C-Kelepçe Kulaklık, Kablo &amp; J-Kanca Konfigüratörü</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="./styles.css" />
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+  <!-- ADJY mağaza köprüsü: tema, müşteri/atölye kipi, durum kaydı -->
+  <meta name="robots" content="noindex" />
+  <link rel="stylesheet" href="../_adjy/kopru.css" />
+  <link rel="stylesheet" href="./adjy.css" />
+  <script src="./adjy.js"></script>
+  <script src="../_adjy/kopru.js"></script>
+</head>
+<body>
+  <div class="workbench-shell">
+    <!-- =================================================================== -->
+    <!-- TOP SWISS INDUSTRIAL HEADER & ORIENTATION / CAMERA BAR              -->
+    <!-- =================================================================== -->
+    <header class="topbar">
+      <div class="brand-cluster">
+        <span class="brand-index">[ CAD-02 / 1:1 MM // TR-60° ]</span>
+        <div class="brand-titles">
+          <h1 class="brand-title">Mengene &amp; Askı Atölyesi</h1>
+          <span class="brand-sub">C-Kelepçe Kulaklık, Kablo &amp; J-Kanca İstasyonu · Desteksiz 60° Trapez Vida</span>
+        </div>
+      </div>
+
+      <div class="topbar-controls">
+        <div class="preset-wrap">
+          <label for="preset-selector" class="mono-tag">ŞABLON</label>
+          <select id="preset-selector" class="tech-select">
+            <option value="cift_j_istasyon" selected>01 / Çift Katlı: Üst Kulaklık + Alt J-Kanca (42mm, Tr16)</option>
+            <option value="derin_canta_j">02 / Masa Altı Derin Çanta &amp; Kablo J-Kancası (45mm, Tr18)</option>
+            <option value="aero_truss_agir">03 / Aero-Truss Kafes Çift İstasyon (55mm, Tr20)</option>
+            <option value="standart_studyo">04 / Stüdyo Pro Tekli Kulaklık &amp; Kablo Beşiği (42mm, Tr16)</option>
+            <option value="ince_masa_kompakt">05 / İnce Masa Kompakt Çift Kanca (22mm, Tr14)</option>
+          </select>
+        </div>
+
+        <div class="seg-group mode-switch-group" role="group" aria-label="Çalışma ve Baskı Modu">
+          <button type="button" class="seg-btn active" data-mode="assembled">MONTAJ GÖRÜNÜMÜ</button>
+          <button type="button" class="seg-btn accent-mode" data-mode="printbed" title="Katman ayrılmasını önlemek için gövdeyi yan yüzeyine (Z=0) yatırır">
+            BASKI TABLASI MODU (Z=0)
+          </button>
+        </div>
+
+        <div class="seg-group" role="group" aria-label="Kamera Projeksiyonu">
+          <button type="button" class="seg-btn active" data-proj="perspective">PERSP 35°</button>
+          <button type="button" class="seg-btn" data-proj="orthographic">ORTO CAD</button>
+        </div>
+
+        <div class="seg-group" role="group" aria-label="Standart CAD Görünümleri">
+          <button type="button" class="seg-btn" data-view="iso">İZO</button>
+          <button type="button" class="seg-btn" data-view="front">ÖN</button>
+          <button type="button" class="seg-btn" data-view="right">SAĞ</button>
+          <button type="button" class="seg-btn" data-view="top">ÜST</button>
+          <button type="button" class="seg-btn" data-view="bottom">ALT</button>
+        </div>
+      </div>
+
+      <div class="status-cluster">
+        <span id="dfm-status-badge" class="status-badge pass">
+          %100 DESTEKSİZ FDM — 45° PAH + R6 KORUMALI
+        </span>
+        <button type="button" id="btn-auto-fix-dfm" class="fix-btn" hidden>OTOMATİK DÜZELT</button>
+      </div>
+    </header>
+
+    <!-- =================================================================== -->
+    <!-- MAIN 3-COLUMN PARAMETRIC CAD WORKSPACE                              -->
+    <!-- =================================================================== -->
+    <main class="workspace-grid">
+      <!-- LEFT PANEL: ARCHITECTURE SELECTOR & TURKISH PARAMETRIC CONTROLS -->
+      <aside class="panel panel-left" aria-label="Parametrik Ölçü Kontrolleri">
+        <div class="panel-section">
+          <div class="section-head">
+            <span class="section-idx">00</span>
+            <h2 class="section-title">Askı Gövde Mimarisi Seçimi</h2>
+          </div>
+
+          <div class="arch-grid" role="group" aria-label="Askı Gövde Tasarım Mimarisi">
+            <button type="button" class="arch-card active" data-style="cift_katli_j_kanca">
+              <svg viewBox="0 0 44 36" class="arch-icon" aria-hidden="true">
+                <path d="M12,6 H38 V13 M18,6 V30 H34 V21 M6,6 H15 V26 H6" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="arch-label">Üst Beşik + Alt J-Kanca</span>
+            </button>
+
+            <button type="button" class="arch-card" data-style="derin_j_kanca">
+              <svg viewBox="0 0 44 36" class="arch-icon" aria-hidden="true">
+                <path d="M6,6 H16 V31 H36 V18 M6,24 H16" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="arch-label">Derin Alt Çanta J-Kanca</span>
+            </button>
+
+            <button type="button" class="arch-card" data-style="kafes_truss_cift">
+              <svg viewBox="0 0 44 36" class="arch-icon" aria-hidden="true">
+                <path d="M6,6 H38 V12 M15,6 V29 H33 V21 M6,25 H15 M15,15 L26,29 M15,8 L27,15" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="arch-label">Aero-Truss Kafes Çift</span>
+            </button>
+
+            <button type="button" class="arch-card" data-style="studyo_klasik_pro">
+              <svg viewBox="0 0 44 36" class="arch-icon" aria-hidden="true">
+                <path d="M6,8 H38 V16 M15,8 V29 H6 M15,20 L28,9" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="arch-label">Stüdyo Pro Tekli Beşik</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="section-head">
+            <span class="section-idx">01</span>
+            <h2 class="section-title">C-Gövde &amp; Askı Parametreleri</h2>
+          </div>
+
+          <!-- 1. Maks_Masa_Kalinligi_mm -->
+          <div class="param-row">
+            <div class="param-header">
+              <label for="num-Maks_Masa_Kalinligi_mm" class="param-code">Maks_Masa_Kalinligi_mm</label>
+              <span class="param-desc">Maks. masa sıkma açıklığı (18–55)</span>
+            </div>
+            <div class="param-inputs">
+              <input type="range" id="rng-Maks_Masa_Kalinligi_mm" min="18" max="55" step="0.5" value="42" />
+              <div class="num-unit">
+                <input type="number" id="num-Maks_Masa_Kalinligi_mm" min="18" max="55" step="0.5" value="42" />
+                <span>mm</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Kelepce_Et_Kalinligi_mm -->
+          <div class="param-row">
+            <div class="param-header">
+              <label for="num-Kelepce_Et_Kalinligi_mm" class="param-code">Kelepce_Et_Kalinligi_mm</label>
+              <span class="param-desc">C-gövde ve J-kol et kalınlığı</span>
+            </div>
+            <div class="param-inputs">
+              <input type="range" id="rng-Kelepce_Et_Kalinligi_mm" min="6" max="18" step="0.5" value="10" />
+              <div class="num-unit">
+                <input type="number" id="num-Kelepce_Et_Kalinligi_mm" min="6" max="18" step="0.5" value="10" />
+                <span>mm</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Aparat_Eni_mm -->
+          <div class="param-row">
+            <div class="param-header">
+              <label for="num-Aparat_Eni_mm" class="param-code">Aparat_Eni_mm</label>
+              <span class="param-desc">Kelepçe ve askı profil genişliği</span>
+            </div>
+            <div class="param-inputs">
+              <input type="range" id="rng-Aparat_Eni_mm" min="20" max="50" step="1" value="30" />
+              <div class="num-unit">
+                <input type="number" id="num-Aparat_Eni_mm" min="20" max="50" step="1" value="30" />
+                <span>mm</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Ic_Kose_Radyus_mm -->
+          <div class="param-row highlight-param">
+            <div class="param-header">
+              <label for="num-Ic_Kose_Radyus_mm" class="param-code">Ic_Kose_Radyus_mm</label>
+              <span class="param-desc">Gerilme giderici iç boğaz radyusu (R6)</span>
+            </div>
+            <div class="param-inputs">
+              <input type="range" id="rng-Ic_Kose_Radyus_mm" min="2" max="12" step="0.5" value="6" />
+              <div class="num-unit">
+                <input type="number" id="num-Ic_Kose_Radyus_mm" min="2" max="12" step="0.5" value="6" />
+                <span>mm</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7. Aski_Kolu_Uzunlugu_mm -->
+          <div class="param-row">
+            <div class="param-header">
+              <label for="num-Aski_Kolu_Uzunlugu_mm" class="param-code">Aski_Kolu_Uzunlugu_mm</label>
+              <span class="param-desc">Kulaklık &amp; J-kanca uzanma boyu</span>
+            </div>
+            <div class="param-inputs">
+              <input type="range" id="rng-Aski_Kolu_Uzunlugu_mm" min="35" max="110" step="1" value="65" />
+              <div class="num-unit">
+                <input type="number" id="num-Aski_Kolu_Uzunlugu_mm" min="35" max="110" step="1" value="65" />
+                <span>mm</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 8. Alt_J_Derinlik_mm (J-Hook Vertical Drop) -->
+          <div class="param-row highlight-param" id="row-Alt_J_Derinlik_mm">
+            <div class="param-header">
+              <label for="num-Alt_J_Derinlik_mm" class="param-code">Alt_J_Derinlik_mm</label>
+              <span class="param-desc">Alt J-kanca dikey iniş derinliği</span>
+            </div>
+            <div class="param-inputs">
+              <input type="range" id="rng-Alt_J_Derinlik_mm" min="35" max="95" step="1" value="58" />
+              <div class="num-unit">
+                <input type="number" id="num-Alt_J_Derinlik_mm" min="35" max="95" step="1" value="58" />
+                <span>mm</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="section-head">
+            <span class="section-idx">02</span>
+            <h2 class="section-title">60° Trapez Vida &amp; Diş Toleransı</h2>
+          </div>
+
+          <!-- 5. Basilir_Vida_Capi_mm -->
+          <div class="param-row">
+            <div class="param-header">
+              <label for="num-Basilir_Vida_Capi_mm" class="param-code">Basilir_Vida_Capi_mm</label>
+              <span class="param-desc">Desteksiz 60° trapez anma çapı</span>
+            </div>
+            <div class="param-inputs">
+              <input type="range" id="rng-Basilir_Vida_Capi_mm" min="12" max="24" step="1" value="16" />
+              <div class="num-unit">
+                <input type="number" id="num-Basilir_Vida_Capi_mm" min="12" max="24" step="1" value="16" />
+                <span>mm</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6. Dis_Bosluk_Toleransi_mm -->
+          <div class="param-row highlight-param">
+            <div class="param-header">
+              <label for="num-Dis_Bosluk_Toleransi_mm" class="param-code">Dis_Bosluk_Toleransi_mm</label>
+              <span class="param-desc">Alt çene dişi helis boşluk payı (+0.25)</span>
+            </div>
+            <div class="param-inputs">
+              <input type="range" id="rng-Dis_Bosluk_Toleransi_mm" min="0.10" max="0.50" step="0.05" value="0.25" />
+              <div class="num-unit">
+                <input type="number" id="num-Dis_Bosluk_Toleransi_mm" min="0.10" max="0.50" step="0.05" value="0.25" />
+                <span>mm</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="section-head">
+            <span class="section-idx">03</span>
+            <h2 class="section-title">Montaj Hareketi &amp; Üretim Girdisi</h2>
+          </div>
+
+          <div class="param-row">
+            <div class="param-header">
+              <label for="num-Sikma_Pozisyonu_pct" class="param-code">Sikma_Pozisyonu</label>
+              <span class="param-desc">Helisel vida ilerleme ve pabuç kursu</span>
+            </div>
+            <div class="param-inputs">
+              <input type="range" id="rng-Sikma_Pozisyonu_pct" min="0" max="100" step="1" value="78" />
+              <div class="num-unit">
+                <input type="number" id="num-Sikma_Pozisyonu_pct" min="0" max="100" step="1" value="78" />
+                <span>%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="toggle-grid">
+            <label class="check-pill">
+              <input type="checkbox" id="chk-desk-preview" checked />
+              <span>Masa Kesiti Önizleme</span>
+            </label>
+            <label class="check-pill">
+              <input type="checkbox" id="chk-exploded" />
+              <span>Patlatılmış Montaj</span>
+            </label>
+          </div>
+
+          <div class="sub-grid">
+            <div class="field-col">
+              <label for="sel-material" class="mono-tag">MALZEME SEÇİMİ</label>
+              <select id="sel-material" class="tech-select full-width">
+                <option value="petg" selected>PETG (1.27 g/cm³ — Önerilen)</option>
+                <option value="pla_plus">PLA+ (1.24 g/cm³ — Rijit)</option>
+                <option value="asa">ASA / ABS (1.06 g/cm³ — Isıl)</option>
+                <option value="pacf">PA12-CF Karbon Naylon (1.18 g/cm³)</option>
+                <option value="alu6061">Alüminyum 6061 (2.70 g/cm³ Ref.)</option>
+                <option value="ss304">Paslanmaz Çelik 304 (8.00 g/cm³ Ref.)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="dual-inline-fields">
+            <div class="field-col">
+              <label for="num-Doluluk_Orani_pct" class="mono-tag">DOLULUK (%)</label>
+              <div class="num-unit full-width">
+                <input type="number" id="num-Doluluk_Orani_pct" min="15" max="100" step="5" value="40" />
+                <span>%</span>
+              </div>
+            </div>
+            <div class="field-col">
+              <label for="num-Filament_Kg_Fiyati_TL" class="mono-tag">FİLAMENT (TL/KG)</label>
+              <div class="num-unit full-width">
+                <input type="number" id="num-Filament_Kg_Fiyati_TL" min="100" max="5000" step="10" value="680" />
+                <span>₺</span>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" id="btn-reset-defaults" class="ghost-btn full-width">
+            VARSAYILAN MÜHENDİSLİK ÖLÇÜLERİNE DÖN
+          </button>
+        </div>
+      </aside>
+
+      <!-- CENTER VIEWPORT: THREE.JS CAD STUDIO -->
+      <section class="viewport-stage" aria-label="3B CAD Çalışma Alanı">
+        <canvas id="webgl-canvas"></canvas>
+
+        <!-- Top-left Live Telemetry Overlay -->
+        <div class="hud-top-left">
+          <div class="hud-chip primary" id="hud-mode-tag">[ MONTAJ GÖRÜNÜMÜ // 1:1 MM ]</div>
+          <div class="hud-chip" id="hud-arch-tag">ÜST BEŞİK + ALT J-KANCA</div>
+          <div class="hud-chip" id="hud-thread-spec">Tr16×4.0 (60° FDM) — +0.25mm Boşluk</div>
+          <div class="hud-chip muted" id="hud-fps">60 FPS</div>
+        </div>
+
+        <!-- Top-right CAD Display Modes -->
+        <div class="hud-top-right">
+          <div class="seg-group compact" role="group" aria-label="CAD Görünüm Modu">
+            <button type="button" class="seg-btn active" data-display="shaded">GÖLGELİ + PAH</button>
+            <button type="button" class="seg-btn" data-display="blueprint">TEKNİK ÇİZGİ</button>
+            <button type="button" class="seg-btn" data-display="xray">X-RAY</button>
+            <button type="button" class="seg-btn" data-display="wireframe">TEL KAFES</button>
+          </div>
+        </div>
+
+        <!-- Bottom-left Cross-Section Plane & Quick Thread Inspection -->
+        <div class="hud-bottom-left">
+          <div class="clip-bar">
+            <span class="mono-tag">KESİT DÜZLEMİ:</span>
+            <div class="seg-group compact" role="group" aria-label="Kesit Ekseni">
+              <button type="button" class="seg-btn active" data-clip="none">KAPALI</button>
+              <button type="button" class="seg-btn" data-clip="z">Z (MERKEZ)</button>
+              <button type="button" class="seg-btn" data-clip="x">X</button>
+              <button type="button" class="seg-btn" data-clip="y">Y</button>
+            </div>
+            <div id="clip-slider-wrap" class="clip-slider-wrap" hidden>
+              <input type="range" id="rng-clip-offset" min="-90" max="90" step="0.5" value="0" />
+              <span id="val-clip-offset" class="mono-val">0.0 mm</span>
+            </div>
+            <button type="button" id="btn-inspect-thread-section" class="inspect-pill" title="Alt çene içindeki dişi helis ve +0.25mm tolerans boşluğunu Z=0 kesitinde yakınlaştır">
+              DİŞ TOLERANS KESİTİ (Z=0)
+            </button>
+          </div>
+        </div>
+
+        <!-- Bottom-right Orientation & Layer Engineering Callout -->
+        <div class="hud-bottom-right">
+          <div id="orientation-banner" class="orientation-note">
+            <strong>MÜHENDİSLİK NOTU:</strong> Eşmerkezli J-kanca et kalınlığı, 45° CNC çevre pahı ve R6 iç radyuslar gerilme yığılmasını düşürür.
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT PANEL: STRENGTH TELEMETRY, METROLOGY & EXPORTERS -->
+      <aside class="panel panel-right" aria-label="Mukavemet Analizi ve İmalat Çıktıları">
+        <!-- 01. Strength & Thread Engineering Readout -->
+        <div class="panel-section">
+          <div class="section-head">
+            <span class="section-idx">04</span>
+            <h2 class="section-title">Mukavemet &amp; Diş Mühendisliği</h2>
+          </div>
+
+          <div class="kpi-hero-grid">
+            <div class="kpi-box safe">
+              <span class="kpi-label">GÜVENLİ TAŞIMA (ÜST BEŞİK)</span>
+              <strong class="kpi-value" id="val-safe-load">10.4 kg</strong>
+              <span class="kpi-sub" id="val-yield-load">Akma Sınırı: 26.0 kg (SF 2.5)</span>
+            </div>
+            <div class="kpi-box accent">
+              <span class="kpi-label">DELAMİNASYON KORUMA KAZANCI</span>
+              <strong class="kpi-value" id="val-delam-gain">+%117</strong>
+              <span class="kpi-sub" id="val-upright-load">Dikey Baskı Sınırı: 4.8 kg</span>
+            </div>
+          </div>
+
+          <dl class="telemetry-list">
+            <div class="tel-row" id="tel-jhook-row">
+              <dt>Alt J-Kanca Çanta Kapasitesi</dt>
+              <dd id="val-jhook-load">13.7 kg (Eşmerkezli J)</dd>
+            </div>
+            <div class="tel-row">
+              <dt>İç Köşe Gerilme Çarpanı (K<sub>t</sub>)</dt>
+              <dd id="val-kt-factor">1.74 (-%35 gerilme)</dd>
+            </div>
+            <div class="tel-row">
+              <dt>Vida &amp; Yuva Diş Standardı</dt>
+              <dd id="val-thread-profile">Tr16×4.0 (60°) | +0.25mm</dd>
+            </div>
+            <div class="tel-row">
+              <dt>Maks. Eksenel Sıkma Kuvveti</dt>
+              <dd id="val-clamp-force">740 N (3.6 tam diş)</dd>
+            </div>
+            <div class="tel-row">
+              <dt>Askı Ucu Esneme (@Güvenli Yük)</dt>
+              <dd id="val-tip-deflection">0.34 mm</dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- 02. Part Metrology & Cost Table -->
+        <div class="panel-section">
+          <div class="section-head">
+            <span class="section-idx">05</span>
+            <h2 class="section-title">Metroloji &amp; Maliyet Dökümü</h2>
+          </div>
+
+          <dl class="telemetry-list compact">
+            <div class="tel-row">
+              <dt>Gövde Zarf Boyutu</dt>
+              <dd id="val-bbox">112.0 × 104.0 × 30.0 mm</dd>
+            </div>
+            <div class="tel-row">
+              <dt>01 C-Gövde &amp; J-Askı Sistemi</dt>
+              <dd id="val-body-mass">68.5 g (65.2 cm³)</dd>
+            </div>
+            <div class="tel-row">
+              <dt>02 60° Volan Trapez Vida</dt>
+              <dd id="val-screw-mass">22.1 g (20.4 cm³)</dd>
+            </div>
+            <div class="tel-row">
+              <dt>03 Segmanlı Döner Pabuç</dt>
+              <dd id="val-pad-mass">6.9 g (6.2 cm³)</dd>
+            </div>
+            <div class="tel-row total-row">
+              <dt>TOPLAM BASKI &amp; MALİYET</dt>
+              <dd id="val-total-cost">97.5 g · 126 dk · 95.60 ₺</dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- 03. Multi-Part .STL, Imalat_Anteti .SVG & Cost .CSV Exporters -->
+        <div class="panel-section export-section">
+          <div class="section-head">
+            <span class="section-idx">06</span>
+            <h2 class="section-title">Çok Parçalı .STL &amp; İmalat Çıktıları</h2>
+          </div>
+
+          <div class="stl-stack">
+            <button type="button" id="btn-stl-body" class="export-btn primary-stl">
+              <span class="btn-main">01 · C-Gövde + J-Kanca Yatay (.STL)</span>
+              <span class="btn-tag">Z=0 YAN YÜZEY</span>
+            </button>
+            <button type="button" id="btn-stl-screw" class="export-btn">
+              <span class="btn-main">02 · 60° Volan Trapez Vida (.STL)</span>
+              <span class="btn-tag">VOLAN TABANDA</span>
+            </button>
+            <button type="button" id="btn-stl-pad" class="export-btn">
+              <span class="btn-main">03 · Segmanlı Döner Pabuç (.STL)</span>
+              <span class="btn-tag">DESTEKSİZ YUVA</span>
+            </button>
+            <button type="button" id="btn-stl-platter" class="export-btn platter-stl">
+              <span class="btn-main">TÜM SET — Tek Baskı Tablası (.STL)</span>
+              <span class="btn-tag">3 PARÇA DİZİLİ</span>
+            </button>
+          </div>
+
+          <div class="sheet-actions">
+            <button type="button" id="btn-preview-antet" class="sheet-btn preview">
+              İMALAT ANTETİ ÖNİZLE
+            </button>
+            <button type="button" id="btn-export-svg" class="sheet-btn svg">
+              Imalat_Anteti (.SVG)
+            </button>
+          </div>
+
+          <button type="button" id="btn-export-csv" class="csv-btn full-width">
+            YÜK KAPASİTESİ &amp; MALİYET TABLOSU (.CSV)
+          </button>
+
+          <div class="cad-extra-bar" aria-label="Ek Mühendislik Formatları">
+            <button type="button" id="btn-stl-assembled" class="mini-cad-btn" title="Montaj Referans .STL">MONTAJ .STL</button>
+            <button type="button" id="btn-export-obj" class="mini-cad-btn" title="Wavefront .OBJ">.OBJ</button>
+            <button type="button" id="btn-export-glb" class="mini-cad-btn" title="Binary glTF 2.0 .GLB">.GLB</button>
+            <button type="button" id="btn-export-dxf" class="mini-cad-btn" title="AutoCAD 1:1 Yan Kesit .DXF">2B .DXF</button>
+            <button type="button" id="btn-export-scad" class="mini-cad-btn" title="Parametrik OpenSCAD Kaynak Kodu">.SCAD</button>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 2D "IMALAT_ANTETI" A3 TECHNICAL DRAWING MODAL                         -->
+  <!-- ===================================================================== -->
+  <div id="antet-modal" class="modal-backdrop" hidden>
+    <div class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="antet-modal-title">
+      <div class="modal-header">
+        <div>
+          <span class="mono-tag">[ TS EN ISO 128 // A3 TEKNİK İMALAT PAFTASI ]</span>
+          <h3 id="antet-modal-title" class="modal-title">2B İmalat Anteti — 60° Trapez Diş &amp; Yük Analiz Paftası</h3>
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="btn-modal-download-svg" class="sheet-btn svg">VEKTÖREL .SVG İNDİR</button>
+          <button type="button" id="btn-close-antet" class="ghost-btn">KAPAT [ESC]</button>
+        </div>
+      </div>
+      <div id="antet-svg-container" class="modal-svg-stage"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
