@@ -10,7 +10,7 @@ import type { PrintItem } from "./catalog";
 // ==========================================
 // İLK KARŞILAMA — ATÖLYE
 //
-// Sağ altta piksel bir 3D yazıcı mağazadaki bütün ürünleri rastgele
+// Sağda piksel bir 3D yazıcı mağazadaki bütün ürünleri rastgele
 // sırayla basıyor, hemen altında küçük bir durum satırı (ürün,
 // yüzde) var; sol altta kısa başlık daktilo gibi yazılıyor. Aşağı
 // kaydırınca yazıcı yerinde kalır, yalnızca yazılar yukarı süzülür.
@@ -18,6 +18,8 @@ import type { PrintItem } from "./catalog";
 // Erişilebilirlik:
 //   - Başlığın tamamı ekran okuyucuya baştan verilir; daktilo
 //     efekti yalnızca görseldir (aria-hidden).
+//   - Bölüm ekran yüksekliğine zorlanmaz: yüksekliği yazıcı belirler,
+//     büyük ekranlarda menünün altında boş alan kalmaz.
 //   - Yazılmamış harfler saydam olarak yerini tutar; yazılırken
 //     satırlar kaymaz.
 //   - Hareket azaltma açıksa yazılar hazır gelir, yazıcı tek bir
@@ -150,7 +152,7 @@ export function PrinterIntro({ items }: Props) {
       aria-labelledby="atolye-baslik"
       className="relative overflow-hidden"
     >
-      <div className="adjy-container relative grid gap-8 pb-16 pt-6 sm:pt-8 lg:min-h-[calc(100svh-7rem)] lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-end lg:gap-10 lg:pb-20 lg:pt-6">
+      <div className="adjy-container relative grid gap-8 pb-16 pt-6 sm:pt-8 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-end lg:gap-10 lg:pb-20 lg:pt-10">
         {/* ---------- sol alt: kısa yazı ---------- */}
         <motion.div
           style={reduce ? undefined : { y: textY, opacity: textOpacity }}
