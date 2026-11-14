@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { LegalPage } from "@/components/legal/LegalPage";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Kullanım Şartları",
-  description: "adjyshopping.com'u kullanırken geçerli olan şartlar.",
-};
+  description:
+    "adjyshopping.com'u kullanırken geçerli olan şartlar.",
+  path: "/terms",
+});
 
 export default function TermsPage() {
   return (

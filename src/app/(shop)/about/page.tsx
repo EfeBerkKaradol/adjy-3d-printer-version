@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { PixelLink } from "@/components/ui/pixel-link";
 import { prisma } from "@/lib/db";
 import { AboutOpening, type AcilisGorsel } from "@/components/home/AboutOpening";
@@ -12,11 +13,12 @@ import { getProductType } from "@/lib/productType";
 
 export const revalidate = 300;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Hakkımızda",
   description:
     "ADJY, ev ve çalışma masası için dekoratif ürünler üretir. Çoğunun ölçüsünü siz belirlersiniz; üretim Beşiktaş'taki kendi atölyemizde, sipariş geldikten sonra başlar.",
-};
+  path: "/about",
+});
 
 // ==========================================
 // HAKKIMIZDA

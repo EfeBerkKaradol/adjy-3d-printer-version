@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { LegalPage, LegalNote } from "@/components/legal/LegalPage";
 import Link from "next/link";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "İade ve İptal Politikası",
-  description: "ADJY 3D baskı ürünleri için iade, iptal ve değişim politikası hakkında bilgi alın.",
-};
+  description:
+    "ADJY 3D baskı ürünleri için iade, iptal ve değişim politikası hakkında bilgi alın.",
+  path: "/iade-politikasi",
+});
 
 export default function ReturnPolicyPage() {
   return (

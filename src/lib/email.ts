@@ -31,7 +31,7 @@ export async function sendEmail({ to, subject, html }: SendEmailOptions) {
 
   try {
     const info = await transporter.sendMail({
-      from: `"${process.env.EMAIL_FROM_NAME || 'ADJY 3D Printer'}" <${process.env.EMAIL_FROM_ADDRESS || process.env.EMAIL_SERVER_USER}>`,
+      from: `"${process.env.EMAIL_FROM_NAME || 'ADJY'}" <${process.env.EMAIL_FROM_ADDRESS || process.env.EMAIL_SERVER_USER}>`,
       to,
       subject,
       html,

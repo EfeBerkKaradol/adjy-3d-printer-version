@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Orbitron } from "next/font/google";
-import Script from "next/script";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import { Header } from "@/components/layout/Header";
@@ -95,23 +95,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="tr" suppressHydrationWarning>
-      {/* Google Analytics 4 — yalnızca GA4_ID tanımlıysa yüklenir */}
-      {GA4_ID && (
-        <>
-          <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`}
-            strategy="afterInteractive"
-          />
-          <Script id="ga4-init" strategy="afterInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${GA4_ID}', { page_path: window.location.pathname });
-            `}
-          </Script>
-        </>
-      )}
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${orbitron.variable} antialiased`}
       >
@@ -138,6 +121,8 @@ export default function RootLayout({
               <Suspense fallback={null}>
                 <VisitTracker />
               </Suspense>
+              {/* Yalnızca çerez onayı "Kabul et" ise yüklenir */}
+              {GA4_ID && <GoogleAnalytics id={GA4_ID} />}
               <SpeedInsights />
               <Analytics />
             </ThemeProvider>

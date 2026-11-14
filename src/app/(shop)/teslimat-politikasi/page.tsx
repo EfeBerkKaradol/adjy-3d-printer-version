@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { LegalPage } from "@/components/legal/LegalPage";
 import Link from "next/link";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Teslimat Politikası",
-  description: "ADJY 3D baskı ürünleri kargo, teslimat süresi ve gönderim bilgileri.",
-};
+  description:
+    "ADJY 3D baskı ürünleri kargo, teslimat süresi ve gönderim bilgileri.",
+  path: "/teslimat-politikasi",
+});
 
 export default function ShippingPolicyPage() {
   return (

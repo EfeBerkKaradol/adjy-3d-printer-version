@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { LegalPage } from "@/components/legal/LegalPage";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Çerez Politikası",
-  description: "ADJY çerez politikası. Hangi çerezleri kullandığımız ve nasıl yönetebileceğiniz hakkında bilgi.",
-};
+  description:
+    "ADJY çerez politikası. Hangi çerezleri kullandığımız ve nasıl yönetebileceğiniz hakkında bilgi.",
+  path: "/cerez-politikasi",
+});
 
 export default function CerezPolitikasiPage() {
   return (

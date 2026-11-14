@@ -11,7 +11,10 @@ import { useHydrated } from "@/hooks/useClientState";
 // kapatmaz. Karar localStorage'da saklanır.
 // ==========================================
 
-const STORAGE_KEY = "cookie-consent";
+export const CONSENT_STORAGE_KEY = "cookie-consent";
+const STORAGE_KEY = CONSENT_STORAGE_KEY;
+/** Karar verilince yayılan olay — Analytics bunu dinler */
+export const CONSENT_EVENT = "adjy:cookie-consent";
 
 function readConsent(): string | null {
   try {
@@ -37,6 +40,11 @@ export function CookieConsent() {
       // Depolama yoksa da bildirimi kapat
     }
     setDecided(true);
+    try {
+      window.dispatchEvent(new Event(CONSENT_EVENT));
+    } catch {
+      // Olay gönderilemezse Analytics bir sonraki sayfada yüklenir
+    }
   }
 
   if (!visible) return null;
