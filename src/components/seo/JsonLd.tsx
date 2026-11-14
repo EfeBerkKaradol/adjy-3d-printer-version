@@ -1,3 +1,4 @@
+import { COMPANY, mapsLink } from "@/lib/company";
 import { FREE_SHIPPING_THRESHOLD, STANDARD_SHIPPING_PRICE } from "@/lib/shipping";
 
 interface ProductJsonLdProps {
@@ -17,6 +18,7 @@ interface ProductJsonLdProps {
  * Google Merchant Center uyumlu Product schema.org yapılandırması.
  * https://developers.google.com/search/docs/appearance/structured-data/product
  */
+
 export function ProductJsonLd({
   name,
   description,
@@ -141,6 +143,8 @@ export function WebSiteJsonLd({ name, url, description }: WebSiteJsonLdProps) {
     name,
     url,
     description,
+    inLanguage: "tr-TR",
+    publisher: { "@id": `${url}#organization` },
     potentialAction: {
       "@type": "SearchAction",
       target: `${url}/products?search={search_term_string}`,
@@ -182,7 +186,10 @@ export function OrganizationJsonLd({ url, logo }: OrganizationJsonLdProps) {
     name: "ADJY",
     alternateName: "ADJY Shopping",
     url,
-    ...(logo && { logo, image: logo }),
+    // Logo verilmezse sitenin simgesi: Google arama sonucunda
+    // ve bilgi panelinde marka görseli olarak kullanır
+    logo: logo ?? `${url}/icon.svg`,
+    image: logo ?? `${url}/opengraph-image`,
     description:
       "3D baskı, seramik ve alçı ile üretilen dekoratif ve işlevsel tasarım nesneleri. Ölçüsü değiştirilebilen parametrik ürünler.",
     address: {
@@ -193,6 +200,13 @@ export function OrganizationJsonLd({ url, logo }: OrganizationJsonLdProps) {
       postalCode: "34351",
       addressCountry: "TR",
     },
+    // İletişim bilgileri tek kaynaktan (lib/company)
+    ...(COMPANY.phone && { telephone: COMPANY.phone.replace(/\s+/g, "") }),
+    ...(COMPANY.email && { email: COMPANY.email }),
+    ...(COMPANY.legalName && { legalName: COMPANY.legalName }),
+    ...(COMPANY.taxNumber && { taxID: COMPANY.taxNumber }),
+    ...(COMPANY.sameAs.length > 0 && { sameAs: COMPANY.sameAs }),
+    hasMap: mapsLink() ?? undefined,
     areaServed: { "@type": "Country", name: "Türkiye" },
     currenciesAccepted: "TRY",
     paymentAccepted: "Kredi Kartı, Banka Kartı",

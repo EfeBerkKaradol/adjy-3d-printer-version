@@ -35,6 +35,13 @@ export interface CompanyInfo {
   workingHours: string | null;
   /** Google İşletme profili bağlantısı; yoksa adresten üretilir */
   mapsUrl: string | null;
+  /**
+   * Sosyal medya ve işletme profilleri (Instagram, TikTok,
+   * Google İşletme, Trendyol mağazası…). Yapısal veride
+   * "sameAs" olarak yayımlanır: Google markayı bu hesaplarla
+   * eşleştirir ve bilgi panelinde gösterir.
+   */
+  sameAs: string[];
 }
 
 export const COMPANY: CompanyInfo = {
@@ -70,6 +77,9 @@ export const COMPANY: CompanyInfo = {
    * buraya yazılınca yorumlar ve fotoğraflarla birlikte açılır.
    */
   mapsUrl: null,
+
+  // TODO(sahibi doldurmalı): Instagram vb. profil adresleri
+  sameAs: [],
 
   taxOffice: null,
   taxNumber: null,
