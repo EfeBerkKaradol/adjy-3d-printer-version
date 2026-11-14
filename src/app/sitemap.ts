@@ -2,6 +2,7 @@ import { MetadataRoute } from "next";
 import { prisma } from "@/lib/db";
 import { getAbsoluteUrl } from "@/lib/url";
 import { MODELLER, ODALAR } from "@/lib/furniture/catalog";
+import { COLLECTION_PREFIX } from "@/lib/categoryTree";
 
 export const dynamic = "force-dynamic";
 
@@ -14,9 +15,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     select: { slug: true, updatedAt: true },
   });
 
-  // Tüm kategorileri çek
+  // İçinde aktif ürün olan kategoriler (kendisinde ya da alt
+  // kategorisinde). Boş kategori sayfası "ince içerik" sayılır
+  // ve sitenin genel kalitesini düşürür; bildirilmez.
   const categories = await prisma.category.findMany({
-    where: { isActive: true },
+    where: {
+      isActive: true,
+      OR: [
+        { products: { some: { isActive: true } } },
+        { children: { some: { isActive: true, products: { some: { isActive: true } } } } },
+      ],
+    },
+    select: { slug: true, updatedAt: true },
+  });
+
+  // Koleksiyonlar (Hediye, Yılbaşı…) de kendi sayfası olan
+  // açılışlar; eskiden site haritasında hiç yoktu.
+  const collections = await prisma.tag.findMany({
+    where: {
+      slug: { startsWith: COLLECTION_PREFIX },
+      products: { some: { product: { isActive: true } } },
+    },
     select: { slug: true },
   });
 
@@ -64,9 +83,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Kategori sayfaları
   const categoryPages: MetadataRoute.Sitemap = categories.map((cat) => ({
-    url: `${BASE_URL}/products?category=${cat.slug}`,
+    url: `${BASE_URL}/products?category=${encodeURIComponent(cat.slug)}`,
+    lastModified: cat.updatedAt,
     changeFrequency: "weekly",
     priority: 0.7,
+  }));
+
+  const collectionPages: MetadataRoute.Sitemap = collections.map((t) => ({
+    url: `${BASE_URL}/products?koleksiyon=${encodeURIComponent(t.slug)}`,
+    changeFrequency: "weekly",
+    priority: 0.6,
   }));
 
   // Ürün sayfaları
@@ -111,6 +137,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...staticPages,
     ...categoryPages,
+    ...collectionPages,
     ...productPages,
     ...mobilyaPages,
   ];

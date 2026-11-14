@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
+import { Suspense, cache } from "react";
 import { prisma } from "@/lib/db";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { secondImageOf } from "@/lib/gallery";
@@ -10,7 +10,7 @@ import { ActiveFilterChips } from "@/components/product/ActiveFilterChips";
 import { CategoryChips } from "@/components/product/CategoryChips";
 import { Pagination } from "@/components/ui/pagination";
 import { materialFilterValues, materialOptions, type MaterialOption } from "@/lib/materialFamily";
-import { ItemListJsonLd } from "@/components/seo/JsonLd";
+import { ItemListJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import { getAbsoluteUrl } from "@/lib/url";
 import {
   categoryFilter,
@@ -28,16 +28,149 @@ import type { FilterCategory } from "@/components/product/ProductFilters";
 // self-fetch sorunu yaşanmaz.
 // ==========================================
 
-export const metadata: Metadata = {
-  title: "Mağaza",
-  description:
-    "ADJY ürünlerini keşfedin. Parametrik ürünlerin ölçülerini kendi alanınıza göre değiştirin, AR ile önizleyin ve satın alın.",
-  alternates: { canonical: "/products" },
-  openGraph: {
-    title: "Mağaza | ADJY",
-    description: "ADJY ürünlerini keşfedin — çoğu ölçüsü değiştirilebilir parametrik ürün.",
-  },
-};
+const STORE_TITLE = "Mağaza";
+const STORE_DESCRIPTION =
+  "ADJY ürünlerini keşfedin. Parametrik ürünlerin ölçülerini kendi alanınıza göre değiştirin, AR ile önizleyin ve satın alın.";
+
+type StoreParams = Awaited<ProductsPageProps["searchParams"]>;
+
+// Sayfanın "açılış sayfası" sayılan biçimleri: düz mağaza,
+// tek bir kategori ya da tek bir koleksiyon (sayfa numarası
+// olabilir). Arama, sıralama, fiyat/malzeme filtreleri ise
+// sonsuz sayıda kopya adres üretir; onlar dizine alınmaz.
+const LANDING_KEYS = new Set(["category", "koleksiyon", "page"]);
+
+interface StoreLanding {
+  kind: "store" | "category" | "collection";
+  name: string;
+  description: string;
+  /** Sayfa numarasız kanonik adres */
+  path: string;
+  /** Kategori ise ana kategorisi (kırıntı yolu için) */
+  parent?: { name: string; slug: string } | null;
+}
+
+function isLandingView(params: StoreParams): boolean {
+  const keys = Object.entries(params)
+    .filter(([, v]) => v !== undefined && v !== "")
+    .map(([k]) => k);
+  if (keys.some((k) => !LANDING_KEYS.has(k))) return false;
+  // Kategori ve koleksiyon birlikte seçilmişse kesişimdir
+  return !(params.category && params.koleksiyon);
+}
+
+/**
+ * Kategori/koleksiyon adı ve açıklaması.
+ *
+ * Eskiden bütün kategori görünümleri /products'a kanonik
+ * gösteriyordu: "Vazolar", "Saksılar", "Aydınlatma" gibi en
+ * çok aranan sayfalar Google'a ayrı sayfa olarak hiç
+ * bildirilmiyordu (site haritasında olsalar bile). Artık her
+ * kategori kendi başlığı, açıklaması ve kanonik adresiyle
+ * dizine giriyor.
+ */
+// Metadata ve sayfa aynı isteği iki kez yapmasın
+const resolveLanding = cache(
+  (category?: string, koleksiyon?: string) => loadLanding(category, koleksiyon)
+);
+
+async function loadLanding(category?: string, koleksiyon?: string): Promise<StoreLanding | null> {
+  const params = { category, koleksiyon };
+  if (params.category) {
+    const c = await prisma.category.findFirst({
+      where: { slug: params.category, isActive: true },
+      select: {
+        name: true,
+        slug: true,
+        description: true,
+        parent: { select: { name: true, slug: true } },
+      },
+    });
+    if (!c) return null;
+    return {
+      kind: "category",
+      name: c.name,
+      description:
+        c.description?.trim() ||
+        `${c.name}: ADJY atölyesinde 3D baskı, seramik ve alçı ile üretilen, çoğunun ölçüsünü kendinize göre ayarlayabildiğiniz tasarım ürünleri.`,
+      path: `/products?category=${encodeURIComponent(c.slug)}`,
+      parent: c.parent,
+    };
+  }
+  if (params.koleksiyon) {
+    const t = await prisma.tag.findFirst({
+      where: { slug: params.koleksiyon },
+      select: { name: true, slug: true },
+    });
+    if (!t) return null;
+    return {
+      kind: "collection",
+      name: t.name,
+      description: `ADJY ${t.name} koleksiyonu: kendi atölyemizde üretilen, ölçüsünü kendinize göre ayarlayabildiğiniz tasarım ürünleri.`,
+      path: `/products?koleksiyon=${encodeURIComponent(t.slug)}`,
+    };
+  }
+  return { kind: "store", name: STORE_TITLE, description: STORE_DESCRIPTION, path: "/products" };
+}
+
+export async function generateMetadata({ searchParams }: ProductsPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const pageNo = Math.max(1, Number(params.page) || 1);
+
+  // Arama/filtre/sıralama: sayfa çalışır ama dizine girmez,
+  // bağlantıları izlenir; kanonik sade mağaza.
+  if (!isLandingView(params)) {
+    return {
+      title: params.search ? `"${params.search.slice(0, 40)}" araması` : STORE_TITLE,
+      description: STORE_DESCRIPTION,
+      alternates: { canonical: "/products" },
+      robots: { index: false, follow: true },
+    };
+  }
+
+  let landing: StoreLanding | null = null;
+  try {
+    landing = await resolveLanding(params.category, params.koleksiyon);
+  } catch {
+    // Veritabanı anlık yanıt vermezse sayfayı dizinden
+    // düşürmeyelim: genel başlıkla, noindex olmadan dön.
+    return { title: STORE_TITLE, description: STORE_DESCRIPTION };
+  }
+  if (!landing) {
+    // Böyle bir kategori/koleksiyon yok
+    return {
+      title: STORE_TITLE,
+      description: STORE_DESCRIPTION,
+      alternates: { canonical: "/products" },
+      robots: { index: false, follow: true },
+    };
+  }
+
+  const sep = landing.path.includes("?") ? "&" : "?";
+  const canonical = pageNo > 1 ? `${landing.path}${sep}page=${pageNo}` : landing.path;
+  const baseTitle = landing.kind === "store" ? STORE_TITLE : landing.name;
+  const title = pageNo > 1 ? `${baseTitle} — Sayfa ${pageNo}` : baseTitle;
+
+  return {
+    title,
+    description: landing.description,
+    alternates: { canonical },
+    openGraph: {
+      type: "website",
+      locale: "tr_TR",
+      siteName: "ADJY",
+      url: canonical,
+      title: `${title} | ADJY`,
+      description: landing.description,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | ADJY`,
+      description: landing.description,
+    },
+  };
+}
+
 
 const PAGE_SIZE = 12;
 
@@ -214,6 +347,16 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
+  // Başlıkta kategori/koleksiyon adı ve açıklaması
+  let landing: StoreLanding | null = null;
+  if (!failed && isLandingView(params)) {
+    try {
+      landing = await resolveLanding(params.category, params.koleksiyon);
+    } catch {
+      landing = null;
+    }
+  }
+
   return (
     <div className="adjy-container py-10 md:py-14">
       {/* Listedeki sıranın arama motorunca liste olarak
@@ -227,15 +370,37 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         />
       )}
 
-      {/* Başlık */}
+      {landing && landing.kind !== "store" && (
+        <BreadcrumbJsonLd
+          items={[
+            { name: "Ana sayfa", url: getAbsoluteUrl() },
+            { name: "Mağaza", url: `${getAbsoluteUrl()}/products` },
+            ...(landing.parent
+              ? [
+                  {
+                    name: landing.parent.name,
+                    url: `${getAbsoluteUrl()}/products?category=${encodeURIComponent(landing.parent.slug)}`,
+                  },
+                ]
+              : []),
+            { name: landing.name, url: `${getAbsoluteUrl()}${landing.path}` },
+          ]}
+        />
+      )}
+
+      {/* Başlık — kategori/koleksiyon seçiliyse onun adı:
+          sayfanın tek h1'i aranan ifadeyi taşısın */}
       <header className="max-w-2xl">
-        <p className="adjy-eyebrow mb-4">Mağaza</p>
+        <p className="adjy-eyebrow mb-4">
+          {landing && landing.kind !== "store" ? (landing.parent?.name ?? "Mağaza") : "Mağaza"}
+        </p>
         <h1 className="adjy-display text-[clamp(2rem,4vw,3rem)]">
-          Ürünler
+          {landing && landing.kind !== "store" ? landing.name : "Ürünler"}
         </h1>
         <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
-          Kendi atölyemizde üretilen ADJY ürünleri. Çoğunun ölçüsünü kartın
-          altındaki kaydırıcıdan kendinize göre ayarlayabilirsiniz.
+          {landing && landing.kind !== "store"
+            ? landing.description
+            : "Kendi atölyemizde üretilen ADJY ürünleri. Çoğunun ölçüsünü kartın altındaki kaydırıcıdan kendinize göre ayarlayabilirsiniz."}
         </p>
       </header>
 
