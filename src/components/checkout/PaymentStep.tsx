@@ -5,10 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Loader2, CreditCard, AlertCircle, RefreshCw } from "lucide-react";
 import Link from "next/link";
+import { PixelCardForm } from "@/components/checkout/pixel-card/PixelCardForm";
+
+// Sitenin kendi piksel kart formu varsayılandır. iyzico hesabında
+// doğrudan API (3D Secure) yetkisi yoksa NEXT_PUBLIC_CARD_FORM=off
+// ile eski iyzico ödeme sayfasına dönülür.
+const CARD_FORM_ENABLED = process.env.NEXT_PUBLIC_CARD_FORM !== "off";
 
 // ==========================================
-// ADIM 4: ÖDEME (iyzico Checkout Form)
-// iyzico iframe'ini render eder.
+// ADIM 4: ÖDEME
+// Varsayılan: piksel kart formu (iyzico 3D Secure API).
+// Yedek: iyzico'nun hazır ödeme sayfası (Checkout Form).
 // ==========================================
 
 interface PaymentStepProps {
@@ -31,6 +38,9 @@ export function PaymentStep({ orderId, orderNumber, guestToken, onBack }: Paymen
   const [agreementChecked, setAgreementChecked] = useState(false);
   const [preliminaryChecked, setPreliminaryChecked] = useState(false);
   const iframeContainerRef = useRef<HTMLDivElement>(null);
+  const [method, setMethod] = useState<"card" | "iyzico">(
+    CARD_FORM_ENABLED ? "card" : "iyzico"
+  );
 
   const bothChecked = agreementChecked && preliminaryChecked;
 
@@ -38,6 +48,8 @@ export function PaymentStep({ orderId, orderNumber, guestToken, onBack }: Paymen
     if (!orderId) return;
 
     if (!bothChecked) return;
+    // Piksel kart formunda ödeme, kart girilip "öde" denince başlar
+    if (method !== "iyzico") return;
 
     async function initializePayment() {
       setLoading(true);
@@ -75,7 +87,7 @@ export function PaymentStep({ orderId, orderNumber, guestToken, onBack }: Paymen
     }
 
     initializePayment();
-  }, [orderId, guestToken, bothChecked, deneme]);
+  }, [orderId, guestToken, bothChecked, deneme, method]);
 
   // iyzico checkout form content'i render et
   useEffect(() => {
@@ -221,8 +233,14 @@ export function PaymentStep({ orderId, orderNumber, guestToken, onBack }: Paymen
         </div>
       </div>
 
-      {/* iyzico Checkout Form — sadece onaylar verilince göster */}
-      {bothChecked ? (
+      {/* Piksel kart formu — sadece onaylar verilince göster */}
+      {bothChecked && method === "card" ? (
+        <PixelCardForm
+          orderId={orderId}
+          guestToken={guestToken}
+          onUseIyzicoForm={() => setMethod("iyzico")}
+        />
+      ) : bothChecked ? (
         <>
           {loading && (
             <div className="text-center py-8">
@@ -241,6 +259,20 @@ export function PaymentStep({ orderId, orderNumber, guestToken, onBack }: Paymen
             id="iyzipay-checkout-form"
             className="min-h-[400px] adjy-pixel-frame rounded-xl p-4 bg-white"
           />
+          {CARD_FORM_ENABLED && (
+            <p className="text-center text-xs">
+              <button
+                type="button"
+                onClick={() => {
+                  setCheckoutContent(null);
+                  setMethod("card");
+                }}
+                className="underline underline-offset-2"
+              >
+                Piksel kart formuna dön
+              </button>
+            </p>
+          )}
         </>
       ) : (
         <div className="text-center py-8 text-sm text-muted-foreground border-2 border-dashed border-foreground/30 rounded-xl">

@@ -243,3 +243,132 @@ export interface IyzicoCheckoutFormRetrieveResult {
     paidPrice: number;
   }>;
 }
+
+// ==========================================
+// 3D SECURE ÖDEME (sitenin kendi kart formu)
+//
+// Kart bilgisi tarayıcıdan bizim sunucumuza, oradan doğrudan
+// iyzico'ya gider. KURAL: kart numarası, son kullanma tarihi
+// ve CVC hiçbir yerde loglanmaz, veritabanına yazılmaz, hata
+// mesajına konmaz. Bu fonksiyonlar yalnızca iyzico'ya iletir.
+// Her ödeme 3D Secure ile yapılır (banka SMS onayı); 3D'siz
+// "/payment/auth" ucu bilerek kullanılmaz.
+// ==========================================
+
+export interface PaymentCard {
+  cardHolderName: string;
+  cardNumber: string;
+  expireMonth: string;
+  expireYear: string;
+  cvc: string;
+}
+
+const THREEDS_INIT_PATH = "/payment/3dsecure/initialize";
+const THREEDS_AUTH_PATH = "/payment/3dsecure/auth";
+const BIN_CHECK_PATH = "/payment/bin/check";
+
+export interface ThreeDSInitResult {
+  status: "success" | "failure";
+  errorCode?: string;
+  errorMessage?: string;
+  conversationId?: string;
+  /** Bankanın 3D doğrulama sayfası (base64 HTML) */
+  threeDSHtmlContent?: string;
+  paymentId?: string;
+}
+
+export async function initializeThreeDS(
+  params: Omit<CheckoutFormInitParams, "enabledInstallments">,
+  card: PaymentCard
+): Promise<ThreeDSInitResult> {
+  const request = {
+    locale: "tr",
+    conversationId: params.conversationId,
+    price: params.price,
+    paidPrice: params.paidPrice,
+    currency: params.currency,
+    installment: 1,
+    basketId: params.basketId,
+    paymentChannel: "WEB",
+    paymentGroup: params.paymentGroup,
+    callbackUrl: params.callbackUrl,
+    paymentCard: { ...card, registerCard: 0 },
+    buyer: {
+      id: params.buyer.id,
+      name: params.buyer.name,
+      surname: params.buyer.surname,
+      gsmNumber: "+905350000000",
+      email: params.buyer.email,
+      identityNumber: params.buyer.identityNumber,
+      lastLoginDate: new Date().toISOString().split("T")[0] + " 00:00:00",
+      registrationDate: new Date().toISOString().split("T")[0] + " 00:00:00",
+      registrationAddress: params.buyer.registrationAddress,
+      ip: params.buyer.ip,
+      city: params.buyer.city,
+      country: params.buyer.country,
+      zipCode: "34000",
+    },
+    shippingAddress: { ...params.shippingAddress, zipCode: "34000" },
+    billingAddress: { ...params.billingAddress, zipCode: "34000" },
+    basketItems: params.basketItems.map((item) => ({ ...item, category2: "" })),
+  };
+
+  // Yanıtta kart verisi yoktur; isteğin kendisi hiçbir yere yazılmaz
+  return iyzicoRequest<ThreeDSInitResult>(THREEDS_INIT_PATH, request);
+}
+
+export interface ThreeDSAuthResult {
+  status: "success" | "failure";
+  errorCode?: string;
+  errorMessage?: string;
+  conversationId?: string;
+  paymentId?: string;
+  price?: number;
+  paidPrice?: number;
+  installment?: number;
+  cardType?: string;
+  cardAssociation?: string;
+  cardFamily?: string;
+  binNumber?: string;
+  lastFourDigits?: string;
+  basketId?: string;
+  fraudStatus?: number;
+}
+
+/** Banka onayından sonra ödemeyi tamamlar (parayı çeker) */
+export async function completeThreeDS(
+  paymentId: string,
+  conversationId?: string,
+  conversationData?: string
+): Promise<ThreeDSAuthResult> {
+  return iyzicoRequest<ThreeDSAuthResult>(THREEDS_AUTH_PATH, {
+    locale: "tr",
+    conversationId,
+    paymentId,
+    ...(conversationData ? { conversationData } : {}),
+  });
+}
+
+export interface BinCheckResult {
+  status: "success" | "failure";
+  errorCode?: string;
+  errorMessage?: string;
+  binNumber?: string;
+  /** CREDIT_CARD | DEBIT_CARD | PREPAID_CARD */
+  cardType?: string;
+  /** VISA | MASTER_CARD | TROY | AMERICAN_EXPRESS */
+  cardAssociation?: string;
+  /** Bonus, World, Maximum, Axess, Paraf, CardFinans, Advantage, Bankkart Combo… */
+  cardFamily?: string;
+  bankName?: string;
+  bankCode?: number;
+  commercial?: number;
+}
+
+/** Kartın ilk 6-8 hanesinden banka/program bilgisini sorgular */
+export async function checkBin(binNumber: string): Promise<BinCheckResult> {
+  return iyzicoRequest<BinCheckResult>(BIN_CHECK_PATH, {
+    locale: "tr",
+    binNumber,
+  });
+}
