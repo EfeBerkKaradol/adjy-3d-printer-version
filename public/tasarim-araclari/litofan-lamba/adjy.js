@@ -2,6 +2,18 @@
 window.ADJY_ARAC = {
   id: "litofan-lamba",
 
+  // Geniş ekranda model ortada, ayarlar iki yanda (bkz. kopru.css)
+  yerlesim: { kap: ".workspace-grid", panel: ".panel-controls .controls-scroll", sahne: ".viewport-3d-pane", gecis: [".panel-controls"] },
+
+  // Ayarlar numaralı adımlara ayrılır. yer: adımın modelin neresinde duracağı
+  // (sol | sag | alt). sec: o adıma taşınan öğeler. ad: rehber çubuğundaki kısa ad.
+  adimlar: [
+    {"ad":"Fotoğraf","baslik":"Fotoğrafınızı yükleyin","ipucu":"Kendi fotoğrafınızı seçin ya da örneklerden biriyle deneyin.","yer":"sol","sec":[".ctrl-group:has(#Fotograf_Yukle)"]},
+    {"ad":"Biçim","baslik":"Lambanın biçimi","ipucu":"Silindir, kavisli panel ya da altıgen.","yer":"sag","sec":[".segmented-form"]},
+    {"ad":"Ölçü","baslik":"Ölçüyü ayarlayın","ipucu":"Çap ve yükseklik; fotoğraf bu yüzeye yayılır.","yer":"sag","sec":[".controls-scroll > .ctrl-group:has(> .param-field)"]},
+    {"ad":"Işık","baslik":"Işık ve malzeme","ipucu":"Işığı açıp fotoğrafın nasıl belirdiğine bakın.","yer":"alt","sec":[".backlight-box",".dual-mini-grid"]},
+  ],
+
   // Düğmelerdeki değişken adları — iki kipte de okunur adla gösterilir
   ceviri: {
       "Form_Tipi": "Form",

@@ -2,6 +2,20 @@
 window.ADJY_ARAC = {
   id: "nfc-qr",
 
+  // Geniş ekranda model ortada, ayarlar iki yanda (bkz. kopru.css)
+  yerlesim: { kap: ".workspace-grid", panel: ".panel-left", sahne: ".stage-center" },
+
+  // Ayarlar numaralı adımlara ayrılır. yer: adımın modelin neresinde duracağı
+  // (sol | sag | alt). sec: o adıma taşınan öğeler. ad: rehber çubuğundaki kısa ad.
+  adimlar: [
+    {"ad":"Tasarım","baslik":"Hazır bir tasarımla başlayın","ipucu":"Size yakın olanı seçin; her şeyi sonra değiştirebilirsiniz.","yer":"sol","sec":["#tab-uretim .preset-grid"]},
+    {"ad":"Bağlantı","baslik":"Bağlantı ve başlık","ipucu":"QR kodun açacağı adresi ve üstteki yazıyı girin.","yer":"sol","sec":["#tab-uretim .param-group"]},
+    {"ad":"Şekil","baslik":"Gövde şekli","ipucu":"Plakanın biçimini ve kenar ayrıntısını seçin.","yer":"sag","sec":[".panel-section:has(#shape-selector-grid)"]},
+    {"ad":"Yazı","baslik":"Alt yazı ve simge","ipucu":"İkinci satırı, yazı tipini ve simgeyi seçin.","yer":"sag","sec":[".panel-section:has(#sel-layout)"]},
+    {"ad":"Renk","baslik":"Renkleri seçin","ipucu":"İki renk: taban ve kabartma.","yer":"alt","sec":[".panel-section:has(#color-pair-swatches)"]},
+    {"ad":"İnce ayar","baslik":"İnce ayar","ipucu":"QR kodun ve yazının boyunu, yerini kaydırın.","yer":"alt","sec":[".panel-section:has(#rng-qr-scale)"]},
+  ],
+
   // Düğmelerdeki değişken adları — iki kipte de okunur adla gösterilir
   ceviri: {
       "Urun_Tipi": "Ürün tipi",

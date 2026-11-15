@@ -17,6 +17,13 @@ import { SayfaKari } from "@/components/yilbasi/SayfaKari";
 /** Tam ekran açılan yollar (bu yol ve altındakiler) */
 const TAM_EKRAN = ["/admin/ajan", "/admin/uretim"];
 
+/**
+ * Tasarım aracının açıldığı sayfa: /tasarla/<ürün>/ozellestir.
+ * Model ve ayarların tamamı kaydırmadan tek ekrana sığsın diye
+ * çerçevesiz açılır; ürün sayfasına dönüş stüdyonun kendi çubuğunda.
+ */
+const OZELLESTIRME = /^\/tasarla\/[^/]+\/ozellestir\/?$/;
+
 interface Props {
   /** Üstteki hizmet şeridi — tam ekran sayfalarda da gösterilmez */
   announcement?: React.ReactNode;
@@ -28,7 +35,8 @@ interface Props {
 
 export function SiteShell({ announcement, header, footer, cookieConsent, children }: Props) {
   const yol = usePathname() ?? "";
-  const tamEkran = TAM_EKRAN.some((p) => yol === p || yol.startsWith(`${p}/`));
+  const tamEkran =
+    TAM_EKRAN.some((p) => yol === p || yol.startsWith(`${p}/`)) || OZELLESTIRME.test(yol);
 
   if (tamEkran) return <>{children}</>;
 

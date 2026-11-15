@@ -58,3 +58,16 @@ html[data-adjy-tema] .hud-move-pad {
     grid-template-rows: minmax(0, 1fr);
   }
 }
+
+/* Adımlar: oda düğmeleri geniş sütunda üçlü dizilir */
+@media (min-width: 1100px) {
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] .workspace-grid[data-adjy-y="kap"] {
+    --adjy-yan: clamp(290px, 23vw, 360px);
+  }
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] #roomTabsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-bolge="alt"] #moduleListContainer {
+    max-height: 150px;
+  }
+}

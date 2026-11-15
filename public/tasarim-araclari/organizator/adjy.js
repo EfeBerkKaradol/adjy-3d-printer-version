@@ -75,6 +75,7 @@
       window.renderParams = function () {
         asilPanel.apply(this, arguments);
         if (window.ADJY && window.ADJY.metinleriYenile) window.ADJY.metinleriYenile();
+        if (window.ADJY && window.ADJY.duzeniYenile) window.ADJY.duzeniYenile();
       };
     }
 
@@ -83,6 +84,19 @@
 
   window.ADJY_ARAC = {
     id: "organizator",
+
+    // Geniş ekranda model ortada, ayarlar iki yanda (bkz. kopru.css)
+    yerlesim: { kap: "#app", panel: "#params", sahne: "#view" },
+
+    // Ayarlar numaralı adımlara ayrılır. yer: adımın modelin neresinde duracağı
+    // (sol | sag | alt). sec: o adıma taşınan öğeler. ad: rehber çubuğundaki kısa ad.
+    adimlar: [
+      {"ad":"Ölçü","baslik":"Ölçüyü girin","ipucu":"Çekmecenizin (ya da duvardaki alanın) iç ölçüsünü milimetre olarak yazın.","yer":"sol","sec":[".sec:has(#r_W)",".sec:has(#r_WW)"]},
+      {"ad":"Kutular","baslik":"Kutu ölçüsü","ipucu":"Çekmecede kutu yüksekliği, duvarda kutu derinliği.","yer":"sol","sec":[".sec:has(#r_H)",".sec:has(#r_BD)"]},
+      {"ad":"Izgara","baslik":"Izgara","ipucu":"Hücre küçüldükçe kutular küçülür ve sayısı artar.","yer":"sag","sec":[".sec:has([data-k=\"U\"])"]},
+      {"ad":"Görünüm","baslik":"Parçalara bakın","ipucu":"Yalnızca önizleme: tabla, kilit ve kutuları ayrı ayrı görün.","yer":"sag","sec":[".sec:has(#r_explode)",".sec:has(#r_wexplode)"]},
+      {"ad":"Yerleşim","baslik":"Kutuları düzenleyin","yer":"alt","sec":[".sec:has(#calc)"]},
+    ],
 
     // Bütün durum durumOku/durumYaz ile taşınır
     alanYok: true,

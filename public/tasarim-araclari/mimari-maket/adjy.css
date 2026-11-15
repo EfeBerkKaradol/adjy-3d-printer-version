@@ -38,3 +38,11 @@ html[data-adjy-mod="musteri"] .app-shell {
 html[data-adjy-mod="musteri"] .panel-viewport {
   grid-template-rows: auto minmax(0, 1fr);
 }
+
+/* Adımlar: bu araçta her bölüm tek bir ayar, başlık satırı o ayarın adı — gizlenmez */
+html[data-adjy-mod="musteri"] .adjy-adim-ic .ctrl-title-row {
+  display: flex !important;
+}
+html[data-adjy-mod="musteri"] .adjy-adim-ic > .upload-card > .ctrl-title-row {
+  display: none !important;
+}

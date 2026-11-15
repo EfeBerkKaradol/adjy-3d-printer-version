@@ -2,6 +2,19 @@
 window.ADJY_ARAC = {
   id: "mimari-maket",
 
+  // Geniş ekranda model ortada, ayarlar iki yanda (bkz. kopru.css)
+  yerlesim: { kap: ".workspace-grid", panel: ".panel-controls .controls-scroll", sahne: ".panel-viewport", gecis: [".panel-controls"] },
+
+  // Ayarlar numaralı adımlara ayrılır. yer: adımın modelin neresinde duracağı
+  // (sol | sag | alt). sec: o adıma taşınan öğeler. ad: rehber çubuğundaki kısa ad.
+  adimlar: [
+    {"ad":"Ölçek","baslik":"Ölçeği seçin","ipucu":"Maket, binanın kaçta kaçı olsun.","yer":"sol","sec":[".ctrl-group.highlight-scale"]},
+    {"ad":"Bina","baslik":"Bina ölçüsü","ipucu":"Binanın gerçek eni ve boyu (metre).","yer":"sol","sec":[".ctrl-group:has(#Bina_En_m_range)",".ctrl-group:has(#Bina_Boy_m_range)"]},
+    {"ad":"Katlar","baslik":"Katlar","ipucu":"Kat sayısı ve kat yüksekliği; her kat ayrı basılır ve sökülür.","yer":"sag","sec":[".ctrl-group:has(#Kat_Sayisi_range)",".ctrl-group:has(#Kat_Yuksekligi_m_range)"]},
+    {"ad":"Cephe","baslik":"Cephe","ipucu":"Balkonların çıkması ve pencerelerin oranı.","yer":"sag","sec":[".ctrl-group:has(#Balkon_Cikma_m_range)",".ctrl-group:has(#Pencere_Orani_Yuzde_range)"]},
+    {"ad":"Kendi modeliniz","baslik":"Kendi modeliniz varsa","ipucu":"Binanızın 3B dosyasını yükleyin; katlarına ayrılıp ölçeklenir.","yer":"alt","sec":[".ctrl-group.upload-card"]},
+  ],
+
   // Başlık ve düğmelerdeki teknik adlar — okunur adla gösterilir
   ceviri: {
       "01 · MODEL YÜKLE & PARAMETRİK DFM": "Maketinizi kurun",

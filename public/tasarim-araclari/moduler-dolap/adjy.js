@@ -14,6 +14,20 @@ if (location.pathname.indexOf("/admin/") === 0) {
 window.ADJY_ARAC = {
   id: "moduler-dolap",
 
+  // Geniş ekranda model ortada, ayarlar iki yanda (bkz. kopru.css)
+  yerlesim: { kap: ".workspace-grid", panel: ".left-dock", sahne: "#viewportContainer" },
+
+  // Ayarlar numaralı adımlara ayrılır. yer: adımın modelin neresinde duracağı
+  // (sol | sag | alt). sec: o adıma taşınan öğeler. ad: rehber çubuğundaki kısa ad.
+  adimlar: [
+    {"ad":"Oda","baslik":"Odayı seçin","ipucu":"Mutfak, salon, yatak odası… ya da hazır bir örnekle başlayın.","yer":"sol","sec":["#roomTabsGrid",".field-label:has(+ #readyExamplesGrid)","#readyExamplesGrid"]},
+    {"ad":"Ölçek","baslik":"Ölçek ve oda boyu","ipucu":"Maketin ölçeğini seçin, odayı büyütüp küçültün.","yer":"sol","sec":[".field-label:has(+ #maketOlcegiGroup)","#maketOlcegiGroup",".scale-readout-box",".field-label:has(+ #odaKabukGroup)","#odaKabukGroup",".field-label:has(+ #roomQuickScaleBar)","#roomQuickScaleBar","#roomSizePresets"]},
+    {"ad":"Modüller","baslik":"Modül ekleyin","ipucu":"Dolap, tezgâh ya da sehpa ekleyin; listeden birine tıklayıp düzenleyin.","yer":"alt","sec":["#quickAddModuleBar","#moduleListContainer"]},
+    {"ad":"Seçili modül","baslik":"Seçili modülü düzenleyin","ipucu":"Ölçüsünü, kapağını ve rengini ayarlayın; odadaki yerini kaydırın.","yer":"sag","sec":["#moduleEditorPanel"]},
+    {"ad":"Oda ayrıntısı","baslik":"Oda ayrıntıları","ipucu":"Odanın ölçüleri, pencere ve aydınlatma.","yer":"alt","sec":["#Adim_02B_Oda_Olculeri_ve_DFM"]},
+    {"ad":"Kendi modeliniz","baslik":"Kendi modeliniz varsa","ipucu":"Elinizdeki 3B modeli odaya ekleyin.","yer":"alt","sec":["#Kendi_Modellerinle_Ozellestir"]},
+  ],
+
   // Araçtaki başlıklar değişken adı; okunur adla gösterilir
   ceviri: {
       "Adim_01_Oda_Secimi_ve_Olcek": "1 · Oda ve ölçek",

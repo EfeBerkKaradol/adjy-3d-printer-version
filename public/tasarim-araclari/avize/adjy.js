@@ -2,6 +2,18 @@
 window.ADJY_ARAC = {
   id: "avize",
 
+  // Geniş ekranda model ortada, ayarlar iki yanda (bkz. kopru.css)
+  yerlesim: { kap: ".main-grid", panel: ".left-rail", sahne: "#viewport-container" },
+
+  // Ayarlar numaralı adımlara ayrılır. yer: adımın modelin neresinde duracağı
+  // (sol | sag | alt). sec: o adıma taşınan öğeler. ad: rehber çubuğundaki kısa ad.
+  adimlar: [
+    {"ad":"Ölçü","baslik":"Ölçüyü ayarlayın","ipucu":"Çapı ve yüksekliği odanıza göre seçin.","yer":"sol","sec":[".param-row:has(#rng-Avize_Capi_mm)",".param-row:has(#rng-Avize_Yuksekligi_mm)"]},
+    {"ad":"Duy","baslik":"Duy ve malzeme","ipucu":"Ampulünüze uyan duyu ve gövdenin malzemesini seçin.","yer":"sol","sec":[".left-rail > .panel-section:nth-child(2) > .param-row",".left-rail > .adjy-malzeme"]},
+    {"ad":"Biçim","baslik":"Biçimi kurun","ipucu":"Dalga, burgu ve dilim sayısı gölgenin karakterini belirler.","yer":"sag","sec":[".param-row:has(#rng-Dalga_Frekansi)",".param-row:has(#rng-Burulma_Derecesi)",".param-row:has(#rng-Kanat_Sayisi)"]},
+    {"ad":"Işık","baslik":"Işığı deneyin","ipucu":"Yalnızca önizleme: avize yandığında nasıl görüneceğine bakın.","yer":"alt","sec":[".left-rail .dual-toggles",".param-row:has(#rng-light-power)"]},
+  ],
+
   // Düğmelerdeki değişken adları — iki kipte de okunur adla gösterilir
   ceviri: {
       "Duy_Tipi": "Duy tipi",

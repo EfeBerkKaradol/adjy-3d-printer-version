@@ -22,6 +22,7 @@ import { tasarimFiyati } from "@/lib/tasarim/pricing";
 import { kisaOzet, secimleriTemizle, temelSecimler } from "@/lib/tasarim/order";
 import { useCartStore } from "@/store/cartStore";
 import { formatTRY } from "@/lib/slicer";
+import { useHydrated } from "@/hooks/useClientState";
 import { aracArayuzu, aracMesajiMi, type AracPaketi } from "./kopru";
 
 // ==========================================
@@ -61,7 +62,11 @@ export function TasarimStudyo({ arac, urunId }: Props) {
   // sıfırlanırdı — yalnızca köprüye haber verilir. Tema sunucuda
   // bilinmediği için ilk çizimde boştur; belli olduğu çizimde sabitlenir.
   const [ilkTema, setIlkTema] = useState<string | null>(null);
-  if (ilkTema === null && resolvedTheme) setIlkTema(resolvedTheme);
+  // İstemcide tema ilk çizimde hazır olabiliyor; sunucunun gönderdiği
+  // sayfada ise çerçeve yok. İkisi aynı çıksın diye çerçeve ancak
+  // sayfa canlandıktan sonra eklenir.
+  const canli = useHydrated();
+  if (canli && ilkTema === null && resolvedTheme) setIlkTema(resolvedTheme);
   const kaynak = ilkTema
     ? `${aracKaynagi(arac.id)}?tema=${ilkTema === "dark" ? "koyu" : "acik"}`
     : null;
@@ -76,6 +81,8 @@ export function TasarimStudyo({ arac, urunId }: Props) {
   const [tumAyarlar, setTumAyarlar] = useState(true);
   const [ayrintiVar, setAyrintiVar] = useState(false);
   const [eklenenOzet, setEklenenOzet] = useState<string | null>(null);
+  // Araçtaki rehber son adımda sepet düğmesini işaret eder
+  const [sepetVurgu, setSepetVurgu] = useState(false);
 
   const ayarlariDegistir = useCallback(() => {
     setTumAyarlar((acik) => {
@@ -100,6 +107,10 @@ export function TasarimStudyo({ arac, urunId }: Props) {
         arayuz?.ayar("tum");
         setHazir(true);
         setAyrintiVar(!!arayuz?.gelismisVar);
+      }
+      if (e.data.tur === "rehber") {
+        setSepetVurgu(true);
+        window.setTimeout(() => setSepetVurgu(false), 2600);
       }
       if (e.data.tur === "durum" && e.data.veri) {
         setPaket(e.data.veri);
@@ -173,12 +184,34 @@ export function TasarimStudyo({ arac, urunId }: Props) {
 
   const eklenebilir = hazir && !!urunId && !ekleniyor;
 
+  const sepetIcerigi = ekleniyor ? (
+    <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+  ) : eklendi ? (
+    <>
+      <Check className="h-5 w-5" aria-hidden />
+      Sepete eklendi
+    </>
+  ) : (
+    <>
+      <ShoppingCart className="h-5 w-5 shrink-0" aria-hidden />
+      Sepete ekle
+    </>
+  );
+
+  const fiyatNotu = `KDV dâhil${
+    arac.ekMaliyetAciklamasi
+      ? ` · ${arac.ekMaliyetAciklamasi.toLocaleLowerCase("tr-TR")} dâhil`
+      : ""
+  }`;
+
   return (
-    // Duyuru şeridi ve başlık 6,75rem tutuyor; araç ve fiyat çubuğu
-    // kaydırmadan tek ekrana sığsın.
-    <div className="flex flex-col lg:h-[calc(100dvh-6.75rem)]">
-      {/* ---------- BAŞLIK ---------- */}
-      <div className="flex items-center gap-3 border-b-2 border-dashed border-foreground/25 bg-background px-4 py-3 lg:px-6">
+    // Sayfa çerçevesiz açılır (SiteShell): mağaza başlığı ve altbilgi yok,
+    // ekranın tamamı araca kalır. Geniş ekranda fiyat ve sepet üst çubukta
+    // durur; araç, ayarları modelin iki yanına dizer ve hiçbir şey
+    // kaydırılmaz. Dar ekranda fiyat çubuğu altta kalır.
+    <div className="flex h-dvh flex-col bg-background">
+      {/* ---------- ÜST ÇUBUK ---------- */}
+      <div className="relative z-30 flex h-14 shrink-0 items-center gap-3 border-b-2 border-dashed border-foreground/25 bg-background px-3 lg:gap-4 lg:px-5">
         <Link
           href={aracAdresi(arac.id)}
           className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-muted px-3 text-sm transition-colors hover:bg-accent"
@@ -186,33 +219,89 @@ export function TasarimStudyo({ arac, urunId }: Props) {
           <ArrowLeft className="h-4 w-4" aria-hidden />
           <span className="hidden sm:inline">Ürün sayfası</span>
         </Link>
-        <div className="min-w-0">
-          <h1 className="truncate text-base font-medium tracking-tight lg:text-lg">
-            {arac.ad}
-          </h1>
-          <p className="hidden truncate text-sm text-muted-foreground md:block">
-            {arac.ozet}
-          </p>
+        <h1 className="min-w-0 flex-1 truncate text-base font-medium tracking-tight lg:flex-none lg:text-lg">
+          {arac.ad}
+        </h1>
+
+        {/* Seçimlerin kısa hâli; tıklanınca tam liste açılır */}
+        <button
+          type="button"
+          onClick={() => setSecimlerAcik((a) => !a)}
+          aria-expanded={secimlerAcik}
+          disabled={secimler.length === 0}
+          className="hidden min-w-0 flex-1 items-center justify-end gap-2 text-right text-sm text-muted-foreground transition-colors hover:text-foreground disabled:hover:text-muted-foreground lg:flex"
+        >
+          <span className="truncate tabular-nums">
+            {ozetMetni || "Seçimleriniz burada görünecek"}
+          </span>
+          {secimler.length > 0 && (
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-muted px-2 py-1 text-xs text-foreground">
+              {secimler.length}
+              <ChevronDown
+                className={`h-3 w-3 transition-transform ${secimlerAcik ? "rotate-180" : ""}`}
+                aria-hidden
+              />
+            </span>
+          )}
+        </button>
+
+        <div className="hidden shrink-0 text-right lg:block">
+          <span className="block text-lg leading-tight font-semibold tabular-nums">
+            {hazir ? formatTRY(fiyat) : "—"}
+          </span>
+          <span className="block text-[11px] leading-tight text-muted-foreground">
+            {fiyatNotu}
+          </span>
         </div>
+
         {ayrintiVar && (
           <button
             type="button"
             onClick={ayarlariDegistir}
             aria-pressed={tumAyarlar}
-            className={`ml-auto inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3 text-sm transition-colors ${
-              tumAyarlar
-                ? "bg-foreground text-background"
-                : "bg-muted hover:bg-accent"
+            title={tumAyarlar ? "Yalnızca temel ayarları göster" : "Bütün ayarları göster"}
+            className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3 text-sm transition-colors ${
+              tumAyarlar ? "bg-muted hover:bg-accent" : "bg-foreground text-background"
             }`}
           >
             <SlidersHorizontal className="h-4 w-4" aria-hidden />
-            {tumAyarlar ? "Sade görünüm" : "Tüm ayarlar"}
+            <span className="hidden xl:inline">
+              {tumAyarlar ? "Sade görünüm" : "Tüm ayarlar"}
+            </span>
           </button>
+        )}
+
+        <button
+          type="button"
+          onClick={sepeteEkle}
+          disabled={!eklenebilir}
+          className={`hidden h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-foreground px-5 text-sm font-medium text-background transition-[opacity,box-shadow] hover:opacity-90 disabled:opacity-50 lg:inline-flex ${
+            sepetVurgu ? "animate-pulse ring-4 ring-foreground/30 ring-offset-2 ring-offset-background" : ""
+          }`}
+        >
+          {sepetIcerigi}
+        </button>
+
+        {/* Bütün seçimler: çubuğun altına açılır, modelin üstünde durur */}
+        {secimlerAcik && secimler.length > 0 && (
+          <div className="absolute top-full right-3 z-30 mt-2 hidden w-[min(34rem,calc(100vw-1.5rem))] rounded-xl border border-foreground/15 bg-background p-4 shadow-lg lg:right-5 lg:block">
+            <dl className="grid max-h-[50vh] gap-x-8 gap-y-1.5 overflow-y-auto text-xs sm:grid-cols-2">
+              {secimler.map((s) => (
+                <div key={s.ad} className="flex justify-between gap-3">
+                  <dt className="text-muted-foreground">{s.ad}</dt>
+                  <dd className="text-right tabular-nums">{s.deger}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="mt-3 border-t border-dashed border-foreground/20 pt-3 text-xs leading-relaxed text-muted-foreground">
+              {arac.teslim}
+            </p>
+          </div>
         )}
       </div>
 
       {/* ---------- ARAÇ ---------- */}
-      <div className="relative h-[78vh] bg-surface-2 lg:h-auto lg:min-h-0 lg:flex-1">
+      <div className="relative min-h-0 flex-1 bg-surface-2">
         {kaynak && (
           <iframe
             ref={cerceveRef}
@@ -231,15 +320,53 @@ export function TasarimStudyo({ arac, urunId }: Props) {
             Tasarım aracı açılıyor
           </div>
         )}
+
+        {/* Bildirimler modelin üstünde, ortada belirir; ayar sütunlarını ve
+            aracın adım çubuğunu örtmez */}
+        <div className="pointer-events-none absolute inset-x-0 top-16 z-20 hidden justify-center px-4 lg:flex">
+          <div className="pointer-events-auto flex max-w-xl flex-col gap-2">
+            {hata && (
+              <p
+                role="alert"
+                className="rounded-lg border border-destructive/30 bg-background px-3 py-2 text-sm text-destructive shadow-md"
+              >
+                {hata}
+              </p>
+            )}
+            {eklenenOzet !== null && !hata && (
+              <p
+                role="status"
+                className="flex items-center gap-x-3 rounded-lg border border-foreground/15 bg-background px-3 py-2 text-sm shadow-md"
+              >
+                <span className="inline-flex shrink-0 items-center gap-1.5 font-medium">
+                  <Check className="h-4 w-4 text-brand-lime" aria-hidden />
+                  Sepete eklendi
+                </span>
+                <span className="min-w-0 flex-1 truncate text-muted-foreground">
+                  {eklenenOzet || "Varsayılan ayarlarla"}
+                </span>
+                <Link href="/cart" className="shrink-0 underline underline-offset-2">
+                  Sepete git
+                </Link>
+              </p>
+            )}
+            {!urunId && hazir && (
+              <p className="rounded-lg border border-foreground/15 bg-background px-3 py-2 text-xs text-muted-foreground shadow-md">
+                Bu ürün şu an sepete eklenemiyor. Sipariş için{" "}
+                <Link href="/contact" className="underline underline-offset-2">
+                  bize yazın
+                </Link>
+                ; tasarımınızı birlikte tamamlayalım.
+              </p>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* ---------- FİYAT VE SEPET ---------- */}
-      {/* Mobilyadaki gibi: sepet modelin dibinde durur. Ölçüyü
-          değiştiren kişi fiyatı görmek için sayfayı kaydırmak
-          zorunda kalmamalı. */}
-      <div className="sticky bottom-0 z-20 border-t-2 border-dashed border-foreground/25 bg-background px-4 py-3 lg:static lg:px-6">
+      {/* ---------- DAR EKRAN: FİYAT VE SEPET ALTTA ---------- */}
+      <div className="shrink-0 border-t-2 border-dashed border-foreground/25 bg-background px-4 py-3 lg:hidden">
         {secimlerAcik && secimler.length > 0 && (
-          <dl className="mb-3 grid max-h-[40vh] gap-x-8 gap-y-1.5 overflow-y-auto rounded-lg bg-muted/50 p-3 text-xs sm:grid-cols-2 lg:max-h-[30vh] lg:grid-cols-3">
+          <dl className="mb-3 grid max-h-[40vh] gap-x-8 gap-y-1.5 overflow-y-auto rounded-lg bg-muted/50 p-3 text-xs sm:grid-cols-2">
             {secimler.map((s) => (
               <div key={s.ad} className="flex justify-between gap-3">
                 <dt className="text-muted-foreground">{s.ad}</dt>
@@ -255,8 +382,6 @@ export function TasarimStudyo({ arac, urunId }: Props) {
           </p>
         )}
 
-        {/* Sepete giren ayarların kısa hâli: müşteri neyi eklediğini
-            sepete gitmeden görsün. */}
         {eklenenOzet !== null && !hata && (
           <p
             role="status"
@@ -275,62 +400,38 @@ export function TasarimStudyo({ arac, urunId }: Props) {
           </p>
         )}
 
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+        <div className="flex items-center gap-4">
           <button
             type="button"
             onClick={() => setSecimlerAcik((a) => !a)}
             aria-expanded={secimlerAcik}
             disabled={secimler.length === 0}
-            className="flex min-w-0 flex-1 items-baseline gap-4 text-left"
+            className="min-w-0 flex-1 text-left"
           >
-            <span className="shrink-0">
-              <span className="block text-xl font-semibold tabular-nums">
-                {hazir ? formatTRY(fiyat) : "—"}
-              </span>
-              <span className="mt-0.5 block text-[11px] text-muted-foreground">
-                KDV dâhil
-                {arac.ekMaliyetAciklamasi
-                  ? ` · ${arac.ekMaliyetAciklamasi.toLocaleLowerCase("tr-TR")} dâhil`
-                  : ""}
-              </span>
+            <span className="block text-xl font-semibold tabular-nums">
+              {hazir ? formatTRY(fiyat) : "—"}
             </span>
-            <span className="hidden min-w-0 flex-1 md:block">
-              <span className="block truncate text-sm tabular-nums">
-                {ozetMetni || "Seçimleriniz burada görünecek"}
-              </span>
-              <span className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
-                Bütün seçimlerim{secimler.length > 0 ? ` (${secimler.length})` : ""}
-                <ChevronDown
-                  className={`h-3 w-3 transition-transform ${secimlerAcik ? "rotate-180" : ""}`}
-                  aria-hidden
-                />
-              </span>
+            <span className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
+              {fiyatNotu}
+              {secimler.length > 0 && (
+                <>
+                  {" · "}seçimlerim ({secimler.length})
+                  <ChevronDown
+                    className={`h-3 w-3 transition-transform ${secimlerAcik ? "rotate-180" : ""}`}
+                    aria-hidden
+                  />
+                </>
+              )}
             </span>
           </button>
-
-          <p className="hidden max-w-xs text-xs leading-relaxed text-muted-foreground xl:block">
-            {arac.teslim}
-          </p>
 
           <button
             type="button"
             onClick={sepeteEkle}
             disabled={!eklenebilir}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-foreground px-7 py-3.5 text-base font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50 sm:w-auto"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-foreground px-6 py-3.5 text-base font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50"
           >
-            {ekleniyor ? (
-              <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
-            ) : eklendi ? (
-              <>
-                <Check className="h-5 w-5" aria-hidden />
-                Sepete eklendi
-              </>
-            ) : (
-              <>
-                <ShoppingCart className="h-5 w-5 shrink-0" aria-hidden />
-                Sepete ekle
-              </>
-            )}
+            {sepetIcerigi}
           </button>
         </div>
 
@@ -344,7 +445,6 @@ export function TasarimStudyo({ arac, urunId }: Props) {
           </p>
         )}
       </div>
-
     </div>
   );
 }

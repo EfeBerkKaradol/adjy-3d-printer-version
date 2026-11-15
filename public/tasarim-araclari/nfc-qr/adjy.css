@@ -53,3 +53,20 @@ html[data-adjy-mod="musteri"] .tab-pane {
 html[data-adjy-mod="musteri"] .stage-center {
   grid-template-rows: minmax(0, 1fr);
 }
+
+/* Orta yerleşim: ince ayar altı kaydırıcı; alt bölgede üçlü dizilsin, yer kaplamasın */
+@media (min-width: 1100px) {
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-bolge="alt"] > .adjy-adim:has(#rng-qr-scale) {
+    flex: 1.7 1 0;
+  }
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-bolge="alt"] .panel-section:has(#rng-qr-scale) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px 14px;
+  }
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-bolge="alt"] .panel-section:has(#rng-qr-scale) > .section-hdr-flex {
+    display: none;
+  }
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-bolge="alt"] .panel-section:has(#color-pair-swatches) {
+    grid-template-columns: 1fr;
+  }
+}

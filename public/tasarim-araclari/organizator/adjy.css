@@ -160,3 +160,30 @@ html[data-adjy-mod="musteri"] .hint {
 html[data-adjy-mod="musteri"][data-adjy-ayar="sade"] .ov-top {
   justify-content: flex-start;
 }
+
+/* ---------- Orta yerleşim: üstte ürün seçimi; altında adımlar, model ve alt bölge ---------- */
+@media (min-width: 1100px) {
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] #app[data-adjy-y="kap"] {
+    grid-template-rows: 46px auto minmax(0, 1fr) auto !important;
+  }
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] #top {
+    grid-area: 1 / 1 / 2 / -1;
+  }
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] #app [data-adjy-bolge="rehber"] {
+    grid-row: 2;
+  }
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] #view[data-adjy-y="sahne"] {
+    grid-row: 3 !important;
+  }
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] #app [data-adjy-bolge="alt"] {
+    grid-row: 4;
+  }
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] #app [data-adjy-bolge="sol"],
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] #app [data-adjy-bolge="sag"] {
+    grid-row: 2 / -1;
+  }
+}
+/* Adım kutusunun kendi boşluğu var */
+html[data-adjy-mod="musteri"] .adjy-adim-ic > .sec .note {
+  padding: 0;
+}

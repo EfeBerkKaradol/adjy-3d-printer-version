@@ -2,6 +2,19 @@
 window.ADJY_ARAC = {
   id: "pcb-kutu",
 
+  // Geniş ekranda model ortada, ayarlar iki yanda (bkz. kopru.css)
+  yerlesim: { kap: ".studio-grid", panel: ".left-panel", sahne: ".viewport-stage" },
+
+  // Ayarlar numaralı adımlara ayrılır. yer: adımın modelin neresinde duracağı
+  // (sol | sag | alt). sec: o adıma taşınan öğeler. ad: rehber çubuğundaki kısa ad.
+  adimlar: [
+    {"ad":"Kart","baslik":"Kartınızın ölçüsü","ipucu":"Kartın enini, boyunu ve üstündeki en yüksek parçayı girin.","yer":"sol","sec":[".param-control:has(#rng-pcb-en)",".param-control:has(#rng-pcb-boy)",".param-control:has(#rng-ic-yukseklik)"]},
+    {"ad":"Gövde","baslik":"Gövde ve vidalar","ipucu":"Duvar kalınlığı ve kartı tutan vida yuvaları.","yer":"sol","sec":[".param-control:has(#rng-duvar)",".param-control:has(#insert-type-group)",".param-control:has(#rng-kenar-mesafe)"]},
+    {"ad":"Hava ve USB","baslik":"Havalandırma ve USB","ipucu":"Izgarayı ve USB kesitini açıp kapatın.","yer":"sag","sec":[".left-panel label.toggle-row","#usb-config-box"]},
+    {"ad":"Kesitler","baslik":"Yan kesitler","ipucu":"Güç, anten ya da düğme için duvarlara delik ekleyin.","yer":"sag","sec":[".left-panel .io-builder"]},
+    {"ad":"Malzeme","baslik":"Malzemeyi seçin","ipucu":"Kutunun basılacağı malzeme.","yer":"alt","sec":[".material-row"]},
+  ],
+
   // Düğmelerdeki değişken adları — iki kipte de okunur adla gösterilir
   ceviri: {
       "Pirinc_Insert_Tipi": "Vida yuvası",

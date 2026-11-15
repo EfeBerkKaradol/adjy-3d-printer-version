@@ -2,6 +2,20 @@
 window.ADJY_ARAC = {
   id: "lazer-uv-fikstur",
 
+  // Geniş ekranda model ortada, ayarlar iki yanda (bkz. kopru.css)
+  yerlesim: { kap: ".studio-grid", panel: ".panel-left .controls-scroll", sahne: ".stage-column", gecis: [".panel-left"] },
+
+  // Ayarlar numaralı adımlara ayrılır. yer: adımın modelin neresinde duracağı
+  // (sol | sag | alt). sec: o adıma taşınan öğeler. ad: rehber çubuğundaki kısa ad.
+  adimlar: [
+    {"ad":"Şekil","baslik":"Ürününüzün şekli","ipucu":"Fikstüre dizeceğiniz ürün: kart, kalem ya da yuvarlak.","yer":"sol","sec":[".ctrl-group:has(.shape-segmented)"]},
+    {"ad":"Ölçü","baslik":"Ürününüzün ölçüsü","ipucu":"Tek bir ürünün eni, boyu ve kalınlığı.","yer":"sol","sec":[".ctrl-group:has(#rng_Urun_En_mm)"]},
+    {"ad":"Yuva","baslik":"Kaç yuva olsun","ipucu":"Satır ve sütun sayısı; tablaya sığan en fazla adet kendiliğinden sınırlanır.","yer":"sag","sec":[".ctrl-group:has(#rng_Satir_Adedi)"]},
+    {"ad":"Masa","baslik":"Masa ve tutuş","ipucu":"Makine masanızın vida aralığı ve parçayı almak için parmak oyuğu.","yer":"sag","sec":[".ctrl-group:has(#chk_Parmak_Alma_Oyugu)"]},
+    {"ad":"Malzeme","baslik":"Malzemeyi seçin","ipucu":"Fikstürün basılacağı malzeme.","yer":"alt","sec":[".ctrl-group:has(#sel_Malzeme)"]},
+    {"ad":"Kendi modeliniz","baslik":"Kendi modeliniz varsa","ipucu":"Ürününüzün 3B ya da 2B dosyasını yükleyin; yuva ona göre açılır.","yer":"alt","sec":[".ctrl-group.upload-group"]},
+  ],
+
   // Düğmelerdeki değişken adları — iki kipte de okunur adla gösterilir
   ceviri: {
       "01 // Urun_Sekli": "01 // Ürün şekli",
@@ -21,7 +35,14 @@ window.ADJY_ARAC = {
 
   tema: { oznitelik: "data-theme", acik: "light", koyu: "dark", ilk: "dark", dugme: "#btnThemeToggle" },
 
+  // Değişken adıyla duran tek etiket (içinde <small> olduğu için ceviri yakalamıyor)
+  metinler: [
+    { sec: ".ctrl-group:has(#chk_Parmak_Alma_Oyugu) .param-field > label.block-label", metin: "Masa vida aralığı" },
+  ],
+
   gizle: [
+    // İçindeki iki ayar atölyeye ait; satırın kendisi alt bölgede boş bir sütun tutuyordu
+    ".dual-row:has(#rng_Taban_Kalinligi_mm)",
     ".panel-right",
     "#btnExportSTLTop",
     "#btnExportLightBurnTop",

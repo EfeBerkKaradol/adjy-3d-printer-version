@@ -2,6 +2,18 @@
 window.ADJY_ARAC = {
   id: "kelepce-askilik",
 
+  // Geniş ekranda model ortada, ayarlar iki yanda (bkz. kopru.css)
+  yerlesim: { kap: ".workspace-grid", panel: ".panel-left", sahne: ".viewport-stage" },
+
+  // Ayarlar numaralı adımlara ayrılır. yer: adımın modelin neresinde duracağı
+  // (sol | sag | alt). sec: o adıma taşınan öğeler. ad: rehber çubuğundaki kısa ad.
+  adimlar: [
+    {"ad":"Model","baslik":"Modeli seçin","ipucu":"Tek ya da çift askı: kulaklık, çanta ya da ikisi birden.","yer":"sol","sec":[".panel-left .arch-grid"]},
+    {"ad":"Masa","baslik":"Masanıza göre ayarlayın","ipucu":"Masa tablasının kalınlığını girin; kelepçe ona göre açılır.","yer":"sol","sec":[".param-row:has(#rng-Maks_Masa_Kalinligi_mm)",".param-row:has(#rng-Aparat_Eni_mm)"]},
+    {"ad":"Askı","baslik":"Askı ölçüsü","ipucu":"Kolun uzunluğu ve alt kancanın derinliği.","yer":"sag","sec":[".param-row:has(#rng-Aski_Kolu_Uzunlugu_mm)","#row-Alt_J_Derinlik_mm"]},
+    {"ad":"Malzeme","baslik":"Malzemeyi seçin","ipucu":"PETG darbeye ve ısıya daha dayanıklıdır.","yer":"alt","sec":[".sub-grid:has(#sel-material)"]},
+  ],
+
   // Başlık ve düğmelerdeki teknik adlar — okunur adla gösterilir
   ceviri: {
       "Askı Gövde Mimarisi Seçimi": "Model",

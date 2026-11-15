@@ -50,7 +50,7 @@ export interface AracArayuzu {
 
 export interface AracMesaji {
   kaynak: "adjy-arac";
-  tur: "durum" | "hazir";
+  tur: "durum" | "hazir" | "rehber";
   arac: string;
   veri?: AracPaketi;
 }

@@ -2,6 +2,18 @@
 window.ADJY_ARAC = {
   id: "saksi",
 
+  // Geniş ekranda model ortada, ayarlar iki yanda (bkz. kopru.css)
+  yerlesim: { kap: ".studio-grid", panel: ".panel-left", sahne: ".viewport-panel" },
+
+  // Ayarlar numaralı adımlara ayrılır. yer: adımın modelin neresinde duracağı
+  // (sol | sag | alt). sec: o adıma taşınan öğeler. ad: rehber çubuğundaki kısa ad.
+  adimlar: [
+    {"ad":"Boy","baslik":"Hazır bir boyla başlayın","ipucu":"Size en yakın boyu seçin; ölçüyü sonra ince ayarlarsınız.","yer":"sol","sec":[".panel-left .preset-row"]},
+    {"ad":"Ölçü","baslik":"Ölçüyü ayarlayın","ipucu":"Çapı bitkinize, yüksekliği rafınıza göre verin.","yer":"sol","sec":[".param-control:has(#rng-Saksi_Capi_mm)",".param-control:has(#rng-Saksi_Yuksekligi_mm)",".param-control:has(#rng-Alt_Tabak_Yukseklik_mm)"]},
+    {"ad":"Doku","baslik":"Dokuyu kurun","ipucu":"Dilim sayısı ve burgu açısı gövdenin görünüşünü belirler.","yer":"sag","sec":[".param-control:has(#rng-Doku_Kanat_Sayisi)",".param-control:has(#rng-Kanat_Derinligi_mm)",".param-control:has(#rng-Burulma_Acisi_Derece)"]},
+    {"ad":"Renk","baslik":"Malzeme ve renk seçin","ipucu":"Renk kutusuna tıklayın; model anında o renge döner.","yer":"alt","sec":[".panel-left .mat-row"]},
+  ],
+
   tema: { oznitelik: "data-theme", acik: "light", koyu: "dark", ilk: "dark", dugme: "#btn-theme-toggle" },
 
   // Müşterinin görmediği her şey: üretim çıktıları, maliyet, tolerans

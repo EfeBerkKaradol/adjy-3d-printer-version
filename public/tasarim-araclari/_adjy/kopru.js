@@ -735,6 +735,394 @@
     return true;
   }
 
+  // ---------- ORTA YERLEŞİM, ADIMLAR VE REHBER ----------
+  // Araçların ayar paneli tek sütun ve uzun; müşteri hem neyi nerede
+  // değiştireceğini arıyor hem de alttaki ayar için paneli kaydırıyordu.
+  //
+  // Müşteri kipinde ayarlar numaralı adımlara ayrılır (AYAR.adimlar) ve
+  // geniş ekranda modelin çevresine dizilir: solda, sağda ve modelin
+  // altında. Model ortada kalır, her şey aynı anda görünür.
+  //
+  // Adım kutuları panelin İÇİNDE kurulur: öğeler panelden çıkmaz, aracın
+  // panele bağladığı olay dinleyicileri çalışmaya devam eder. Geniş
+  // ekranda panelin kendi kutusu yok sayılır (display: contents) ve
+  // bölgeler aracın ızgarasına yerleşir; düzenin kendisi kopru.css'te.
+  //
+  // Üstteki rehber çubuğu adımları sırasıyla gösterir; "Nasıl yapılır?"
+  // ve ilk ziyaretteki tur, her adımı tek tek işaret edip ne işe
+  // yaradığını söyler.
+  var YER = !URETIM && AYAR.yerlesim && Array.isArray(AYAR.adimlar) ? AYAR.yerlesim : null;
+  var YER_ESIK = 1100;
+  var yerKap = null;
+  var yerPanel = null;
+  var yerSahne = null;
+  var bolgeler = null;
+  var adimKayit = [];
+  var yerGozcu = null;
+  var sigdirSayaci = null;
+  var sahneSayaci = null;
+  var sonSahne = "";
+  var vurguSayaci = null;
+  var tur = null;
+  var GOZLEM = { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "style", "hidden", "open"] };
+
+  function yeni(etiket, sinif, metin) {
+    var e = document.createElement(etiket);
+    if (sinif) e.className = sinif;
+    if (metin !== undefined && metin !== null) e.textContent = metin;
+    return e;
+  }
+
+  function dugme(sinif, metin, tikla) {
+    var b = yeni("button", sinif, metin);
+    b.type = "button";
+    b.addEventListener("click", tikla);
+    return b;
+  }
+
+  /** İçinde görünür bir şey kalmayan adımlar gizlenir; kalanlar baştan numaralanır */
+  function adimlariSay() {
+    var no = 0;
+    adimKayit.forEach(function (k) {
+      k.kutu.hidden = false;
+    });
+    adimKayit.forEach(function (k) {
+      var bos = k.ic.offsetHeight < 4;
+      k.kutu.hidden = bos;
+      if (k.dugme) k.dugme.hidden = bos;
+      k.gorunur = !bos;
+      if (bos) return;
+      no += 1;
+      k.sira = no;
+      k.noEl.textContent = String(no);
+      if (k.dugmeNo) k.dugmeNo.textContent = String(no);
+    });
+  }
+
+  function sigdir() {
+    if (!yerKap || !bolgeler) return;
+    if (yerGozcu) yerGozcu.disconnect();
+    adimlariSay();
+    var genis = window.innerWidth >= YER_ESIK;
+    [bolgeler.sol, bolgeler.sag].forEach(function (b) {
+      b.style.zoom = "";
+      if (!genis) return;
+      // Sığmayan sütun en çok %80'e kadar küçülür; yine sığmazsa kendi içinde kayar
+      var adimlar = [0.95, 0.9, 0.85, 0.8];
+      for (var i = 0; i < adimlar.length && b.scrollHeight > b.clientHeight + 1; i++) {
+        b.style.zoom = String(adimlar[i]);
+      }
+    });
+    if (tur) turKonumla();
+    if (yerGozcu) yerGozcu.observe(yerPanel, GOZLEM);
+  }
+
+  function sigdirPlanla() {
+    clearTimeout(sigdirSayaci);
+    sigdirSayaci = setTimeout(sigdir, 140);
+  }
+
+  // Sahnenin boyu değişince (alt bölge açıldı, kip değişti) araç tuvalini yenilesin
+  function sahneDegisti() {
+    if (!yerSahne) return;
+    var olcu = yerSahne.clientWidth + "x" + yerSahne.clientHeight;
+    if (olcu === sonSahne) return;
+    sonSahne = olcu;
+    clearTimeout(sahneSayaci);
+    sahneSayaci = setTimeout(function () {
+      window.dispatchEvent(new Event("resize"));
+    }, 60);
+  }
+
+  /** Kap, panel ve sahneyi işaretler. Sınıf değil öznitelik: bazı araçlar className'i baştan yazıyor. */
+  function iskeletKur() {
+    if (!YER) return false;
+    if (yerKap) return true;
+    var kap = document.querySelector(YER.kap);
+    var panel = document.querySelector(YER.panel);
+    var sahne = document.querySelector(YER.sahne);
+    if (!kap || !panel || !sahne) return false;
+    kap.setAttribute("data-adjy-y", "kap");
+    panel.setAttribute("data-adjy-y", "panel");
+    sahne.setAttribute("data-adjy-y", "sahne");
+    // Panel ile kap arasındaki sarmallar düzenden düşer (display: contents)
+    (YER.gecis || []).forEach(function (sec) {
+      var e = document.querySelector(sec);
+      if (e) e.setAttribute("data-adjy-y", "gecis");
+    });
+    yerKap = kap;
+    yerPanel = panel;
+    yerSahne = sahne;
+    if (window.ResizeObserver) {
+      new ResizeObserver(sigdirPlanla).observe(kap);
+      new ResizeObserver(sahneDegisti).observe(sahne);
+    }
+    if (window.MutationObserver) yerGozcu = new MutationObserver(sigdirPlanla);
+    window.addEventListener("resize", sigdirPlanla);
+    return true;
+  }
+
+  function vurgula(kayit, kalici) {
+    clearTimeout(vurguSayaci);
+    adimKayit.forEach(function (k) {
+      k.kutu.removeAttribute("data-adjy-vurgu");
+      if (k.dugme) k.dugme.removeAttribute("aria-current");
+    });
+    if (!kayit) return;
+    kayit.kutu.setAttribute("data-adjy-vurgu", "");
+    if (kayit.dugme) kayit.dugme.setAttribute("aria-current", "true");
+    try {
+      kayit.kutu.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    } catch (e) { /* eski tarayıcı */ }
+    if (!kalici) {
+      vurguSayaci = setTimeout(function () {
+        if (!tur) vurgula(null);
+      }, 2600);
+    }
+  }
+
+  /** Mağazadaki "Sepete ekle" düğmesini işaret ettirir */
+  function sepetiGoster() {
+    if (window.parent === window) return;
+    window.parent.postMessage(
+      { kaynak: "adjy-arac", tur: "rehber", arac: AYAR.id, veri: { hedef: "sepet" } },
+      location.origin
+    );
+  }
+
+  // ---------- TUR ----------
+  function turAnahtari() {
+    return "adjy-rehber:" + (AYAR.id || "");
+  }
+
+  function turGorulduMu() {
+    try { return localStorage.getItem(turAnahtari()) === "1"; } catch (e) { return true; }
+  }
+
+  function turBitir() {
+    if (!tur) return;
+    tur.kart.remove();
+    tur = null;
+    html.removeAttribute("data-adjy-tur");
+    vurgula(null);
+    try { localStorage.setItem(turAnahtari(), "1"); } catch (e) { /* depolama kapalı */ }
+  }
+
+  function gorunurAdimlar() {
+    return adimKayit.filter(function (k) { return k.gorunur; });
+  }
+
+  function turKonumla() {
+    if (!tur) return;
+    var kart = tur.kart;
+    var liste = gorunurAdimlar();
+    var k = liste[tur.i];
+    kart.style.left = "";
+    kart.style.top = "";
+    if (window.innerWidth < YER_ESIK) return; // dar ekranda kart altta sabit (kopru.css)
+    var kw = kart.offsetWidth;
+    var kh = kart.offsetHeight;
+    var sol;
+    var ust;
+    if (!k) {
+      // Son kart: sepet düğmesi mağazanın üst çubuğunda, sağda
+      sol = window.innerWidth - kw - 20;
+      ust = 16;
+    } else {
+      var r = k.kutu.getBoundingClientRect();
+      if (k.yer === "sag") {
+        sol = r.left - kw - 16;
+        ust = r.top;
+      } else if (k.yer === "alt") {
+        sol = r.left + (r.width - kw) / 2;
+        ust = r.top - kh - 16;
+      } else {
+        sol = r.right + 16;
+        ust = r.top;
+      }
+    }
+    sol = Math.max(12, Math.min(sol, window.innerWidth - kw - 12));
+    ust = Math.max(12, Math.min(ust, window.innerHeight - kh - 12));
+    kart.style.left = Math.round(sol) + "px";
+    kart.style.top = Math.round(ust) + "px";
+  }
+
+  function turGoster() {
+    if (!tur) return;
+    var liste = gorunurAdimlar();
+    var kart = tur.kart;
+    var k = liste[tur.i];
+    kart.textContent = "";
+    if (k) {
+      vurgula(k, true);
+      kart.appendChild(yeni("div", "adjy-tur-sayac", "Adım " + (tur.i + 1) + " / " + liste.length));
+      kart.appendChild(yeni("h4", null, k.tanim.baslik));
+      kart.appendChild(yeni("p", null, k.tanim.anlatim || k.tanim.ipucu || ""));
+    } else {
+      vurgula(null);
+      sepetiGoster();
+      kart.appendChild(yeni("div", "adjy-tur-sayac", "Son adım"));
+      kart.appendChild(yeni("h4", null, "Sepete ekleyin"));
+      kart.appendChild(
+        yeni(
+          "p",
+          null,
+          "Fiyat, yaptığınız her değişiklikte sağ üstte güncellenir. Beğendiğinizde “Sepete ekle”ye basın; kurduğunuz model birebir üretilir."
+        )
+      );
+    }
+    var satir = yeni("div", "adjy-tur-dugmeler");
+    satir.appendChild(dugme("adjy-tur-kapat", "Rehberi kapat", turBitir));
+    if (tur.i > 0) {
+      satir.appendChild(
+        dugme("adjy-tur-geri", "Geri", function () {
+          tur.i -= 1;
+          turGoster();
+        })
+      );
+    }
+    satir.appendChild(
+      dugme("adjy-tur-ileri", k ? "İleri" : "Tamam", function () {
+        if (!k) return turBitir();
+        tur.i += 1;
+        turGoster();
+      })
+    );
+    kart.appendChild(satir);
+    turKonumla();
+    // Adım görünüme kaydırılırken yeri değişir; kart peşinden gelsin
+    setTimeout(turKonumla, 350);
+  }
+
+  function turBaslat() {
+    if (!adimKayit.length) return;
+    if (tur) turBitir();
+    var kart = yeni("div", "adjy-tur");
+    kart.setAttribute("role", "dialog");
+    kart.setAttribute("aria-label", "Özelleştirme rehberi");
+    document.body.appendChild(kart);
+    tur = { i: 0, kart: kart };
+    html.setAttribute("data-adjy-tur", "");
+    turGoster();
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (tur && e.key === "Escape") turBitir();
+  });
+
+  // ---------- ADIMLAR ----------
+  function rehberKur() {
+    var cubuk = yeni("nav", "adjy-rehber");
+    cubuk.setAttribute("data-adjy-bolge", "rehber");
+    cubuk.setAttribute("aria-label", "Özelleştirme adımları");
+    var sira = yeni("div", "adjy-rehber-sira");
+    adimKayit.forEach(function (k) {
+      var b = dugme("adjy-rehber-adim", null, function () {
+        vurgula(k);
+      });
+      k.dugmeNo = yeni("span", "adjy-rehber-no", String(k.sira));
+      b.appendChild(k.dugmeNo);
+      b.appendChild(yeni("span", null, k.tanim.ad || k.tanim.baslik));
+      k.dugme = b;
+      sira.appendChild(b);
+    });
+    sira.appendChild(dugme("adjy-rehber-adim adjy-rehber-sepet", "Sepete ekle", sepetiGoster));
+    cubuk.appendChild(sira);
+    cubuk.appendChild(dugme("adjy-rehber-yardim", "Nasıl yapılır?", turBaslat));
+    return cubuk;
+  }
+
+  function adimlariKur() {
+    if (!iskeletKur()) return;
+    // Zaten kurulu mu (panelini baştan çizen araç kutuları silmiş olabilir)
+    var kurulu = false;
+    Array.prototype.forEach.call(yerPanel.children, function (c) {
+      if (c.hasAttribute("data-adjy-bolge")) kurulu = true;
+    });
+    if (kurulu) return;
+    if (tur) turBitir();
+    if (yerGozcu) yerGozcu.disconnect();
+
+    // Önce bütün seçiciler çözülür: taşıma başlayınca sıra sayan seçiciler
+    // (nth-child) başka öğeyi gösterir.
+    var alinan = [];
+    var cozum = AYAR.adimlar.map(function (a) {
+      var liste = [];
+      (a.sec || []).forEach(function (s) {
+        var bulunan = [];
+        try { bulunan = document.querySelectorAll(s); } catch (e) { bulunan = []; }
+        Array.prototype.forEach.call(bulunan, function (n) {
+          if (alinan.indexOf(n) !== -1) return;
+          alinan.push(n);
+          liste.push(n);
+        });
+      });
+      return liste;
+    });
+
+    bolgeler = { sol: yeni("div"), sag: yeni("div"), alt: yeni("div") };
+    Object.keys(bolgeler).forEach(function (ad) {
+      bolgeler[ad].setAttribute("data-adjy-bolge", ad);
+    });
+    adimKayit = [];
+
+    function adimEkle(tanim, ogeler) {
+      if (!ogeler.length) return;
+      var yer = bolgeler[tanim.yer] ? tanim.yer : "sol";
+      var kutu = yeni("section", "adjy-adim");
+      var bas = yeni("header", "adjy-adim-bas");
+      var noEl = yeni("span", "adjy-adim-no", String(adimKayit.length + 1));
+      var yazi = yeni("div", "adjy-adim-yazi");
+      yazi.appendChild(yeni("h3", "adjy-adim-baslik", tanim.baslik));
+      if (tanim.ipucu) yazi.appendChild(yeni("p", "adjy-adim-ipucu", tanim.ipucu));
+      bas.appendChild(noEl);
+      bas.appendChild(yazi);
+      var ic = yeni("div", "adjy-adim-ic");
+      // Taşınan öğelerin stilleri eski üstlerinin sınıfına bağlı olabilir
+      // (".panel-section .param-row" gibi); kutu o sınıfları da taşır.
+      var ust = ogeler[0].parentElement;
+      if (ust && ust !== yerPanel && typeof ust.className === "string" && ust.className) {
+        ic.className += " " + ust.className;
+      }
+      ogeler.forEach(function (o) { ic.appendChild(o); });
+      kutu.appendChild(bas);
+      kutu.appendChild(ic);
+      bolgeler[yer].appendChild(kutu);
+      var kayit = { tanim: tanim, yer: yer, kutu: kutu, ic: ic, noEl: noEl, sira: adimKayit.length + 1, gorunur: true };
+      // Müşteri bir adımda bir şeye dokunduysa adım "yapıldı" sayılır
+      ["input", "change", "click"].forEach(function (t) {
+        ic.addEventListener(t, function () {
+          kutu.setAttribute("data-adjy-tamam", "");
+          if (kayit.dugme) kayit.dugme.setAttribute("data-tamam", "");
+        }, true);
+      });
+      adimKayit.push(kayit);
+    }
+
+    AYAR.adimlar.forEach(function (a, i) { adimEkle(a, cozum[i]); });
+
+    // Hiçbir adıma girmemiş bölümler: içinde ayar varsa kaybolmasın diye
+    // sona eklenir, yoksa (boş kalan başlıklar) gizlenir.
+    var artik = [];
+    Array.prototype.slice.call(yerPanel.children).forEach(function (c) {
+      if (c.querySelector("input:not([type=hidden]):not([type=file]), select, textarea")) artik.push(c);
+      else c.setAttribute("data-adjy-artik", "");
+    });
+    adimEkle({ ad: "Diğer", baslik: "Diğer ayarlar", yer: "sag" }, artik);
+
+    yerPanel.appendChild(rehberKur());
+    yerPanel.appendChild(bolgeler.sol);
+    yerPanel.appendChild(bolgeler.sag);
+    yerPanel.appendChild(bolgeler.alt);
+    html.setAttribute("data-adjy-yerlesim", "orta");
+    sigdir();
+  }
+
+  if (YER) {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", iskeletKur);
+    else iskeletKur();
+  }
+
   // ---------- DIŞA AÇILAN ARAYÜZ ----------
   window.ADJY = {
     uretim: URETIM,
@@ -756,6 +1144,9 @@
     // Panelini baştan çizen araçlar (organizatör) çizimden hemen sonra çağırır;
     // müşteri bir an bile değişken adlarını görmesin.
     metinleriYenile: function () { musteriMetinleri(); },
+    // Panelini baştan çizen araçlar adım kutularını da siler; yeniden kurulur
+    duzeniYenile: function () { if (YER && yuklendi) { adimlariKur(); sigdirPlanla(); } },
+    rehber: function () { if (YER) turBaslat(); },
     hazirMi: function () {
       if (typeof AYAR.hazirMi !== "function") return yuklendi;
       try { return !!AYAR.hazirMi(); } catch (e) { return false; }
@@ -840,6 +1231,8 @@
     if (typeof AYAR.hazir === "function") {
       try { AYAR.hazir({ uretim: URETIM }); } catch (e) { /* yok say */ }
     }
+    // Aracın kendi hazırlığı bazı öğeleri taşıyor (malzeme seçimi); adımlar ondan sonra kurulur
+    adimlariKur();
     // Model CDN'den gelen modüller yüklenince kuruluyor; ölçüm o zamana
     // kadar boş ya da sayfadaki örnek değerdir.
     var deneme = 0;
@@ -857,6 +1250,8 @@
           musteriMetinleri();
           window.dispatchEvent(new Event("resize"));
           hazirBildir();
+          // İlk ziyarette rehber kendiliğinden başlar (mağazanın içinde açıldıysa)
+          if (YER && adimKayit.length && window.parent !== window && !turGorulduMu()) setTimeout(turBaslat, 900);
         }
         bildir();
       }

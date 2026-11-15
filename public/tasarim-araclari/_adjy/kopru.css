@@ -10,7 +10,8 @@
    değişken adlarını bunlara bağlar. Mağazanın paleti değişirse yalnızca bu
    blok güncellenir.
    ========================================================================== */
-@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap");
+/* Geist ve Geist Mono her aracın index.html dosyasından yüklenir (köprü satırları):
+   buradaki @import, bu dosya indikten sonra ikinci bir istek daha bekletiyordu. */
 
 html {
   /* Açık tema — globals.css ile aynı değerler */
@@ -132,4 +133,371 @@ html[data-adjy-mod="musteri"] .group-title {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--a-soluk);
+}
+
+/* --------------------------------------------------------------------------
+   ORTA YERLEŞİM, ADIMLAR VE REHBER
+
+   Müşteri kipinde ayarlar numaralı adımlara ayrılır (her aracın adjy.js
+   dosyasındaki "adimlar") ve geniş ekranda modelin çevresine dizilir:
+   solda, sağda ve modelin altında. Model ortada kalır.
+
+   Kutuları ve işaretleri (data-adjy-y, data-adjy-bolge) köprü kurar.
+   Panelin kendi kutusu geniş ekranda yok sayılır (display: contents),
+   bölgeler doğrudan aracın ızgarasına yerleşir. Dar ekranda adımlar
+   aracın kendi panelinde alt alta kalır.
+   -------------------------------------------------------------------------- */
+
+/* ---------- Adım kutusu ---------- */
+html[data-adjy-mod="musteri"] [data-adjy-artik][data-adjy-artik][data-adjy-artik] {
+  display: none !important;
+}
+.adjy-adim {
+  padding: 12px 14px 14px;
+  border-bottom: 1px solid var(--a-cizgi);
+  transition: background 0.2s, box-shadow 0.2s, opacity 0.2s;
+}
+.adjy-adim[hidden] {
+  display: none !important;
+}
+.adjy-adim-bas {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 10px;
+}
+.adjy-adim-no,
+.adjy-rehber-no {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  font: 600 11px/1 var(--a-mono) !important;
+  color: var(--a-yazi);
+}
+.adjy-adim[data-adjy-tamam] .adjy-adim-no {
+  background: var(--a-yazi);
+  border-color: var(--a-yazi);
+  color: var(--a-yuzey);
+}
+.adjy-adim-baslik {
+  margin: 0 !important;
+  padding: 0 !important;
+  font: 600 14px/1.3 var(--a-sans) !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: var(--a-yazi) !important;
+}
+.adjy-adim-ipucu {
+  margin: 2px 0 0 !important;
+  font: 400 12px/1.45 var(--a-sans) !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: var(--a-soluk) !important;
+}
+/* Kutu, taşınan öğelerin eski üstünün sınıflarını da taşır (stiller
+   bozulmasın diye); o sınıfların yerleşim kuralları burada etkisizleşir. */
+.adjy-adim-ic {
+  display: block !important;
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  max-height: none !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  flex: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+/* Bütün hâlinde taşınan bölümler: kendi çerçeveleri adım kutusuyla çakışmasın */
+.adjy-adim-ic > .panel-section,
+.adjy-adim-ic > .ctrl-group,
+.adjy-adim-ic > .module-block,
+.adjy-adim-ic > .sec {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+.adjy-adim-ic > .panel-section + .panel-section,
+.adjy-adim-ic > .ctrl-group + .ctrl-group,
+.adjy-adim-ic > .sec + .sec {
+  margin-top: 12px !important;
+}
+/* Bölümlerin kendi başlıkları: yerlerini adım başlığı aldı */
+.adjy-adim-ic .ctrl-title-row,
+.adjy-adim-ic .section-subtitle,
+.adjy-adim-ic .section-header,
+.adjy-adim-ic .section-head,
+.adjy-adim-ic .section-hdr,
+.adjy-adim-ic .module-header,
+.adjy-adim-ic .sec > h3 {
+  display: none !important;
+}
+.adjy-adim[data-adjy-vurgu] {
+  background: var(--a-vurgu-soluk);
+  box-shadow: inset 0 0 0 2px var(--a-vurgu);
+}
+html[data-adjy-tur] .adjy-adim:not([data-adjy-vurgu]) {
+  opacity: 0.38;
+}
+
+/* ---------- Rehber çubuğu: adımlar sırasıyla ---------- */
+.adjy-rehber {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--a-yuzey);
+  border-bottom: 1px solid var(--a-cizgi-koyu);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.adjy-rehber::-webkit-scrollbar {
+  display: none;
+}
+.adjy-rehber-sira {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.adjy-rehber-sira::-webkit-scrollbar {
+  display: none;
+}
+.adjy-rehber-sira > button {
+  flex: none;
+}
+.adjy-rehber button {
+  font-family: var(--a-sans) !important;
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.adjy-rehber-adim {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 11px 0 4px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--a-soluk);
+}
+.adjy-rehber-adim[hidden] {
+  display: none;
+}
+.adjy-rehber-adim + .adjy-rehber-adim {
+  margin-left: 14px;
+  position: relative;
+}
+.adjy-rehber-adim + .adjy-rehber-adim::before {
+  content: "›";
+  position: absolute;
+  left: -11px;
+  color: var(--a-silik);
+  pointer-events: none;
+}
+.adjy-rehber-adim:hover {
+  background: var(--a-cukur);
+  color: var(--a-yazi);
+}
+.adjy-rehber-no {
+  width: 20px;
+  height: 20px;
+  font-size: 10.5px !important;
+  color: inherit;
+}
+.adjy-rehber-adim[data-tamam] .adjy-rehber-no {
+  background: var(--a-yazi);
+  border-color: var(--a-yazi);
+  color: var(--a-yuzey);
+}
+.adjy-rehber-adim[aria-current="true"] {
+  background: var(--a-vurgu-soluk);
+  color: var(--a-vurgu);
+}
+.adjy-rehber-sepet {
+  padding: 0 12px;
+  border: 1px dashed var(--a-cizgi-koyu);
+  color: var(--a-yazi);
+}
+.adjy-rehber-yardim {
+  flex: none;
+  height: 30px;
+  padding: 0 13px;
+  border: 1px solid var(--a-cizgi-koyu);
+  border-radius: 999px;
+  background: var(--a-yuzey);
+  color: var(--a-yazi);
+}
+.adjy-rehber-yardim:hover {
+  border-color: var(--a-yazi);
+}
+
+/* ---------- Tur kartı ---------- */
+.adjy-tur {
+  position: fixed;
+  z-index: 9999;
+  width: 300px;
+  padding: 14px 16px 12px;
+  border-radius: 12px;
+  background: var(--a-yazi);
+  color: var(--a-yuzey);
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.3);
+  font: 400 13px/1.5 var(--a-sans);
+}
+.adjy-tur-sayac {
+  font: 500 11px/1 var(--a-mono);
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+}
+.adjy-tur h4 {
+  margin: 6px 0 6px;
+  font: 600 15px/1.3 var(--a-sans);
+  color: inherit;
+}
+.adjy-tur p {
+  margin: 0 0 12px;
+  opacity: 0.88;
+}
+.adjy-tur-dugmeler {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.adjy-tur button {
+  height: 30px;
+  padding: 0 13px;
+  border: 1px solid rgba(128, 128, 128, 0.55);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: 500 12.5px/1 var(--a-sans) !important;
+  cursor: pointer;
+}
+.adjy-tur .adjy-tur-kapat {
+  margin-right: auto;
+  padding: 0;
+  border: 0;
+  opacity: 0.7;
+}
+.adjy-tur .adjy-tur-ileri {
+  background: var(--a-yuzey);
+  border-color: var(--a-yuzey);
+  color: var(--a-yazi);
+}
+@media (max-width: 1099px) {
+  .adjy-tur {
+    left: 12px !important;
+    right: 12px;
+    top: auto !important;
+    bottom: 12px;
+    width: auto;
+  }
+}
+
+/* ---------- Geniş ekran: sol | rehber + model + alt | sağ ---------- */
+@media (min-width: 1100px) {
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-y="kap"] {
+    --adjy-yan: clamp(268px, 21vw, 330px);
+    display: grid !important;
+    grid-template-columns: var(--adjy-yan) minmax(0, 1fr) var(--adjy-yan) !important;
+    grid-template-rows: auto minmax(0, 1fr) auto !important;
+    grid-template-areas: none !important;
+    gap: 0 !important;
+    overflow: hidden !important;
+    background: var(--a-cukur);
+  }
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-y="gecis"],
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-y="panel"] {
+    display: contents !important;
+  }
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-y="gecis"] > :not([data-adjy-y]) {
+    display: none !important;
+  }
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-bolge="rehber"] {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-y="sahne"] {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    order: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+  }
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-bolge="sol"],
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-bolge="sag"] {
+    grid-row: 1 / -1;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    background: var(--a-yuzey);
+  }
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-bolge="sol"] {
+    grid-column: 1;
+    border-right: 1px solid var(--a-cizgi-koyu);
+  }
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-bolge="sag"] {
+    grid-column: 3;
+    border-left: 1px solid var(--a-cizgi-koyu);
+  }
+  /* Modelin altı: adımlar yan yana, içlerindeki ayarlar da yatay dizilir */
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-bolge="alt"] {
+    grid-column: 2;
+    grid-row: 3;
+    display: flex;
+    align-items: stretch;
+    max-height: min(38vh, 270px);
+    overflow: auto;
+    scrollbar-width: thin;
+    background: var(--a-yuzey);
+    border-top: 1px solid var(--a-cizgi-koyu);
+  }
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-bolge="alt"]:empty {
+    display: none;
+  }
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-bolge="alt"] > .adjy-adim {
+    flex: 1 1 0;
+    min-width: 230px;
+    border-bottom: 0;
+    border-right: 1px solid var(--a-cizgi);
+  }
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-bolge="alt"] > .adjy-adim:last-child {
+    border-right: 0;
+  }
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-bolge="alt"] .adjy-adim-ic,
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-bolge="alt"] .adjy-adim-ic > .panel-section,
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-bolge="alt"] .adjy-adim-ic > .ctrl-group,
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-bolge="alt"] .adjy-adim-ic > .module-block,
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-bolge="alt"] .adjy-adim-ic > .sec {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+    gap: 8px 16px;
+    align-items: start;
+  }
+  html[data-adjy-mod="musteri"][data-adjy-yerlesim="orta"] [data-adjy-bolge="alt"] .adjy-adim-ic > * {
+    margin: 0 !important;
+  }
 }
