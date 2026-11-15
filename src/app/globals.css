@@ -89,6 +89,7 @@
   --yilbasi: #1F4A37;
   --yilbasi-on: #F5F4F0;
   --yilbasi-sapka: #C8202B;
+  --yilbasi-altin: #F2B632;
   --kar: #8FA6BA;
 
   /* Yükseltilmiş yüzey (kart, panel) zeminden daha açık */
@@ -149,6 +150,7 @@
   --yilbasi: #1C4533;
   --yilbasi-on: #F5F4F0;
   --yilbasi-sapka: #D8323B;
+  --yilbasi-altin: #F5C451;
   --kar: #E8EEF3;
 
   --surface: oklch(0.178 0.007 264);
@@ -1215,4 +1217,56 @@ input[type="number"] {
 .adjy-yilbasi-raf a.adjy-pixel-card:hover,
 .adjy-yilbasi-raf a.adjy-pixel-card:focus-visible {
   --px: var(--yilbasi-on);
+}
+
+/* ==========================================
+ * YILBAŞI — IŞIK ZİNCİRİ VE IŞILTILAR (components/yilbasi)
+ * Ampuller sırayla yanıp söner (adım adım, piksel hissi);
+ * yanınca arkasındaki piksel hale belirir. Işıltılar altın
+ * piksel yıldızlar. Hareket azaltmada hepsi sabit yanar.
+ * ========================================== */
+.adjy-zincir-halka {
+  transform: translateY(var(--sarkma, 2px)) rotate(var(--egim, 0deg));
+  transform-origin: 50% 0;
+}
+.adjy-ampul {
+  display: block;
+  width: 20px;
+  height: 20px;
+  overflow: visible;
+}
+.adjy-ampul-cam,
+.adjy-ampul-hale {
+  animation: adjy-ampul-yan 1.8s steps(1, end) infinite;
+  animation-delay: var(--gecikme, 0s);
+}
+.adjy-ampul-hale {
+  opacity: 0.28;
+  animation-name: adjy-ampul-hale;
+}
+@keyframes adjy-ampul-yan {
+  0%, 55% { opacity: 1; }
+  56%, 100% { opacity: 0.35; }
+}
+@keyframes adjy-ampul-hale {
+  0%, 55% { opacity: 0.3; }
+  56%, 100% { opacity: 0; }
+}
+.adjy-isilti {
+  opacity: 0;
+  animation: adjy-isilti 3.4s steps(4, end) infinite;
+}
+@keyframes adjy-isilti {
+  0%, 100% { opacity: 0; transform: scale(0.6); }
+  30% { opacity: 1; transform: scale(1); }
+  55% { opacity: 0.25; transform: scale(0.8); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .adjy-ampul-cam,
+  .adjy-ampul-hale,
+  .adjy-isilti {
+    animation: none;
+  }
+  .adjy-ampul-hale { opacity: 0.25; }
+  .adjy-isilti { opacity: 0.7; }
 }

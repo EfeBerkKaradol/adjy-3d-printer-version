@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { SayfaKari } from "@/components/yilbasi/SayfaKari";
 
 // ==========================================
 // SİTE ÇERÇEVESİ
@@ -42,6 +43,8 @@ export function SiteShell({ announcement, header, footer, cookieConsent, childre
         {footer}
       </div>
       {cookieConsent}
+      {/* Yılbaşı döneminde sayfa geneli piksel kar (dönem dışında boş) */}
+      <SayfaKari />
     </>
   );
 }

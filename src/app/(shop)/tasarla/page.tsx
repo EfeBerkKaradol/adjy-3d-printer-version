@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { TASARIM_ARACLARI } from "@/lib/tasarim/catalog";
 import { tumTasarimUrunleri } from "@/lib/tasarim/ensure";
 import { TasarimAracKartlari } from "@/components/tasarim/TasarimAracKartlari";
+import { yilbasiAktif } from "@/lib/yilbasi";
+import { YilbasiBandi } from "@/components/yilbasi/YilbasiBandi";
 
 // ==========================================
 // KENDİN TASARLA — GİRİŞ
@@ -63,6 +65,7 @@ export default async function TasarlaPage() {
       </section>
 
       <div className="adjy-container py-10 lg:py-14">
+        {yilbasiAktif() && <YilbasiBandi className="mb-8" />}
         <TasarimAracKartlari araclar={TASARIM_ARACLARI} />
       </div>
 

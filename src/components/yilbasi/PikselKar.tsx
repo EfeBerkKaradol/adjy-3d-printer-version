@@ -29,7 +29,16 @@ interface Tane {
 
 const IZGARA = 2;
 
-export function PikselKar() {
+interface Props {
+  /**
+   * Sayfa geneli: ekrana sabitlenir, içeriğin ÜSTÜNDEN ama
+   * tıklamaları engellemeden yağar; tanecikler daha seyrek ve küçük
+   * ki okumayı bozmasın. Varsayılan: bulunduğu bölümün arkasında.
+   */
+  sabit?: boolean;
+}
+
+export function PikselKar({ sabit = false }: Props) {
   const tuval = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -50,7 +59,9 @@ export function PikselKar() {
     const yeniTane = (ustten: boolean): Tane => ({
       x: Math.random() * w,
       y: ustten ? -8 - Math.random() * 40 : Math.random() * h,
-      boy: [2, 4, 4, 4, 6, 6][Math.floor(Math.random() * 6)],
+      boy: sabit
+        ? [2, 2, 4, 4, 4][Math.floor(Math.random() * 5)]
+        : [2, 4, 4, 4, 6, 6][Math.floor(Math.random() * 6)],
       hiz: 14 + Math.random() * 26,
       salinim: 6 + Math.random() * 14,
       faz: Math.random() * Math.PI * 2,
@@ -66,7 +77,9 @@ export function PikselKar() {
       cv.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       // Yoğunluk alana göre: telefonda da, geniş ekranda da aynı his
-      const hedef = Math.round(Math.min(220, Math.max(48, (w * h) / 6500)));
+      const hedef = sabit
+        ? Math.round(Math.min(120, Math.max(30, (w * h) / 13000)))
+        : Math.round(Math.min(220, Math.max(48, (w * h) / 6500)));
       taneler = Array.from({ length: hedef }, () => yeniTane(false));
       renk = getComputedStyle(cv).getPropertyValue("--kar").trim() || renk;
     };
@@ -119,18 +132,23 @@ export function PikselKar() {
 
     return () => {
       durdur();
+      ctx.clearRect(0, 0, w, h);
       ro.disconnect();
       io.disconnect();
       tema.disconnect();
       document.removeEventListener("visibilitychange", sekme);
     };
-  }, []);
+  }, [sabit]);
 
   return (
     <canvas
       ref={tuval}
       aria-hidden
-      className="pointer-events-none absolute inset-0 z-0 h-full w-full"
+      className={
+        sabit
+          ? "pointer-events-none fixed inset-0 z-[55] h-screen w-screen"
+          : "pointer-events-none absolute inset-0 z-0 h-full w-full"
+      }
     />
   );
 }

@@ -1,4 +1,5 @@
 import { YILBASI, yilbasiAktif } from "@/lib/yilbasi";
+import { IsikZinciri } from "@/components/yilbasi/IsikZinciri";
 
 // ==========================================
 // HİZMET ŞERİDİ
@@ -55,21 +56,25 @@ export function AnnouncementBar() {
   const maddeler = yilbasi ? [...YILBASI_MADDELERI, ...MADDELER] : MADDELER;
 
   return (
-    // overflow-hidden şart: şerit "max-content" genişlikte, kesilmezse
-    // bütün sayfa yatay kayıyor.
-    <div
-      className={
-        yilbasi
-          ? "overflow-hidden bg-[var(--yilbasi)] text-[var(--yilbasi-on)]"
-          : "overflow-hidden bg-foreground text-background"
-      }
-    >
-      <div className="adjy-serit" role="complementary" aria-label="Mağaza bilgileri">
-        {/* İkinci kopya yalnızca görsel süreklilik için; ekran
-            okuyucu maddeleri bir kez okur. */}
-        <Seri maddeler={maddeler} />
-        <Seri maddeler={maddeler} gizli />
+    <>
+      {/* overflow-hidden şart: şerit "max-content" genişlikte, kesilmezse
+          bütün sayfa yatay kayıyor. */}
+      <div
+        className={
+          yilbasi
+            ? "overflow-hidden bg-[var(--yilbasi)] text-[var(--yilbasi-on)]"
+            : "overflow-hidden bg-foreground text-background"
+        }
+      >
+        <div className="adjy-serit" role="complementary" aria-label="Mağaza bilgileri">
+          {/* İkinci kopya yalnızca görsel süreklilik için; ekran
+              okuyucu maddeleri bir kez okur. */}
+          <Seri maddeler={maddeler} />
+          <Seri maddeler={maddeler} gizli />
+        </div>
       </div>
-    </div>
+      {/* Yılbaşı: şeridin altından sarkan piksel ışık zinciri */}
+      {yilbasi && <IsikZinciri className="relative z-[45]" />}
+    </>
   );
 }

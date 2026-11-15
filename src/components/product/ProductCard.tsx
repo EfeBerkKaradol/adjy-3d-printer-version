@@ -43,6 +43,8 @@ export interface ProductCardProduct {
   _count?: { reviews: number; parameters?: number };
   /** Parametrik ürün mü — ölçüsü değiştirilebiliyor mu */
   isCustomizable?: boolean;
+  /** Yılbaşı koleksiyonunda mı — dönem boyunca kartta etiket */
+  isYilbasi?: boolean;
   /** Ölçü kaydırıcıları — kartın altında, çalışır hâlde */
   parameters?: KartParametre[];
   /** Montajlı dış ölçü (mm) — kartta cm olarak gösterilir */
@@ -141,6 +143,7 @@ export function ProductCard({ product, index = 0, priority = false }: ProductCar
 
           {/* Rozetler */}
           <div className="pointer-events-none absolute left-3 top-3 flex flex-col items-start gap-2">
+            {product.isYilbasi && <PixelTag>Yılbaşı</PixelTag>}
             {product.featured && <PixelTag>Öne çıkan</PixelTag>}
             {customizable && <PixelTag>Özel ölçü</PixelTag>}
             {tasarimAraci && <PixelTag>Kendin tasarla</PixelTag>}

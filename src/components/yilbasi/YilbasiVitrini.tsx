@@ -3,15 +3,15 @@ import { ProductRail, type RailProduct } from "@/components/product/ProductRail"
 import { PixelArrow } from "@/components/home/PixelMoreButton";
 import { YILBASI_KOLEKSIYON_ADRESI } from "@/lib/yilbasi";
 import { GeriSayim } from "./GeriSayim";
-import { PikselKar } from "./PikselKar";
+import { Isiltilar } from "./Isiltilar";
 
 // ==========================================
 // ANA SAYFA — YILBAŞI VİTRİNİ
 //
 // Yılbaşı döneminde karşılamanın hemen altında, bütün genişlikte
 // çam yeşili bir alan: koleksiyonun gerçek ürünleri ve "yılbaşına
-// yetişir mi?" sorusunun canlı cevabı. Alanın arkasında da
-// karşılamadaki gibi piksel kar yağar.
+// yetişir mi?" sorusunun canlı cevabı. Alanın üstünde altın
+// piksel yıldızlar parlar; kar sayfa genelinde yağıyor.
 //
 // Ürünler mağazadaki yılbaşı koleksiyonu etiketinden gelir;
 // koleksiyon boşsa bölüm hiç gösterilmez.
@@ -24,7 +24,7 @@ export function YilbasiVitrini({ urunler }: { urunler: RailProduct[] }) {
       aria-labelledby="yilbasi-baslik"
       className="adjy-yilbasi relative overflow-hidden bg-[var(--yilbasi)] text-[var(--yilbasi-on)]"
     >
-      <PikselKar />
+      <Isiltilar yogun />
       <div className="adjy-container relative z-10 py-16 lg:py-24">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-end lg:gap-16">
           <div className="max-w-xl">

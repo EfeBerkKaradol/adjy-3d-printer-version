@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { FOOTER_NAV } from "@/lib/navigation";
+import { yilbasiAktif } from "@/lib/yilbasi";
+import { IsikZinciri } from "@/components/yilbasi/IsikZinciri";
 
 // ==========================================
 // FOOTER
@@ -12,6 +14,8 @@ import { FOOTER_NAV } from "@/lib/navigation";
 export function Footer() {
   return (
     <footer className="border-t-2 border-dashed border-foreground/80 bg-background">
+      {/* Yılbaşı: altbilginin üst kenarında da ışık zinciri */}
+      {yilbasiAktif() && <IsikZinciri />}
       <div className="adjy-container py-16 md:py-20">
         <div className="grid gap-12 lg:grid-cols-[1.4fr_3fr]">
           {/* Marka */}

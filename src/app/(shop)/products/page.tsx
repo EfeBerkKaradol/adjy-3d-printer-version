@@ -21,6 +21,8 @@ import {
 } from "@/lib/categoryTree";
 import type { FilterCategory } from "@/components/product/ProductFilters";
 import { tasarimUrunleriniHazirla } from "@/lib/tasarim/ensure";
+import { YILBASI, yilbasiAktif } from "@/lib/yilbasi";
+import { YilbasiBandi } from "@/components/yilbasi/YilbasiBandi";
 
 /**
  * Parametrik ürün: ölçü parametresi olan ürün ya da bir tasarım
@@ -82,6 +84,31 @@ function buildOrderBy(sort?: string) {
   }
 }
 
+/**
+ * Varsayılan sıralamada "Kendin Tasarla" ürünleri (slug: tasarla-…)
+ * listenin başına yığılmasın: hepsi aynı gün eklendiği için en yeni
+ * sıralamada ilk sayfayı kaplıyorlardı. Diğer ürünlerin sırası
+ * korunur, tasarım ürünleri liste boyunca eşit aralıklarla araya
+ * yerleşir (ör. 32 + 10 üründe yaklaşık her dördüncü kart).
+ */
+function aralaraDagit<T extends { slug: string }>(sirali: T[]): T[] {
+  const tasarim = sirali.filter((p) => p.slug.startsWith("tasarla-"));
+  if (tasarim.length === 0 || tasarim.length === sirali.length) return sirali;
+  const diger = sirali.filter((p) => !p.slug.startsWith("tasarla-"));
+  const toplam = sirali.length;
+  const yerler = new Set(
+    tasarim.map((_, i) => Math.min(toplam - 1, Math.round(((i + 0.5) * toplam) / tasarim.length)))
+  );
+  const sonuc: T[] = [];
+  let t = 0;
+  let d = 0;
+  for (let i = 0; i < toplam; i++) {
+    if ((yerler.has(i) && t < tasarim.length) || d >= diger.length) sonuc.push(tasarim[t++]);
+    else sonuc.push(diger[d++]);
+  }
+  return sonuc;
+}
+
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const params = await searchParams;
   const page = Math.max(1, Number(params.page) || 1);
@@ -123,6 +150,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   let configurableCount = 0;
   let failed = false;
 
+  const yilbasi = yilbasiAktif();
+
   async function loadProducts() {
     // Kendin Tasarla ürünlerinin satırları yoksa açılır ki mağazada
     // her zaman görünsünler (sunucu başına bir kez çalışır).
@@ -146,12 +175,27 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       where.materialType = values.length === 1 ? { equals: values[0], mode: "insensitive" } : { in: values };
     }
 
-    const [rows, count, configurableCount, tree, collectionTags] = await Promise.all([
-      prisma.product.findMany({
+    // Varsayılan sıralama: önce bütün listenin sırası (yalnız kimlik
+    // ve slug) kurulur, tasarım ürünleri araya dağıtılır, sonra bu
+    // sayfanın ürünleri okunur. Diğer sıralamalarda doğrudan sayfa.
+    const varsayilanSira = !params.sort || params.sort === "popular";
+    let sayfaKimlikleri: string[] | null = null;
+    if (varsayilanSira) {
+      const sira = await prisma.product.findMany({
         where,
         orderBy: buildOrderBy(params.sort),
-        skip: (page - 1) * PAGE_SIZE,
-        take: PAGE_SIZE,
+        select: { id: true, slug: true },
+      });
+      sayfaKimlikleri = aralaraDagit(sira)
+        .slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+        .map((p) => p.id);
+    }
+
+    const [rows, count, configurableCount, tree, collectionTags] = await Promise.all([
+      prisma.product.findMany({
+        where: sayfaKimlikleri ? { id: { in: sayfaKimlikleri } } : where,
+        orderBy: buildOrderBy(params.sort),
+        ...(sayfaKimlikleri ? {} : { skip: (page - 1) * PAGE_SIZE, take: PAGE_SIZE }),
         select: {
           id: true,
           name: true,
@@ -181,6 +225,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           },
           category: { select: { id: true, name: true, slug: true } },
           _count: { select: { reviews: true, parameters: true } },
+          // Yılbaşı etiketi için yalnızca koleksiyon etiketine bakılır
+          tags: {
+            where: { tag: { slug: YILBASI.koleksiyon } },
+            select: { tagId: true },
+          },
         },
       }),
       prisma.product.count({ where }),
@@ -191,9 +240,16 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       loadCollectionTags(prisma),
     ]);
 
+    // Kimlik listesiyle okunan sayfa, dağıtılmış sıraya geri dizilir
+    if (sayfaKimlikleri) {
+      const sira = new Map(sayfaKimlikleri.map((id, i) => [id, i]));
+      rows.sort((a, b) => (sira.get(a.id) ?? 0) - (sira.get(b.id) ?? 0));
+    }
+
     return {
-      products: rows.map(({ gallery, ...p }) => ({
+      products: rows.map(({ gallery, tags, ...p }) => ({
         ...p,
+        isYilbasi: yilbasi && tags.length > 0,
         basePrice: Number(p.basePrice),
         hoverImageUrl: secondImageOf(p.thumbnailUrl, gallery),
       })),
@@ -240,6 +296,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           }))}
         />
       )}
+
+      {/* Yılbaşı döneminde sayfanın başında sezon bandı */}
+      {yilbasi && params.koleksiyon !== YILBASI.koleksiyon && <YilbasiBandi className="mb-10" />}
 
       {/* Başlık */}
       <header className="max-w-2xl">

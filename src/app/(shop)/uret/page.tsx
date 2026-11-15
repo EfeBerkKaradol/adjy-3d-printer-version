@@ -4,6 +4,8 @@ import { ArrowRight, Camera, Upload } from "lucide-react";
 import { TASARIM_ARACLARI } from "@/lib/tasarim/catalog";
 import { tumTasarimUrunleri } from "@/lib/tasarim/ensure";
 import { TasarimAracKartlari } from "@/components/tasarim/TasarimAracKartlari";
+import { yilbasiAktif } from "@/lib/yilbasi";
+import { YilbasiBandi } from "@/components/yilbasi/YilbasiBandi";
 
 export const metadata: Metadata = {
   title: "Üret",
@@ -56,6 +58,7 @@ export default async function UretPage() {
 
   return (
     <div className="adjy-container adjy-section">
+      {yilbasiAktif() && <YilbasiBandi className="mb-10" />}
       <p className="adjy-eyebrow mb-5">ADJY Shopping</p>
       <h1 className="adjy-display max-w-2xl text-[clamp(2rem,4.6vw,3.5rem)]">
         Fikrini ürüne dönüştür.

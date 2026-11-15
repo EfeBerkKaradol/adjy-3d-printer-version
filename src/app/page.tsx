@@ -18,7 +18,6 @@ import { secondImageOf } from "@/lib/gallery";
 import { collectionFilter } from "@/lib/categoryTree";
 import { YILBASI, yilbasiAktif } from "@/lib/yilbasi";
 import { YilbasiVitrini } from "@/components/yilbasi/YilbasiVitrini";
-import { PikselKar } from "@/components/yilbasi/PikselKar";
 
 // Vitrin veritabanından beslenir; statik kalırsa yeni ürünler ancak
 // yeni bir deploy ile görünür. 5 dakikada bir tazelenir.
@@ -336,13 +335,7 @@ export default async function HomePage() {
         description="İstediğiniz ölçüde tasarım ürünleri: vazo, saksı, aydınlatma, masa düzeni ve dekoratif figürler. Kendi atölyemizde 3D baskı, seramik ve alçı ile üretiyoruz."
       />
 
-      {/* Yılbaşı döneminde karşılamaya piksel kar yağar */}
-      <div className="relative">
-        {yilbasi.length > 0 && <PikselKar />}
-        <div className="relative z-10">
-          <PrinterIntro items={printables} />
-        </div>
-      </div>
+      <PrinterIntro items={printables} />
 
       {yilbasi.length > 0 && <YilbasiVitrini urunler={yilbasi} />}
 
