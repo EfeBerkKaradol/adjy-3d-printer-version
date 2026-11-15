@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -10,7 +11,6 @@ import {
   aracOzellestirmeAdresi,
 } from "@/lib/tasarim/catalog";
 import { tasarimBaslangicFiyati } from "@/lib/tasarim/pricing";
-import { tasarimUrunuBul } from "@/lib/tasarim/ensure";
 import { resolvePublicImage } from "@/lib/publicAsset";
 import { TasarimGalerisi } from "@/components/tasarim/TasarimGalerisi";
 import { PixelLink } from "@/components/ui/pixel-link";
@@ -37,9 +37,16 @@ import { formatTRY } from "@/lib/slicer";
 // yapılandırma. Altyazıları hangisi olduğunu söyler.
 // ==========================================
 
-// Ürün satırı ilk ziyarette açılır; derleme anında
-// veritabanına yazılmasın.
-export const dynamic = "force-dynamic";
+// Sayfadaki her şey katalogdan (koddan) geliyor; veritabanına
+// hiç dokunmadığı için derleme anında bir kez üretilir.
+//
+// Ürün satırını burada açmıyoruz: sayfa sonucunu kullanmıyordu,
+// yalnızca her istekte bir sorgu bekletiyordu. Satırı, sepetin
+// ona gerçekten bağlandığı özelleştirme sayfası açar; mağaza,
+// /tasarla ve /uret listeleri de kendi ziyaretlerinde açar.
+export function generateStaticParams() {
+  return TASARIM_ARACLARI.map((a) => ({ arac: a.id }));
+}
 
 export async function generateMetadata({
   params,
@@ -86,10 +93,6 @@ export default async function TasarimUrunPage({
   const { arac: id } = await params;
   const arac = aracBul(id);
   if (!arac) notFound();
-
-  // Ürün satırı burada da açılır: sayfa mağaza listesinden önce
-  // ziyaret edilmiş olabilir.
-  await tasarimUrunuBul(arac);
 
   const fiyat = tasarimBaslangicFiyati(arac);
   const baseUrl = getAbsoluteUrl();
@@ -301,12 +304,20 @@ export default async function TasarimUrunPage({
                     data-lift
                     className="adjy-pixel-card group flex h-full flex-col"
                   >
-                    <div
-                      className="aspect-square bg-surface-2 bg-cover bg-center"
-                      style={gorsel ? { backgroundImage: `url(${gorsel})` } : undefined}
-                      role="img"
-                      aria-label={d.ad}
-                    />
+                    {/* Arka plan görseli olarak galerinin tam boy dosyası
+                        sayfa açılır açılmaz iniyordu; next/image kartın
+                        boyutuna küçültür ve ekrana yaklaşınca yükler. */}
+                    <div className="relative aspect-square overflow-hidden bg-surface-2">
+                      {gorsel && (
+                        <Image
+                          src={gorsel}
+                          alt={d.ad}
+                          fill
+                          sizes="(max-width: 1024px) 50vw, 25vw"
+                          className="object-cover"
+                        />
+                      )}
+                    </div>
                     <div className="flex flex-1 flex-col border-t-2 border-dashed border-foreground/80 px-3.5 py-3">
                       <h3 className="text-[15px] font-semibold leading-snug">{d.ad}</h3>
                       <p className="mt-1.5 font-mono text-xs tabular-nums">

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin, isUnauthorized } from "@/lib/admin";
+import { magazaOnbelleginiTazele } from "@/app/(shop)/products/onbellek";
 
 // GET /api/admin/categories — Kategori listesi
 export async function GET() {
@@ -56,6 +57,9 @@ export async function POST(request: NextRequest) {
                 sortOrder: sortOrder ?? 0,
             },
         });
+
+        // Mağazanın saklanan kategori ağacı ve ürün sayfaları düşer
+        magazaOnbelleginiTazele();
 
         return NextResponse.json(
             { message: "Kategori oluşturuldu", category },

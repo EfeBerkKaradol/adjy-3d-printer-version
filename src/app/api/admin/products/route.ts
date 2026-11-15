@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin, isUnauthorized } from "@/lib/admin";
 import { invalidateProductCache } from "@/lib/cache";
+import { magazaOnbelleginiTazele } from "@/app/(shop)/products/onbellek";
 
 export async function GET(request: NextRequest) {
   const authResult = await requireAdmin();
@@ -118,6 +119,7 @@ export async function POST(request: NextRequest) {
     });
 
     await invalidateProductCache();
+    magazaOnbelleginiTazele();
 
     return NextResponse.json(
       { message: "Ürün oluşturuldu", product: { id: product.id, name: product.name, slug: product.slug } },
@@ -158,6 +160,7 @@ export async function PATCH(request: NextRequest) {
   });
 
   await invalidateProductCache();
+  magazaOnbelleginiTazele();
 
   return NextResponse.json({ message: "Ürün güncellendi", product });
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useHydrated } from "@/hooks/useClientState";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
@@ -14,9 +15,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SearchOverlay } from "./SearchOverlay";
-import { MobileNav } from "./MobileNav";
-import { CartDrawer } from "@/components/cart/CartDrawer";
 import { Dock, DockItem } from "./Dock";
 import { YilbasiSapkasi } from "@/components/yilbasi/YilbasiSapkasi";
 import { NavDropdown, useShopGroups } from "./NavDropdown";
@@ -47,6 +45,49 @@ import {
 const TILE =
   "adjy-glass-tile flex h-10 w-10 items-center justify-center rounded-[13px] text-foreground/75 transition-colors hover:text-foreground";
 
+// Katmanlar (arama, mobil menü, sepet çekmecesi) ayrı parçalarda:
+// Header her sayfada yüklendiği için Radix diyalog kodu ve bu
+// katmanların içeriği de her sayfanın ilk yüküne biniyordu. Her biri
+// ilk açılışında mount edilir ve sonra mount'lu kalır — kapanış
+// animasyonu ve iç durumu bozulmaz.
+const SearchOverlay = dynamic(
+  () => import("./SearchOverlay").then((m) => m.SearchOverlay),
+  { ssr: false }
+);
+const MobileNav = dynamic(
+  () => import("./MobileNav").then((m) => m.MobileNav),
+  { ssr: false }
+);
+const CartDrawer = dynamic(
+  () => import("@/components/cart/CartDrawer").then((m) => m.CartDrawer),
+  { ssr: false }
+);
+
+// Parçayı mount etmeden önden indirir: imleç ya da odak düğmeye
+// gelince ve tarayıcı boşta kalınca. İlk tıklama ağı beklemez.
+// İndirme başarısız olursa sessiz kalır; açılışta yeniden denenir.
+const yutHata = () => {};
+const onYukle = {
+  arama: () => {
+    import("./SearchOverlay").catch(yutHata);
+  },
+  menu: () => {
+    import("./MobileNav").catch(yutHata);
+  },
+  sepet: () => {
+    import("@/components/cart/CartDrawer").catch(yutHata);
+  },
+};
+
+/** Katman bir kez açıldıysa hep true: ilk açılıştan sonra mount'lu kalır */
+function useBirKezAcildi(acik: boolean): boolean {
+  const [acildi, setAcildi] = useState(acik);
+  // Effect yerine render sırasında türetilir: katman, açıldığı
+  // render'da mount olur (ek bir boş kare geçmez)
+  if (acik && !acildi) setAcildi(true);
+  return acik || acildi;
+}
+
 export function Header() {
   const pathname = usePathname();
   const { data: session, status } = useSession();
@@ -57,6 +98,25 @@ export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+  const searchMounted = useBirKezAcildi(searchOpen);
+  const menuMounted = useBirKezAcildi(menuOpen);
+  const cartMounted = useBirKezAcildi(cartOpen);
+
+  // Tarayıcı boşta kalınca katman parçalarını önden indir
+  useEffect(() => {
+    const isit = () => {
+      onYukle.arama();
+      onYukle.sepet();
+      onYukle.menu();
+    };
+    if (typeof window.requestIdleCallback === "function") {
+      const id = window.requestIdleCallback(isit, { timeout: 5000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    // Safari'nin eski sürümlerinde requestIdleCallback yok
+    const t = setTimeout(isit, 3000);
+    return () => clearTimeout(t);
+  }, []);
 
   // Açılır menü: hangi başlık açık, panel nerede ortalanacak
   const [dropdown, setDropdown] = useState<{
@@ -219,6 +279,8 @@ export function Header() {
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
+              onPointerEnter={onYukle.arama}
+              onFocus={onYukle.arama}
               aria-label="Ara"
               className={TILE}
             >
@@ -304,6 +366,8 @@ export function Header() {
             <button
               type="button"
               onClick={() => setCartOpen(true)}
+              onPointerEnter={onYukle.sepet}
+              onFocus={onYukle.sepet}
               aria-label={cartCount > 0 ? `Sepet, ${cartCount} ürün` : "Sepet, boş"}
               className={TILE}
             >
@@ -326,6 +390,8 @@ export function Header() {
             <button
               type="button"
               onClick={() => setMenuOpen(true)}
+              onPointerEnter={onYukle.menu}
+              onFocus={onYukle.menu}
               aria-label="Menüyü aç"
               className={TILE}
             >
@@ -343,9 +409,11 @@ export function Header() {
         />
       </header>
 
-      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
-      <MobileNav open={menuOpen} onOpenChange={setMenuOpen} />
-      <CartDrawer open={cartOpen} onOpenChange={setCartOpen} />
+      {searchMounted && (
+        <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
+      )}
+      {menuMounted && <MobileNav open={menuOpen} onOpenChange={setMenuOpen} />}
+      {cartMounted && <CartDrawer open={cartOpen} onOpenChange={setCartOpen} />}
     </>
   );
 }

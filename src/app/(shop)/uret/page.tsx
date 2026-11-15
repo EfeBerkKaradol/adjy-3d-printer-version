@@ -29,7 +29,8 @@ export const metadata: Metadata = {
 // ==========================================
 
 // Ürün satırları ilk ziyarette açılır (ensure.ts);
-// derleme anında veritabanına yazılmasın.
+// derleme anında veritabanına yazılmasın. Satırlar sunucu
+// belleğinde tutulduğu için çoğu istek veritabanına gitmez.
 export const dynamic = "force-dynamic";
 
 const OPTIONS = [

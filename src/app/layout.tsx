@@ -20,16 +20,21 @@ import { getAbsoluteUrl } from "@/lib/url";
 
 const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID;
 
+// latin-ext şart: ğ, ş, İ, ı bu alt kümede. Yalnızca "latin" seçilince
+// Türkçe harfleri taşıyan dosya önden yüklenmiyor, metin önce yedek
+// yazı tipiyle çizilip sonra değişiyordu.
 const geistSans = Geist({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
 });
 
+// Orbitron'un Google Fonts'ta latin-ext alt kümesi yok (yalnızca
+// "latin"); asıl işi "ADJY" logosu, eklenecek bir şey yok.
 const orbitron = Orbitron({
   variable: "--font-orbitron",
   subsets: ["latin"],

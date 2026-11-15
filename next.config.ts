@@ -97,7 +97,17 @@ const nextConfig: NextConfig = {
       // verilir. Sonraki kural öncekini ezer.
       {
         source: "/tasarim-araclari/:path*",
-        headers: [{ key: "X-Frame-Options", value: "SAMEORIGIN" }],
+        headers: [
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          // Araç dosyaları (büyük HTML, three.js, renderlar) varsayılanda
+          // her ziyarette yeniden doğrulanıyordu. Adlarında sürüm yok,
+          // bu yüzden kısa tutulur: 5 dakika taze, sonrası arka planda
+          // yenilenirken eski kopya gösterilir.
+          {
+            key: "Cache-Control",
+            value: "public, max-age=300, stale-while-revalidate=86400",
+          },
+        ],
       },
       {
         source: "/admin/uretim-araci/:path*",

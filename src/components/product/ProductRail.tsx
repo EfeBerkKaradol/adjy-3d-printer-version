@@ -38,6 +38,13 @@ interface ProductRailProps {
   moreHref: string;
   /** Gösterilecek kart sayısı */
   limit?: number;
+  /**
+   * Sayfanın ilk ekranında görünen raf mı? Yalnızca o rafın ilk iki
+   * görseli öncelikli yüklenir. Eskiden her raf kendi ilk iki
+   * görselini önceliyordu: ana sayfadaki dört beş rafın ekranın çok
+   * altında kalanları da sayfa açılırken indiriliyordu.
+   */
+  priority?: boolean;
 }
 
 function RailCard({ product, priority }: { product: RailProduct; priority: boolean }) {
@@ -87,14 +94,14 @@ function RailCard({ product, priority }: { product: RailProduct; priority: boole
   );
 }
 
-export function ProductRail({ products, moreHref, limit = 4 }: ProductRailProps) {
+export function ProductRail({ products, moreHref, limit = 4, priority = false }: ProductRailProps) {
   if (products.length === 0) return null;
 
   return (
     <>
       <ul className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
         {products.slice(0, limit).map((product, i) => (
-          <RailCard key={product.id} product={product} priority={i < 2} />
+          <RailCard key={product.id} product={product} priority={priority && i < 2} />
         ))}
       </ul>
       <PixelMoreButton href={moreHref} />

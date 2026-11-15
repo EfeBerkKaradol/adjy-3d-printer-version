@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin, isUnauthorized } from "@/lib/admin";
+import { magazaOnbelleginiTazele } from "@/app/(shop)/products/onbellek";
 
 // PUT /api/admin/categories/[categoryId] — Kategori güncelle
 export async function PUT(
@@ -48,6 +49,9 @@ export async function PUT(
                 ...(sortOrder !== undefined && { sortOrder }),
             },
         });
+
+        // Mağazanın saklanan kategori ağacı ve ürün sayfaları düşer
+        magazaOnbelleginiTazele();
 
         return NextResponse.json({ message: "Kategori güncellendi", category });
     } catch (error) {
@@ -100,6 +104,7 @@ export async function DELETE(
     }
 
     await prisma.category.delete({ where: { id: categoryId } });
+    magazaOnbelleginiTazele();
 
     return NextResponse.json({ message: "Kategori silindi" });
 }

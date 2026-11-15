@@ -48,28 +48,53 @@ export function ProductStage({
   parameters,
   defaults,
 }: Props) {
-  const [sekme, setSekme] = useState<Sekme>("foto");
+  // Ziyaretçinin kendi seçtiği sekme; dokunmadıysa null
+  const [secim, setSecim] = useState<Sekme | null>(null);
   const [aktifFoto, setAktifFoto] = useState(0);
   const [modelHazir, setModelHazir] = useState(false);
-  const [kullaniciSecti, setKullaniciSecti] = useState(false);
 
   const model3dVar = !!modelFileUrl;
 
-  // Model yüklendikten sonra kendiliğinden devralır — ziyaretçi
-  // sekmeye kendisi dokunduysa tercihine karışılmaz.
+  // 3D sahne eskiden sabit 1,2 saniye sonra kuruluyordu — yavaş
+  // bağlantıda fotoğraf daha inmeden, yavaş cihazda sayfa hâlâ
+  // kurulurken three.js devreye giriyordu. Süre alt sınır olarak
+  // duruyor (fotoğraf önce görünsün); üstüne sayfanın yüklenmesi
+  // ve tarayıcının boşa çıkması beklenir.
   useEffect(() => {
     if (!model3dVar) return;
-    const t = window.setTimeout(() => setModelHazir(true), 1200);
-    return () => window.clearTimeout(t);
+    let bostaId: number | undefined;
+    const kur = () => setModelHazir(true);
+    const bostaKur = () => {
+      // Safari'de requestIdleCallback yok: doğrudan kurulur
+      if (typeof window.requestIdleCallback === "function") {
+        bostaId = window.requestIdleCallback(kur, { timeout: 2000 });
+      } else {
+        kur();
+      }
+    };
+    const t = window.setTimeout(() => {
+      if (document.readyState === "complete") bostaKur();
+      else window.addEventListener("load", bostaKur, { once: true });
+    }, 1200);
+    // Takılan bir dış kaynak "load"u geciktirirse 3D sonsuza kadar
+    // "hazırlanıyor"da kalmasın.
+    const sinir = window.setTimeout(kur, 6000);
+    return () => {
+      window.clearTimeout(t);
+      window.clearTimeout(sinir);
+      window.removeEventListener("load", bostaKur);
+      if (bostaId !== undefined) window.cancelIdleCallback(bostaId);
+    };
   }, [model3dVar]);
 
-  useEffect(() => {
-    if (modelHazir && !kullaniciSecti) setSekme("3d");
-  }, [modelHazir, kullaniciSecti]);
+  // Model kurulduktan sonra kendiliğinden devralır — ziyaretçi
+  // sekmeye kendisi dokunduysa tercihine karışılmaz.
+  const sekme: Sekme = secim ?? (modelHazir ? "3d" : "foto");
 
   function sec(s: Sekme) {
-    setKullaniciSecti(true);
-    setSekme(s);
+    setSecim(s);
+    // 3D'yi kendisi açan ziyaretçi zamanlayıcıyı beklemez
+    if (s === "3d") setModelHazir(true);
   }
 
   const renk = FILAMENT_COLORS.find((c) => c.id === parameters.color)?.hex;
@@ -95,11 +120,15 @@ export function ProductStage({
 
         {model3dVar && modelHazir && (
           <div className={`absolute inset-0 ${sekme === "3d" ? "" : "invisible"}`}>
+            {/* Fotoğraf sekmesindeyken sahne kurulu kalır (kamera açısı
+                korunur) ama kare çizmez: görüntüleyici yalnızca bir şey
+                değiştiğinde çizer. */}
             <ModelViewer
               parameters={modelParams}
               productType={productType}
               modelFileUrl={modelFileUrl}
               defaults={defaults}
+              visible={sekme === "3d"}
             />
           </div>
         )}

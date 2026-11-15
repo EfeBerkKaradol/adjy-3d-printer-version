@@ -479,11 +479,14 @@
 }
 
 /* Dock içindeki karo — iOS ikon zemini gibi: camın
-   üstünde bir kat daha buzlu, köşeleri yumuşak */
+   üstünde bir kat daha buzlu, köşeleri yumuşak.
+   Kendi backdrop-filter'ı YOK: dock zaten arkasını bulanıklaştırıyor;
+   iç içe ikinci süzgeç yalnızca dock'un kendi (zaten düz) zeminini
+   bulanıklaştırır, görüntüye bir şey katmadan her karo için ayrı
+   bir bulanıklık katmanı hesaplatırdı. Buz hissi yarı saydam
+   zeminden ve üst kenardaki ışık çizgisinden geliyor. */
 .adjy-glass-tile {
   background: rgb(255 255 255 / 0.45);
-  -webkit-backdrop-filter: blur(12px) saturate(160%);
-  backdrop-filter: blur(12px) saturate(160%);
   border: 1px solid rgb(255 255 255 / 0.5);
   box-shadow:
     0 1px 2px rgb(0 0 0 / 0.05),
@@ -1224,32 +1227,20 @@ input[type="number"] {
  * Ampuller sırayla yanıp söner (adım adım, piksel hissi);
  * yanınca arkasındaki piksel hale belirir. Işıltılar altın
  * piksel yıldızlar. Hareket azaltmada hepsi sabit yanar.
+ *
+ * Zincirde animasyon ampulün piksellerinde değil, aynı anda yanan
+ * ampullerin "yanık" katmanını taşıyan grupta (IsikZinciri.tsx):
+ * grup görünürken ampul yanık, gizlenince altındaki sönük hâli
+ * kalır. Gecikme grubun satır içi animation-delay'inden gelir.
  * ========================================== */
-.adjy-zincir-halka {
-  transform: translateY(var(--sarkma, 2px)) rotate(var(--egim, 0deg));
-  transform-origin: 50% 0;
-}
-.adjy-ampul {
-  display: block;
-  width: 20px;
-  height: 20px;
-  overflow: visible;
-}
-.adjy-ampul-cam,
-.adjy-ampul-hale {
+.adjy-ampul-isik {
   animation: adjy-ampul-yan 1.8s steps(1, end) infinite;
-  animation-delay: var(--gecikme, 0s);
 }
 .adjy-ampul-hale {
-  opacity: 0.28;
-  animation-name: adjy-ampul-hale;
+  opacity: 0.3;
 }
 @keyframes adjy-ampul-yan {
   0%, 55% { opacity: 1; }
-  56%, 100% { opacity: 0.35; }
-}
-@keyframes adjy-ampul-hale {
-  0%, 55% { opacity: 0.3; }
   56%, 100% { opacity: 0; }
 }
 .adjy-isilti {
@@ -1262,8 +1253,7 @@ input[type="number"] {
   55% { opacity: 0.25; transform: scale(0.8); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .adjy-ampul-cam,
-  .adjy-ampul-hale,
+  .adjy-ampul-isik,
   .adjy-isilti {
     animation: none;
   }

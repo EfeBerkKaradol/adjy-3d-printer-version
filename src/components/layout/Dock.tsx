@@ -10,11 +10,11 @@ import {
 import {
   motion,
   useMotionValue,
-  useReducedMotion,
   useSpring,
   useTransform,
   type MotionValue,
 } from "framer-motion";
+import { useMediaQuery } from "@/hooks/useClientState";
 import { cn } from "@/lib/utils";
 
 // ==========================================
@@ -69,7 +69,10 @@ interface DockItemProps {
 
 export function DockItem({ children, className, max = AZAMI }: DockItemProps) {
   const mouseX = useContext(DockContext);
-  const reduce = useReducedMotion();
+  // framer-motion'ın useReducedMotion'ı sunucuda null, istemcide ilk
+  // render'da gerçek değeri verir → hidrasyon uyuşmazlığı. Bu kanca
+  // hidrasyonda sunucuyla aynı (false) başlar, sonra gerçek değere geçer.
+  const reduce = useMediaQuery("(prefers-reduced-motion: reduce)");
   const ref = useRef<HTMLDivElement>(null);
   const [base, setBase] = useState(0);
 
@@ -101,23 +104,18 @@ export function DockItem({ children, className, max = AZAMI }: DockItemProps) {
   // Hafifçe aşağı süzülür — dock üstte olduğu için ekrandan uzağa doğru
   const y = useTransform(scale, (s) => (s - 1) * 14);
 
-  if (reduce) {
-    return (
-      <div ref={ref} className={cn("relative shrink-0", className)}>
-        {children}
-      </div>
-    );
-  }
-
+  // Hareket azaltmada da AYNI iki katman çizilir, yalnızca hareket
+  // değerleri bağlanmaz: yapı sunucu çıktısıyla aynı kalır ve tercih
+  // sonradan öğrenilince içerik (menüler, düğmeler) yeniden kurulmaz.
   return (
     <motion.div
-      style={{ marginLeft: margin, marginRight: margin }}
+      style={reduce ? undefined : { marginLeft: margin, marginRight: margin }}
       className={cn("relative shrink-0", className)}
     >
       <motion.div
         ref={ref}
-        style={{ scale, y }}
-        className="origin-center will-change-transform"
+        style={reduce ? undefined : { scale, y }}
+        className={cn("origin-center", !reduce && "will-change-transform")}
       >
         {children}
       </motion.div>

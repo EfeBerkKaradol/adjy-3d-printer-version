@@ -39,7 +39,6 @@ export function ARButton({
   parameters,
   productType,
   modelFileUrl,
-  productName,
   compact = false,
   onActivateAR,
 }: ARButtonProps) {

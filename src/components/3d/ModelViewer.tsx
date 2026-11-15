@@ -1,6 +1,6 @@
 "use client";
 
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import {
   OrbitControls,
   Environment,
@@ -9,7 +9,7 @@ import {
   AdaptiveDpr,
   AdaptiveEvents,
 } from "@react-three/drei";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { ParametricModel } from "./ParametricModel";
 import { GLBModelViewer } from "./GLBModelViewer";
 import { GLBErrorBoundary, Grounded, shouldUseGLB } from "./sceneParts";
@@ -29,6 +29,24 @@ interface ModelViewerProps {
   modelFileUrl?: string | null;
   /** Parametrelerin varsayılan değerleri — ölçek bunlara göre hesaplanır */
   defaults?: Record<string, number>;
+  /**
+   * Sahne ekranda mı? Ürün sayfası fotoğraf sekmesindeyken sahneyi
+   * gizli tutar; yeniden göründüğünde bir kare çizilir.
+   */
+  visible?: boolean;
+}
+
+/**
+ * Sahne yalnızca gerektiğinde çizildiği için (frameloop="demand")
+ * gizliyken hiçbir kare üretilmez. Yeniden görünür olduğunda tuval
+ * eski ya da boş bir kareyle kalmasın diye bir kare istenir.
+ */
+function RedrawWhenVisible({ visible }: { visible: boolean }) {
+  const invalidate = useThree((state) => state.invalidate);
+  useEffect(() => {
+    if (visible) invalidate();
+  }, [visible, invalidate]);
+  return null;
 }
 
 function LoadingFallback() {
@@ -42,7 +60,13 @@ function LoadingFallback() {
   );
 }
 
-export function ModelViewer({ parameters, productType, modelFileUrl, defaults }: ModelViewerProps) {
+export function ModelViewer({
+  parameters,
+  productType,
+  modelFileUrl,
+  defaults,
+  visible = true,
+}: ModelViewerProps) {
   const useGLB = shouldUseGLB(modelFileUrl, productType);
 
   const parametricFallback = (
@@ -52,12 +76,21 @@ export function ModelViewer({ parameters, productType, modelFileUrl, defaults }:
   return (
     <div className="relative w-full aspect-square bg-gradient-to-b from-muted/30 to-muted/60 rounded-2xl overflow-hidden adjy-pixel-frame">
       <Suspense fallback={<LoadingFallback />}>
+        {/* frameloop="demand": sahnede kendiliğinden hareket eden bir
+            şey yok; model dursa da saniyede 60 kare çizmek pili ve
+            ekran kartını boşuna yoruyordu. Döndürme (OrbitControls),
+            parametre değişimi ve modelin yüklenmesi kendi karesini
+            ister. Sahneye sürekli dönen bir şey eklenirse "always"e
+            dönmek ya da o bileşenin invalidate() çağırması gerekir. */}
         <Canvas
           camera={{ position: [5, 3.8, 5], fov: 45 }}
           shadows
           dpr={[1, 1.5]}
           gl={{ antialias: true, alpha: true }}
+          frameloop="demand"
         >
+          <RedrawWhenVisible visible={visible} />
+
           {/* Performans */}
           <AdaptiveDpr pixelated />
           <AdaptiveEvents />

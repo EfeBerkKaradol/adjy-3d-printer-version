@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/db";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { secondImageOf } from "@/lib/gallery";
@@ -21,6 +22,7 @@ import {
 } from "@/lib/categoryTree";
 import type { FilterCategory } from "@/components/product/ProductFilters";
 import { tasarimUrunleriniHazirla } from "@/lib/tasarim/ensure";
+import { MAGAZA_LISTELERI_ETIKETI, MAGAZA_LISTELERI_SURESI } from "./onbellek";
 import { YILBASI, yilbasiAktif } from "@/lib/yilbasi";
 import { YilbasiBandi } from "@/components/yilbasi/YilbasiBandi";
 
@@ -51,6 +53,45 @@ export const metadata: Metadata = {
 };
 
 const PAGE_SIZE = 12;
+
+// Filtre çubuğunun listeleri (kategori ağacı, koleksiyonlar,
+// malzemeler) seçilen filtreden bağımsız ve seyrek değişiyor;
+// yine de her sayfa açılışında, her filtre tıklamasında yeniden
+// soruluyorlardı. Beş dakikalığına saklanırlar; yönetim panelinde
+// ürün ya da kategori değişince etiketle hemen düşürülürler
+// (bkz. ./onbellek.ts). Veritabanı hatası saklanmaz.
+const LISTE_ONBELLEGI = {
+  revalidate: MAGAZA_LISTELERI_SURESI,
+  tags: [MAGAZA_LISTELERI_ETIKETI],
+};
+
+const kategoriAgaci = unstable_cache(
+  () => loadCategoryTree(prisma),
+  ["magaza-kategori-agaci"],
+  LISTE_ONBELLEGI
+);
+
+const koleksiyonEtiketleri = unstable_cache(
+  () => loadCollectionTags(prisma),
+  ["magaza-koleksiyon-etiketleri"],
+  LISTE_ONBELLEGI
+);
+
+const malzemeTurleri = unstable_cache(
+  async () => {
+    const rows = await prisma.product.findMany({
+      where: { isActive: true, materialType: { not: null } },
+      select: { materialType: true },
+      distinct: ["materialType"],
+    });
+    return rows
+      .map((m) => m.materialType)
+      .filter((m): m is string => Boolean(m))
+      .sort();
+  },
+  ["magaza-malzeme-turleri"],
+  LISTE_ONBELLEGI
+);
 
 interface ProductsPageProps {
   searchParams: Promise<{
@@ -157,94 +198,105 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     // her zaman görünsünler (sunucu başına bir kez çalışır).
     await tasarimUrunleriniHazirla();
 
-    // Aile filtresi için önce hangi malzemeler var, onu bilmek
-    // gerekiyor: "seramik" seçimi, o aileye giren bütün malzeme
-    // adlarına çevrilerek sorguya giriyor.
-    const materialRows = await prisma.product.findMany({
-      where: { isActive: true, materialType: { not: null } },
-      select: { materialType: true },
-      distinct: ["materialType"],
-    });
-    const materialTypes = materialRows
-      .map((m) => m.materialType)
-      .filter((m): m is string => Boolean(m))
-      .sort();
+    // Filtreden bağımsız listeler ve sayım, ürün sorgularını
+    // beklemeden hemen başlar. Önceden dört tur art arda gidiliyordu:
+    // malzemeler → sıra → sayfa → sayım ve listeler.
+    const malzemeler = malzemeTurleri();
 
-    if (selectedMaterial) {
-      const values = materialFilterValues(selectedMaterial, materialTypes);
-      where.materialType = values.length === 1 ? { equals: values[0], mode: "insensitive" } : { in: values };
-    }
+    const urunSecimi = {
+      id: true,
+      name: true,
+      slug: true,
+      description: true,
+      basePrice: true,
+      thumbnailUrl: true,
+      gallery: true,
+      featured: true,
+      widthMm: true,
+      depthMm: true,
+      heightMm: true,
+      // Ölçü kaydırıcıları kartın altında çalışıyor
+      parameters: {
+        orderBy: { sortOrder: "asc" },
+        select: {
+          name: true,
+          displayName: true,
+          minValue: true,
+          maxValue: true,
+          defaultValue: true,
+          step: true,
+          unit: true,
+          affectsPrice: true,
+          priceFormula: true,
+        },
+      },
+      category: { select: { id: true, name: true, slug: true } },
+      _count: { select: { reviews: true, parameters: true } },
+      // Yılbaşı etiketi için yalnızca koleksiyon etiketine bakılır
+      tags: {
+        where: { tag: { slug: YILBASI.koleksiyon } },
+        select: { tagId: true },
+      },
+    } as const;
 
-    // Varsayılan sıralama: önce bütün listenin sırası (yalnız kimlik
-    // ve slug) kurulur, tasarım ürünleri araya dağıtılır, sonra bu
-    // sayfanın ürünleri okunur. Diğer sıralamalarda doğrudan sayfa.
-    const varsayilanSira = !params.sort || params.sort === "popular";
-    let sayfaKimlikleri: string[] | null = null;
-    if (varsayilanSira) {
+    // Bu sayfanın ürünleri ve toplam sayı
+    async function sayfayiOku() {
+      // Aile filtresi için önce hangi malzemeler var, onu bilmek
+      // gerekiyor: "seramik" seçimi, o aileye giren bütün malzeme
+      // adlarına çevrilerek sorguya giriyor.
+      if (selectedMaterial) {
+        const values = materialFilterValues(selectedMaterial, await malzemeler);
+        where.materialType = values.length === 1 ? { equals: values[0], mode: "insensitive" } : { in: values };
+      }
+
+      // Varsayılan sıralama: önce bütün listenin sırası (yalnız kimlik
+      // ve slug) kurulur, tasarım ürünleri araya dağıtılır, sonra bu
+      // sayfanın ürünleri okunur. Diğer sıralamalarda doğrudan sayfa.
+      const varsayilanSira = !params.sort || params.sort === "popular";
+      if (!varsayilanSira) {
+        const [rows, count] = await Promise.all([
+          prisma.product.findMany({
+            where,
+            orderBy: buildOrderBy(params.sort),
+            skip: (page - 1) * PAGE_SIZE,
+            take: PAGE_SIZE,
+            select: urunSecimi,
+          }),
+          prisma.product.count({ where }),
+        ]);
+        return { rows, count };
+      }
+
       const sira = await prisma.product.findMany({
         where,
         orderBy: buildOrderBy(params.sort),
         select: { id: true, slug: true },
       });
-      sayfaKimlikleri = aralaraDagit(sira)
+      const sayfaKimlikleri = aralaraDagit(sira)
         .slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
         .map((p) => p.id);
+      const rows = await prisma.product.findMany({
+        where: { id: { in: sayfaKimlikleri } },
+        select: urunSecimi,
+      });
+      // Kimlik listesiyle okunan sayfa, dağıtılmış sıraya geri dizilir
+      const yer = new Map(sayfaKimlikleri.map((id, i) => [id, i]));
+      rows.sort((a, b) => (yer.get(a.id) ?? 0) - (yer.get(b.id) ?? 0));
+      // Sıra listesi aynı filtreyle okundu: uzunluğu toplam sayıdır,
+      // ayrıca saydırmaya gerek yok.
+      return { rows, count: sira.length };
     }
 
-    const [rows, count, configurableCount, tree, collectionTags] = await Promise.all([
-      prisma.product.findMany({
-        where: sayfaKimlikleri ? { id: { in: sayfaKimlikleri } } : where,
-        orderBy: buildOrderBy(params.sort),
-        ...(sayfaKimlikleri ? {} : { skip: (page - 1) * PAGE_SIZE, take: PAGE_SIZE }),
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          description: true,
-          basePrice: true,
-          thumbnailUrl: true,
-          gallery: true,
-          featured: true,
-          widthMm: true,
-          depthMm: true,
-          heightMm: true,
-          // Ölçü kaydırıcıları kartın altında çalışıyor
-          parameters: {
-            orderBy: { sortOrder: "asc" },
-            select: {
-              name: true,
-              displayName: true,
-              minValue: true,
-              maxValue: true,
-              defaultValue: true,
-              step: true,
-              unit: true,
-              affectsPrice: true,
-              priceFormula: true,
-            },
-          },
-          category: { select: { id: true, name: true, slug: true } },
-          _count: { select: { reviews: true, parameters: true } },
-          // Yılbaşı etiketi için yalnızca koleksiyon etiketine bakılır
-          tags: {
-            where: { tag: { slug: YILBASI.koleksiyon } },
-            select: { tagId: true },
-          },
-        },
-      }),
-      prisma.product.count({ where }),
-      prisma.product.count({
-        where: { isActive: true, ...PARAMETRIK },
-      }),
-      loadCategoryTree(prisma),
-      loadCollectionTags(prisma),
-    ]);
-
-    // Kimlik listesiyle okunan sayfa, dağıtılmış sıraya geri dizilir
-    if (sayfaKimlikleri) {
-      const sira = new Map(sayfaKimlikleri.map((id, i) => [id, i]));
-      rows.sort((a, b) => (sira.get(a.id) ?? 0) - (sira.get(b.id) ?? 0));
-    }
+    const [{ rows, count }, materialTypes, configurableCount, tree, collectionTags] =
+      await Promise.all([
+        sayfayiOku(),
+        malzemeler,
+        prisma.product.count({
+          where: { isActive: true, ...PARAMETRIK },
+        }),
+        kategoriAgaci(),
+        koleksiyonEtiketleri(),
+      ]);
 
     return {
       products: rows.map(({ gallery, tags, ...p }) => ({

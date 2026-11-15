@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin";
 import { BUILD, routeForMaterial } from "@/lib/production";
+import { magazaOnbelleginiTazele } from "@/app/(shop)/products/onbellek";
 
 // ==========================================
 // POST /api/admin/products/:id/model
@@ -150,6 +151,9 @@ export async function POST(
       olusan += 1;
     }
   }
+
+  // Model, ölçü ve parametreler ürün sayfasında görünür
+  magazaOnbelleginiTazele();
 
   return NextResponse.json({
     ok: true,

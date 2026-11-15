@@ -28,6 +28,8 @@ interface Tane {
 }
 
 const IZGARA = 2;
+/** Sayfa geneli kar saniyede en çok bu kadar kare çizer */
+const SABIT_FPS = 30;
 
 interface Props {
   /**
@@ -55,6 +57,14 @@ export function PikselKar({ sabit = false }: Props) {
     let kare = 0;
     let gorunur = true;
     let onceki = performance.now();
+    // Sayfa geneli kar ekranın tamamını kaplar: her karede koca bir
+    // tuvali silip yeniden yüklemek pahalı. Tanecikler zaten IZGARA'ya
+    // oturduğu ve saniyede en çok ~20 ızgara adımı attığı için 30 kare
+    // gözle aynı görünür. Bölüm içi kar eskisi gibi her karede çizilir.
+    const aralik = sabit ? 1000 / SABIT_FPS : 0;
+    // Sabit karda ölçüyü ekranı kaplayan kap verir; tuvalin kendi
+    // ölçüsü aşağıda IZGARA'nın tam katına yuvarlanır.
+    const kap = (sabit && cv.parentElement) || cv;
 
     const yeniTane = (ustten: boolean): Tane => ({
       x: Math.random() * w,
@@ -69,13 +79,39 @@ export function PikselKar({ sabit = false }: Props) {
     });
 
     const boyutla = () => {
-      const r = cv.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      w = r.width;
-      h = r.height;
-      cv.width = Math.round(w * dpr);
-      cv.height = Math.round(h * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const r = kap.getBoundingClientRect();
+      const gercekDpr = window.devicePixelRatio || 1;
+      // Sayfa geneli kar: tuvalin bir pikseli = bir ızgara karesi.
+      // Tanecikler yalnızca ızgaraya oturan kareler olduğu için görüntü
+      // aynı kalır (tarayıcı "pixelated" ile büyütür), ama silinen ve
+      // ekrana yüklenen piksel sayısı DPR 2'de 16'da bire iner.
+      // Yalnızca ızgara karesi tam sayıda ekran pikseline denk geliyorsa
+      // (DPR 1, 1.5, 2, 3…): %125 gibi ara ölçeklerde en yakın komşu
+      // büyütme kareleri eşitsiz çizerdi, orada eski yol kalır.
+      const kaba = sabit && Number.isInteger(IZGARA * gercekDpr);
+      if (kaba) {
+        const gw = Math.ceil(r.width / IZGARA);
+        const gh = Math.ceil(r.height / IZGARA);
+        w = gw * IZGARA;
+        h = gh * IZGARA;
+        cv.width = gw;
+        cv.height = gh;
+        ctx.setTransform(1 / IZGARA, 0, 0, 1 / IZGARA, 0, 0);
+      } else {
+        const dpr = Math.min(gercekDpr, 2);
+        w = r.width;
+        h = r.height;
+        cv.width = Math.round(w * dpr);
+        cv.height = Math.round(h * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      if (sabit) {
+        // Ekran ölçüsü tek sayıysa büyütme yine tam IZGARA katı olsun
+        // diye tuval kabından 1 px taşar; kap taşanı keser.
+        cv.style.width = kaba ? `${w}px` : "";
+        cv.style.height = kaba ? `${h}px` : "";
+        cv.style.imageRendering = kaba ? "pixelated" : "";
+      }
       // Yoğunluk alana göre: telefonda da, geniş ekranda da aynı his
       const hedef = sabit
         ? Math.round(Math.min(120, Math.max(30, (w * h) / 13000)))
@@ -85,6 +121,9 @@ export function PikselKar({ sabit = false }: Props) {
     };
 
     const ciz = (simdi: number) => {
+      kare = requestAnimationFrame(ciz);
+      // 4 ms pay: 60 Hz ekranda tam iki karede bir çizilsin
+      if (simdi - onceki < aralik - 4) return;
       const dt = Math.min(0.05, (simdi - onceki) / 1000);
       onceki = simdi;
       ctx.clearRect(0, 0, w, h);
@@ -99,7 +138,6 @@ export function PikselKar({ sabit = false }: Props) {
         ctx.fillRect(x, y, t.boy, t.boy);
       }
       ctx.globalAlpha = 1;
-      kare = requestAnimationFrame(ciz);
     };
 
     const baslat = () => {
@@ -114,7 +152,7 @@ export function PikselKar({ sabit = false }: Props) {
 
     boyutla();
     const ro = new ResizeObserver(boyutla);
-    ro.observe(cv);
+    ro.observe(kap);
     const io = new IntersectionObserver(([e]) => {
       gorunur = e.isIntersecting;
       if (gorunur) baslat();
@@ -140,15 +178,22 @@ export function PikselKar({ sabit = false }: Props) {
     };
   }, [sabit]);
 
+  if (sabit) {
+    return (
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 z-[55] h-screen w-screen overflow-hidden"
+      >
+        <canvas ref={tuval} className="absolute left-0 top-0 h-full w-full" />
+      </div>
+    );
+  }
+
   return (
     <canvas
       ref={tuval}
       aria-hidden
-      className={
-        sabit
-          ? "pointer-events-none fixed inset-0 z-[55] h-screen w-screen"
-          : "pointer-events-none absolute inset-0 z-0 h-full w-full"
-      }
+      className="pointer-events-none absolute inset-0 z-0 h-full w-full"
     />
   );
 }

@@ -68,11 +68,44 @@ async function aracKategorisi(arac: TasarimAraci): Promise<string> {
   return ortak.id;
 }
 
+// Araç → ürün satırı eşlemesi, sunucu başına bellekte tutulur.
+//
+// /tasarla ve /uret her istekte on aracın satırını tek tek
+// soruyordu: sayfanın kendisi veritabanından hiçbir şey
+// göstermediği hâlde on sorgu bekleniyordu.
+//
+// Yalnızca bulunan satırlar yazılır; açılamayan (null) araç
+// sonraki istekte yeniden denenir. Süre sınırı, yönetim
+// panelinden silinen bir satırın sunucu yeniden başlayana kadar
+// "var" sayılmaması için: en geç beş dakika sonra yeniden aranır
+// ve yoksa açılır.
+const URUN_ONBELLEK_SURESI_MS = 5 * 60 * 1000;
+const urunOnbellek = new Map<string, { id: string; an: number }>();
+
+function onbellektekiUrun(aracId: string): string | null {
+  const kayit = urunOnbellek.get(aracId);
+  if (!kayit) return null;
+  if (Date.now() - kayit.an > URUN_ONBELLEK_SURESI_MS) {
+    urunOnbellek.delete(aracId);
+    return null;
+  }
+  return kayit.id;
+}
+
 /**
  * Aracın ürün satırını döndürür, yoksa açar.
  * Açılamazsa null — sayfa yine açılır ama sepete eklenemez.
  */
 export async function tasarimUrunuBul(arac: TasarimAraci): Promise<string | null> {
+  const onbellekte = onbellektekiUrun(arac.id);
+  if (onbellekte) return onbellekte;
+
+  const id = await urunuBulVeyaAc(arac);
+  if (id) urunOnbellek.set(arac.id, { id, an: Date.now() });
+  return id;
+}
+
+async function urunuBulVeyaAc(arac: TasarimAraci): Promise<string | null> {
   const sku = tasarimSku(arac.id);
 
   try {
@@ -119,11 +152,41 @@ export async function tasarimUrunuBul(arac: TasarimAraci): Promise<string | null
   }
 }
 
-/** Bütün araçların satırlarını açar — liste sayfası ve seed betiği için */
+/**
+ * Bütün araçların satırlarını açar — liste sayfası ve seed betiği için.
+ *
+ * Bellekte olmayanlar tek sorguda aranır (araç başına bir sorgu
+ * değil). Satırı hiç olmayan araç için açma yolu sırayla işler:
+ * kategorisiz araçlar aynı ortak kategoriyi açtığından yan yana
+ * çalışınca birbirleriyle çakışırlar.
+ */
 export async function tumTasarimUrunleri(): Promise<Map<string, string>> {
   const sonuc = new Map<string, string>();
+  const aranacak: TasarimAraci[] = [];
   for (const arac of TASARIM_ARACLARI) {
-    const id = await tasarimUrunuBul(arac);
+    const id = onbellektekiUrun(arac.id);
+    if (id) sonuc.set(arac.id, id);
+    else aranacak.push(arac);
+  }
+  if (aranacak.length === 0) return sonuc;
+
+  const mevcut = new Map<string, string>();
+  try {
+    const satirlar = await prisma.product.findMany({
+      where: { sku: { in: aranacak.map((a) => tasarimSku(a.id)) } },
+      select: { id: true, sku: true },
+    });
+    for (const s of satirlar) if (s.sku) mevcut.set(s.sku, s.id);
+  } catch {
+    // Veritabanına ulaşılamadı: araç başına yeniden denemek aynı
+    // hatayı on kez bekletir. Eldekiyle dönülür, sonraki istek dener.
+    return sonuc;
+  }
+
+  for (const arac of aranacak) {
+    const bulunan = mevcut.get(tasarimSku(arac.id));
+    if (bulunan) urunOnbellek.set(arac.id, { id: bulunan, an: Date.now() });
+    const id = bulunan ?? (await tasarimUrunuBul(arac));
     if (id) sonuc.set(arac.id, id);
   }
   return sonuc;

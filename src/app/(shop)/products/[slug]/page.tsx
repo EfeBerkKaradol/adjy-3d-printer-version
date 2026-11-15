@@ -1,28 +1,26 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { aracAdresi, slugdanAracId } from "@/lib/tasarim/catalog";
 import { prisma } from "@/lib/db";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { AddToCartButton } from "@/components/product/AddToCartButton";
 import { ProductExperience } from "@/components/product/ProductExperience";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { readGallery, secondImageOf } from "@/lib/gallery";
-import { ProductARButton } from "@/components/ar/ProductARButton";
 import { ProductReviews } from "@/components/product/ProductReviews";
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import { productDescription, productKeywords, productTitle } from "@/lib/seo";
 import { getAbsoluteUrl } from "@/lib/url";
 import { getProductType } from "@/lib/productType";
 import { formatCmValue } from "@/lib/units";
-import { AlertCircle, ArrowRight, CheckCircle, Sliders, Star } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 // ==========================================
 // ÜRÜN DETAY SAYFASI
@@ -40,57 +38,80 @@ interface ProductDetailPageProps {
   params: Promise<{ slug: string }>;
 }
 
-async function getProduct(slug: string) {
-  const byId = /^c[a-z0-9]{24,}$/.test(slug);
+// Ürün sayfası her istekte baştan çiziliyordu; içinde ziyaretçiye
+// ya da isteğe özel hiçbir şey yok (sepet, favori ve yorumlar
+// tarayıcıda yüklenir). Beş dakikalığına saklanır.
+//
+// Derleme anında hiçbir ürün üretilmez (liste boş): veritabanına
+// derlemede dokunulmaz, her ürün ilk ziyaretinde çizilip saklanır.
+// Yönetim panelindeki değişiklikler beş dakikayı beklemez — ilgili
+// uçlar sayfayı düşürür (bkz. ../onbellek.ts).
+export const revalidate = 300;
 
-  const product = await prisma.product.findFirst({
-    where: byId ? { id: slug, isActive: true } : { slug, isActive: true },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      sku: true,
-      description: true,
-      basePrice: true,
-      thumbnailUrl: true,
-      modelFileUrl: true,
-      gallery: true,
-      printTimeEst: true,
-      materialType: true,
-      materialWeight: true,
-      widthMm: true,
-      depthMm: true,
-      heightMm: true,
-      customMouldFee: true,
-      stockQty: true,
-      featured: true,
-      category: { select: { id: true, name: true, slug: true, parentId: true } },
-      parameters: {
-        orderBy: { sortOrder: "asc" },
-        select: {
-          id: true,
-          name: true,
-          displayName: true,
-          type: true,
-          minValue: true,
-          maxValue: true,
-          defaultValue: true,
-          step: true,
-          unit: true,
-          affectsPrice: true,
-          priceFormula: true,
+export function generateStaticParams() {
+  return [];
+}
+
+// cache(): generateMetadata ile sayfa aynı ürünü ayrı ayrı
+// soruyordu; aynı çizimde tek sorguya iner.
+const getProduct = cache(async (slug: string) => {
+  const byId = /^c[a-z0-9]{24,}$/.test(slug);
+  const where = byId ? { id: slug, isActive: true } : { slug, isActive: true };
+
+  // Puan ortalaması veritabanında hesaplanır: ortalama almak için
+  // bütün yorum satırlarını çekmek gerekmiyor. Ürün sorgusuyla
+  // yan yana çalışır.
+  const [product, puan] = await Promise.all([
+    prisma.product.findFirst({
+      where,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        sku: true,
+        description: true,
+        basePrice: true,
+        thumbnailUrl: true,
+        modelFileUrl: true,
+        gallery: true,
+        printTimeEst: true,
+        materialType: true,
+        materialWeight: true,
+        widthMm: true,
+        depthMm: true,
+        heightMm: true,
+        customMouldFee: true,
+        stockQty: true,
+        featured: true,
+        category: { select: { id: true, name: true, slug: true, parentId: true } },
+        parameters: {
+          orderBy: { sortOrder: "asc" },
+          select: {
+            id: true,
+            name: true,
+            displayName: true,
+            type: true,
+            minValue: true,
+            maxValue: true,
+            defaultValue: true,
+            step: true,
+            unit: true,
+            affectsPrice: true,
+            priceFormula: true,
+          },
         },
       },
-      reviews: { select: { rating: true } },
-      _count: { select: { reviews: true } },
-    },
-  });
+    }),
+    prisma.review.aggregate({
+      where: { product: where },
+      _avg: { rating: true },
+      _count: { _all: true },
+    }),
+  ]);
 
   if (!product) return null;
 
-  const ratings = product.reviews.map((r) => r.rating);
-  const avgRating =
-    ratings.length > 0 ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0;
+  const avgRating = puan._avg.rating ?? 0;
 
   return {
     ...product,
@@ -99,10 +120,10 @@ async function getProduct(slug: string) {
     stockQty: product.stockQty ?? 999,
     reviews: {
       averageRating: Math.round(avgRating * 10) / 10,
-      totalCount: product._count.reviews,
+      totalCount: puan._count._all,
     },
   };
-}
+});
 
 /** gallery alanı Json — yalnızca string dizisi olduğunda kullanılır */
 async function getRelated(categoryId: string, parentId: string | null, excludeId: string) {
@@ -215,18 +236,6 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     ),
   ];
 
-  // Yalnızca gerçek ölçü parametreleri: sayısal aralığı olan ve
-  // renk/metin/seçim tipinde olmayanlar. (COLOR parametreleri
-  // min=max=0 ile kaydedildiği için aralık kontrolü şart.)
-  const dimensionParams = product.parameters.filter(
-    (p) =>
-      p.minValue !== null &&
-      p.maxValue !== null &&
-      p.maxValue > p.minValue &&
-      p.type !== "COLOR" &&
-      p.type !== "TEXT" &&
-      p.type !== "DROPDOWN"
-  );
   const isCustomizable = product.parameters.length > 0;
   const ozellestirilebilir = isCustomizable;
 
@@ -239,20 +248,6 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     olcuEksenleri.length >= 2
       ? `${olcuEksenleri.map((v) => formatCmValue(v)).join(" × ")} cm`
       : null;
-  const inStock = product.stockQty > 0;
-
-  // Modelin (3D önizleme ve AR) varsayılan değerleri
-  const defaultParameters = product.parameters.reduce(
-    (acc, param) => {
-      if (param.type === "COLOR" || param.type === "TEXT" || param.type === "DROPDOWN") {
-        acc[param.name] = param.defaultValue;
-      } else {
-        acc[param.name] = Number(param.defaultValue);
-      }
-      return acc;
-    },
-    {} as Record<string, number | string>
-  );
 
   return (
     <div className="pb-20">

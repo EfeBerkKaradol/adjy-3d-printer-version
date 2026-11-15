@@ -31,7 +31,9 @@ export const metadata: Metadata = {
 };
 
 // Ürün satırları ilk ziyarette açılır; derleme anında
-// veritabanına yazılmasın.
+// veritabanına yazılmasın. Sayfa bu yüzden istek anında
+// çiziliyor ama ucuz: satırlar sunucu belleğinde tutulur
+// (ensure.ts), çoğu istek veritabanına hiç gitmez.
 export const dynamic = "force-dynamic";
 
 export default async function TasarlaPage() {

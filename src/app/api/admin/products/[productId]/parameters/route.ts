@@ -3,6 +3,7 @@ import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { requireAdmin, isUnauthorized } from "@/lib/admin";
 import { invalidateProductCache } from "@/lib/cache";
+import { magazaOnbelleginiTazele } from "@/app/(shop)/products/onbellek";
 import {
   createParameterSchema,
   reorderParametersSchema,
@@ -76,6 +77,7 @@ export async function POST(
     });
 
     await invalidateProductCache();
+    magazaOnbelleginiTazele();
 
     return NextResponse.json(
       { message: "Parametre oluşturuldu", parameter },
@@ -131,6 +133,7 @@ export async function PATCH(
     );
 
     await invalidateProductCache();
+    magazaOnbelleginiTazele();
 
     return NextResponse.json({ message: "Sıralama güncellendi" });
   } catch (error) {

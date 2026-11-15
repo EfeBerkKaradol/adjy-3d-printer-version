@@ -3,6 +3,7 @@ import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { requireAdmin, isUnauthorized } from "@/lib/admin";
 import { invalidateProductCache } from "@/lib/cache";
+import { magazaOnbelleginiTazele } from "@/app/(shop)/products/onbellek";
 import { updateParameterSchema } from "@/lib/validations/parameter";
 
 // PUT /api/admin/products/:productId/parameters/:parameterId
@@ -73,6 +74,7 @@ export async function PUT(
     });
 
     await invalidateProductCache();
+    magazaOnbelleginiTazele();
 
     return NextResponse.json({
       message: "Parametre güncellendi",
@@ -112,6 +114,7 @@ export async function DELETE(
 
     await prisma.parameter.delete({ where: { id: parameterId } });
     await invalidateProductCache();
+    magazaOnbelleginiTazele();
 
     return NextResponse.json({ message: "Parametre silindi" });
   } catch (error) {
