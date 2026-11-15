@@ -84,6 +84,12 @@
      yalnızca CTA, hover, seçili durum ve göstergelerde çıkar. */
   --background: #F5F4F0;
   --foreground: #171717;
+  /* Yılbaşı dönemi (lib/yilbasi.ts): çam yeşili alan, üstünde kâğıt
+     rengi yazı; kar pikselleri açık zeminde soğuk gri-mavi. */
+  --yilbasi: #1F4A37;
+  --yilbasi-on: #F5F4F0;
+  --yilbasi-sapka: #C8202B;
+  --kar: #8FA6BA;
 
   /* Yükseltilmiş yüzey (kart, panel) zeminden daha açık */
   --surface: #FFFFFF;
@@ -140,6 +146,10 @@
   /* --- Koyu tema: saf siyah değil, katmanlı gece siyahı --- */
   --background: oklch(0.145 0.006 264);
   --foreground: oklch(0.97 0.002 264);
+  --yilbasi: #1C4533;
+  --yilbasi-on: #F5F4F0;
+  --yilbasi-sapka: #D8323B;
+  --kar: #E8EEF3;
 
   --surface: oklch(0.178 0.007 264);
   --surface-2: oklch(0.212 0.008 264);
@@ -1188,4 +1198,21 @@ input[type="number"] {
   height: 4px;
   background: repeating-linear-gradient(90deg, var(--foreground) 0 6px, transparent 6px 12px);
   animation: adjy-bin-scan 400ms steps(4) infinite;
+}
+
+/* ==========================================
+ * YILBAŞI VİTRİNİ (components/yilbasi)
+ * Çam yeşili alanın içindeki ürün kartları kâğıt renginde kalır,
+ * yazıları ve piksel çerçeveleri sitenin kendi koyu mürekkebiyle.
+ * Kartın kalkınca bıraktığı sert gölge yeşilin üstünde kâğıt rengi.
+ * ========================================== */
+.adjy-yilbasi-raf {
+  color: var(--foreground);
+}
+.adjy-yilbasi-raf .adjy-pixel-card {
+  --px: var(--yilbasi-on);
+}
+.adjy-yilbasi-raf a.adjy-pixel-card:hover,
+.adjy-yilbasi-raf a.adjy-pixel-card:focus-visible {
+  --px: var(--yilbasi-on);
 }

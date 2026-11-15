@@ -1,3 +1,5 @@
+import { YILBASI, yilbasiAktif } from "@/lib/yilbasi";
+
 // ==========================================
 // HİZMET ŞERİDİ
 //
@@ -26,10 +28,17 @@ const MADDELER = [
   "Kırılabilir ürünlerde özel paketleme",
 ];
 
-function Seri({ gizli }: { gizli?: boolean }) {
+// Yılbaşı döneminde şeridin başına sezon maddeleri eklenir ve
+// şerit çam yeşiline döner (bkz. lib/yilbasi.ts).
+const YILBASI_MADDELERI = [
+  `Yılbaşına teslim için son sipariş: ${YILBASI.sonSiparisYazi}`,
+  "Yılbaşı koleksiyonu atölyeden çıktı",
+];
+
+function Seri({ gizli, maddeler }: { gizli?: boolean; maddeler: string[] }) {
   return (
     <div className="adjy-serit-seri" aria-hidden={gizli}>
-      {MADDELER.map((m) => (
+      {maddeler.map((m) => (
         <span key={m} className="adjy-serit-madde">
           {m}
           <span className="adjy-serit-ayrac" aria-hidden>
@@ -42,15 +51,24 @@ function Seri({ gizli }: { gizli?: boolean }) {
 }
 
 export function AnnouncementBar() {
+  const yilbasi = yilbasiAktif();
+  const maddeler = yilbasi ? [...YILBASI_MADDELERI, ...MADDELER] : MADDELER;
+
   return (
     // overflow-hidden şart: şerit "max-content" genişlikte, kesilmezse
     // bütün sayfa yatay kayıyor.
-    <div className="overflow-hidden bg-foreground text-background">
+    <div
+      className={
+        yilbasi
+          ? "overflow-hidden bg-[var(--yilbasi)] text-[var(--yilbasi-on)]"
+          : "overflow-hidden bg-foreground text-background"
+      }
+    >
       <div className="adjy-serit" role="complementary" aria-label="Mağaza bilgileri">
         {/* İkinci kopya yalnızca görsel süreklilik için; ekran
             okuyucu maddeleri bir kez okur. */}
-        <Seri />
-        <Seri gizli />
+        <Seri maddeler={maddeler} />
+        <Seri maddeler={maddeler} gizli />
       </div>
     </div>
   );

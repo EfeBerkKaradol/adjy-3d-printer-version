@@ -18,6 +18,7 @@ import { SearchOverlay } from "./SearchOverlay";
 import { MobileNav } from "./MobileNav";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { Dock, DockItem } from "./Dock";
+import { YilbasiSapkasi } from "@/components/yilbasi/YilbasiSapkasi";
 import { NavDropdown, useShopGroups } from "./NavDropdown";
 import { MAIN_NAV, type NavMenu } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
@@ -144,10 +145,12 @@ export function Header() {
           <DockItem max={1.18}>
             <Link
               href="/"
-              className="flex h-10 items-center rounded-[14px] px-3 font-[family-name:var(--font-orbitron)] text-lg font-extrabold tracking-[0.22em] transition-opacity hover:opacity-70 md:text-xl"
+              className="relative flex h-10 items-center rounded-[14px] px-3 font-[family-name:var(--font-orbitron)] text-lg font-extrabold tracking-[0.22em] transition-opacity hover:opacity-70 md:text-xl"
               aria-label="ADJY ana sayfa"
             >
               ADJY
+              {/* Yılbaşı döneminde A'nın tepesine piksel şapka */}
+              <YilbasiSapkasi className="pointer-events-none absolute left-[7px] top-[-1px] w-[19px] -rotate-[14deg] md:left-[8px] md:top-[-2px] md:w-[21px]" />
             </Link>
           </DockItem>
 

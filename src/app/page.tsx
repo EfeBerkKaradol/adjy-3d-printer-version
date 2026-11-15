@@ -15,6 +15,10 @@ import { SectionHeading } from "@/components/ui/section-heading";
 import { OrganizationJsonLd, WebSiteJsonLd } from "@/components/seo/JsonLd";
 import { getAbsoluteUrl } from "@/lib/url";
 import { secondImageOf } from "@/lib/gallery";
+import { collectionFilter } from "@/lib/categoryTree";
+import { YILBASI, yilbasiAktif } from "@/lib/yilbasi";
+import { YilbasiVitrini } from "@/components/yilbasi/YilbasiVitrini";
+import { PikselKar } from "@/components/yilbasi/PikselKar";
 
 // Vitrin veritabanından beslenir; statik kalırsa yeni ürünler ancak
 // yeni bir deploy ile görünür. 5 dakikada bir tazelenir.
@@ -237,6 +241,26 @@ async function getNewArrivals(compareAt: Map<string, number>): Promise<RailProdu
   }
 }
 
+/** Yılbaşı döneminde: koleksiyonun ürünleri (dönem dışında boş) */
+async function getYilbasiRail(compareAt: Map<string, number>): Promise<RailProduct[]> {
+  if (!yilbasiAktif()) return [];
+  try {
+    const rows = await prisma.product.findMany({
+      where: {
+        isActive: true,
+        thumbnailUrl: { not: null },
+        tags: collectionFilter(YILBASI.koleksiyon),
+      },
+      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+      take: 4,
+      select: RAIL_SELECT,
+    });
+    return rows.map((p) => toRailProduct(p, false, compareAt.get(p.id) ?? null));
+  } catch {
+    return [];
+  }
+}
+
 /**
  * Müşteri sözleri — yalnızca gerçekten sipariş vermiş kişilerden.
  *
@@ -292,7 +316,7 @@ async function getCustomerVoices(): Promise<{ sozler: Soz[]; ortalama: number }>
 
 export default async function HomePage() {
   const compareAt = await getCompareAtPrices();
-  const [categories, featured, customizable, newArrivals, sesler, printables] =
+  const [categories, featured, customizable, newArrivals, sesler, printables, yilbasi] =
     await Promise.all([
       getCategories(),
       getFeaturedRail(compareAt),
@@ -300,6 +324,7 @@ export default async function HomePage() {
       getNewArrivals(compareAt),
       getCustomerVoices(),
       getPrintables(),
+      getYilbasiRail(compareAt),
     ]);
 
   return (
@@ -311,7 +336,15 @@ export default async function HomePage() {
         description="İstediğiniz ölçüde tasarım ürünleri: vazo, saksı, aydınlatma, masa düzeni ve dekoratif figürler. Kendi atölyemizde 3D baskı, seramik ve alçı ile üretiyoruz."
       />
 
-      <PrinterIntro items={printables} />
+      {/* Yılbaşı döneminde karşılamaya piksel kar yağar */}
+      <div className="relative">
+        {yilbasi.length > 0 && <PikselKar />}
+        <div className="relative z-10">
+          <PrinterIntro items={printables} />
+        </div>
+      </div>
+
+      {yilbasi.length > 0 && <YilbasiVitrini urunler={yilbasi} />}
 
       {categories.length > 0 && (
         // id: karşılamadaki "Kaydır" bağlantısı buraya iner
