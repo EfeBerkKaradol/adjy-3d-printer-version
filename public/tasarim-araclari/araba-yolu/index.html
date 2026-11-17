@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Oyuncak Araba Yolu — Parametrik Yol Parçası</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <!-- ADJY mağaza köprüsü: tema, müşteri/atölye kipi, durum kaydı -->
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="../_adjy/kopru.css" />
+  <link rel="stylesheet" href="./adjy.css" />
+  <script src="./adjy.js"></script>
+  <script src="../_adjy/kopru.js"></script>
+</head>
+<body>
+  <div class="hw-izgara">
+    <!-- ================= AYARLAR ================= -->
+    <aside class="hw-panel">
+      <section class="hw-grup" id="grup-yollar">
+        <h2 class="hw-baslik">Hazır yollar</h2>
+        <div class="hw-hazirlar hw-yollar">
+          <button type="button" data-yol="tek"><b>Tek parça</b><small>90° viraj</small></button>
+          <button type="button" data-yol="s"><b>S viraj</b><small>2 parça</small></button>
+          <button type="button" data-yol="oval"><b>Oval pist</b><small>4 parça · kapalı</small></button>
+          <button type="button" data-yol="kare"><b>Dört köşe pist</b><small>8 parça · kapalı</small></button>
+          <button type="button" data-yol="tepe"><b>Tepe</b><small>Çıkış, düz, iniş</small></button>
+          <button type="button" data-yol="looping"><b>Looping atlayışı</b><small>İniş, düz, looping</small></button>
+        </div>
+      </section>
+
+      <section class="hw-grup" id="grup-yolum">
+        <h2 class="hw-baslik">Yolum</h2>
+        <div class="hw-zincir-kap">
+          <ol class="hw-zincir" id="hw-zincir" aria-label="Yolun parçaları"></ol>
+          <div class="hw-ekle-satir">
+            <span>Seçilinin ardına ekle:</span>
+            <button type="button" data-ekle="duz">Düz</button>
+            <button type="button" data-ekle="sol">↰ Viraj</button>
+            <button type="button" data-ekle="sag">Viraj ↱</button>
+            <button type="button" data-ekle="rampa">Rampa</button>
+            <button type="button" data-ekle="looping">Looping</button>
+          </div>
+          <p class="hw-not" id="hw-zincir-not"></p>
+        </div>
+      </section>
+
+      <section class="hw-grup" id="grup-hazir">
+        <h2 class="hw-baslik">Hazır parçalar</h2>
+        <div class="hw-hazir-kap">
+        <p class="hw-alt-baslik">Hazır parça</p>
+        <div class="hw-hazirlar">
+          <button type="button" data-hazir="klasik"><b>Klasik viraj</b><small>90° · düz zemin</small></button>
+          <button type="button" data-hazir="korkuluklu"><b>Korkuluklu viraj</b><small>90° · dış kenar yüksek</small></button>
+          <button type="button" data-hazir="egimli"><b>Eğimli viraj</b><small>90° · 20° yatık</small></button>
+          <button type="button" data-hazir="u"><b>U dönüş</b><small>180° · 15° yatık</small></button>
+          <button type="button" data-hazir="duz"><b>Düz yol</b><small>200 mm</small></button>
+          <button type="button" data-hazir="rampa"><b>Rampa</b><small>220 mm · 40 mm yükselir</small></button>
+          <button type="button" data-hazir="sarmal"><b>Sarmal</b><small>180° · 40 mm yükselir</small></button>
+          <button type="button" data-hazir="looping"><b>Looping</b><small>Ø200 mm · tam tur</small></button>
+        </div>
+        </div>
+      </section>
+
+      <section class="hw-grup" id="grup-tip">
+        <h2 class="hw-baslik">Parça tipi</h2>
+        <div class="param-row">
+          <label class="hw-etiket" for="hw-tip">Parça tipi</label>
+          <select id="hw-tip" class="hw-gizli-secim">
+            <option value="viraj" selected>Viraj</option>
+            <option value="duz">Düz</option>
+            <option value="rampa">Rampa</option>
+            <option value="looping">Looping</option>
+          </select>
+          <div class="hw-seg" data-secim="hw-tip">
+            <button type="button" data-v="viraj">Viraj</button>
+            <button type="button" data-v="duz">Düz</button>
+            <button type="button" data-v="rampa">Rampa</button>
+            <button type="button" data-v="looping">Looping</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="hw-grup" id="grup-olcu">
+        <h2 class="hw-baslik">Ölçü</h2>
+        <div class="param-row" data-tip="duz rampa">
+          <label class="hw-etiket" for="hw-uzunluk">Uzunluk</label>
+          <div class="hw-kaydir"><input type="range" id="hw-uzunluk" min="60" max="250" step="5" value="200" /><span class="num-wrap"><input type="number" data-bagli="hw-uzunluk" min="60" max="250" step="5" value="200" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row" data-tip="viraj">
+          <label class="hw-etiket" for="hw-yaricap">Viraj yarıçapı</label>
+          <div class="hw-kaydir"><input type="range" id="hw-yaricap" min="60" max="200" step="5" value="120" /><span class="num-wrap"><input type="number" data-bagli="hw-yaricap" min="60" max="200" step="5" value="120" /><span class="unit">mm</span></span></div>
+          <p class="hw-not">Yolun ortasından ölçülür. Küçüldükçe viraj keskinleşir.</p>
+        </div>
+        <div class="param-row" data-tip="viraj">
+          <label class="hw-etiket" for="hw-aci">Dönüş açısı</label>
+          <div class="hw-kaydir"><input type="range" id="hw-aci" min="15" max="180" step="15" value="90" /><span class="num-wrap"><input type="number" data-bagli="hw-aci" min="15" max="180" step="15" value="90" /><span class="unit">°</span></span></div>
+        </div>
+        <div class="param-row" data-tip="looping">
+          <label class="hw-etiket" for="hw-cap">Looping çapı</label>
+          <div class="hw-kaydir"><input type="range" id="hw-cap" min="120" max="240" step="10" value="200" /><span class="num-wrap"><input type="number" data-bagli="hw-cap" min="120" max="240" step="10" value="200" /><span class="unit">mm</span></span></div>
+          <p class="hw-not">Çember büyüdükçe araba daha hızlı girmeli. Giriş ve çıkış şeritleri yan yana, çemberin altından geçer.</p>
+        </div>
+        <div class="param-row" data-tip="viraj rampa">
+          <label class="hw-etiket" for="hw-yukselme">Yükselme</label>
+          <div class="hw-kaydir"><input type="range" id="hw-yukselme" min="0" max="80" step="2" value="0" /><span class="num-wrap"><input type="number" data-bagli="hw-yukselme" min="0" max="80" step="2" value="0" /><span class="unit">mm</span></span></div>
+          <p class="hw-not">Parçanın sonu başından bu kadar yüksekte (ya da alçakta) biter.</p>
+        </div>
+        <div class="param-row" data-tip="viraj rampa" data-inis-satiri>
+          <label class="hw-etiket" for="hw-inis">Yükselme yönü</label>
+          <select id="hw-inis" class="hw-gizli-secim">
+            <option value="cik" selected>Yukarı çıkar</option>
+            <option value="in">Aşağı iner</option>
+          </select>
+          <div class="hw-seg" data-secim="hw-inis">
+            <button type="button" data-v="cik">↗ Çıkar</button>
+            <button type="button" data-v="in">İner ↘</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="hw-grup" id="grup-viraj">
+        <h2 class="hw-baslik">Viraj</h2>
+        <div class="param-row" data-tip="viraj">
+          <label class="hw-etiket" for="hw-egim">Yan yatış</label>
+          <div class="hw-kaydir"><input type="range" id="hw-egim" min="0" max="30" step="1" value="0" /><span class="num-wrap"><input type="number" data-bagli="hw-egim" min="0" max="30" step="1" value="0" /><span class="unit">°</span></span></div>
+          <p class="hw-not">Yarış pistlerindeki gibi dış kenar yükselir; araba virajdan fırlamaz. Uçlar düz kalır, diğer parçalara oturur.</p>
+        </div>
+        <div class="param-row" data-tip="viraj">
+          <label class="hw-etiket" for="hw-korkuluk">Dış kenar korkuluğu</label>
+          <div class="hw-kaydir"><input type="range" id="hw-korkuluk" min="0" max="16" step="1" value="0" /><span class="num-wrap"><input type="number" data-bagli="hw-korkuluk" min="0" max="16" step="1" value="0" /><span class="unit">mm</span></span></div>
+          <p class="hw-not">Virajın ortasında dış kenar bu kadar yükselir; hızlı giren araba savrulmaz.</p>
+        </div>
+        <div class="param-row" data-tip="viraj looping">
+          <label class="hw-etiket" for="hw-yon">Dönüş yönü</label>
+          <select id="hw-yon" class="hw-gizli-secim">
+            <option value="sol" selected>Sola</option>
+            <option value="sag">Sağa</option>
+          </select>
+          <div class="hw-seg" data-secim="hw-yon">
+            <button type="button" data-v="sol">↰ Sola</button>
+            <button type="button" data-v="sag">Sağa ↱</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="hw-grup" id="grup-kenar">
+        <h2 class="hw-baslik">Kenar ve bağlantı</h2>
+        <div class="param-row">
+          <label class="hw-etiket" for="hw-duvar">Kenar yüksekliği</label>
+          <select id="hw-duvar" class="hw-gizli-secim">
+            <option value="5">Alçak</option>
+            <option value="7" selected>Standart</option>
+            <option value="11">Yüksek</option>
+          </select>
+          <div class="hw-seg" data-secim="hw-duvar">
+            <button type="button" data-v="5">Alçak</button>
+            <button type="button" data-v="7">Standart</button>
+            <button type="button" data-v="11">Yüksek</button>
+          </div>
+        </div>
+        <div class="param-row">
+          <label class="hw-etiket" for="hw-baglanti">Bağlantı</label>
+          <select id="hw-baglanti" class="hw-gizli-secim">
+            <option value="hw" selected>Orijinal yollara uyumlu</option>
+            <option value="gecme">Birbirine geçmeli</option>
+          </select>
+          <div class="hw-seg hw-seg-iki" data-secim="hw-baglanti">
+            <button type="button" data-v="hw"><b>Orijinal uyumlu</b><small>Bağlantı parçasıyla takılır</small></button>
+            <button type="button" data-v="gecme"><b>Geçmeli</b><small>Parçalar doğrudan geçer</small></button>
+          </div>
+        </div>
+        <div class="param-row" data-ayak-satiri>
+          <label class="hw-kutu"><input type="checkbox" id="hw-ayak" checked /> <span>Destek ayakları</span></label>
+          <p class="hw-not">Yükselen ya da yatık parçanın altını masaya bağlar.</p>
+        </div>
+      </section>
+
+      <section class="hw-grup" id="grup-renk">
+        <h2 class="hw-baslik">Renk</h2>
+        <div class="param-row">
+          <label class="hw-etiket" for="hw-renk">Renk</label>
+          <select id="hw-renk" class="hw-gizli-secim">
+            <option value="turuncu" selected>Turuncu</option>
+            <option value="mavi">Mavi</option>
+            <option value="kirmizi">Kırmızı</option>
+            <option value="sari">Sarı</option>
+            <option value="siyah">Siyah</option>
+            <option value="beyaz">Beyaz</option>
+          </select>
+          <div class="hw-renkler" data-secim="hw-renk">
+            <button type="button" data-v="turuncu" style="--r:#ff6a13" title="Turuncu"></button>
+            <button type="button" data-v="mavi" style="--r:#1f6fd1" title="Mavi"></button>
+            <button type="button" data-v="kirmizi" style="--r:#d42b2b" title="Kırmızı"></button>
+            <button type="button" data-v="sari" style="--r:#f4c20d" title="Sarı"></button>
+            <button type="button" data-v="siyah" style="--r:#26272b" title="Siyah"></button>
+            <button type="button" data-v="beyaz" style="--r:#f2f1ec" title="Beyaz"></button>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <!-- ================= SAHNE ================= -->
+    <section class="hw-sahne">
+      <canvas id="hw-tuval"></canvas>
+      <div class="hw-sahne-ust">
+        <span class="hw-olcu" id="hw-olcu">—</span>
+        <span class="hw-uyari" id="hw-uyari" hidden></span>
+      </div>
+      <div class="hw-sahne-alt">
+        <button type="button" id="hw-sur" class="hw-sur">▶ Arabayı sür</button>
+        <button type="button" id="hw-ortala" class="hw-ikincil">Ortala</button>
+      </div>
+    </section>
+
+    <!-- ================= ATÖLYE (müşteriye gizli) ================= -->
+    <aside class="hw-atolye">
+      <section class="hw-grup">
+        <h2 class="hw-baslik">Üretim</h2>
+        <dl class="hw-tablo" id="hw-tablo"></dl>
+      </section>
+      <section class="hw-grup">
+        <h2 class="hw-baslik">Profil ve toleranslar</h2>
+        <div class="param-row"><label class="hw-etiket" for="hw-genislik">Yol genişliği</label><span class="num-wrap"><input type="number" id="hw-genislik" min="36" max="48" step="0.1" value="41.3" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="hw-etiket" for="hw-taban">Taban kalınlığı</label><span class="num-wrap"><input type="number" id="hw-taban" min="1.2" max="3" step="0.1" value="1.6" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="hw-etiket" for="hw-cidar">Kenar kalınlığı</label><span class="num-wrap"><input type="number" id="hw-cidar" min="1.2" max="3" step="0.1" value="1.6" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="hw-etiket" for="hw-delik">Bağlantı deliği</label><span class="num-wrap"><input type="number" id="hw-delik" min="2" max="6" step="0.1" value="3.4" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="hw-etiket" for="hw-aralik">Looping şerit aralığı</label><span class="num-wrap"><input type="number" id="hw-aralik" min="3" max="20" step="1" value="6" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="hw-etiket" for="hw-tolerans">Geçme toleransı</label><span class="num-wrap"><input type="number" id="hw-tolerans" min="0.1" max="0.6" step="0.05" value="0.25" /><span class="unit">mm</span></span></div>
+      </section>
+      <section class="hw-grup">
+        <h2 class="hw-baslik">Çıktılar</h2>
+        <button type="button" class="hw-cikti" id="hw-stl">Yol parçası (STL)</button>
+        <button type="button" class="hw-cikti hw-ikincil" id="hw-csv">Parça bilgisi (CSV)</button>
+        <p class="hw-not">Z ekseni yukarı, milimetre. Taban tablaya oturur; yükselen ve yatık parçalarda ayaklar dilimleyicide destek gerektirmez. Birden çok parçalı yolda her parça ayrı STL olarak tek ZIP'te iner, sıra numarasıyla.</p>
+      </section>
+    </aside>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

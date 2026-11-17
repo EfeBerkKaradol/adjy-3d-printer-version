@@ -1,0 +1,50 @@
+/* Oyuncak araba yolu — ADJY görünümü.
+   Araç baştan mağaza değişkenleriyle yazıldı (styles.css); burada yalnızca
+   kipe özel ayarlar var. */
+
+/* Müşteri kipinde atölye sütunu yok (dar ekranda styles.css tek sütuna indirir) */
+@media (min-width: 1100px) {
+  html[data-adjy-mod="musteri"] .hw-izgara {
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
+  /* Modelin altında "Yol" adımı genişçe, renk yanında dar */
+  html[data-adjy-mod="musteri"] [data-adjy-bolge="alt"] > .adjy-adim:has(.hw-zincir-kap) {
+    flex-grow: 2.6;
+  }
+}
+
+/* Adım kutularında bölümlerin kendi başlıkları gereksiz */
+html[data-adjy-mod="musteri"] .adjy-adim-ic .hw-baslik {
+  display: none;
+}
+/* Adım başlığı zaten ayarın adını söylüyor; tek ayarlı adımda etiket tekrar etmesin */
+html[data-adjy-mod="musteri"] #grup-tip .hw-etiket,
+html[data-adjy-mod="musteri"] .adjy-adim-ic > .param-row:only-child > .hw-etiket[for="hw-renk"] {
+  display: none;
+}
+/* Hazır parçalar: dar sütunda ikili */
+html[data-adjy-mod="musteri"] .adjy-adim-ic .hw-hazirlar {
+  grid-template-columns: 1fr 1fr;
+}
+/* Tip adımının altındaki hazır parçalar: yer kaplamasın, yalnızca ad */
+html[data-adjy-mod="musteri"] .adjy-adim-ic .hw-hazir-kap .hw-hazirlar button {
+  padding: 6px 9px;
+}
+html[data-adjy-mod="musteri"] .adjy-adim-ic .hw-hazir-kap small {
+  display: none;
+}
+
+/* Dar ekranda bölgeler alt alta dizilir; "Yol" adımı Başla'nın hemen
+   ardından gelsin (yoksa sağ sütunun adımlarının altına düşüyor) */
+@media (max-width: 1099.98px) {
+  html[data-adjy-mod="musteri"] [data-adjy-y="panel"] {
+    display: flex;
+    flex-direction: column;
+  }
+  html[data-adjy-mod="musteri"] [data-adjy-y="panel"] > [data-adjy-bolge] {
+    display: contents;
+  }
+  html[data-adjy-mod="musteri"] [data-adjy-y="panel"] .adjy-adim { order: 3; }
+  html[data-adjy-mod="musteri"] [data-adjy-y="panel"] .adjy-adim:has(.hw-yollar) { order: 1; }
+  html[data-adjy-mod="musteri"] [data-adjy-y="panel"] .adjy-adim:has(.hw-zincir-kap) { order: 2; }
+}

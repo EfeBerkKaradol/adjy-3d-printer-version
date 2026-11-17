@@ -386,6 +386,34 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ],
     anahtarKelimeler: ["çekmece organizeri", "ölçüye özel çekmece düzenleyici", "çekmece içi kutu", "duvar ızgarası", "askılı kutu"],
   },
+  {
+    id: "araba-yolu",
+    ad: "Oyuncak Araba Yolu",
+    ozet: "Virajını, rampasını, loopingini kendiniz kurduğunuz yol parçası ya da bütün bir pist.",
+    aciklama:
+      "Hot Wheels ölçüsündeki (1:64) oyuncak arabalar için yol parçası. Viraj, düz yol, rampa ya da looping seçin; virajın yarıçapını, dönüş açısını, ne kadar yükselip ineceğini, dış kenarın ne kadar yatacağını ve korkuluğunu, loopingin çapını siz belirleyin. Parçaları uç uca ekleyerek bütün bir pist kurabilir ya da oval, dört köşe, tepe ve looping atlayışı gibi hazır yollardan biriyle başlayabilirsiniz. Uçlar her parçada düz kalır: elinizdeki yollara bağlantı parçasıyla takılır ya da geçmeli uçla parçalar doğrudan birbirine geçer. Yükselen ve yatık parçalar kendi ayaklarıyla masada durur.",
+    ayarlar: ["Hazır yol ya da tek parça", "Parçaları uç uca ekleme (12 parçaya kadar)", "Viraj, düz, rampa ya da looping", "Yarıçap, açı, uzunluk, looping çapı", "Yükselme, iniş, yan yatış ve dış kenar korkuluğu", "Kenar yüksekliği ve bağlantı", "Renk"],
+    kategoriler: ["koleksiyon-kisiye-ozel", "hediye"],
+    malzeme: "PLA",
+    malzemeSabit: true,
+    varsayilan: { kutleG: 24, sureSaat: 0.8 },
+    // En küçük: 60 mm düz, alçak kenar. Tek parçanın en büyüğü Ø240 looping (142 g, 3,7 sa);
+    // uç uca en çok 12 parça: hazır yollar 47–193 g, 12 büyük parça ≈ 1,5 kg.
+    sinir: { kutleG: [5, 1700], sureSaat: [0.3, 48] },
+    tabanFiyat: 180,
+    teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Pistinizi siz çizin", metin: "Parçaları uç uca ekleyip bütün pisti ekranda kurarsınız; virajın yarıçapını ve açısını derece derece seçer, pistin kapanıp kapanmadığını hemen görürsünüz." },
+      { baslik: "Virajdan fırlamaz", metin: "Dış kenar yarış pistlerindeki gibi yatar, kenarlar yükseltilebilir; hızlı giren araba yolda kalır." },
+      { baslik: "Uçlar her zaman oturur", metin: "Parça ne kadar yükselse ya da yatsa da uçları düzdür: diğer parçalara takılır, yükselen ucu kendi ayaklarıyla durur." },
+    ],
+    gorseller: ["Eğimli viraj, 90°", "U dönüş, 180°", "Rampa, 40 mm yükselir", "Sarmal: dönerek yükselen viraj", "Looping, Ø200 mm", "Korkuluklu viraj: dış kenar ortada yükselir"],
+    ciktilar: [
+      { ad: "Yol parçaları STL (çok parçada ZIP)", sec: "#hw-stl", tur: "stl" },
+      { ad: "Parça bilgisi (CSV)", sec: "#hw-csv", tur: "belge" },
+    ],
+    anahtarKelimeler: ["oyuncak araba yolu", "hot wheels yol parçası", "hot wheels viraj", "araba pisti", "1:64 araba yolu", "rampa", "looping", "araba yolu looping"],
+  },
 ];
 
 /** Belirli bir bölümde (ör. Mobilya) ayrıca listelenen araçlar */

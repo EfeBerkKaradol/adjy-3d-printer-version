@@ -102,11 +102,16 @@ const nextConfig: NextConfig = {
           // Araç dosyaları (büyük HTML, three.js, renderlar) varsayılanda
           // her ziyarette yeniden doğrulanıyordu. Adlarında sürüm yok,
           // bu yüzden kısa tutulur: 5 dakika taze, sonrası arka planda
-          // yenilenirken eski kopya gösterilir.
-          {
-            key: "Cache-Control",
-            value: "public, max-age=300, stale-while-revalidate=86400",
-          },
+          // yenilenirken eski kopya gösterilir. Geliştirmede kapalı:
+          // araç dosyasını değiştiren hemen görsün.
+          ...(process.env.NODE_ENV === "production"
+            ? [
+                {
+                  key: "Cache-Control",
+                  value: "public, max-age=300, stale-while-revalidate=86400",
+                },
+              ]
+            : []),
         ],
       },
       {

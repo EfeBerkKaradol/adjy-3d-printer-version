@@ -571,6 +571,8 @@
     });
     alanlar().forEach(function (el) {
       if (ureticiMi(el)) return;
+      // Seçime göre devre dışı kalan alan (düz yolda viraj yarıçapı) bir seçim değil
+      if (AYAR.devreDisiAtla && el.disabled) return;
       if ((AYAR.ozetHaric || []).indexOf(el.id) !== -1) return;
       if ((AYAR.ozetHaric || []).indexOf(anahtar(el.id)) !== -1) return;
       if (el.type === "radio" && !el.checked) return;
@@ -1135,6 +1137,9 @@
     tema: temaUygula,
     tikla: tikla,
     topla: topla,
+    // Çok dosyalı çıktı veren araç, toplama sırasında dosyaları tek tek
+    // verebilir (elle indirmede tarayıcı ardışık indirmeyi engelliyor)
+    toplaniyor: function () { return !!toplanan; },
     ayar: ayarKipi,
     gelismisVar: !!(AYAR.gelismis && AYAR.gelismis.length),
     dosyalariYukle: dosyalariYukle,
