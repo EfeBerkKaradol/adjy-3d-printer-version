@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { glbRenkleriniKoru } from "@/lib/glbRenk";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { buildParametricScene } from "./sceneBuilder";
@@ -154,9 +155,13 @@ async function loadGLBAsScene(url: string, color?: string): Promise<THREE.Scene>
 
         // Materyalsiz mesh'lere varsayilan materyal ata + secilen rengi uygula
         const meshColor = color || "#ffffff";
+        // Çok renkli basılan üründe GLB'nin kendi renkleri kalır
+        const renkleriKoru = glbRenkleriniKoru(model, color);
         model.traverse((child) => {
           if (child instanceof THREE.Mesh) {
-            if (
+            if (renkleriKoru) {
+              // renkler olduğu gibi kalır
+            } else if (
               !child.material ||
               !(child.material instanceof THREE.MeshStandardMaterial)
             ) {

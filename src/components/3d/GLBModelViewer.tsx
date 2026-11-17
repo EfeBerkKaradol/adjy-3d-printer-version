@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
+import { glbRenkleriniKoru } from "@/lib/glbRenk";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import {
@@ -39,7 +40,8 @@ interface GLBModelViewerProps {
 export function GLBModelViewer({ url, parameters, productType, defaults }: GLBModelViewerProps) {
   const { scene } = useGLTF(url);
 
-  const color   = (parameters.color as string) || "#ffffff";
+  const secilenRenk = (parameters.color as string) || "";
+  const color   = secilenRenk || "#ffffff";
   const isShelf = !!productType && SHELF_TYPES.has(productType);
 
   // Her ürün tipine göre normalize edilmiş scale hesabı
@@ -102,11 +104,16 @@ export function GLBModelViewer({ url, parameters, productType, defaults }: GLBMo
   // Scene'i klonla, materyal ata ve olcekle — her parametre degisikliginde guncelle
   const { clonedScene, modelDims } = useMemo(() => {
     const clone = scene.clone(true);
+    // Çok renkli basılan üründe (renk seçeneği yok) GLB'nin renkleri kalır
+    const renkleriKoru = glbRenkleriniKoru(clone, secilenRenk);
 
     // Materyalsiz mesh'lere varsayilan materyal ata + renk uygula
     clone.traverse((child) => {
       if (child instanceof THREE.Mesh) {
-        if (!child.material || !(child.material instanceof THREE.MeshStandardMaterial)) {
+        if (renkleriKoru) {
+          // paylaşılan malzemeyi bozmamak için yine de klonla
+          if (child.material instanceof THREE.Material) child.material = child.material.clone();
+        } else if (!child.material || !(child.material instanceof THREE.MeshStandardMaterial)) {
           child.material = new THREE.MeshStandardMaterial({
             color: color,
             roughness: 0.3,
@@ -172,7 +179,7 @@ export function GLBModelViewer({ url, parameters, productType, defaults }: GLBMo
       clonedScene: clone,
       modelDims: { w: seatedSize.x, h: seatedSize.y, frontZ: seatedBox.max.z },
     };
-  }, [scene, color, productType]);
+  }, [scene, color, secilenRenk, productType]);
 
   // Panel eklentileri: "attachments" parametresi virgülle ayrılmış slug listesi taşır
   const attachmentIds =
