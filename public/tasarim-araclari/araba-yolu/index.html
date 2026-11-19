@@ -30,6 +30,7 @@
       <section class="hw-grup" id="grup-yollar">
         <h2 class="hw-baslik">Hazır yollar</h2>
         <div class="hw-hazirlar hw-yollar">
+          <button type="button" data-yol="bos" class="hw-kendi"><b>＋ Kendi yolun</b><small>Tek düzle başla, parça ekle</small></button>
           <button type="button" data-yol="tek"><b>Tek parça</b><small>90° viraj</small></button>
           <button type="button" data-yol="s"><b>S viraj</b><small>2 parça</small></button>
           <button type="button" data-yol="oval"><b>Oval pist</b><small>4 parça · kapalı</small></button>
@@ -42,14 +43,27 @@
       <section class="hw-grup" id="grup-yolum">
         <h2 class="hw-baslik">Yolum</h2>
         <div class="hw-zincir-kap">
+          <div class="hw-zincir-ust">
+            <span class="hw-sayac" id="hw-sayac"></span>
+            <div class="hw-islemler" role="toolbar" aria-label="Seçili parça">
+              <button type="button" data-islem="sola" title="Seçili parçayı bir öne al" aria-label="Seçili parçayı bir öne al">←</button>
+              <button type="button" data-islem="saga" title="Seçili parçayı bir sona al" aria-label="Seçili parçayı bir sona al">→</button>
+              <button type="button" data-islem="cogalt" title="Seçili parçanın bir kopyasını ardına ekle">Çoğalt</button>
+              <button type="button" data-islem="sil" title="Seçili parçayı sil">Sil</button>
+              <span class="hw-ayrac" aria-hidden="true"></span>
+              <button type="button" data-islem="geri" title="Son değişikliği geri al (Ctrl+Z)">↶ Geri al</button>
+              <button type="button" data-islem="temizle" title="Bütün parçaları kaldır, tek düzle baştan başla">Temizle</button>
+            </div>
+          </div>
           <ol class="hw-zincir" id="hw-zincir" aria-label="Yolun parçaları"></ol>
+          <p class="hw-alt-baslik">Seçilinin ardına parça ekle</p>
           <div class="hw-ekle-satir">
-            <span>Seçilinin ardına ekle:</span>
-            <button type="button" data-ekle="duz">Düz</button>
-            <button type="button" data-ekle="sol">↰ Viraj</button>
-            <button type="button" data-ekle="sag">Viraj ↱</button>
-            <button type="button" data-ekle="rampa">Rampa</button>
-            <button type="button" data-ekle="looping">Looping</button>
+            <button type="button" data-ekle="duz"><svg viewBox="0 0 32 20" aria-hidden="true"><path d="M3 10h26"/></svg>Düz</button>
+            <button type="button" data-ekle="sol"><svg viewBox="0 0 32 20" aria-hidden="true"><path d="M6 18c0-8 5-13 13-13h10"/></svg>Sola viraj</button>
+            <button type="button" data-ekle="sag"><svg viewBox="0 0 32 20" aria-hidden="true"><path d="M26 18c0-8-5-13-13-13H3"/></svg>Sağa viraj</button>
+            <button type="button" data-ekle="rampa"><svg viewBox="0 0 32 20" aria-hidden="true"><path d="M3 17h7l12-12h7"/></svg>Rampa</button>
+            <button type="button" data-ekle="inis"><svg viewBox="0 0 32 20" aria-hidden="true"><path d="M3 5h7l12 12h7"/></svg>İniş</button>
+            <button type="button" data-ekle="looping"><svg viewBox="0 0 32 20" aria-hidden="true"><path d="M3 18h10a6.5 6.5 0 1 0-1.5-6"/><path d="M19 18h10"/></svg>Looping</button>
           </div>
           <p class="hw-not" id="hw-zincir-not"></p>
         </div>
@@ -180,6 +194,12 @@
             <button type="button" data-v="gecme"><b>Geçmeli</b><small>Parçalar doğrudan geçer</small></button>
           </div>
         </div>
+        <div class="param-row" data-baglayici-satiri>
+          <label class="hw-kutu"><input type="checkbox" id="hw-baglayici" checked /> <span>Bağlantı parçalarını da bas</span></label>
+          <p class="hw-not" id="hw-baglayici-not">Parçaları alttan birbirine kilitleyen küçük geçme parça; ortadaki pul yolun yuvasını doldurur.</p>
+          <label class="hw-etiket" for="hw-yedek">Yedek bağlantı parçası</label>
+          <div class="hw-kaydir"><input type="range" id="hw-yedek" min="0" max="6" step="1" value="2" /><span class="num-wrap"><input type="number" data-bagli="hw-yedek" min="0" max="6" step="1" value="2" aria-label="Yedek bağlantı parçası" /><span class="unit">adet</span></span></div>
+        </div>
         <div class="param-row" data-ayak-satiri>
           <label class="hw-kutu"><input type="checkbox" id="hw-ayak" checked /> <span>Destek ayakları</span></label>
           <p class="hw-not">Yükselen ya da yatık parçanın altını masaya bağlar.</p>
@@ -241,6 +261,7 @@
       <section class="hw-grup">
         <h2 class="hw-baslik">Çıktılar</h2>
         <button type="button" class="hw-cikti" id="hw-stl">Yol parçası (STL)</button>
+        <button type="button" class="hw-cikti" id="hw-baglayici-stl">Bağlantı parçaları (STL)</button>
         <button type="button" class="hw-cikti hw-ikincil" id="hw-csv">Parça bilgisi (CSV)</button>
         <p class="hw-not">Z ekseni yukarı, milimetre. Taban tablaya oturur; yükselen ve yatık parçalarda ayaklar dilimleyicide destek gerektirmez. Birden çok parçalı yolda her parça ayrı STL olarak tek ZIP'te iner, sıra numarasıyla.</p>
       </section>

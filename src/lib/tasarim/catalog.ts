@@ -391,8 +391,8 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ad: "Oyuncak Araba Yolu",
     ozet: "Virajını, rampasını, loopingini kendiniz kurduğunuz yol parçası ya da bütün bir pist.",
     aciklama:
-      "Hot Wheels ölçüsündeki (1:64) oyuncak arabalar için yol parçası. Viraj, düz yol, rampa ya da looping seçin; virajın yarıçapını, dönüş açısını, ne kadar yükselip ineceğini, dış kenarın ne kadar yatacağını ve korkuluğunu, loopingin çapını siz belirleyin. Parçaları uç uca ekleyerek bütün bir pist kurabilir ya da oval, dört köşe, tepe ve looping atlayışı gibi hazır yollardan biriyle başlayabilirsiniz. Uçlar her parçada düz kalır: elinizdeki yollara bağlantı parçasıyla takılır ya da geçmeli uçla parçalar doğrudan birbirine geçer. Yükselen ve yatık parçalar kendi ayaklarıyla masada durur.",
-    ayarlar: ["Hazır yol ya da tek parça", "Parçaları uç uca ekleme (12 parçaya kadar)", "Viraj, düz, rampa ya da looping", "Yarıçap, açı, uzunluk, looping çapı", "Yükselme, iniş, yan yatış ve dış kenar korkuluğu", "Kenar yüksekliği ve bağlantı", "Renk"],
+      "Hot Wheels ölçüsündeki (1:64) oyuncak arabalar için yol parçası. Viraj, düz yol, rampa ya da looping seçin; virajın yarıçapını, dönüş açısını, ne kadar yükselip ineceğini, dış kenarın ne kadar yatacağını ve korkuluğunu, loopingin çapını siz belirleyin. Parçaları uç uca ekleyip çıkararak, sırasını değiştirerek kendi pistinizi kurabilir ya da oval, dört köşe, tepe ve looping atlayışı gibi hazır yollardan biriyle başlayabilirsiniz. Uçlar her parçada düz kalır: parçaları birbirine kilitleyen bağlantı parçaları da yolla birlikte basılır (isterseniz yedekleriyle) ya da geçmeli uçla parçalar doğrudan birbirine geçer. Yükselen ve yatık parçalar kendi ayaklarıyla masada durur.",
+    ayarlar: ["Hazır yol ya da tek parça", "Kendi yolun: parça ekleme, çıkarma, sıralama, geri alma (12 parçaya kadar)", "Viraj, düz, rampa ya da looping", "Yarıçap, açı, uzunluk, looping çapı", "Yükselme, iniş, yan yatış ve dış kenar korkuluğu", "Kenar yüksekliği ve bağlantı", "Bağlantı parçaları ve yedek adedi", "Renk"],
     kategoriler: ["koleksiyon-kisiye-ozel", "hediye"],
     malzeme: "PLA",
     malzemeSabit: true,
@@ -407,9 +407,10 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Virajdan fırlamaz", metin: "Dış kenar yarış pistlerindeki gibi yatar, kenarlar yükseltilebilir; hızlı giren araba yolda kalır." },
       { baslik: "Uçlar her zaman oturur", metin: "Parça ne kadar yükselse ya da yatsa da uçları düzdür: diğer parçalara takılır, yükselen ucu kendi ayaklarıyla durur." },
     ],
-    gorseller: ["Eğimli viraj, 90°", "U dönüş, 180°", "Rampa, 40 mm yükselir", "Sarmal: dönerek yükselen viraj", "Looping, Ø200 mm", "Korkuluklu viraj: dış kenar ortada yükselir"],
+    gorseller: ["Looping atlayışı: iniş, düz yol ve Ø200 mm looping", "Oval pist: 4 parça, kendi üstüne kapanır", "Eğimli viraj, 90°", "Sarmal: dönerek yükselen viraj", "Tepe: çıkış, düz yol, iniş", "Korkuluklu viraj: dış kenar ortada yükselir"],
     ciktilar: [
       { ad: "Yol parçaları STL (çok parçada ZIP)", sec: "#hw-stl", tur: "stl" },
+      { ad: "Bağlantı parçaları STL", sec: "#hw-baglayici-stl", tur: "stl" },
       { ad: "Parça bilgisi (CSV)", sec: "#hw-csv", tur: "belge" },
     ],
     anahtarKelimeler: ["oyuncak araba yolu", "hot wheels yol parçası", "hot wheels viraj", "araba pisti", "1:64 araba yolu", "rampa", "looping", "araba yolu looping"],

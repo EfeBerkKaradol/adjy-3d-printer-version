@@ -159,3 +159,33 @@ button, input, select { font: inherit; color: inherit; }
 .hw-ekle-satir button:hover { border-style: solid; border-color: var(--a-yazi, #171717); }
 .hw-ekle-satir button:disabled { opacity: .45; cursor: default; }
 .hw-yollar button.on { border-color: var(--a-vurgu, #5b34d6); background: var(--a-vurgu-soluk, rgba(91, 52, 214, .1)); }
+
+/* Yol düzenleyici: üst çubuk, parça kartları, ekleme paleti */
+.hw-zincir-ust { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+.hw-sayac { font: 500 12px/1.2 var(--a-mono, monospace); color: var(--a-soluk, #6f6f6f); }
+.hw-islemler { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.hw-islemler button {
+  min-width: 32px; height: 30px; padding: 0 10px; border: 1px solid var(--a-cizgi-koyu, #cfccc2); border-radius: 8px;
+  background: var(--a-yuzey, #fff); color: inherit; font: 500 12px/1 var(--a-sans, system-ui, sans-serif); cursor: pointer;
+}
+.hw-islemler button:hover:not(:disabled) { border-color: var(--a-yazi, #171717); }
+.hw-islemler button:disabled { opacity: .4; cursor: default; }
+.hw-islemler button[data-islem="sil"]:not(:disabled):hover { border-color: #c2361f; color: #c2361f; }
+.hw-ayrac { width: 1px; height: 18px; margin: 0 4px; background: var(--a-cizgi-koyu, #cfccc2); }
+.hw-zincir li { border-radius: 999px; }
+.hw-zincir li.on { box-shadow: 0 0 0 2px var(--a-vurgu, #5b34d6); }
+.hw-zincir li .hw-parca { padding-right: 8px; }
+.hw-zincir li:has(.hw-sil) .hw-parca { border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: 0; }
+.hw-zincir .hw-sil {
+  margin: 0; width: 26px; height: 30px; border: 1px solid var(--a-cizgi-koyu, #cfccc2); border-left: 0;
+  border-radius: 0 999px 999px 0; background: var(--a-yuzey, #fff);
+}
+.hw-zincir li.on .hw-sil { border-color: var(--a-vurgu, #5b34d6); background: var(--a-vurgu-soluk, rgba(91, 52, 214, .1)); }
+.hw-zincir .hw-sil:hover { color: #c2361f; background: var(--a-cukur, #ebe9e3); }
+.hw-zincir .hw-parca { height: 30px; }
+.hw-kapandi { align-self: center; padding: 0 6px; font: 500 12px/1 var(--a-sans, system-ui, sans-serif); color: var(--a-soluk, #6f6f6f); }
+.hw-ekle-satir { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; margin-top: 0; }
+.hw-ekle-satir button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 6px; }
+.hw-ekle-satir svg { width: 32px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.hw-yollar .hw-kendi { border-style: dashed; }
+.hw-yollar .hw-kendi b { color: var(--a-vurgu, #5b34d6); }

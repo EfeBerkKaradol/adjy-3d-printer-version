@@ -19,6 +19,7 @@
    ========================================================================== */
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
 const LZ = 14; // bağlantı ucu uzunluğu
 const PLA = 1.24; // g/cm³
@@ -117,7 +118,7 @@ function kisaAd(P) {
   if (P.tip === "duz") return `Düz ${P.L}`;
   if (P.tip === "rampa") return `Rampa ${P.rise < 0 ? "↘" : "↗"}${Math.abs(P.rise)}`;
   if (P.tip === "looping") return `Looping Ø${P.cap}`;
-  return `${P.yon > 0 ? "↰" : "↱"} ${P.aci}°${P.rise ? (P.rise < 0 ? " ↘" : " ↗") : ""}`;
+  return `${P.yon > 0 ? "Sol" : "Sağ"} ${P.aci}°${P.rise ? (P.rise < 0 ? " ↘" : " ↗") : ""}`;
 }
 function tarif(P) {
   const yuk = P.rise ? ` · ${Math.abs(P.rise)} mm ${P.rise < 0 ? "iner" : "çıkar"}` : "";
@@ -356,6 +357,45 @@ function ucGeometri(P, erkek) {
 }
 
 /**
+ * Bağlantı parçası ("Orijinal uyumlu" uçlar için). İki parçanın uçları
+ * karşı karşıya gelince yarım yuvaları tam bir daire, delikleri eklemden
+ * ±9.5 mm uzakta iki delik olur. Bu parça iki ucun altına girer: ortadaki
+ * pul daireye, iki pim deliklere oturur ve parçaları kilitler.
+ * Eklem merkezde, X yol yönünde; plaka z<0, pul ve pimler yol tabanıyla aynı
+ * yükseklikte biter (araba takılmaz). Baskıda plaka tablaya oturur, destek yok.
+ */
+const BAGLAYICI = { kal: 1.6, ara: 9.5, boy: 27, en: 13, kose: 3 };
+function baglayiciGeo(O) {
+  const { kal, ara, boy, en, kose } = BAGLAYICI;
+  const x = boy / 2 - kose, y = en / 2 - kose;
+  const s = new THREE.Shape();
+  s.moveTo(-x, -en / 2);
+  s.lineTo(x, -en / 2);
+  s.absarc(x, -y, kose, -Math.PI / 2, 0, false);
+  s.lineTo(boy / 2, y);
+  s.absarc(x, y, kose, 0, Math.PI / 2, false);
+  s.lineTo(-x, en / 2);
+  s.absarc(-x, y, kose, Math.PI / 2, Math.PI, false);
+  s.lineTo(-boy / 2, -y);
+  s.absarc(-x, -y, kose, Math.PI, Math.PI * 1.5, false);
+  const plaka = new THREE.ExtrudeGeometry(s, { depth: kal, bevelEnabled: false, curveSegments: 8 });
+  plaka.translate(0, 0, -kal);
+  const rPul = 4.5 - O.tol;
+  const pul = new THREE.CylinderGeometry(rPul, rPul, O.t, 40);
+  pul.rotateX(Math.PI / 2);
+  pul.translate(0, 0, O.t / 2);
+  const parcalar = [plaka, pul];
+  const r = Math.max(0.8, O.delik / 2 - O.tol);
+  for (const u of [-ara, ara]) {
+    const pim = new THREE.CylinderGeometry(r * 0.82, r, O.t, 24); // ucu daralır, kolay girer
+    pim.rotateX(Math.PI / 2);
+    pim.translate(u, 0, O.t / 2);
+    parcalar.push(pim);
+  }
+  return parcalar;
+}
+
+/**
  * Yerden yükselen noktaların altına ayak + taban pabucu.
  * z0: parçanın yolda başladığı yükseklik (önceki parçalar yükselttiyse).
  * Parça geometrisi z0 kadar kaldırılmış kabul edilir; ayaklar z=0'a iner.
@@ -427,34 +467,207 @@ const kenarMalzeme = new THREE.LineBasicMaterial({ color: 0x000000, transparent:
 const yolGrup = new THREE.Group();
 sahne.add(yolGrup);
 
-// Oyuncak araba: yolun nasıl kullanılacağını gösterir (çıktıya girmez)
+// Oyuncak araba: yolun nasıl kullanılacağını gösterir (çıktıya girmez).
+// Yarış prototipi: alçak gövde, tekerlek çamurlukları, kubbe kokpit,
+// arka kanat, ön splitter. Birim mm, +X ileri, Z yukarı; gövde
+// Hot Wheels (1:64) arabası boyunda ölçeklenir: ≈73 mm boy, 32 mm en,
+// 22 mm yükseklik (kanat dâhil), Ø11.7 mm tekerlek.
+const ARABA_OLCEK = 1.95; // boy ve yükseklik (tekerlek yuvarlak kalsın diye ikisi aynı)
+const ARABA_EN = 1.75; // en: kanat plakalarıyla 32 mm, yolun iç genişliğine sığar
+const TEKER_R = 3.0;
+const ARABA_YARI = 19.4 * ARABA_OLCEK; // burundan merkeze
+const LIVERY = {
+  mavi: { govde: 0x1638c9, serit: 0xf4f2ec, vurgu: 0xff4a1c },
+  kirmizi: { govde: 0xd61f1f, serit: 0xf4f2ec, vurgu: 0x15161a },
+};
+
 function arabaYap() {
   const g = new THREE.Group();
-  const boya = new THREE.MeshStandardMaterial({ color: 0x1b4fd8, metalness: 0.45, roughness: 0.3 });
-  const cam = new THREE.MeshStandardMaterial({ color: 0xbfe3ff, metalness: 0.1, roughness: 0.15 });
-  const lastik = new THREE.MeshStandardMaterial({ color: 0x18181a, roughness: 0.85 });
-  const jant = new THREE.MeshStandardMaterial({ color: 0xc9cdd2, metalness: 0.8, roughness: 0.3 });
-  const govde = new THREE.Mesh(new THREE.BoxGeometry(30, 14, 4.2), boya);
-  govde.position.z = 5;
-  const kabin = new THREE.Mesh(new THREE.BoxGeometry(12, 11.5, 4), cam);
-  kabin.position.set(-2.5, 0, 9);
-  const burun = new THREE.Mesh(new THREE.BoxGeometry(6, 13, 2), boya);
-  burun.position.set(13, 0, 3.6);
-  g.add(govde, kabin, burun);
-  for (const x of [-10, 10]) {
-    for (const y of [-6.6, 6.6]) {
-      const t = new THREE.Mesh(new THREE.CylinderGeometry(3.4, 3.4, 2.6, 20), lastik);
-      t.position.set(x, y, 3.4);
-      const j = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 1.8, 2.8, 12), jant);
-      j.position.copy(t.position);
-      g.add(t, j);
+  const pm = new THREE.PMREMGenerator(renderer);
+  const ortam = pm.fromScene(new RoomEnvironment(), 0.04).texture;
+  pm.dispose();
+  const yansi = { envMap: ortam, envMapIntensity: 0.9 };
+  const boya = new THREE.MeshPhysicalMaterial({ color: LIVERY.mavi.govde, metalness: 0.25, roughness: 0.32, clearcoat: 1, clearcoatRoughness: 0.06, ...yansi });
+  const serit = new THREE.MeshPhysicalMaterial({ color: LIVERY.mavi.serit, metalness: 0.1, roughness: 0.35, clearcoat: 1, clearcoatRoughness: 0.08, ...yansi });
+  const vurgu = new THREE.MeshPhysicalMaterial({ color: LIVERY.mavi.vurgu, metalness: 0.2, roughness: 0.35, clearcoat: 1, ...yansi });
+  const karbon = new THREE.MeshStandardMaterial({ color: 0x15161a, metalness: 0.4, roughness: 0.45, ...yansi });
+  const cam = new THREE.MeshPhysicalMaterial({ color: 0x0f1724, metalness: 0.3, roughness: 0.04, clearcoat: 1, ...yansi });
+  const lastik = new THREE.MeshStandardMaterial({ color: 0x141416, roughness: 0.9 });
+  const jant = new THREE.MeshStandardMaterial({ color: 0x2a2d33, metalness: 0.9, roughness: 0.28, ...yansi });
+  const kol = new THREE.MeshStandardMaterial({ color: 0xd9dde2, metalness: 1, roughness: 0.2, ...yansi });
+  const far = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xfff1c9, emissiveIntensity: 1.6 });
+  const stop = new THREE.MeshStandardMaterial({ color: 0xff2a1a, emissive: 0xff1a0a, emissiveIntensity: 1.4 });
+
+  // Yan profil (x, z) Y boyunca kalınlık kadar çekilir, y merkezine konur
+  const cek = (sekil, kalinlik, pah, y) => {
+    const geo = new THREE.ExtrudeGeometry(sekil, {
+      depth: kalinlik, bevelEnabled: pah > 0, bevelSize: pah, bevelThickness: pah, bevelSegments: 3, curveSegments: 18,
+    });
+    geo.rotateX(Math.PI / 2); // şekil Y'si → Z, çekim → -Y
+    geo.translate(0, y + kalinlik / 2, 0);
+    return geo;
+  };
+  const kemer = (s, cx) => {
+    const r = 4, cz = TEKER_R, a = Math.asin((cz - 2) / r);
+    s.absarc(cx, cz, r, Math.PI + a, -a, true);
+  };
+
+  // Orta gövde: burun, kokpit tabanı, motor kapağı
+  const orta = new THREE.Shape();
+  orta.moveTo(-16.4, 2.2);
+  orta.lineTo(-14.6, 1.6);
+  orta.lineTo(17.4, 1.5);
+  orta.lineTo(18.8, 2.3);
+  orta.quadraticCurveTo(15, 4.3, 8, 5.1);
+  orta.lineTo(3, 5.5);
+  orta.lineTo(-7, 6.1);
+  orta.quadraticCurveTo(-12, 7.9, -16, 7.1);
+  orta.lineTo(-16.4, 2.2);
+  g.add(new THREE.Mesh(cek(orta, 7, 0.9, 0), boya));
+  // İki beyaz yarış şeridi: aynı profil, gövdenin hemen üstünde
+  for (const y of [-1.5, 1.5]) g.add(new THREE.Mesh(cek(orta, 1.1, 0.98, y), serit));
+
+  // Yan çamurluklar: tekerlek kemerleri ve üstlerinde kabarık omuzlar
+  const yan = new THREE.Shape();
+  yan.moveTo(-16.4, 2);
+  kemer(yan, -10.5);
+  kemer(yan, 11);
+  yan.lineTo(17.2, 2);
+  yan.lineTo(17.6, 2.7);
+  yan.lineTo(16.6, 4.6);
+  yan.quadraticCurveTo(11.2, 10.6, 6, 5.6);
+  yan.lineTo(-5.2, 5.8);
+  yan.quadraticCurveTo(-10.5, 11, -15.8, 7.2);
+  yan.lineTo(-16.6, 6.6);
+  yan.lineTo(-16.4, 2);
+  for (const s of [-1, 1]) {
+    g.add(new THREE.Mesh(cek(yan, 2.8, 0.7, s * 6.2), boya));
+    const giris = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.6, 1.6), karbon); // yan hava girişi
+    giris.position.set(-3.2, s * 8.15, 4.6);
+    g.add(giris);
+  }
+
+  // Kubbe kokpit
+  const kubbe = new THREE.SphereGeometry(1, 32, 14, 0, Math.PI * 2, 0, Math.PI / 2);
+  kubbe.rotateX(Math.PI / 2);
+  const kokpit = new THREE.Mesh(kubbe, cam);
+  kokpit.scale.set(8.6, 3.7, 3.4);
+  kokpit.position.set(-1.4, 0, 5.4);
+  g.add(kokpit);
+
+  // Köpekbalığı yüzgeci: kokpitten kanada
+  const yuzgec = new THREE.Shape();
+  yuzgec.moveTo(-5, 7.6);
+  yuzgec.lineTo(-15.6, 10.6);
+  yuzgec.lineTo(-15.6, 6.8);
+  yuzgec.lineTo(-5, 6.4);
+  g.add(new THREE.Mesh(cek(yuzgec, 0.5, 0, 0), boya));
+
+  // Arka kanat: iki ayak, ana kanat, renkli yan plakalar
+  for (const y of [-2.6, 2.6]) {
+    const ayak = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.5, 4.2), karbon);
+    ayak.position.set(-14.8, y, 8.9);
+    g.add(ayak);
+  }
+  const kanat = new THREE.Mesh(new THREE.BoxGeometry(4.4, 17.6, 0.6), karbon);
+  kanat.position.set(-15.1, 0, 11.1);
+  kanat.rotation.y = -0.14;
+  g.add(kanat);
+  for (const y of [-8.95, 8.95]) {
+    const plaka = new THREE.Mesh(new THREE.BoxGeometry(5.8, 0.4, 4.2), vurgu);
+    plaka.position.set(-15, y, 10);
+    g.add(plaka);
+  }
+
+  // Ön splitter, arka difüzör, egzozlar, ışıklar
+  const splitter = new THREE.Mesh(new THREE.BoxGeometry(3.6, 17.2, 0.5), karbon);
+  splitter.position.set(17.6, 0, 1.15);
+  const difuzor = new THREE.Mesh(new THREE.BoxGeometry(2.2, 11, 1.8), karbon);
+  difuzor.position.set(-16.6, 0, 2.3);
+  g.add(splitter, difuzor);
+  for (const y of [-2.2, 2.2]) {
+    const egzoz = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 1.6, 16), kol);
+    egzoz.rotation.z = Math.PI / 2;
+    egzoz.position.set(-17.1, y, 4.2);
+    g.add(egzoz);
+  }
+  for (const y of [-6.2, 6.2]) {
+    const f = new THREE.Mesh(new THREE.BoxGeometry(0.6, 2.4, 0.9), far);
+    f.position.set(16.9, y, 4.1);
+    f.rotation.y = -0.5;
+    g.add(f);
+  }
+  const stopLamba = new THREE.Mesh(new THREE.BoxGeometry(0.4, 15, 0.6), stop);
+  stopLamba.position.set(-17.15, 0, 6.6);
+  g.add(stopLamba);
+
+  // Yarış numarası: iki yanda yuvarlak çıkartma
+  const t = document.createElement("canvas");
+  t.width = t.height = 128;
+  const c = t.getContext("2d");
+  c.fillStyle = "#f4f2ec";
+  c.beginPath();
+  c.arc(64, 64, 60, 0, Math.PI * 2);
+  c.fill();
+  c.lineWidth = 6;
+  c.strokeStyle = "#15161a";
+  c.stroke();
+  c.fillStyle = "#15161a";
+  c.font = "italic 900 78px system-ui, sans-serif";
+  c.textAlign = "center";
+  c.textBaseline = "middle";
+  c.fillText("7", 66, 70);
+  const doku = new THREE.CanvasTexture(t);
+  doku.colorSpace = THREE.SRGBColorSpace;
+  doku.anisotropy = 4;
+  const cikartma = new THREE.MeshStandardMaterial({ map: doku, transparent: true, roughness: 0.4, polygonOffset: true, polygonOffsetFactor: -2 });
+  for (const s of [-1, 1]) {
+    const d = new THREE.Mesh(new THREE.PlaneGeometry(3.5, 3.5), cikartma);
+    d.rotation.set(s * -Math.PI / 2, 0, 0);
+    if (s < 0) d.rotateZ(Math.PI); // iki yandan da düz okunsun
+    d.position.set(1.2, s * 8.4, 3.9);
+    g.add(d);
+  }
+
+  // Tekerlekler: geniş lastik, koyu jant, beş kollu yüz; sürüşte yuvarlanır
+  const tekerler = [];
+  for (const x of [-10.5, 11]) {
+    for (const s of [-1, 1]) {
+      const tk = new THREE.Group();
+      tk.position.set(x, s * 6.3, TEKER_R);
+      tk.add(new THREE.Mesh(new THREE.CylinderGeometry(TEKER_R, TEKER_R, 3.2, 32), lastik));
+      tk.add(new THREE.Mesh(new THREE.CylinderGeometry(2.05, 2.05, 3.26, 24), jant));
+      for (let k = 0; k < 5; k++) {
+        const a = (k / 5) * Math.PI * 2;
+        const kolP = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.25, 1.85), kol);
+        kolP.position.set(Math.sin(a) * 0.95, s * 1.66, Math.cos(a) * 0.95);
+        kolP.rotation.y = a;
+        tk.add(kolP);
+      }
+      tk.add(new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 3.5, 6), vurgu));
+      tekerler.push(tk);
+      g.add(tk);
     }
   }
+
+  g.scale.set(ARABA_OLCEK, ARABA_EN, ARABA_OLCEK);
   g.traverse((o) => { if (o.isMesh) o.castShadow = true; });
+  g.userData = { tekerler, boya, serit, vurgu, livery: "mavi" };
   return g;
 }
 const araba = arabaYap();
 sahne.add(araba);
+
+/** Yol rengine göre boya: turuncu/kırmızı/sarı yolda mavi, mavi/siyah/beyaz yolda kırmızı araba */
+function arabaBoya(yolRengi) {
+  const ad = ["mavi", "siyah", "beyaz"].includes(yolRengi) ? "kirmizi" : "mavi";
+  const u = araba.userData;
+  if (u.livery === ad) return;
+  u.livery = ad;
+  u.boya.color.setHex(LIVERY[ad].govde);
+  u.serit.color.setHex(LIVERY[ad].serit);
+  u.vurgu.color.setHex(LIVERY[ad].vurgu);
+}
 
 // ---------------------------------------------------------------- KURULUM
 let YOLUM = [p()]; // parçaların ham değerleri, sırayla
@@ -476,6 +689,23 @@ const kenarSecili = new THREE.LineBasicMaterial({ color: 0x5b34d6, transparent: 
 const etiketGrup = new THREE.Group();
 sahne.add(etiketGrup);
 const isin = new THREE.Raycaster();
+let GECMIS = []; // geri al: yolun önceki halleri
+// ?vitrin: ürün görseli çekilirken parça numaraları ve seçim çizgisi çizilmez
+const VITRIN = new URLSearchParams(location.search).has("vitrin");
+
+// Eklemlerdeki bağlantı parçaları (yalnızca gösterim; ölçüye girmez)
+const baglayiciGrup = new THREE.Group();
+sahne.add(baglayiciGrup);
+const baglayiciMalzeme = new THREE.MeshStandardMaterial({ color: 0x30343c, roughness: 0.5 });
+let baglayici = { anahtar: "", geos: [], hacim: 0 };
+function baglayiciHazirla(O) {
+  const anahtar = [O.tol, O.t, O.delik].join("|");
+  if (baglayici.anahtar === anahtar) return baglayici;
+  for (const g of baglayici.geos) g.dispose();
+  const geos = baglayiciGeo(O);
+  baglayici = { anahtar, geos, hacim: geos.reduce((t, g) => t + Math.abs(isaretliHacim(g)), 0) };
+  return baglayici;
+}
 
 /** Sahnede parçanın sıra numarası */
 function numara(metin, renk) {
@@ -562,9 +792,16 @@ function yerlesim(Ps) {
 }
 
 const _M = new THREE.Matrix4(), _B = new THREE.Matrix4(), _S = new THREE.Vector3();
-/** Arabayı yolun başından s mm ilerideki noktaya koyar */
+/** Arabanın durduğu ilk nokta: arka tamponu yolun başında */
+function arabaBas() {
+  return SON ? Math.min(ARABA_YARI, SON.toplamLt / 2) : ARABA_YARI;
+}
+
+/** Arabayı yolun başından s mm ilerideki noktaya koyar; tekerlekler yol kadar döner */
 function arabayiKoy(s) {
   if (!SON) return;
+  const don = s / (TEKER_R * ARABA_OLCEK);
+  for (const t of araba.userData.tekerler) t.rotation.y = don;
   let i = 0;
   while (i < SON.n - 1 && s > SON.parcalar[i].Y0.Lt) {
     s -= SON.parcalar[i].Y0.Lt;
@@ -611,7 +848,7 @@ function kur() {
     grup.rotation.z = q.h;
     grup.position.set(q.x, q.y, 0);
     grup.updateMatrix();
-    const vurgulu = n > 1 && i === secili;
+    const vurgulu = n > 1 && i === secili && !VITRIN;
     k.geos.forEach((g, j) => {
       const m = new THREE.Mesh(g, malzeme);
       m.castShadow = true;
@@ -623,7 +860,7 @@ function kur() {
     yolGrup.add(grup);
     parcalar.push({ P, Y0, z0, M: grup.matrix.clone(), ...k });
 
-    if (n > 1) {
+    if (n > 1 && !VITRIN) {
       const orta = Y0.nokta(Y0.Lt / 2);
       const etiket = numara(String(i + 1), i === secili ? temaVurgu : "#171717");
       etiket.position.set(orta.x, orta.y, orta.z + z0 + P.t + P.duvar + 16).applyMatrix4(grup.matrix);
@@ -639,6 +876,7 @@ function kur() {
   }
 
   malzeme.color.setHex(RENK[O.renk] ?? RENK.turuncu);
+  arabaBoya(O.renk);
   const kutu = new THREE.Box3().setFromObject(yolGrup);
   const boy = kutu.getSize(new THREE.Vector3());
   const olcu = { x: yuvarla(boy.x), y: yuvarla(boy.y), z: yuvarla(boy.z, 1) };
@@ -646,8 +884,6 @@ function kur() {
   for (const s of etiketGrup.children) s.scale.setScalar(etiketBoy);
 
   const hacim = parcalar.reduce((t, x) => t + x.hacim, 0);
-  const kutleG = (hacim / 1000) * PLA;
-  const sureSaat = hacim / AKIS / 3600 + 0.2 * n;
   const ucgen = parcalar.reduce((t, x) => t + x.ucgen, 0);
   const toplamLt = parcalar.reduce((t, x) => t + x.Y0.Lt, 0);
   const kapali =
@@ -655,7 +891,35 @@ function kur() {
     Math.hypot(bitis.x, bitis.y) < 1.5 &&
     Math.abs(bitis.z - poz[0].z) < 0.5 &&
     Math.cos(bitis.h) > 0.9998;
-  SON = { Ps, poz, parcalar, n, hacim, olcu, kutleG, sureSaat, ucgen, kutu, toplamLt, kapali };
+
+  // Bağlantı parçaları: her eklem için bir tane (kapalı pistte başla son da
+  // birleşir) + yedek. Geçmeli uçta gerekmez.
+  baglayiciGrup.clear();
+  const hwUc = O.baglanti === "hw";
+  const eklemler = hwUc ? [...poz.slice(1, n), ...(kapali ? [poz[0]] : [])] : [];
+  const bAcik = hwUc && el("hw-baglayici").checked;
+  const yedek = Math.round(clamp(sayi("hw-yedek", 2), 0, 6));
+  const bag = { adet: bAcik ? eklemler.length + yedek : 0, eklem: eklemler.length, yedek: bAcik ? yedek : 0, hacim: 0 };
+  if (hwUc) {
+    const b = baglayiciHazirla(O);
+    bag.tekHacim = b.hacim;
+    bag.hacim = b.hacim * bag.adet;
+    baglayiciMalzeme.color.setHex(O.renk === "siyah" ? 0xd4d7dd : 0x30343c);
+    for (const q of eklemler) {
+      const kap = new THREE.Group();
+      kap.rotation.z = q.h;
+      kap.position.set(q.x, q.y, q.z);
+      for (const g of b.geos) {
+        const m = new THREE.Mesh(g, baglayiciMalzeme);
+        m.castShadow = true;
+        kap.add(m);
+      }
+      baglayiciGrup.add(kap);
+    }
+  }
+  const kutleG = ((hacim + bag.hacim) / 1000) * PLA;
+  const sureSaat = (hacim + bag.hacim) / AKIS / 3600 + 0.2 * n + (bag.adet ? 0.15 : 0);
+  SON = { Ps, poz, parcalar, n, hacim, olcu, kutleG, sureSaat, ucgen, kutu, toplamLt, kapali, bag };
 
   zincirCiz();
   bilgiYaz();
@@ -664,7 +928,7 @@ function kur() {
   if (ortalaGerek || (n === 1 && sonTip !== null && sonTip !== tip)) ortala();
   ortalaGerek = false;
   sonTip = tip;
-  if (!surus) arabayiKoy(LZ * 0.6);
+  if (!surus) arabayiKoy(arabaBas());
 
   window.__ADJY_HW = {
     hazir: true,
@@ -673,6 +937,8 @@ function kur() {
     n,
     duzen: `${n} parça${kapali ? " · kapalı pist" : ""}`,
     parcalar: Ps.map(tarif),
+    baglayici: bag.adet,
+    baglayiciDetay: bag.adet ? `${bag.adet} adet (${bag.eklem} eklem + ${bag.yedek} yedek)` : "",
     durum: yolDurumu,
     yaz: yolYaz,
   };
@@ -742,6 +1008,18 @@ function bilgiYaz() {
       satirlar.push([`${i + 1}. ${kisaAd(x.P)}`, `${Math.round((x.hacim / 1000) * PLA)} g · ${x.olcu.x}×${x.olcu.y}${x.olcu.z > 15 ? "×" + Math.round(x.olcu.z) : ""}`]);
     });
   }
+  const B = S.bag;
+  if (B.adet) satirlar.push(["Bağlantı parçası", `${B.adet} adet · ${((B.hacim / 1000) * PLA).toFixed(1)} g · ${BAGLAYICI.boy}×${BAGLAYICI.en} mm`]);
+  const hwUc = S.Ps[0].baglanti === "hw";
+  el("hw-baglayici-not").textContent = !hwUc
+    ? ""
+    : B.adet
+      ? `${B.adet} adet basılır: ${B.eklem ? `${B.eklem} eklem için ${B.eklem}` : "yolun içinde eklem yok"}${B.yedek ? `, ${B.yedek} yedek (yolun uçlarını başka yollara bağlamak için)` : ""}.`
+      : `Basılmayacak. Yolunuzda ${B.eklem} eklem var; parçaları bağlamak için orijinal yolların bağlantı parçası gerekir.`;
+  const bd = el("hw-baglayici-stl");
+  bd.hidden = !hwUc;
+  bd.disabled = !B.adet;
+  bd.textContent = B.adet ? `Bağlantı parçaları (${B.adet} adet, STL)` : "Bağlantı parçaları (STL)";
   const t = el("hw-tablo");
   t.textContent = "";
   for (const [k, v] of satirlar) {
@@ -754,9 +1032,23 @@ function bilgiYaz() {
   el("hw-stl").textContent = S.n > 1 ? `Yol parçaları (${S.n} STL, ZIP)` : "Yol parçası (STL)";
 }
 
-/** Yolum listesi: her parça bir düğme; seçilinin yanında sil */
+/** Yolum listesi: her parça bir düğme ve yanında sil; üstte seçili parça işlemleri */
 function zincirCiz() {
   const S = SON;
+  const n = S.n;
+  // İşlem düğmeleri her kurulumda (geri al yığını imzaya girmez)
+  const durum = {
+    sola: secili > 0,
+    saga: secili < n - 1,
+    cogalt: n < EN_COK_PARCA,
+    sil: n > 1,
+    geri: GECMIS.length > 0,
+    temizle: n > 1 || YOLUM[0]["hw-tip"] !== "duz",
+  };
+  document.querySelectorAll("[data-islem]").forEach((b) => { b.disabled = !durum[b.dataset.islem]; });
+  document.querySelectorAll("[data-ekle]").forEach((b) => { b.disabled = n >= EN_COK_PARCA; });
+  el("hw-sayac").textContent = `${n} / ${EN_COK_PARCA} parça · ${secili + 1}. parça seçili`;
+
   const imza = JSON.stringify([secili, S.kapali, S.Ps.map(kisaAd), S.Ps.map(tarif)]);
   if (imza === zincirImza) return;
   zincirImza = imza;
@@ -764,6 +1056,7 @@ function zincirCiz() {
   ol.textContent = "";
   S.Ps.forEach((P, i) => {
     const li = document.createElement("li");
+    li.className = i === secili ? "on" : "";
     const b = document.createElement("button");
     b.type = "button";
     b.className = "hw-parca" + (i === secili ? " on" : "");
@@ -774,23 +1067,28 @@ function zincirCiz() {
     no.textContent = String(i + 1);
     b.append(no, document.createTextNode(kisaAd(P)));
     li.append(b);
-    if (i === secili && S.n > 1) {
+    if (n > 1) {
       const x = document.createElement("button");
       x.type = "button";
       x.className = "hw-sil";
       x.dataset.sil = String(i);
-      x.title = "Bu parçayı sil";
+      x.title = `${i + 1}. parçayı sil`;
       x.setAttribute("aria-label", `${i + 1}. parçayı sil`);
       x.textContent = "×";
       li.append(x);
     }
     ol.append(li);
   });
-  document.querySelectorAll("[data-ekle]").forEach((b) => { b.disabled = S.n >= EN_COK_PARCA; });
+  if (S.kapali) {
+    const li = document.createElement("li");
+    li.className = "hw-kapandi";
+    li.textContent = "↺ başa bağlanır";
+    ol.append(li);
+  }
   el("hw-zincir-not").textContent =
-    S.n > 1
-      ? `${S.n} parça${S.kapali ? ", pist kapanıyor" : ""}. Bir parçaya (ya da modeldeki numarasına) dokunun; sonraki adımlar o parçayı değiştirir.`
-      : "Şimdilik tek parça. Ardına parça ekledikçe yol uzar; her parça bir öncekinin ucuna takılır.";
+    n > 1
+      ? `${n} parça${S.kapali ? ", pist kapanıyor" : ""}. Bir parçaya (ya da modeldeki numarasına) dokunun; sonraki adımlar o parçayı değiştirir. × parçayı çıkarır, ← → sırasını değiştirir.`
+      : "Şimdilik tek parça. Aşağıdan parça ekledikçe yol uzar; her yeni parça seçili parçanın ucuna takılır.";
 }
 
 // ---------------------------------------------------------------- ARAYÜZ
@@ -808,6 +1106,15 @@ function gorunurlugGuncelle(P, z0 = 0) {
     inisSatiri.hidden = true;
     el("hw-inis").disabled = true;
   }
+  // Bağlantı parçası yalnızca orijinal uyumlu uçta; işaret kalkınca yedek sorulmaz
+  const bagSatiri = document.querySelector("[data-baglayici-satiri]");
+  const hwUc = el("hw-baglanti").value === "hw";
+  bagSatiri.hidden = !hwUc;
+  el("hw-baglayici").disabled = !hwUc;
+  const yedekAcik = hwUc && el("hw-baglayici").checked;
+  for (const e of [el("hw-yedek"), document.querySelector('[data-bagli="hw-yedek"]')]) e.disabled = !yedekAcik;
+  bagSatiri.querySelectorAll('label[for="hw-yedek"], .hw-kaydir').forEach((e) => { e.style.display = yedekAcik ? "" : "none"; });
+
   const ayakSatiri = document.querySelector("[data-ayak-satiri]");
   const ayakGerekli = P.tip !== "looping" && (P.rise !== 0 || P.egim > 0 || z0 > 0.5);
   ayakSatiri.hidden = !ayakGerekli;
@@ -870,28 +1177,88 @@ const EKLE = {
   sol: p({ tip: "viraj", aci: 90 }),
   sag: p({ tip: "viraj", aci: 90, yon: "sag" }),
   rampa: p({ tip: "rampa", uzunluk: 200, yukselme: 30 }),
+  inis: p({ tip: "rampa", uzunluk: 200, yukselme: 30, inis: "in" }),
   looping: p({ tip: "looping", cap: 200 }),
 };
 
+// Geri al: her yapı değişikliğinden önce yolun bir kopyası saklanır
+function kaydet() {
+  YOLUM[secili] = ham();
+  GECMIS.push({ yol: YOLUM.map((h) => ({ ...h })), secili, duvar: el("hw-duvar").value });
+  if (GECMIS.length > 40) GECMIS.shift();
+}
+function geriAl() {
+  const s = GECMIS.pop();
+  if (!s) return;
+  YOLUM = s.yol;
+  secili = clamp(s.secili, 0, YOLUM.length - 1);
+  parcaYaz(YOLUM[secili]);
+  if (el("hw-duvar").value !== s.duvar) yaz("hw-duvar", s.duvar);
+  sonra();
+}
+/** Yapı değişti: model yeniden kurulup ortalanır, hazır yol işareti kalkar */
+function sonra() {
+  zincirImza = "";
+  ortalaGerek = true;
+  yenile = true;
+  hazirYolIsaretle(null);
+}
+
 function parcaEkle(tur) {
   if (!EKLE[tur] || YOLUM.length >= EN_COK_PARCA) return;
-  YOLUM[secili] = ham();
+  kaydet();
   const yeni = { ...EKLE[tur] };
   YOLUM.splice(secili + 1, 0, yeni);
   secili += 1;
   parcaYaz(yeni);
-  ortalaGerek = true;
-  hazirYolIsaretle(null);
+  sonra();
 }
 
 function parcaSil(i) {
-  if (YOLUM.length < 2) return;
+  if (YOLUM.length < 2 || i < 0 || i >= YOLUM.length) return;
+  kaydet();
   YOLUM.splice(i, 1);
-  secili = clamp(i, 0, YOLUM.length - 1);
+  if (i < secili || secili >= YOLUM.length) secili = Math.max(0, secili - 1);
   parcaYaz(YOLUM[secili]);
-  ortalaGerek = true;
-  hazirYolIsaretle(null);
+  sonra();
 }
+
+function parcaTasi(yon) {
+  const j = secili + yon;
+  if (j < 0 || j >= YOLUM.length) return;
+  kaydet();
+  [YOLUM[secili], YOLUM[j]] = [YOLUM[j], YOLUM[secili]];
+  secili = j;
+  parcaYaz(YOLUM[secili]);
+  sonra();
+}
+
+function parcaCogalt() {
+  if (YOLUM.length >= EN_COK_PARCA) return;
+  kaydet();
+  const kopya = { ...YOLUM[secili] };
+  YOLUM.splice(secili + 1, 0, kopya);
+  secili += 1;
+  parcaYaz(kopya);
+  sonra();
+}
+
+function yoluTemizle() {
+  kaydet();
+  YOLUM = [{ ...EKLE.duz }];
+  secili = 0;
+  parcaYaz(YOLUM[0]);
+  sonra();
+}
+
+const ISLEM = {
+  sola: () => parcaTasi(-1),
+  saga: () => parcaTasi(1),
+  cogalt: parcaCogalt,
+  sil: () => parcaSil(secili),
+  geri: geriAl,
+  temizle: yoluTemizle,
+};
 
 // Hazır parça: seçili parçaya uygulanır
 const HAZIR = {
@@ -907,6 +1274,7 @@ const HAZIR = {
 
 // Hazır yol: bütün yolu değiştirir. Kapalı pistler kendi üstüne kapanır.
 const YOLLAR = {
+  bos: { duvar: 7, parcalar: [p({ tip: "duz", uzunluk: 150 })] },
   tek: { duvar: 7, parcalar: [p({ tip: "viraj", yaricap: 120, aci: 90 })] },
   s: {
     duvar: 7,
@@ -951,6 +1319,8 @@ function hazirYolIsaretle(ad) {
 function hazirYol(ad) {
   const y = YOLLAR[ad];
   if (!y) return;
+  kaydet();
+  zincirImza = "";
   YOLUM = y.parcalar.map((h) => ({ ...h }));
   secili = 0;
   parcaYaz(YOLUM[0]);
@@ -958,6 +1328,18 @@ function hazirYol(ad) {
   ortalaGerek = true;
   elleOynandi = false;
   hazirYolIsaretle(ad);
+  // Kendi yolunu kuran müşteri doğrudan parça eklemeye geçer
+  if (ad === "bos") zincireKaydir();
+}
+
+/** Yol listesini göster: dar ekranda yapışkan sahnenin altına kaydırır */
+function zincireKaydir() {
+  const k = document.querySelector(".hw-zincir-kap");
+  const s = document.querySelector(".hw-sahne");
+  if (!k) return;
+  const ust = s && getComputedStyle(s).position === "sticky" ? s.getBoundingClientRect().bottom : 0;
+  const r = k.getBoundingClientRect();
+  if (r.top < ust || r.bottom > innerHeight) window.scrollBy({ top: r.top - ust - 12, behavior: "smooth" });
 }
 
 /** Köprü kaydı: parça listesi formda durmaz, ayrıca taşınır */
@@ -974,6 +1356,8 @@ function yolYaz(ek) {
   });
   secili = clamp(parseInt(ek.secili, 10) || 0, 0, YOLUM.length - 1);
   parcaYaz(YOLUM[secili]);
+  GECMIS = [];
+  zincirImza = "";
   ortalaGerek = true;
 }
 
@@ -991,9 +1375,12 @@ document.addEventListener("click", (e) => {
   if (silD) return parcaSil(parseInt(silD.dataset.sil, 10));
   const ekleD = e.target.closest("[data-ekle]");
   if (ekleD) return parcaEkle(ekleD.dataset.ekle);
+  const islemD = e.target.closest("[data-islem]");
+  if (islemD) return ISLEM[islemD.dataset.islem]?.();
   const hz = e.target.closest("[data-hazir]");
   if (hz) {
     const h = HAZIR[hz.dataset.hazir];
+    kaydet();
     // tip önce: sınırlar (rampa yükselmesi) ona göre açılır. Çok parçalı
     // yolda kenar yüksekliği bütün yolu değiştirdiği için dokunulmaz.
     for (const [id, v] of Object.entries(h)) {
@@ -1002,6 +1389,15 @@ document.addEventListener("click", (e) => {
     }
     if (YOLUM.length === 1) ortalaGerek = true;
   }
+});
+
+// Ctrl+Z: yazı alanının dışında yol değişikliğini geri alır
+document.addEventListener("keydown", (e) => {
+  if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.key.toLowerCase() !== "z") return;
+  if (e.target.closest?.("input, select, textarea, [contenteditable]")) return;
+  if (!GECMIS.length) return;
+  e.preventDefault();
+  geriAl();
 });
 
 // Kaydırıcı ↔ sayı alanı
@@ -1177,6 +1573,8 @@ function csvMetni() {
     ["Toplam_yol_uzunlugu_mm", yuvarla(S.toplamLt, 1)],
     ["Yerlesim_olcusu_mm", `${S.olcu.x}x${S.olcu.y}x${S.olcu.z}`],
     ["Hacim_cm3", (S.hacim / 1000).toFixed(2)],
+    ["Baglanti_parcasi_adet", S.bag.adet],
+    ["Baglanti_parcasi_eklem_yedek", S.bag.adet ? `${S.bag.eklem}+${S.bag.yedek}` : "-"],
     ["Kutle_g_PLA", S.kutleG.toFixed(1)],
     ["Sure_saat", S.sureSaat.toFixed(2)],
     [],
@@ -1202,13 +1600,40 @@ el("hw-stl").addEventListener("click", () => {
     const ad = dosyaAdi(x.P, i + 1, x.z0);
     return { ad: `${ad}.stl`, veri: new Uint8Array(stl(x.geos, ad)) };
   });
-  // Sipariş klasörüne toplanırken her parça ayrı STL (bilgi CSV'si ayrıca toplanır)
+  // Sipariş klasörüne toplanırken her parça ayrı STL (bilgi CSV'si ve
+  // bağlantı parçaları kendi düğmeleriyle ayrıca toplanır)
   if (window.ADJY?.toplaniyor?.()) {
     for (const d of dosyalar) indir(d.veri, d.ad, "model/stl");
     return;
   }
+  if (SON.bag.adet) {
+    const b = baglayiciStl();
+    dosyalar.push({ ad: `${b.ad}.stl`, veri: new Uint8Array(b.veri) });
+  }
   dosyalar.push({ ad: "YOL_bilgi.csv", veri: new TextEncoder().encode(csvMetni()) });
   indir(zip(dosyalar), `YOL_${SON.n}parca${SON.kapali ? "_kapali" : ""}_${SON.Ps[0].baglanti}.zip`, "application/zip");
+});
+/** Bütün bağlantı parçaları tek tablada: plaka tabana oturur, sıra sıra dizilir */
+function baglayiciStl() {
+  const O = SON.Ps[0];
+  const { geos } = baglayiciHazirla(O);
+  const adet = SON.bag.adet;
+  const sutun = Math.max(1, Math.floor((TABLA - 10) / (BAGLAYICI.boy + 6)));
+  const hepsi = [];
+  for (let k = 0; k < adet; k++) {
+    const x = (k % sutun) * (BAGLAYICI.boy + 6);
+    const y = Math.floor(k / sutun) * (BAGLAYICI.en + 6);
+    for (const g of geos) hepsi.push(g.clone().translate(x, y, BAGLAYICI.kal));
+  }
+  const ad = `YOL_baglanti_parcasi_x${adet}_pim${yuvarla(Math.max(0.8, O.delik / 2 - O.tol) * 2, 2)}`;
+  const veri = stl(hepsi, ad);
+  for (const g of hepsi) g.dispose();
+  return { ad, veri };
+}
+el("hw-baglayici-stl").addEventListener("click", () => {
+  if (!SON || !SON.bag.adet) return;
+  const b = baglayiciStl();
+  indir(b.veri, `${b.ad}.stl`, "model/stl");
 });
 el("hw-csv").addEventListener("click", () => {
   if (!SON) return;
@@ -1256,11 +1681,11 @@ function dongu(an) {
   if (surus && SON) {
     const u = clamp((an - surus.bas) / surus.sure, 0, 1);
     const e = u < 0.5 ? 2 * u * u : 1 - (-2 * u + 2) ** 2 / 2;
-    arabayiKoy(LZ * 0.6 + e * (SON.toplamLt - LZ * 1.2));
+    arabayiKoy(arabaBas() + e * Math.max(0, SON.toplamLt - 2 * arabaBas()));
     if (u >= 1) {
       surus = null;
       el("hw-sur").disabled = false;
-      setTimeout(() => { if (!surus) arabayiKoy(LZ * 0.6); }, 900);
+      setTimeout(() => { if (!surus) arabayiKoy(arabaBas()); }, 900);
     }
   }
   if (kirli) {

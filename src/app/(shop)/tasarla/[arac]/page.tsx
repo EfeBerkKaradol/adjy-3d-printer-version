@@ -103,7 +103,7 @@ export default async function TasarimUrunPage({
   const ozellestir = aracOzellestirmeAdresi(arac.id);
 
   return (
-    <div className="pb-20">
+    <div className="pb-28 lg:pb-0">
       <BreadcrumbJsonLd
         items={[
           { name: "Kendin Tasarla", url: `${baseUrl}/tasarla` },
@@ -153,59 +153,70 @@ export default async function TasarimUrunPage({
 
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <Link
-                href="/tasarla"
-                className="adjy-eyebrow transition-colors hover:text-foreground"
-              >
-                Kendin Tasarla
-              </Link>
               <PixelTag>Ölçüye özel</PixelTag>
+              <PixelTag>{arac.ayarlar.length} ayar</PixelTag>
+              <PixelTag>Anında fiyat</PixelTag>
             </div>
-            <h1 className="adjy-display mt-3 text-[clamp(1.8rem,3.6vw,2.8rem)]">
-              {arac.ad}
-            </h1>
+            <h1 className="adjy-display mt-5 text-[clamp(2.2rem,4.4vw,3.8rem)]">{arac.ad}</h1>
+            <p className="mt-4 text-lg font-medium leading-snug tracking-tight lg:text-xl">
+              {arac.ozet}
+            </p>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground">
               {arac.aciklama}
             </p>
 
             {/* Fiyat gerçek bir kurulumun fiyatı: aracın açıldığı
                 varsayılan hâlin. "…'den başlar" demiyoruz. */}
-            <div className="mt-8 border-y-2 border-dashed border-foreground/25 py-6">
-              <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <span className="text-3xl font-semibold tabular-nums">
-                  {formatTRY(fiyat)}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  varsayılan ölçüde · KDV dâhil
-                </span>
+            <div id="siparis" className="adjy-pixel-frame mt-8 bg-muted/40 p-5 sm:p-6">
+              <p className="adjy-eyebrow">Varsayılan ölçüde · KDV dâhil</p>
+              <p className="mt-2 text-4xl font-semibold tabular-nums tracking-tight lg:text-5xl">
+                {formatTRY(fiyat)}
               </p>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                 Fiyat, kurduğunuz parçanın malzemesinden ve baskı süresinden
                 hesaplanır; ölçüyü değiştirdikçe güncellenir.
                 {arac.ekMaliyetAciklamasi
                   ? ` ${arac.ekMaliyetAciklamasi} fiyata dâhildir.`
                   : ""}
               </p>
-
-              <div className="mt-6 flex flex-wrap items-center gap-4">
-                <PixelLink href={ozellestir} variant="solid">
-                  Özelleştir ve sipariş ver
-                </PixelLink>
-              </div>
-              <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-                {arac.teslim}
-              </p>
+              <PixelLink
+                href={ozellestir}
+                variant="solid"
+                className="mt-6 flex w-full justify-center py-4 text-[13px]"
+              >
+                Özelleştir ve sipariş ver
+              </PixelLink>
+              <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 border-t-2 border-dashed border-foreground/20 pt-5 text-sm">
+                <div>
+                  <dt className="adjy-eyebrow">Malzeme</dt>
+                  <dd className="mt-1.5">
+                    {arac.malzeme}
+                    {arac.malzemeSabit ? "" : " (araçta değiştirilebilir)"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="adjy-eyebrow">Üretim</dt>
+                  <dd className="mt-1.5">Siparişe özel, atölyemizde 3D baskı</dd>
+                </div>
+                <div className="col-span-2">
+                  <dt className="adjy-eyebrow">Teslim</dt>
+                  <dd className="mt-1.5 text-muted-foreground">{arac.teslim}</dd>
+                </div>
+              </dl>
             </div>
 
             {/* ---------- NELERİ DEĞİŞTİREBİLİRSİNİZ ---------- */}
-            <section className="mt-8" aria-labelledby="ayarlar-baslik">
+            <section className="mt-10" aria-labelledby="ayarlar-baslik">
               <h2 id="ayarlar-baslik" className="adjy-eyebrow">
                 Neleri değiştirebilirsiniz
               </h2>
-              <ul className="mt-4 divide-y-2 divide-dashed divide-foreground/15">
+              <ul className="mt-4 grid gap-2.5 sm:grid-cols-2">
                 {arac.ayarlar.map((ayar, i) => (
-                  <li key={ayar} className="flex items-baseline gap-4 py-2.5 text-sm">
-                    <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
+                  <li
+                    key={ayar}
+                    className="flex items-start gap-3 border-2 border-dashed border-foreground/15 px-3.5 py-3 text-sm leading-snug"
+                  >
+                    <span className="mt-px font-mono text-[11px] font-semibold tabular-nums text-muted-foreground">
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     {ayar}
@@ -213,64 +224,43 @@ export default async function TasarimUrunPage({
                 ))}
               </ul>
             </section>
-
-            <dl className="mt-8 grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
-              <div>
-                <dt className="adjy-eyebrow">Malzeme</dt>
-                <dd className="mt-1.5">
-                  {arac.malzeme}
-                  {arac.malzemeSabit ? "" : " (araçta değiştirilebilir)"}
-                </dd>
-              </div>
-              <div>
-                <dt className="adjy-eyebrow">Üretim</dt>
-                <dd className="mt-1.5">Siparişe özel, atölyemizde 3D baskı</dd>
-              </div>
-            </dl>
           </div>
         </div>
+      </div>
 
-        {/* ---------- ÖNE ÇIKANLAR ---------- */}
-        <section className="mt-20" aria-label="Öne çıkan özellikler">
-          <ul className="grid gap-4 md:grid-cols-3">
+      {/* ---------- ÖNE ÇIKANLAR: koyu bant ---------- */}
+      <section className="mt-20 bg-foreground text-background" aria-labelledby="vurgu-baslik">
+        <div className="adjy-container py-14 lg:py-20">
+          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-background/60">
+            Neden bu ürün
+          </p>
+          <h2 id="vurgu-baslik" className="adjy-display mt-4 max-w-3xl text-[clamp(1.8rem,3.6vw,3rem)]">
+            Bu ürünü farklı kılan {arac.vurgular.length} şey.
+          </h2>
+          <ul className="mt-12 grid gap-x-12 gap-y-10 md:grid-cols-3">
             {arac.vurgular.map((v, i) => (
-              <li key={v.baslik} className="adjy-pixel-card flex flex-col p-6">
-                <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
+              <li key={v.baslik} className="border-t-2 border-dashed border-background/25 pt-6">
+                <span className="font-mono text-4xl font-semibold tabular-nums text-background/35 lg:text-5xl">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <h2 className="mt-3 text-lg font-semibold leading-snug tracking-tight">
-                  {v.baslik}
-                </h2>
-                <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
-                  {v.metin}
-                </p>
+                <h3 className="mt-4 text-lg font-semibold leading-snug">{v.baslik}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-background/70">{v.metin}</p>
               </li>
             ))}
           </ul>
-        </section>
+        </div>
+      </section>
 
+      <div className="adjy-container">
         {/* ---------- NASIL İLERLİYOR ---------- */}
-        <section
-          className="mt-20 border-t-2 border-dashed border-foreground/25 pt-12"
-          aria-labelledby="adimlar-baslik"
-        >
-          <div className="flex flex-wrap items-end justify-between gap-6">
-            <div>
-              <p className="adjy-eyebrow">Nasıl ilerliyor</p>
-              <h2
-                id="adimlar-baslik"
-                className="adjy-display mt-3 text-[clamp(1.4rem,2.6vw,2rem)]"
-              >
-                Üç adımda sizin ölçünüzde.
-              </h2>
-            </div>
-            <PixelLink href={ozellestir} variant="outline">
-              Özelleştirmeye başla
-            </PixelLink>
-          </div>
+        <section className="mt-20" aria-labelledby="adimlar-baslik">
+          <p className="adjy-eyebrow">Nasıl ilerliyor</p>
+          <h2 id="adimlar-baslik" className="adjy-display mt-3 text-[clamp(1.4rem,2.6vw,2rem)]">
+            Üç adımda sizin ölçünüzde.
+          </h2>
           <ol className="mt-10 grid gap-x-12 gap-y-8 sm:grid-cols-3">
             {ADIMLAR.map((a, i) => (
-              <li key={a.b}>
+              <li key={a.b} className="border-t-2 border-dashed border-foreground/25 pt-5">
                 <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
                   {String(i + 1).padStart(2, "0")}
                 </span>
@@ -281,8 +271,34 @@ export default async function TasarimUrunPage({
           </ol>
         </section>
 
+        {/* ---------- SON ÇAĞRI ---------- */}
+        <section
+          className="adjy-pixel-frame mt-16 grid items-center gap-8 overflow-hidden bg-muted/40 sm:grid-cols-[minmax(0,1fr)_auto] lg:grid-cols-[220px_minmax(0,1fr)_auto]"
+          aria-label="Özelleştirmeye başla"
+        >
+          {gorseller[0] && (
+            <div className="relative hidden aspect-square self-stretch bg-surface-2 lg:block">
+              <Image src={gorseller[0].adres} alt="" fill sizes="220px" className="object-cover" />
+            </div>
+          )}
+          <div className="px-6 pt-8 sm:py-8 lg:px-0">
+            <p className="adjy-eyebrow">Sıra sizde</p>
+            <p className="adjy-display mt-3 text-[clamp(1.5rem,2.8vw,2.2rem)]">
+              {arac.ad}, sizin ölçünüzde.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Varsayılan ölçüde {formatTRY(fiyat)}; her değişiklik fiyata anında yansır.
+            </p>
+          </div>
+          <div className="px-6 pb-8 sm:py-8 sm:pr-8">
+            <PixelLink href={ozellestir} variant="solid" className="py-4">
+              Özelleştirmeye başla
+            </PixelLink>
+          </div>
+        </section>
+
         {/* ---------- DİĞER TASARIM ÜRÜNLERİ ---------- */}
-        <section className="mt-20" aria-labelledby="diger-baslik">
+        <section className="mt-20 pb-20" aria-labelledby="diger-baslik">
           <div className="flex items-end justify-between gap-6">
             <h2 id="diger-baslik" className="adjy-display text-[clamp(1.3rem,2.4vw,1.8rem)]">
               Kendiniz kurabileceğiniz diğer ürünler
@@ -314,14 +330,14 @@ export default async function TasarimUrunPage({
                           alt={d.ad}
                           fill
                           sizes="(max-width: 1024px) 50vw, 25vw"
-                          className="object-cover"
+                          className="object-cover transition-transform duration-700 group-hover:scale-[1.05]"
                         />
                       )}
                     </div>
                     <div className="flex flex-1 flex-col border-t-2 border-dashed border-foreground/80 px-3.5 py-3">
                       <h3 className="text-[15px] font-semibold leading-snug">{d.ad}</h3>
                       <p className="mt-1.5 font-mono text-xs tabular-nums">
-                        <span className="text-muted-foreground">Başlangıç </span>
+                        <span className="text-muted-foreground">Varsayılan ölçüde </span>
                         <span className="font-semibold">
                           {formatTRY(tasarimBaslangicFiyati(d))}
                         </span>
@@ -333,6 +349,19 @@ export default async function TasarimUrunPage({
             })}
           </ul>
         </section>
+      </div>
+
+      {/* Telefonda fiyat ve sipariş düğmesi ekranın altında hep durur */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-dashed border-foreground/30 bg-background/95 px-4 py-3 backdrop-blur lg:hidden">
+        <div className="mx-auto flex max-w-xl items-center justify-between gap-4">
+          <div className="min-w-0">
+            <p className="truncate text-xs text-muted-foreground">{arac.ad}</p>
+            <p className="text-lg font-semibold tabular-nums">{formatTRY(fiyat)}</p>
+          </div>
+          <PixelLink href={ozellestir} variant="solid" className="shrink-0">
+            Özelleştir
+          </PixelLink>
+        </div>
       </div>
     </div>
   );

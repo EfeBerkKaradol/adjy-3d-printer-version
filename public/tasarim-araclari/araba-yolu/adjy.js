@@ -18,12 +18,12 @@
     // Ayarlar numaralı adımlara ayrılır. yer: adımın modelin neresinde duracağı
     // (sol | sag | alt). sec: o adıma taşınan öğeler. ad: rehber çubuğundaki kısa ad.
     adimlar: [
-      { ad: "Başla", baslik: "Hazır bir yolla başlayın", ipucu: "Tek parça ya da kurulu bir pist seçin; sonra her parçayı değiştirebilirsiniz.", yer: "sol", sec: ["#grup-yollar .hw-yollar"] },
-      { ad: "Yol", baslik: "Parçaları uç uca ekleyin", ipucu: "Her yeni parça seçili parçanın ucuna takılır. Değiştirmek istediğiniz parçaya dokunun; sonraki adımlar o parçayı değiştirir.", yer: "alt", sec: ["#grup-yolum .hw-zincir-kap"] },
+      { ad: "Başla", baslik: "Kendi yolunuzu kurun ya da hazır bir pistle başlayın", ipucu: "＋ Kendi yolun tek bir düzle başlar; parçaları siz eklersiniz. Hazır pistlerin de her parçası değiştirilebilir.", yer: "sol", sec: ["#grup-yollar .hw-yollar"] },
+      { ad: "Yol", baslik: "Parçaları uç uca ekleyin", ipucu: "Her yeni parça seçili parçanın ucuna takılır. × ile çıkarın, ← → ile sırasını değiştirin, Geri al ile vazgeçin. Değiştirmek istediğiniz parçaya dokunun; sonraki adımlar o parçayı değiştirir.", yer: "alt", sec: ["#grup-yolum .hw-zincir-kap"] },
       { ad: "Parça", baslik: "Seçili parçanın tipi", ipucu: "Viraj döner, düz yol uzar, rampa yükselir ya da iner, looping tam tur atar.", yer: "sol", sec: ["#grup-tip .param-row", "#grup-hazir .hw-hazir-kap"] },
       { ad: "Ölçü", baslik: "Ölçüyü verin", ipucu: "Uzunluğu, viraj yarıçapını, looping çapını ve ne kadar yükselip ineceğini ayarlayın.", yer: "sag", sec: ["#grup-olcu .param-row"] },
       { ad: "Yön", baslik: "Yön ve viraj", ipucu: "Dönüş yönünü seçin. Virajda yan yatış ve dış kenar korkuluğu arabayı yolda tutar.", yer: "sag", sec: ["#grup-viraj .param-row"] },
-      { ad: "Kenar", baslik: "Kenar ve bağlantı", ipucu: "Bütün yol için geçerlidir. Kenar yükseldikçe araba yoldan çıkmaz; bağlantı, parçaların birbirine nasıl takılacağını belirler.", yer: "sag", sec: ["#grup-kenar .param-row"] },
+      { ad: "Kenar", baslik: "Kenar ve bağlantı", ipucu: "Bütün yol için geçerlidir. Kenar yükseldikçe araba yoldan çıkmaz. Orijinal uyumlu uçlarda parçaları birleştiren bağlantı parçaları da basılır.", yer: "sag", sec: ["#grup-kenar .param-row"] },
       { ad: "Renk", baslik: "Rengi seçin", ipucu: "Yol bu renkte basılır. ▶ ile arabayı yolun başından sonuna sürün.", yer: "alt", sec: ["#grup-renk .param-row"] },
     ],
 
@@ -40,11 +40,12 @@
     ozetEk: function () {
       var h = hw();
       if (!h || !h.olcu) return [];
-      if (!(h.n > 1)) return [{ ad: "Parça ölçüsü", deger: h.olcu }];
+      var bag = h.baglayici ? [{ ad: "Bağlantı parçası", deger: h.baglayiciDetay }] : [];
+    if (!(h.n > 1)) return [{ ad: "Parça ölçüsü", deger: h.olcu }].concat(bag);
       var r = [{ ad: "Yol düzeni", deger: h.duzen }];
       (h.parcalar || []).forEach(function (t, i) { r.push({ ad: (i + 1) + ". parça", deger: t }); });
       r.push({ ad: "Yol ölçüsü", deger: h.olcu });
-      return r;
+      return r.concat(bag);
     },
 
     // Parça listesi form alanlarında durmaz; kayıtla ayrıca taşınır
