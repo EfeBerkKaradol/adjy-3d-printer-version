@@ -19,7 +19,24 @@ import { productDescription, productKeywords, productTitle } from "@/lib/seo";
 import { getAbsoluteUrl } from "@/lib/url";
 import { getProductType } from "@/lib/productType";
 import { formatCmValue } from "@/lib/units";
-import { ArrowRight } from "lucide-react";
+import {
+  ArrowRight,
+  Clock,
+  Hammer,
+  Layers,
+  RotateCcw,
+  Ruler,
+  Star,
+  Truck,
+  Weight,
+} from "lucide-react";
+import { formatPrintTime } from "@/lib/slicer";
+
+const GUVENCELER = [
+  { ikon: Hammer, baslik: "Siparişe özel üretim", alt: "2–5 iş gününde kargoda", href: "/faq" },
+  { ikon: Truck, baslik: "Ücretsiz kargo", alt: "500 TL ve üzeri", href: "/teslimat-politikasi" },
+  { ikon: RotateCcw, baslik: "14 gün iade", alt: "Cayma hakkı", href: "/iade-politikasi" },
+];
 
 // ==========================================
 // ÜRÜN DETAY SAYFASI
@@ -223,6 +240,23 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
       ? `${olcuEksenleri.map((v) => formatCmValue(v)).join(" × ")} cm`
       : null;
 
+  // Künye: yalnız kayıtlı alanlar yazılır. Baskı süresi saat ve
+  // dakika olarak (1644 dakika değil, 27 sa 24 dk).
+  const kunye = [
+    olcuMetni && { ikon: Ruler, etiket: "Ölçü", deger: olcuMetni },
+    product.materialType && { ikon: Layers, etiket: "Malzeme", deger: product.materialType },
+    product.materialWeight && {
+      ikon: Weight,
+      etiket: "Ağırlık",
+      deger: `${product.materialWeight.toLocaleString("tr-TR")} g`,
+    },
+    product.printTimeEst && {
+      ikon: Clock,
+      etiket: "Baskı süresi",
+      deger: formatPrintTime(product.printTimeEst),
+    },
+  ].filter((k): k is { ikon: typeof Ruler; etiket: string; deger: string } => Boolean(k));
+
   return (
     <div className="pb-20">
       <BreadcrumbJsonLd
@@ -278,29 +312,10 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
           </ol>
         </nav>
 
-        {/* Başlık, görsel ve seçenekler.
-            Önceden galeri solda, sağda okunur bir ölçü listesi ve üç
-            ayrı düğme vardı; ölçü değiştirmek başka bir sayfaya
-            gidiyordu. Artık ikisi tek bileşende ve seçim burada. */}
-        <header className="mb-8 max-w-3xl">
-          <div className="flex flex-wrap items-center gap-2">
-            <Link
-              href={`/products?category=${product.category.slug}`}
-              className="adjy-eyebrow transition-colors hover:text-foreground"
-            >
-              {product.category.name}
-            </Link>
-          </div>
-          <h1 className="adjy-display mt-3 text-[clamp(1.8rem,3.6vw,2.8rem)]">
-            {product.name}
-          </h1>
-          {product.description && (
-            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-              {product.description}
-            </p>
-          )}
-        </header>
-
+        {/* Görsel solda; ad, fiyat, sepet ve künye sağ sütunda.
+            Önceden ad tam genişlikte üstteydi, fiyatın altı boştu ve
+            özellikler sayfanın altında boş bir sütunun yanında,
+            kapalı bir akordeonun içindeydi. */}
         <ProductExperience
           product={{
             id: product.id,
@@ -315,112 +330,129 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             customMouldFee: product.customMouldFee ? Number(product.customMouldFee) : null,
             parameters: [],
           }}
-        />
-
-        <div className="mt-14 grid gap-10 lg:grid-cols-2 lg:gap-16">
-          <div />
-          <div className="max-w-lg">
-            {/* Teslimat özeti */}
-            <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t-2 border-dashed border-foreground/25 pt-5 text-xs text-muted-foreground">
-              <Link href="/teslimat-politikasi" className="transition-colors hover:text-foreground">
-                500 TL üzeri ücretsiz kargo
-              </Link>
-              <Link href="/iade-politikasi" className="transition-colors hover:text-foreground">
-                14 gün iade hakkı
-              </Link>
-            </div>
-
-            {/* Detaylar */}
-            <Accordion type="multiple" className="mt-8 border-t-2 border-dashed border-foreground/25">
+          ust={
+            <header>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+                <Link
+                  href={`/products?category=${product.category.slug}`}
+                  className="adjy-eyebrow transition-colors hover:text-foreground"
+                >
+                  {product.category.name}
+                </Link>
+                {product.reviews.totalCount > 0 && (
+                  <a
+                    href="#degerlendirmeler"
+                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" aria-hidden />
+                    <span className="font-medium tabular-nums text-foreground">
+                      {product.reviews.averageRating.toLocaleString("tr-TR")}
+                    </span>
+                    · {product.reviews.totalCount} değerlendirme
+                  </a>
+                )}
+              </div>
+              <h1 className="adjy-display mt-3 text-[clamp(1.9rem,3.4vw,2.9rem)] leading-[1.05]">
+                {product.name}
+              </h1>
               {product.description && (
-                <AccordionItem value="aciklama" className="border-b-2 border-dashed border-foreground/25">
-                  <AccordionTrigger className="py-4 text-sm hover:no-underline">
-                    Açıklama
-                  </AccordionTrigger>
-                  <AccordionContent className="pb-5 text-sm leading-relaxed text-muted-foreground">
-                    {product.description}
-                  </AccordionContent>
-                </AccordionItem>
+                <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
+                  {product.description}
+                </p>
+              )}
+            </header>
+          }
+          alt={
+            <>
+              {/* Güvenceler */}
+              <ul className="mt-5 grid gap-px overflow-hidden rounded-2xl border border-foreground/15 bg-foreground/10 sm:grid-cols-3">
+                {GUVENCELER.map(({ ikon: Ikon, baslik, alt: altMetin, href }) => (
+                  <li key={baslik} className="bg-background">
+                    <Link
+                      href={href}
+                      className="flex h-full items-start gap-3 p-4 transition-colors hover:bg-muted/50"
+                    >
+                      <Ikon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+                      <span className="text-sm leading-snug">
+                        <span className="block font-medium">{baslik}</span>
+                        <span className="block text-xs text-muted-foreground">{altMetin}</span>
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Teknik künye */}
+              {kunye.length > 0 && (
+                <section className="mt-10" aria-labelledby="kunye-baslik">
+                  <div className="flex items-baseline justify-between gap-4 border-b border-dashed border-foreground/25 pb-3">
+                    <h2 id="kunye-baslik" className="text-sm font-semibold">
+                      Teknik künye
+                    </h2>
+                    {product.sku && (
+                      <span className="font-mono text-[11px] tracking-wide text-muted-foreground">
+                        {product.sku}
+                      </span>
+                    )}
+                  </div>
+                  <dl className="grid grid-cols-2 gap-x-6">
+                    {kunye.map(({ ikon: Ikon, etiket, deger }) => (
+                      <div key={etiket} className="border-b border-foreground/10 py-4">
+                        <dt className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+                          <Ikon className="h-3.5 w-3.5" aria-hidden />
+                          {etiket}
+                        </dt>
+                        <dd className="mt-1.5 text-lg font-medium tabular-nums leading-tight">
+                          {deger}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
               )}
 
-              <AccordionItem value="ozellikler" className="border-b-2 border-dashed border-foreground/25">
-                <AccordionTrigger className="py-4 text-sm hover:no-underline">
-                  Özellikler
-                </AccordionTrigger>
-                <AccordionContent className="pb-5">
-                  <dl className="divide-y divide-border text-sm">
-                    {olcuMetni && (
-                      <div className="flex justify-between gap-4 py-2.5">
-                        <dt className="text-muted-foreground">
-                          Ölçü
-                        </dt>
-                        <dd className="tabular-nums">{olcuMetni}</dd>
-                      </div>
-                    )}
-                    {product.materialType && (
-                      <div className="flex justify-between gap-4 py-2.5">
-                        <dt className="text-muted-foreground">Malzeme</dt>
-                        <dd>{product.materialType}</dd>
-                      </div>
-                    )}
-                    {product.materialWeight && (
-                      <div className="flex justify-between gap-4 py-2.5">
-                        <dt className="text-muted-foreground">Ağırlık</dt>
-                        <dd className="tabular-nums">{product.materialWeight} g</dd>
-                      </div>
-                    )}
-                    {product.printTimeEst && (
-                      <div className="flex justify-between gap-4 py-2.5">
-                        <dt className="text-muted-foreground">Tahmini baskı süresi</dt>
-                        <dd className="tabular-nums">{product.printTimeEst} dakika</dd>
-                      </div>
-                    )}
-                    {product.sku && (
-                      <div className="flex justify-between gap-4 py-2.5">
-                        <dt className="text-muted-foreground">Stok kodu</dt>
-                        <dd className="font-mono text-xs">{product.sku}</dd>
-                      </div>
-                    )}
-                    <div className="flex justify-between gap-4 py-2.5">
-                      <dt className="text-muted-foreground">Kategori</dt>
-                      <dd>{product.category.name}</dd>
-                    </div>
-                  </dl>
-                </AccordionContent>
-              </AccordionItem>
+              {/* Ayrıntılar */}
+              <Accordion type="multiple" className="mt-8 border-t border-dashed border-foreground/25">
+                <AccordionItem value="uretim" className="border-b border-dashed border-foreground/25">
+                  <AccordionTrigger className="py-4 text-sm font-semibold hover:no-underline">
+                    Nasıl üretiliyor?
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-5 text-sm leading-relaxed text-muted-foreground">
+                    Sipariş alındıktan sonra {product.materialType ?? "PLA"} ile katman
+                    katman basılır
+                    {product.printTimeEst
+                      ? ` (baskı yaklaşık ${formatPrintTime(product.printTimeEst)} sürer)`
+                      : ""}
+                    . Baskı bitince destek yapıları temizlenir, yüzey elden geçirilir,
+                    kontrol edilip paketlenir. Ortalama sipariş 2–5 iş gününde kargoya
+                    verilir.
+                  </AccordionContent>
+                </AccordionItem>
 
-              <AccordionItem value="uretim" className="border-b-2 border-dashed border-foreground/25">
-                <AccordionTrigger className="py-4 text-sm hover:no-underline">
-                  Üretim
-                </AccordionTrigger>
-                <AccordionContent className="pb-5 text-sm leading-relaxed text-muted-foreground">
-                  Sipariş alındıktan sonra üretime girer. Baskı tamamlandığında
-                  destek yapıları temizlenir ve yüzey kontrolünden geçer.
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem value="teslimat" className="border-b-2 border-dashed border-foreground/25">
-                <AccordionTrigger className="py-4 text-sm hover:no-underline">
-                  Teslimat ve iade
-                </AccordionTrigger>
-                <AccordionContent className="pb-5 text-sm leading-relaxed text-muted-foreground">
-                  Kargo ve teslimat koşulları için{" "}
-                  <Link href="/teslimat-politikasi" className="underline underline-offset-4">
-                    teslimat politikası
-                  </Link>
-                  , iade koşulları için{" "}
-                  <Link href="/iade-politikasi" className="underline underline-offset-4">
-                    iade politikası
-                  </Link>{" "}
-                  sayfasına bakabilirsin.
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </div>
-        </div>
+                <AccordionItem value="teslimat" className="border-b border-dashed border-foreground/25">
+                  <AccordionTrigger className="py-4 text-sm font-semibold hover:no-underline">
+                    Teslimat ve iade
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-5 text-sm leading-relaxed text-muted-foreground">
+                    500 TL üzeri siparişlerde kargo ücretsiz. Kargo ve teslimat koşulları
+                    için{" "}
+                    <Link href="/teslimat-politikasi" className="underline underline-offset-4">
+                      teslimat politikası
+                    </Link>
+                    , iade koşulları için{" "}
+                    <Link href="/iade-politikasi" className="underline underline-offset-4">
+                      iade politikası
+                    </Link>{" "}
+                    sayfasına bakabilirsin.
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </>
+          }
+        />
 
         {/* Değerlendirmeler */}
-        <div className="mt-20 border-t-2 border-dashed border-foreground/25 pt-12">
+        <div id="degerlendirmeler" className="mt-20 scroll-mt-24 border-t-2 border-dashed border-foreground/25 pt-12">
           <ProductReviews productId={product.id} />
         </div>
 

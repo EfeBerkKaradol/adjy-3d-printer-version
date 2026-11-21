@@ -288,3 +288,14 @@
     },
   };
 })();
+
+// Ölçü çizgileri (../_adjy/olcu.js): ölçülecek model
+window.ADJY_ARAC = window.ADJY_ARAC || {};
+window.ADJY_ARAC.olcuCizgisi = {
+    kok: function (sahne) {
+      var kok = sahne.children.find(function (c) { return c.isGroup; });
+      if (!kok) return null;
+      var ic = kok.children.filter(function (c) { return c.visible; });
+      return ic.length > 1 ? ic[0] : kok;
+    },
+  };

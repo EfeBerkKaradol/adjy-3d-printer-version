@@ -501,3 +501,55 @@ html[data-adjy-tur] .adjy-adim:not([data-adjy-vurgu]) {
     margin: 0 !important;
   }
 }
+
+/* ---------- Ölçü çizgileri (olcu.js) ---------- */
+svg[data-adjy-olcu] {
+  pointer-events: none;
+  z-index: 30;
+  overflow: hidden;
+  --adjy-olcu-renk: #e8643a;
+}
+svg[data-adjy-olcu] .cizgi,
+svg[data-adjy-olcu] .centik {
+  stroke: var(--adjy-olcu-renk);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+svg[data-adjy-olcu] .uzatma {
+  stroke: var(--adjy-olcu-renk);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  opacity: 0.7;
+}
+svg[data-adjy-olcu] .etiket rect {
+  fill: rgba(14, 14, 16, 0.82);
+  stroke: var(--adjy-olcu-renk);
+  stroke-width: 1;
+}
+svg[data-adjy-olcu] .etiket text {
+  fill: #fff;
+  font: 600 11px/1 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  letter-spacing: 0.02em;
+}
+button[data-adjy-olcu-dugme] {
+  position: fixed;
+  z-index: 31;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(14, 14, 16, 0.55);
+  color: #fff;
+  font: 500 12px/1 inherit;
+  font-family: inherit;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+button[data-adjy-olcu-dugme]:hover {
+  background: rgba(14, 14, 16, 0.78);
+}
+button[data-adjy-olcu-dugme][aria-pressed="false"] {
+  border-color: #e8643a;
+}

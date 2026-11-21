@@ -326,6 +326,7 @@ export function formatPrintTime(minutes: number): string {
   const h = Math.floor(minutes / 60);
   const m = Math.round(minutes % 60);
   if (h === 0) return `${m} dk`;
+  if (m === 0) return `${h} sa`;
   return `${h} sa ${m} dk`;
 }
 

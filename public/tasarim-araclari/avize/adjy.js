@@ -111,3 +111,14 @@ window.ADJY_ARAC = {
     sol.insertBefore(kutu, sol.children[2] || null);
   },
 };
+
+// Ölçü çizgileri (../_adjy/olcu.js): ölçülecek model
+window.ADJY_ARAC = window.ADJY_ARAC || {};
+window.ADJY_ARAC.olcuCizgisi = {
+    kok: function (sahne) {
+      var gruplar = sahne.children.filter(function (c) { return c.isGroup; });
+      var kok = gruplar[gruplar.length - 1];
+      if (!kok) return null;
+      return kok.children.find(function (c) { return c.isMesh && !c.isLineSegments; }) || kok;
+    },
+  };

@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import { Box, Image as ImageIcon, Loader2 } from "lucide-react";
+import { Box, ChevronLeft, ChevronRight, Image as ImageIcon, Loader2 } from "lucide-react";
 import { FILAMENT_COLORS } from "@/lib/slicer";
 
 // ==========================================
@@ -97,12 +97,45 @@ export function ProductStage({
     if (s === "3d") setModelHazir(true);
   }
 
+  // Görseller arasında gezinme: oklar, klavye ve telefonda kaydırma.
+  // Uçlarda başa / sona sarar.
+  const fotoSayisi = images.length;
+  const gezilebilir = fotoSayisi > 1 && sekme === "foto";
+  function git(adim: number) {
+    setAktifFoto((i) => (i + adim + fotoSayisi) % fotoSayisi);
+  }
+  const dokunmaX = useRef<number | null>(null);
+
   const renk = FILAMENT_COLORS.find((c) => c.id === parameters.color)?.hex;
   const modelParams = renk ? { ...parameters, color: renk } : parameters;
 
   return (
     <div>
-      <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted">
+      <div
+        className="group/sahne relative aspect-square overflow-hidden rounded-2xl bg-muted"
+        tabIndex={gezilebilir ? 0 : undefined}
+        aria-roledescription={gezilebilir ? "görsel galerisi" : undefined}
+        onKeyDown={(e) => {
+          if (!gezilebilir) return;
+          if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            git(-1);
+          } else if (e.key === "ArrowRight") {
+            e.preventDefault();
+            git(1);
+          }
+        }}
+        onTouchStart={(e) => {
+          dokunmaX.current = e.touches[0]?.clientX ?? null;
+        }}
+        onTouchEnd={(e) => {
+          const bas = dokunmaX.current;
+          dokunmaX.current = null;
+          if (!gezilebilir || bas === null) return;
+          const fark = (e.changedTouches[0]?.clientX ?? bas) - bas;
+          if (Math.abs(fark) > 40) git(fark < 0 ? 1 : -1);
+        }}
+      >
         {/* Fotoğraf her zaman çizilir: 3D yüklenirken altında durur,
             yüklenemezse görünür kalır. */}
         <div className={sekme === "3d" && model3dVar ? "invisible" : ""}>
@@ -131,6 +164,33 @@ export function ProductStage({
               visible={sekme === "3d"}
             />
           </div>
+        )}
+
+        {gezilebilir && (
+          <>
+            {(
+              [
+                { adim: -1, ad: "Önceki görsel", Ikon: ChevronLeft, yer: "left-3" },
+                { adim: 1, ad: "Sonraki görsel", Ikon: ChevronRight, yer: "right-3" },
+              ] as const
+            ).map(({ adim, ad, Ikon, yer }) => (
+              <button
+                key={adim}
+                type="button"
+                onClick={() => git(adim)}
+                aria-label={ad}
+                className={`absolute ${yer} top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/25 text-white shadow-sm backdrop-blur-md transition-[background-color,opacity,transform] hover:bg-black/45 active:scale-95 sm:opacity-70 sm:group-hover/sahne:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70`}
+              >
+                <Ikon className="h-5 w-5" aria-hidden />
+              </button>
+            ))}
+            <span
+              className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/35 px-2.5 py-1 text-xs font-medium tabular-nums text-white backdrop-blur-md"
+              aria-live="polite"
+            >
+              {aktifFoto + 1} / {fotoSayisi}
+            </span>
+          </>
         )}
 
         {model3dVar && !modelHazir && (

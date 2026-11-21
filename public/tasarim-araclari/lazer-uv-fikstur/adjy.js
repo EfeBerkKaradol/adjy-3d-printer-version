@@ -166,3 +166,13 @@ window.ADJY_ARAC = {
     if (uc) uc.click();
   },
 };
+
+// Ölçü çizgileri (../_adjy/olcu.js): ölçülecek model
+window.ADJY_ARAC = window.ADJY_ARAC || {};
+window.ADJY_ARAC.olcuCizgisi = {
+    kok: function (sahne) {
+      var kok = sahne.children.find(function (c) { return c.isGroup; });
+      if (!kok) return null;
+      return kok.children.find(function (c) { return c.isMesh && !c.isLineSegments; }) || kok;
+    },
+  };

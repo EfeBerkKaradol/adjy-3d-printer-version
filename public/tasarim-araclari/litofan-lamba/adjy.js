@@ -123,3 +123,13 @@ window.ADJY_ARAC = {
     }
   },
 };
+
+// Ölçü çizgileri (../_adjy/olcu.js): ölçülecek model. Stüdyo fonu
+// (siklorama) ve zemin ilk grupta; lamba son grupta.
+window.ADJY_ARAC = window.ADJY_ARAC || {};
+window.ADJY_ARAC.olcuCizgisi = {
+  kok: function (sahne) {
+    var gruplar = sahne.children.filter(function (c) { return c.isGroup; });
+    return gruplar.length > 1 ? gruplar[gruplar.length - 1] : null;
+  },
+};

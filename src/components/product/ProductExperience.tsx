@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Info, Loader2, ShoppingCart } from "lucide-react";
+import { Check, Info, Loader2, Minus, Plus, ShoppingCart } from "lucide-react";
 import { ProductStage } from "./ProductStage";
 import { ProductOptions, type SecenekParametre } from "./ProductOptions";
 import { ProductARButton } from "@/components/ar/ProductARButton";
@@ -10,6 +10,7 @@ import { useCartStore } from "@/store/cartStore";
 import { calculatePrice } from "@/lib/priceCalculator";
 import { formatCmValue } from "@/lib/units";
 import { formatTRY } from "@/lib/slicer";
+import { WishlistButton } from "./WishlistButton";
 
 // ==========================================
 // ÜRÜN SAYFASI — GÖRSEL VE SEÇENEKLER
@@ -44,8 +45,22 @@ export interface ExperienceProduct {
   })[];
 }
 
-export function ProductExperience({ product }: { product: ExperienceProduct }) {
+/** Adet seçicinin üst sınırı */
+const EN_COK_ADET = 20;
+
+export function ProductExperience({
+  product,
+  ust,
+  alt,
+}: {
+  product: ExperienceProduct;
+  /** Sağ sütunun başı: kategori, ad, puan, açıklama (sunucuda çizilir) */
+  ust?: ReactNode;
+  /** Satın alma kutusunun altı: teknik künye ve ayrıntılar */
+  alt?: ReactNode;
+}) {
   const router = useRouter();
+  const [adet, setAdet] = useState(1);
   const addItem = useCartStore((s) => s.addItem);
   const [eklendi, setEklendi] = useState(false);
   const [ekleniyor, setEkleniyor] = useState(false);
@@ -107,7 +122,7 @@ export function ProductExperience({ product }: { product: ExperienceProduct }) {
         thumbnailUrl: product.thumbnailUrl,
       },
       customization: { id: null, parameters: values },
-      quantity: 1,
+      quantity: adet,
       calculatedPrice: fiyat,
     });
     setEklendi(true);
@@ -116,96 +131,150 @@ export function ProductExperience({ product }: { product: ExperienceProduct }) {
     router.refresh();
   }
 
-  return (
-    <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
-      <ProductStage
-        name={product.name}
-        images={product.images}
-        modelFileUrl={product.modelFileUrl}
-        productType={product.productType}
-        parameters={values}
-        defaults={sayisalVarsayilanlar}
-      />
+  const stokYok = product.stockQty <= 0;
+  const enCok = Math.max(1, Math.min(EN_COK_ADET, product.stockQty));
 
-      <div>
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <p className="text-3xl font-medium tabular-nums">{formatTRY(fiyat)}</p>
+  // Masaüstünde görsel solda sabit kalır, sağ sütun kayar. Telefonda
+  // sıra: ad → görsel → fiyat ve sepet (ad görselden önce okunur).
+  return (
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,1fr)] lg:gap-x-14 xl:gap-x-20">
+      {ust && <div className="lg:col-start-2 lg:row-start-1">{ust}</div>}
+
+      <div className="lg:sticky lg:top-24 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:self-start">
+        <ProductStage
+          name={product.name}
+          images={product.images}
+          modelFileUrl={product.modelFileUrl}
+          productType={product.productType}
+          parameters={values}
+          defaults={sayisalVarsayilanlar}
+        />
+      </div>
+
+      <div className="lg:col-start-2">
+        {/* Satın alma kutusu */}
+        <div className="rounded-2xl border border-foreground/15 bg-muted/30 p-5 sm:p-6">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <p className="text-[2rem] font-semibold leading-none tracking-tight tabular-nums">
+              {formatTRY(fiyat * adet)}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {adet > 1 ? `${adet} × ${formatTRY(fiyat)} · ` : ""}KDV dahil
+            </p>
+          </div>
           {olcuDegisti && (
-            <p className="text-sm text-muted-foreground">
+            <p className="mt-2 text-sm text-muted-foreground">
               standart ölçüde {formatTRY(product.basePrice)}
             </p>
           )}
-        </div>
-        {secilenOlcu.length >= 2 && (
-          <p className="mt-1.5 text-sm tabular-nums text-muted-foreground">
-            {secilenOlcu.map((v) => formatCmValue(v)).join(" × ")} cm
-          </p>
-        )}
+          {secilenOlcu.length >= 2 && (
+            <p className="mt-1.5 text-sm tabular-nums text-muted-foreground">
+              {secilenOlcu.map((v) => formatCmValue(v)).join(" × ")} cm
+            </p>
+          )}
 
-        {product.parameters.length > 0 && (
-          <div className="mt-8 border-t-2 border-dashed border-foreground/25 pt-8">
-            <ProductOptions
-              parameters={product.parameters}
-              values={values}
-              onChange={(ad, deger) => setValues((v) => ({ ...v, [ad]: deger }))}
+          {product.parameters.length > 0 && (
+            <div className="mt-6 border-t border-dashed border-foreground/25 pt-6">
+              <ProductOptions
+                parameters={product.parameters}
+                values={values}
+                onChange={(ad, deger) => setValues((v) => ({ ...v, [ad]: deger }))}
+              />
+            </div>
+          )}
+
+          {kalipFarki > 0 && (
+            <div className="mt-6 flex gap-3 rounded-xl adjy-pixel-frame bg-muted/40 p-4">
+              <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+              <div className="text-sm leading-relaxed">
+                <p className="font-medium">
+                  Özel ölçü kalıp ücreti: {formatTRY(kalipFarki)}
+                </p>
+                <p className="mt-1 text-muted-foreground">
+                  Bu ürün silikon kalıptan dökülüyor. Standart ölçünün kalıbı
+                  hazır; seçtiğiniz ölçü için yeni bir kalıp çıkarılması gerekiyor
+                  ve bu bir kerelik maliyet siparişe ekleniyor. Standart ölçüye
+                  dönerseniz ücret kalkar.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className="mt-6 flex gap-2 sm:gap-2.5">
+            {/* Adet */}
+            <div
+              className="flex h-14 shrink-0 items-center rounded-xl border border-foreground/20 bg-background"
+              role="group"
+              aria-label="Adet"
+            >
+              <button
+                type="button"
+                onClick={() => setAdet((a) => Math.max(1, a - 1))}
+                disabled={adet <= 1}
+                className="flex h-full w-9 items-center justify-center rounded-l-xl sm:w-11 transition-colors hover:bg-muted disabled:opacity-35"
+                aria-label="Bir azalt"
+              >
+                <Minus className="h-4 w-4" aria-hidden />
+              </button>
+              <span className="w-7 text-center text-base font-medium tabular-nums" aria-live="polite">
+                {adet}
+              </span>
+              <button
+                type="button"
+                onClick={() => setAdet((a) => Math.min(enCok, a + 1))}
+                disabled={adet >= enCok}
+                className="flex h-full w-9 items-center justify-center rounded-r-xl sm:w-11 transition-colors hover:bg-muted disabled:opacity-35"
+                aria-label="Bir artır"
+              >
+                <Plus className="h-4 w-4" aria-hidden />
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={sepeteEkle}
+              disabled={ekleniyor || stokYok}
+              data-sepete-ekle
+              className="inline-flex h-14 min-w-0 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-foreground px-3 text-[15px] sm:px-4 sm:text-base font-medium text-background transition-[opacity,transform] hover:opacity-90 active:scale-[0.99] disabled:opacity-50"
+            >
+              {ekleniyor ? (
+                <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+              ) : eklendi ? (
+                <>
+                  <Check className="h-5 w-5" aria-hidden />
+                  Sepete eklendi
+                </>
+              ) : stokYok ? (
+                "Şu an temin edilemiyor"
+              ) : (
+                <>
+                  <ShoppingCart className="h-5 w-5" aria-hidden />
+                  Sepete ekle
+                </>
+              )}
+            </button>
+
+            <WishlistButton
+              productId={product.id}
+              variant="duz"
+              className="h-14 w-12 shrink-0 rounded-xl border sm:w-14 border-foreground/20 bg-background hover:bg-muted"
             />
           </div>
-        )}
-
-        {kalipFarki > 0 && (
-          <div className="mt-7 flex gap-3 rounded-xl adjy-pixel-frame bg-muted/40 p-4">
-            <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
-            <div className="text-sm leading-relaxed">
-              <p className="font-medium">
-                Özel ölçü kalıp ücreti: {formatTRY(kalipFarki)}
-              </p>
-              <p className="mt-1 text-muted-foreground">
-                Bu ürün silikon kalıptan dökülüyor. Standart ölçünün kalıbı
-                hazır; seçtiğiniz ölçü için yeni bir kalıp çıkarılması gerekiyor
-                ve bu bir kerelik maliyet siparişe ekleniyor. Standart ölçüye
-                dönerseniz ücret kalkar.
-              </p>
-            </div>
-          </div>
-        )}
-
-        <div className="mt-8 space-y-3">
-          <button
-            type="button"
-            onClick={sepeteEkle}
-            disabled={ekleniyor || product.stockQty <= 0}
-            className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-foreground text-base font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50"
-          >
-            {ekleniyor ? (
-              <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
-            ) : eklendi ? (
-              <>
-                <Check className="h-5 w-5" aria-hidden />
-                Sepete eklendi
-              </>
-            ) : (
-              <>
-                <ShoppingCart className="h-5 w-5" aria-hidden />
-                Sepete ekle — {formatTRY(fiyat)}
-              </>
-            )}
-          </button>
 
           {product.modelFileUrl && (
-            <ProductARButton
-              productId={product.id}
-              productName={product.name}
-              productSlug={product.slug}
-              modelFileUrl={product.modelFileUrl}
-              defaultParameters={values}
-            />
+            <div className="mt-3">
+              <ProductARButton
+                productId={product.id}
+                productName={product.name}
+                productSlug={product.slug}
+                modelFileUrl={product.modelFileUrl}
+                defaultParameters={values}
+              />
+            </div>
           )}
         </div>
 
-        <p className="mt-5 text-sm text-muted-foreground">
-          Sipariş sonrası üretilir · 500 TL üzeri ücretsiz kargo · 14 gün cayma
-          hakkı
-        </p>
+        {alt}
       </div>
     </div>
   );

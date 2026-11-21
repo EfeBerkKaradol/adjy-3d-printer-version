@@ -88,3 +88,12 @@ window.ADJY_ARAC = {
     return !!el && el.textContent.indexOf("N)") !== -1;
   },
 };
+
+// Ölçü çizgileri (../_adjy/olcu.js): ölçülecek model
+window.ADJY_ARAC = window.ADJY_ARAC || {};
+window.ADJY_ARAC.olcuCizgisi = {
+    kok: function (sahne) {
+      var gruplar = sahne.children.filter(function (c) { return c.isGroup; });
+      return gruplar[gruplar.length - 1] || null;
+    },
+  };
