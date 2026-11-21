@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
+  Package,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,8 @@ interface OrderItem {
   unitPrice: number;
   lineTotal: number;
   printStatus: string;
+  /** Ürünün önizleme görseli (Kendin Üret ürününde aracın görseli) */
+  gorsel: string | null;
 }
 
 interface Order {
@@ -41,6 +44,41 @@ interface Order {
   itemCount: number;
   items: OrderItem[];
   createdAt: string;
+}
+
+/**
+ * Siparişteki ürünlerin önizlemesi: ilk ürünün görseli, birden
+ * çok ürün varsa arkasında ikincisi ve kalan sayı.
+ */
+function SiparisOnizleme({ items }: { items: OrderItem[] }) {
+  const gorseller = items.map((i) => i.gorsel);
+  const ilk = gorseller[0] ?? null;
+  const ikinci = items.length > 1 ? (gorseller[1] ?? null) : undefined;
+  const kutu = "h-12 w-12 overflow-hidden rounded-lg bg-muted ring-1 ring-border";
+  const resim = (src: string | null, ad: string) =>
+    src ? (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={src} alt={ad} loading="lazy" className="h-full w-full object-cover" />
+    ) : (
+      <span className="flex h-full w-full items-center justify-center">
+        <Package className="h-4 w-4 text-muted-foreground" aria-hidden />
+      </span>
+    );
+  return (
+    <span className="relative block h-12 w-12 shrink-0">
+      {ikinci !== undefined && (
+        <span className={`absolute left-1.5 top-[-4px] block ${kutu} opacity-60`}>
+          {resim(ikinci, items[1].productName)}
+        </span>
+      )}
+      <span className={`relative block ${kutu}`}>{resim(ilk, items[0]?.productName ?? "")}</span>
+      {items.length > 2 && (
+        <span className="absolute -bottom-1 -right-1 rounded-full bg-foreground px-1.5 text-[10px] font-semibold tabular-nums text-background">
+          +{items.length - 1}
+        </span>
+      )}
+    </span>
+  );
 }
 
 interface Pagination {
@@ -255,9 +293,21 @@ export default function AdminOrdersPage() {
                       className="border-b-2 border-dashed border-foreground/25 hover:bg-muted/20 transition-colors"
                     >
                       <td className="px-4 py-3">
-                        <span className="font-mono text-xs">
-                          {order.orderNumber}
-                        </span>
+                        <Link
+                          href={`/admin/orders/${order.id}`}
+                          className="group flex items-center gap-3"
+                        >
+                          <SiparisOnizleme items={order.items} />
+                          <span className="min-w-0">
+                            <span className="block font-mono text-xs group-hover:underline">
+                              {order.orderNumber}
+                            </span>
+                            <span className="block max-w-[220px] truncate text-xs text-muted-foreground">
+                              {order.items[0]?.productName}
+                              {order.items.length > 1 && ` +${order.items.length - 1}`}
+                            </span>
+                          </span>
+                        </Link>
                       </td>
                       <td className="px-4 py-3">
                         <div>

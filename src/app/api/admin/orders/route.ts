@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin, isUnauthorized } from "@/lib/admin";
+import { resolvePublicImage } from "@/lib/publicAsset";
+import { skudanArac } from "@/lib/tasarim/order";
+import { aracGorseli } from "@/lib/tasarim/catalog";
+
+/**
+ * Listede kalemin önizleme görseli. Kendin Üret ürününün kendi
+ * kapağı yok (müşteri kurar): aracın vitrin görseli gösterilir.
+ */
+function onizleme(sku: string | null, thumbnailUrl: string | null): string | null {
+  const arac = skudanArac(sku);
+  return resolvePublicImage(arac ? aracGorseli(arac.id) : thumbnailUrl);
+}
 
 export async function GET(request: NextRequest) {
   const authResult = await requireAdmin();
@@ -42,6 +54,8 @@ export async function GET(request: NextRequest) {
             unitPrice: true,
             lineTotal: true,
             printStatus: true,
+            productSku: true,
+            product: { select: { sku: true, thumbnailUrl: true } },
           },
         },
         payments: {
@@ -74,6 +88,7 @@ export async function GET(request: NextRequest) {
         unitPrice: i.unitPrice.toNumber(),
         lineTotal: i.lineTotal.toNumber(),
         printStatus: i.printStatus,
+        gorsel: onizleme(i.product?.sku ?? i.productSku, i.product?.thumbnailUrl ?? null),
       })),
       createdAt: o.createdAt.toISOString(),
       updatedAt: o.updatedAt.toISOString(),
