@@ -103,7 +103,7 @@ async function getCollections(): Promise<Collection[]> {
             ...p,
             basePrice: Number(p.basePrice),
             hoverImageUrl: secondImageOf(p.thumbnailUrl, gallery),
-            isCustomizable: p._count.parameters > 0,
+            isCustomizable: p.slug.startsWith("tasarla-"),
           })),
         };
       })

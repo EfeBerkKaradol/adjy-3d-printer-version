@@ -191,7 +191,7 @@ export async function GET(
       user: { select: { fullName: true, email: true, phone: true } },
       items: {
         include: {
-          product: { select: { slug: true, sku: true, thumbnailUrl: true } },
+          product: { select: { id: true, slug: true, sku: true, thumbnailUrl: true, printFiles: true } },
         },
       },
       address: true,

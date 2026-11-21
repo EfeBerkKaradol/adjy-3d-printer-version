@@ -199,6 +199,15 @@ export default function AdminPrintQueuePage() {
                                 Üretim dosyaları (STL)
                               </Link>
                             )}
+                            {/* Hazır ürün: dosyalar sipariş ekranında */}
+                            {!tasarimUrunuMu(item.productSku) && (
+                              <Link
+                                href={`/admin/orders/${item.orderId}`}
+                                className="mt-0.5 block text-xs font-normal text-primary hover:underline"
+                              >
+                                Baskı dosyaları
+                              </Link>
+                            )}
                           </span>
                         </div>
                       </td>

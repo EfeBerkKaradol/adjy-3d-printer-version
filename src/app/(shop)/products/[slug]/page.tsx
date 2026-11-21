@@ -4,7 +4,6 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { aracAdresi, slugdanAracId } from "@/lib/tasarim/catalog";
 import { prisma } from "@/lib/db";
-import { Badge } from "@/components/ui/badge";
 import {
   Accordion,
   AccordionContent,
@@ -72,7 +71,6 @@ const getProduct = cache(async (slug: string) => {
         description: true,
         basePrice: true,
         thumbnailUrl: true,
-        modelFileUrl: true,
         gallery: true,
         printTimeEst: true,
         materialType: true,
@@ -84,22 +82,6 @@ const getProduct = cache(async (slug: string) => {
         stockQty: true,
         featured: true,
         category: { select: { id: true, name: true, slug: true, parentId: true } },
-        parameters: {
-          orderBy: { sortOrder: "asc" },
-          select: {
-            id: true,
-            name: true,
-            displayName: true,
-            type: true,
-            minValue: true,
-            maxValue: true,
-            defaultValue: true,
-            step: true,
-            unit: true,
-            affectsPrice: true,
-            priceFormula: true,
-          },
-        },
       },
     }),
     prisma.review.aggregate({
@@ -169,26 +151,15 @@ export async function generateMetadata({
   if (!product) return { title: "Ürün bulunamadı" };
 
   // Başlık ve açıklama ürünün kendi verisinden üretilir:
-  // ölçü aralığı, üretim türü ve fiyat aranan ifadelerdir.
+  // üretim türü ve fiyat aranan ifadelerdir. Hazır ürünün ölçüsü
+  // seçilmez; "… cm arası seçilebilir" yazılmaz.
   const seoInput = {
     name: product.name,
     description: product.description,
     basePrice: product.basePrice,
     categoryName: product.category.name,
     materialType: product.materialType ?? null,
-    dimensions: product.parameters
-      .filter(
-        (p) =>
-          p.unit === "mm" &&
-          p.minValue !== null &&
-          p.maxValue !== null &&
-          p.maxValue > p.minValue
-      )
-      .map((p) => ({
-        label: p.displayName,
-        minMm: p.minValue as number,
-        maxMm: p.maxValue as number,
-      })),
+    dimensions: [],
   };
 
   const title = productTitle(seoInput);
@@ -236,8 +207,11 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     ),
   ];
 
-  const isCustomizable = product.parameters.length > 0;
-  const ozellestirilebilir = isCustomizable;
+  // Bu sayfadaki ürünler hazır ürünler: ölçü ayarı ve 3B model
+  // gösterilmez, yalnızca görseller ve renderlar. Ayarlanabilir
+  // ürünler Kendin Üret araçlarıdır (/tasarla); onların ürün
+  // satırı yukarıda araca yönlendirilir. Baskı dosyaları müşteriye
+  // değil atölyeye aittir (admin sipariş ekranı).
 
   // Montajlı dış ölçü. Derinlik her üründe kayıtlı değil;
   // olmayan eksen yazılmaz.
@@ -316,7 +290,6 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             >
               {product.category.name}
             </Link>
-            {isCustomizable && <Badge variant="customizable">Özelleştirilebilir</Badge>}
           </div>
           <h1 className="adjy-display mt-3 text-[clamp(1.8rem,3.6vw,2.8rem)]">
             {product.name}
@@ -336,22 +309,11 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             basePrice: product.basePrice,
             thumbnailUrl: product.thumbnailUrl,
             images,
-            modelFileUrl: product.modelFileUrl,
+            modelFileUrl: null,
             productType: getProductType(product.slug),
             stockQty: product.stockQty,
             customMouldFee: product.customMouldFee ? Number(product.customMouldFee) : null,
-            parameters: product.parameters.map((q) => ({
-              name: q.name,
-              displayName: q.displayName,
-              type: q.type,
-              minValue: q.minValue,
-              maxValue: q.maxValue,
-              defaultValue: q.defaultValue,
-              step: q.step,
-              unit: q.unit,
-              affectsPrice: q.affectsPrice,
-              priceFormula: q.priceFormula,
-            })),
+            parameters: [],
           }}
         />
 
@@ -390,7 +352,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                     {olcuMetni && (
                       <div className="flex justify-between gap-4 py-2.5">
                         <dt className="text-muted-foreground">
-                          {ozellestirilebilir ? "Varsayılan ölçü" : "Ölçü"}
+                          Ölçü
                         </dt>
                         <dd className="tabular-nums">{olcuMetni}</dd>
                       </div>
@@ -434,8 +396,6 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 <AccordionContent className="pb-5 text-sm leading-relaxed text-muted-foreground">
                   Sipariş alındıktan sonra üretime girer. Baskı tamamlandığında
                   destek yapıları temizlenir ve yüzey kontrolünden geçer.
-                  {isCustomizable &&
-                    " Seçtiğin ölçüler modele işlenerek dilimlenir; standart bir stoktan gönderim yapılmaz."}
                 </AccordionContent>
               </AccordionItem>
 

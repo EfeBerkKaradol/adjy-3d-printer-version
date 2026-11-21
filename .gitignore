@@ -51,3 +51,6 @@ next-env.d.ts
 # AR gecici model dosyalari
 /public/ar-models/*.glb
 /public/ar-models/*.usdz
+
+# Yerel geliştirmede yüklenen baskı dosyaları (canlıda Cloudinary)
+/public/uploads/

@@ -3,13 +3,10 @@ import { pageMetadata } from "@/lib/seo";
 import { PixelLink } from "@/components/ui/pixel-link";
 import { prisma } from "@/lib/db";
 import { AboutOpening, type AcilisGorsel } from "@/components/home/AboutOpening";
-import { ConfiguratorShowcase } from "@/components/home/ConfiguratorShowcase";
-import { ARShowcase, type ARProduct } from "@/components/home/ARShowcase";
 import { HowWeMake } from "@/components/home/HowWeMake";
 import { HonestLimits } from "@/components/home/HonestLimits";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { COMPANY, formatAddress, mapsLink } from "@/lib/company";
-import { getProductType } from "@/lib/productType";
 
 export const revalidate = 300;
 
@@ -33,113 +30,19 @@ export const metadata: Metadata = pageMetadata({
 //
 //   01  Ne yapıyoruz        — tek cümle, sonra dört sayı
 //   02  Neden başladık      — kısa, somut bir hikâye
-//   03  Ölçüyü siz verirsiniz — anlatılmıyor, çalıştırılıyor
-//   04  Odanızda görün      — aynı şekilde
-//   05  Nasıl üretiyoruz    — adımlar ve ölçülebilir değerler
-//   06  Yapamadıklarımız    — sayfayı ayıran bölüm
-//   07  Nerede              — gerçek adres, gerçek kapı
+//   03  Kendin Üret         — ayarlanabilir ürünlere bağlantı
+//   04  Nasıl üretiyoruz    — adımlar ve ölçülebilir değerler
+//   05  Yapamadıklarımız    — sayfayı ayıran bölüm
+//   06  Nerede              — gerçek adres, gerçek kapı
+//
+// Hazır ürünlerin 3B modeli ve ölçü kaydırıcısı gösterilmez;
+// ayarlanabilir ürünler yalnızca Kendin Üret araçları.
 //
 // Sıfat yerine rakam: "kaliteli üretim" demiyoruz, 0,2 mm
 // katman ve 45 × 45 cm tabla diyoruz.
 // ==========================================
 
 
-/** Ana sayfa konfigüratörü: ölçüsü değişebilen 4 nesne */
-async function getConfiguratorProducts() {
-  try {
-    const rows = await prisma.product.findMany({
-      where: {
-        isActive: true,
-        parameters: {
-          some: { type: "SLIDER", minValue: { not: null }, maxValue: { not: null } },
-        },
-      },
-      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      take: 4,
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        basePrice: true,
-        thumbnailUrl: true,
-        modelFileUrl: true,
-        materialType: true,
-        category: { select: { name: true } },
-        parameters: {
-          orderBy: { sortOrder: "asc" },
-          select: {
-            id: true,
-            name: true,
-            displayName: true,
-            type: true,
-            minValue: true,
-            maxValue: true,
-            defaultValue: true,
-            step: true,
-            unit: true,
-          },
-        },
-      },
-    });
-
-    return rows.map((p) => ({
-      ...p,
-      basePrice: Number(p.basePrice),
-      productType: getProductType(p.slug),
-    }));
-  } catch {
-    return [];
-  }
-}
-
-
-
-/**
- * AR gösterimi için nesne: modeli olan, ölçüsü kayıtlı ve
- * görseli olan bir ürün. Üçü birden yoksa bölüm gizlenir —
- * çalışmayan bir "Odanda Gör" düğmesi, hiç olmamasından kötü.
- */
-async function getArProduct(): Promise<ARProduct | null> {
-  try {
-    const p = await prisma.product.findFirst({
-      where: {
-        isActive: true,
-        modelFileUrl: { not: null },
-        thumbnailUrl: { not: null },
-        widthMm: { not: null },
-      },
-      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        thumbnailUrl: true,
-        modelFileUrl: true,
-        widthMm: true,
-        depthMm: true,
-        heightMm: true,
-        category: { select: { name: true } },
-        parameters: { select: { name: true, defaultValue: true } },
-      },
-    });
-    if (!p) return null;
-
-    return {
-      ...p,
-      defaultParameters: Object.fromEntries(
-        p.parameters.map((q) => {
-          const sayi = Number(q.defaultValue);
-          return [q.name, Number.isFinite(sayi) ? sayi : q.defaultValue];
-        })
-      ),
-    };
-  } catch {
-    return null;
-  }
-}
-
-/** Açılıştaki büyük kare ve üretim bölümündeki görsel */
 async function getGorseller(): Promise<{ acilis: AcilisGorsel | null; uretim: string | null }> {
   try {
     const rows = await prisma.product.findMany({
@@ -159,7 +62,7 @@ async function getSayilar() {
   try {
     const [urun, olcu] = await Promise.all([
       prisma.product.count({ where: { isActive: true } }),
-      prisma.product.count({ where: { isActive: true, parameters: { some: {} } } }),
+      prisma.product.count({ where: { isActive: true, slug: { startsWith: "tasarla-" } } }),
     ]);
     return { urun, olcu };
   } catch {
@@ -168,12 +71,7 @@ async function getSayilar() {
 }
 
 export default async function AboutPage() {
-  const [gorseller, sayilar, configuratorProducts, arProduct] = await Promise.all([
-    getGorseller(),
-    getSayilar(),
-    getConfiguratorProducts(),
-    getArProduct(),
-  ]);
+  const [gorseller, sayilar] = await Promise.all([getGorseller(), getSayilar()]);
 
   const adres = COMPANY.address;
   const harita = mapsLink();
@@ -213,31 +111,23 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      {/* 03 — Ölçüyü siz verirsiniz: anlatılmıyor, çalıştırılıyor */}
-      {configuratorProducts.length > 0 && (
-        <section className="adjy-container adjy-section border-t-2 border-dashed border-foreground/25">
-          <SectionHeading
-            eyebrow="Özel ölçüde üretim"
-            title="Ölçüyü siz belirleyin."
-            description="Kaydırıcıyı çekin: ürün de fiyat da anında değişsin. Burada denediğiniz şey, mağazada sipariş verirken kullandığınızın aynısı."
-            action={{ label: "Özel ölçülü ürünler", href: "/products?customizable=true" }}
-          />
-          <div className="mt-8">
-            <ConfiguratorShowcase products={configuratorProducts} />
-          </div>
-        </section>
-      )}
+      {/* 03 — Kendin Üret: ayarlanabilir ürünler */}
+      <section className="adjy-container adjy-section border-t-2 border-dashed border-foreground/25">
+        <SectionHeading
+          eyebrow="Özel ölçüde üretim"
+          title="Ölçüyü siz belirleyin."
+          description="Saksıdan araba yoluna, Kendin Üret ürünlerinde ölçüyü ve biçimi siz kurarsınız; fiyat seçiminizle birlikte hesaplanır."
+          action={{ label: "Kendin Üret", href: "/tasarla" }}
+        />
+      </section>
 
-      {/* 04 — Odanızda görün */}
-      <ARShowcase product={arProduct} />
-
-      {/* 05 — Nasıl üretiyoruz */}
+      {/* 04 — Nasıl üretiyoruz */}
       <HowWeMake gorsel={gorseller.uretim} />
 
-      {/* 06 — Yapamadıklarımız */}
+      {/* 05 — Yapamadıklarımız */}
       <HonestLimits />
 
-      {/* 07 — Nerede */}
+      {/* 06 — Nerede */}
       <section className="border-t-2 border-dashed border-foreground/25">
         <div className="adjy-container grid gap-10 py-16 lg:grid-cols-2 lg:gap-16 lg:py-20">
           <div>

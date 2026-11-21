@@ -142,13 +142,15 @@ export function ProductExperience({ product }: { product: ExperienceProduct }) {
           </p>
         )}
 
-        <div className="mt-8 border-t-2 border-dashed border-foreground/25 pt-8">
-          <ProductOptions
-            parameters={product.parameters}
-            values={values}
-            onChange={(ad, deger) => setValues((v) => ({ ...v, [ad]: deger }))}
-          />
-        </div>
+        {product.parameters.length > 0 && (
+          <div className="mt-8 border-t-2 border-dashed border-foreground/25 pt-8">
+            <ProductOptions
+              parameters={product.parameters}
+              values={values}
+              onChange={(ad, deger) => setValues((v) => ({ ...v, [ad]: deger }))}
+            />
+          </div>
+        )}
 
         {kalipFarki > 0 && (
           <div className="mt-7 flex gap-3 rounded-xl adjy-pixel-frame bg-muted/40 p-4">

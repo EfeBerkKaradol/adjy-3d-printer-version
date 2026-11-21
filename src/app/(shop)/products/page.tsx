@@ -27,12 +27,10 @@ import { YILBASI, yilbasiAktif } from "@/lib/yilbasi";
 import { YilbasiBandi } from "@/components/yilbasi/YilbasiBandi";
 
 /**
- * Parametrik ürün: ölçü parametresi olan ürün ya da bir tasarım
- * aracıyla kurulan "Kendin Tasarla" ürünü (slug: tasarla-…).
+ * Ayarlanabilir ürün: yalnızca tasarım aracıyla kurulan "Kendin
+ * Üret" ürünleri (slug: tasarla-…). Hazır ürünlerin ölçüsü seçilmez.
  */
-const PARAMETRIK = {
-  OR: [{ parameters: { some: {} } }, { slug: { startsWith: "tasarla-" } }],
-};
+const PARAMETRIK = { slug: { startsWith: "tasarla-" } };
 
 // ==========================================
 // MAĞAZA (Server Component)
@@ -162,8 +160,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   if (params.koleksiyon) where.tags = collectionFilter(params.koleksiyon);
   if (params.featured === "true") where.featured = true;
   if (params.inStock === "true") where.stockQty = { gt: 0 };
-  // Parametrik ürün = en az bir Parameter kaydı olan ürün
-  // ya da tasarım aracıyla kurulan ürün (bkz. PARAMETRIK)
+  // Ayarlanabilir ürün = Kendin Üret ürünü (bkz. PARAMETRIK)
   if (params.customizable === "true") where.AND = [PARAMETRIK];
   // Malzeme filtresi aile bazlı çalışır: "seramik" seçildiğinde
   // o aileye giren bütün malzeme adları eşleşir. Tekil bir

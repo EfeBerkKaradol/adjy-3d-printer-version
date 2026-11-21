@@ -136,6 +136,9 @@ model Product {
   compareAtPrice Decimal?         @db.Decimal(10, 2)
   categoryId     String
   modelFileUrl   String?
+  /// Baskı dosyaları (STL, 3MF…): [{ ad, url, boyut }]. Müşteriye
+  /// gösterilmez; sipariş gelince atölye panelden indirip basar.
+  printFiles     Json?
   thumbnailUrl   String?
   gallery        Json?
   printTimeEst   Int?

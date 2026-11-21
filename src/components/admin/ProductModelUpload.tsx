@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { analyzeMeshPositions, estimatePrint, calculatePrintPrice, formatPrintTime, formatTRY } from "@/lib/slicer";
 import { BUILD, fitsBuildVolume, routeForMaterial } from "@/lib/production";
 import { formatCmValue } from "@/lib/units";
+import { baskiDosyalariniEkle } from "@/lib/baskiDosyasiYukle";
 
 // ==========================================
 // ÜRÜN 3D DOSYASI
@@ -32,6 +33,11 @@ import { formatCmValue } from "@/lib/units";
 // montajlı ölçüden türetilir.
 //
 // Seçilen ana parça AR için GLB olarak dışa aktarılır.
+//
+// STL'ler ürünün baskı dosyaları olarak da kaydedilir: sipariş
+// gelince atölye onları sipariş ekranından indirip basar.
+// Hazır ürünlerde özelleştirme açılmaz; ayarlanabilir ürünler
+// yalnızca Kendin Üret araçlarıdır.
 // ==========================================
 
 /**
@@ -98,6 +104,8 @@ interface Parca {
   ad: string;
   olcu: Olcu;
   geometri: THREE.BufferGeometry;
+  /** Özgün dosya: baskı dosyası olarak yüklenir */
+  dosya: File;
 }
 
 /**
@@ -121,9 +129,11 @@ interface Props {
   productId: string;
   materialType: string | null;
   onSaved: (modelFileUrl: string) => void;
+  /** STL'ler baskı dosyalarına kaydedildiğinde */
+  onPrintFiles?: () => void;
 }
 
-export function ProductModelUpload({ productId, materialType, onSaved }: Props) {
+export function ProductModelUpload({ productId, materialType, onSaved, onPrintFiles }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [parcalar, setParcalar] = useState<Parca[]>([]);
   const [anaParca, setAnaParca] = useState(0);
@@ -131,7 +141,6 @@ export function ProductModelUpload({ productId, materialType, onSaved }: Props) 
   const [ayrinti, setAyrinti] = useState(false);
   const [durum, setDurum] = useState<"bos" | "okunuyor" | "hazir" | "yukleniyor" | "bitti">("bos");
   const [hata, setHata] = useState<string | null>(null);
-  const [ozellestir, setOzellestir] = useState(true);
 
   const rota = routeForMaterial(materialType);
   const dokum = rota === "cast";
@@ -164,6 +173,7 @@ export function ProductModelUpload({ productId, materialType, onSaved }: Props) 
 
     return {
       ad: f.name,
+      dosya: f,
       geometri: geo,
       olcu: {
         xMm: size.x,
@@ -253,6 +263,11 @@ export function ProductModelUpload({ productId, materialType, onSaved }: Props) 
     setDurum("yukleniyor");
     setHata(null);
     try {
+      // Önce baskı dosyaları: depo yalnızca bunlar için gerekli,
+      // GLB yüklenemese de parçalar siparişte indirilebilir kalır.
+      await baskiDosyalariniEkle(productId, parcalar.map((p) => p.dosya));
+      onPrintFiles?.();
+
       // AR ve konfigüratör için GLB — ana parçadan, sadeleştirilmiş,
       // gerçek ölçekte (mm → m). ~2500 üçgen: telefonda hızlı açılan,
       // biçimi koruyan boyut.
@@ -311,7 +326,7 @@ export function ProductModelUpload({ productId, materialType, onSaved }: Props) 
           dimensions: { xMm: olculer[0], yMm: olculer[1], zMm: olculer[2] },
           weightGrams: toplam.agirlikG,
           printMinutes: Math.round(toplam.sureDk),
-          enableCustomization: ozellestir && !dokum,
+          enableCustomization: false,
         }),
       });
       if (!res.ok) throw new Error((await res.json()).error ?? "Kaydedilemedi");
@@ -322,7 +337,7 @@ export function ProductModelUpload({ productId, materialType, onSaved }: Props) 
       setHata(e instanceof Error ? e.message : "Kaydedilemedi");
       setDurum("hazir");
     }
-  }, [parcalar, toplam, anaParca, olculer, productId, ozellestir, dokum, onSaved]);
+  }, [parcalar, toplam, anaParca, olculer, productId, onSaved, onPrintFiles]);
 
   const sigmayan = parcalar.filter((p) => !fitsBuildVolume(p.olcu.enUzunMm));
   const buyukFormat = toplam ? toplam.enUzunMm > BUILD.standardMm : false;
@@ -412,29 +427,10 @@ export function ProductModelUpload({ productId, materialType, onSaved }: Props) 
               )}
             </label>
 
-            {dokum ? (
-              <p className="text-sm text-muted-foreground">
-                Döküm ürün (alçı/seramik) — kalıp tek ölçü olduğu için
-                özelleştirme açılmaz.
-              </p>
-            ) : (
-              <label className="flex items-start gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={ozellestir}
-                  onChange={(e) => setOzellestir(e.target.checked)}
-                  className="mt-0.5 h-4 w-4"
-                />
-                <span>
-                  Özelleştirmeyi aç
-                  <span className="block text-xs text-muted-foreground">
-                    Müşteri ölçüyü {formatCmValue((olculer?.[0] ?? 0) * 0.6)}–
-                    {formatCmValue(Math.min(BUILD.maxMm, (olculer?.[0] ?? 0) * 1.6))} cm
-                    arasında değiştirebilir, fiyat ölçüyle birlikte güncellenir.
-                  </span>
-                </span>
-              </label>
-            )}
+            <p className="text-xs text-muted-foreground">
+              Kaydedince {parcalar.length} STL baskı dosyası olarak da saklanır;
+              bu ürün sipariş edilince sipariş ekranından indirilir.
+            </p>
           </div>
 
           {sigmayan.length > 0 && (

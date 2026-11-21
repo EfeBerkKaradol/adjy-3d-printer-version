@@ -19,6 +19,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { TasarimKalemi } from "@/components/tasarim/TasarimKalemi";
 import { tasarimUrunuMu } from "@/lib/tasarim/order";
+import { BaskiDosyalariKalemi } from "@/components/admin/BaskiDosyalariKalemi";
+import { baskiDosyalariniOku } from "@/lib/baskiDosyalari";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -441,6 +443,24 @@ export default function AdminOrderDetailPage() {
                         : null
                     }
                   />
+                  {/* Hazır ürün: ürüne yüklenmiş baskı dosyaları */}
+                  {!tasarimUrunuMu(product?.sku ? String(product.sku) : null) && (
+                    <BaskiDosyalariKalemi
+                      productId={product?.id ? String(product.id) : null}
+                      urunAdi={String(item.productName)}
+                      adet={item.quantity as number}
+                      dosyalar={baskiDosyalariniOku(product?.printFiles)}
+                      siparis={{
+                        no: String(o.orderNumber),
+                        musteri: user?.fullName || user?.email || "Müşteri",
+                      }}
+                      altKlasor={
+                        items.length > 1
+                          ? `${items.indexOf(item) + 1} - ${String(item.productName)}`
+                          : null
+                      }
+                    />
+                  )}
                   </div>
                 );
               })}

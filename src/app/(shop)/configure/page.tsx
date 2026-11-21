@@ -1,16 +1,13 @@
 import { redirect } from "next/navigation";
 
 // ==========================================
-// /configure → mağaza
+// /configure → Kendin Üret
 //
-// Ölçüsü değişen ürünleri ayrı listeleyen sayfa kaldırıldı:
-// ölçü ayarı artık mağazadaki kartların altında duruyor.
-//
-// Adres yaşamaya devam ediyor çünkü eski bağlantılar,
-// yer imleri ve arama sonuçları buraya geliyor — hata
-// sayfası yerine ölçüsü değişen ürünlerin listesine düşer.
+// Hazır ürünlerin ölçüsü artık ayarlanmıyor; ayarlanabilir
+// ürünler Kendin Üret araçları. Eski bağlantılar, yer imleri ve
+// arama sonuçları hata sayfası yerine oraya düşer.
 // ==========================================
 
 export default function ConfigureRedirect() {
-  redirect("/products?customizable=true");
+  redirect("/tasarla");
 }

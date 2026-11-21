@@ -112,7 +112,7 @@ function toRailProduct(
     hoverImageUrl: secondImageOf(p.thumbnailUrl, p.gallery),
     category: p.category,
     isNew: markNew && p.createdAt.getTime() > cutoff,
-    isCustomizable: p._count.parameters > 0,
+    isCustomizable: p.slug.startsWith("tasarla-"),
   };
 }
 
@@ -215,7 +215,7 @@ async function getFeaturedRail(compareAt: Map<string, number>): Promise<RailProd
 async function getCustomizableRail(compareAt: Map<string, number>): Promise<RailProduct[]> {
   try {
     const rows = await prisma.product.findMany({
-      where: { isActive: true, thumbnailUrl: { not: null }, parameters: { some: {} } },
+      where: { isActive: true, thumbnailUrl: { not: null }, slug: { startsWith: "tasarla-" } },
       orderBy: { createdAt: "desc" },
       take: 4,
       select: RAIL_SELECT,
@@ -376,7 +376,7 @@ export default async function HomePage() {
         <section className="adjy-container adjy-section border-t-2 border-dashed border-foreground/25">
           <SectionHeading eyebrow="Özel ölçüde üretim" title="Rafınıza, masanıza, pencerenize göre" />
           <div className="mt-8">
-            <ProductRail products={customizable} moreHref="/products?customizable=true" />
+            <ProductRail products={customizable} moreHref="/tasarla" />
           </div>
         </section>
       )}

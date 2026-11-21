@@ -69,8 +69,10 @@ export function ProductCard({ product, index = 0, priority = false }: ProductCar
   const tasarimAraci = slugdanAracId(product.slug);
   const adres = tasarimAraci ? aracAdresi(tasarimAraci) : `/products/${product.slug}`;
 
-  const customizable =
-    product.isCustomizable ?? (product._count?.parameters ?? 0) > 0;
+  // Ayarlanabilir olan yalnızca Kendin Üret ürünleri. Hazır ürünün
+  // kayıtlı ölçü parametresi olsa da kartta kaydırıcı açılmaz,
+  // sepete varsayılan hâliyle girer.
+  const customizable = !!tasarimAraci;
   const priceInfo = getPriceInfo(product.basePrice, product.compareAtPrice);
   // Kaydırıcı çekildiğinde fiyat ve seçilen ölçü burada tutulur;
   // sepete eklenen de bu olur.
