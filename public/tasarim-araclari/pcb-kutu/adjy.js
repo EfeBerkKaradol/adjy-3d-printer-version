@@ -140,3 +140,13 @@ window.ADJY_ARAC = {
     if (satir && sol) sol.appendChild(satir);
   },
 };
+
+// Renkli baskı paketi (../_adjy/renkli.js): devre kartı tertibatı
+// (kart, bileşenler) basılmaz; yalnız kutu ve kapak.
+window.ADJY_ARAC = window.ADJY_ARAC || {};
+window.ADJY_ARAC.renkliPaket = {
+  haric: function (o) {
+    for (var n = o; n; n = n.parent) if (n.name === "PCB_Tertibati") return true;
+    return false;
+  },
+};

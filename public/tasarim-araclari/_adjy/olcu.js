@@ -388,6 +388,23 @@
 
   window.ADJY_OLCU = {
     bagla: bagla,
+    /**
+     * Ölçülen modelin ağları (renkli baskı paketi bunları kullanır,
+     * bkz. renkli.js): görünür, gölge / yardımcı olmayan Mesh'ler,
+     * aracın olcuCizgisi.kok ayarıyla seçilen kökün altından.
+     */
+    model: function () {
+      var sahne = anaSahne;
+      if (!sahne || !T) return null;
+      var kok = typeof AYAR.kok === "function" ? AYAR.kok(sahne) : sahne;
+      if (!kok) return null;
+      kok.updateMatrixWorld(true);
+      var aglar = [];
+      kok.traverse(function (o) {
+        if (sayilir(o)) aglar.push(o);
+      });
+      return { sahne: sahne, kamera: anaKamera, T: T, aglar: aglar, birim: birim() };
+    },
     /** Tanı için: son çizilen sahne, kamera ve three */
     durum: function () {
       return { sahne: sonCizim && sonCizim[1], kamera: sonCizim && sonCizim[2], T: T, kutu: kutu };

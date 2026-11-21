@@ -77,6 +77,17 @@ export const TASARIM_KATEGORISI = {
     "Ölçüsünü, biçimini ve ayrıntılarını sizin belirlediğiniz ürünler. Tasarım aracında kurduğunuz model, atölyede birebir üretilir.",
 };
 
+/**
+ * Renkli baskı paketi: müşterinin kurduğu model renge göre ayrılmış
+ * (tek 3MF'te her renk bir parça + renk başına STL + renk listesi).
+ * Düğmeyi atölye kipinde public/tasarim-araclari/_adjy/renkli.js kurar.
+ */
+const RENKLI_PAKET: TasarimCiktisi = {
+  ad: "Renkli baskı paketi (3MF + renk STL'leri)",
+  sec: "#adjy-renkli-paket",
+  tur: "stl",
+};
+
 const CAD_EKLERI = (onEk: string): TasarimCiktisi[] => [
   { ad: "OBJ", sec: `${onEk}obj`, tur: "cad" },
   { ad: "GLB", sec: `${onEk}glb`, tur: "cad" },
@@ -107,6 +118,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ciktilar: [
       { ad: "Saksı STL", sec: "#btn-stl-planter", tur: "stl" },
       { ad: "Alt tabak STL", sec: "#btn-stl-tray", tur: "stl" },
+      RENKLI_PAKET,
       { ad: "İmalat anteti (SVG)", sec: "#btn-modal-download-svg", tur: "belge" },
       { ad: "Maliyet tablosu (CSV)", sec: "#btn-csv-export", tur: "belge" },
       ...CAD_EKLERI("#btn-exp-"),
@@ -136,6 +148,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     gorseller: ["Klasik dalga, E27","Mimari plise","Yalın silindir","Kompakt, E14"],
     ciktilar: [
       { ad: "Avize STL", sec: "#btn-export-stl", tur: "stl" },
+      RENKLI_PAKET,
       { ad: "İmalat anteti (SVG)", sec: "#btn-export-svg", tur: "belge" },
       { ad: "Üretim reçetesi (CSV)", sec: "#btn-export-csv", tur: "belge" },
       ...CAD_EKLERI("#btn-export-"),
@@ -165,6 +178,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { ad: "Gövde STL", sec: "#btn-stl-body", tur: "stl" },
       { ad: "Vida STL", sec: "#btn-stl-screw", tur: "stl" },
       { ad: "Pabuç STL", sec: "#btn-stl-pad", tur: "stl" },
+      RENKLI_PAKET,
       { ad: "Tüm set, tek tabla (STL)", sec: "#btn-stl-platter", tur: "cad" },
       { ad: "İmalat anteti (SVG)", sec: "#btn-export-svg", tur: "belge" },
       { ad: "Yük ve maliyet (CSV)", sec: "#btn-export-csv", tur: "belge" },
@@ -196,6 +210,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ciktilar: [
       { ad: "Alt kutu STL", sec: "#btn-dl-base-stl", tur: "stl" },
       { ad: "Kapak STL", sec: "#btn-dl-lid-stl", tur: "stl" },
+      RENKLI_PAKET,
       { ad: "İmalat anteti (SVG)", sec: "#btn-dl-svg", tur: "belge" },
       { ad: "Malzeme listesi (CSV)", sec: "#btn-dl-csv", tur: "belge" },
       ...CAD_EKLERI("#btn-dl-"),
@@ -230,6 +245,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ciktilar: [
       { ad: "Litofan gövde STL", sec: "#btn-dl-litho-stl", tur: "stl" },
       { ad: "Taban STL", sec: "#btn-dl-base-stl", tur: "stl" },
+      RENKLI_PAKET,
       { ad: "İmalat anteti (SVG)", sec: "#btn-dl-antet-svg", tur: "belge" },
       { ad: "Metraj tablosu (CSV)", sec: "#btn-dl-metraj-csv", tur: "belge" },
       { ad: "OpenSCAD", sec: "#btn-dl-scad", tur: "cad" },
@@ -259,6 +275,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     gorseller: ["Kafe masası standı","Otel madalyonu","Anahtarlık","Sosyal medya rozeti"],
     ciktilar: [
       { ad: "Tekil üretim STL", sec: "#btn-dl-stl-unit", tur: "stl" },
+      RENKLI_PAKET,
       { ad: "Tabla dizilimi STL", sec: "#btn-dl-stl-plate", tur: "cad" },
       { ad: "İmalat anteti (SVG)", sec: "#btn-dl-antet-svg", tur: "belge" },
       { ad: "Maliyet tablosu (CSV)", sec: "#btn-dl-b2b-csv", tur: "belge" },
@@ -287,6 +304,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     gorseller: ["Kart fikstürü, 2×3","Kalem fikstürü","Jeton fikstürü","Matara fikstürü"],
     ciktilar: [
       { ad: "Fikstür STL", sec: "#btnExportSTL", tur: "stl" },
+      RENKLI_PAKET,
       { ad: "LightBurn şablonu (SVG)", sec: "#btnExportPureLB", tur: "belge" },
       { ad: "İmalat anteti + LightBurn (SVG)", sec: "#btnExportDualSVG", tur: "belge" },
       { ad: "Teklif tablosu (CSV)", sec: "#btnExportCSV", tur: "belge" },
@@ -316,6 +334,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     gorseller: ["Konut bloğu, 1:200","Ofis kulesi, 1:500","Pavyon, 1:50","Karma kullanım, 1:100"],
     ciktilar: [
       { ad: "Tüm katlar, ayrı ayrı (STL)", sec: "#btn-download-all-stl", tur: "stl" },
+      RENKLI_PAKET,
       { ad: "Tabla dizilimi, tek dosya (STL)", sec: "#btn-exp-plate-stl", tur: "cad" },
       { ad: "Tam istif, tek dosya (STL)", sec: "#btn-exp-stacked-stl", tur: "cad" },
       { ad: "İmalat anteti (SVG)", sec: "#btn-download-svg", tur: "belge" },
@@ -346,6 +365,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     gorseller: ["Mutfak","Salon ve sehpa","Yatak odası ve gardırop","Çalışma odası ve kitaplık"],
     ciktilar: [
       { ad: "Tam set STL", sec: "#btnExportAllSTL", tur: "stl" },
+      RENKLI_PAKET,
       { ad: "Dolap gövdeleri STL", sec: "#btnExportCabinetsSTL", tur: "cad" },
       { ad: "Sehpa ve tezgâh STL", sec: "#btnExportTablesSTL", tur: "cad" },
       { ad: "Zemin ve duvarlar STL", sec: "#btnExportRoomShellSTL", tur: "cad" },
@@ -380,6 +400,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ciktilar: [
       { ad: "Tabla ve kilit STL", sec: "#exPlates", tur: "stl" },
       { ad: "Kutular STL", sec: "#exBins", tur: "stl" },
+      RENKLI_PAKET,
       { ad: "İmalat anteti (SVG)", sec: "#exSvg", tur: "belge" },
       { ad: "Parça listesi (CSV)", sec: "#exCsv", tur: "belge" },
       { ad: "Ürün görseli (PNG)", sec: "#exPng", tur: "cad" },
@@ -411,6 +432,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ciktilar: [
       { ad: "Yol parçaları STL (çok parçada ZIP)", sec: "#hw-stl", tur: "stl" },
       { ad: "Bağlantı parçaları STL", sec: "#hw-baglayici-stl", tur: "stl" },
+      RENKLI_PAKET,
       { ad: "Parça bilgisi (CSV)", sec: "#hw-csv", tur: "belge" },
     ],
     anahtarKelimeler: ["oyuncak araba yolu", "hot wheels yol parçası", "hot wheels viraj", "araba pisti", "1:64 araba yolu", "rampa", "looping", "araba yolu looping"],

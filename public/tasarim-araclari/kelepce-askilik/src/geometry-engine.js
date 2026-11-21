@@ -311,7 +311,58 @@ function sampleTrapezoidProfile(uNorm, rMin, rMaj, crestF, rootF) {
  * Welds vertices for watertight STL topology, then computes sharp-creased CAD normals
  * (`32°` crease threshold) so flat faces remain 100% streak-free while fillets stay silky smooth!
  */
+/**
+ * ADJY: Küçük açık delikleri kapatır. Yan kapak üçgenlemesi (earcut) bazı
+ * askı biçimlerinde dar köşelerde üçgen atlıyor; STL su geçirmez çıkmıyor
+ * ve dilimleyici yüzeyi onarmak zorunda kalıyordu. Komşusu olmayan her
+ * kenar (a→b) için ters yönde (b→a) bir sınır zinciri kurulur; kapanan
+ * küçük döngüler yelpaze üçgenlerle doldurulur.
+ */
+function acikKenarlariKapat(arr) {
+  const anahtar = (i) => Math.round(arr[i] * 1e4) + ',' + Math.round(arr[i + 1] * 1e4) + ',' + Math.round(arr[i + 2] * 1e4);
+  const yarim = new Set();
+  const nokta = new Map();
+  for (let t = 0; t + 8 < arr.length; t += 9) {
+    const k = [anahtar(t), anahtar(t + 3), anahtar(t + 6)];
+    for (let j = 0; j < 3; j++) nokta.set(k[j], [arr[t + j * 3], arr[t + j * 3 + 1], arr[t + j * 3 + 2]]);
+    for (let e = 0; e < 3; e++) {
+      const a = k[e];
+      const b = k[(e + 1) % 3];
+      if (a !== b) yarim.add(a + '|' + b);
+    }
+  }
+  const sonraki = new Map();
+  for (const h of yarim) {
+    const [a, b] = h.split('|');
+    if (!yarim.has(b + '|' + a)) sonraki.set(b, a);
+  }
+  const gorulen = new Set();
+  for (const bas of sonraki.keys()) {
+    if (gorulen.has(bas)) continue;
+    const dongu = [bas];
+    gorulen.add(bas);
+    let c = sonraki.get(bas);
+    let kapandi = false;
+    for (let s = 0; s < 64 && c !== undefined; s++) {
+      if (c === bas) {
+        kapandi = true;
+        break;
+      }
+      if (gorulen.has(c)) break;
+      dongu.push(c);
+      gorulen.add(c);
+      c = sonraki.get(c);
+    }
+    if (!kapandi || dongu.length < 3 || dongu.length > 48) continue;
+    const P0 = nokta.get(dongu[0]);
+    for (let i = 1; i < dongu.length - 1; i++) {
+      arr.push(...P0, ...nokta.get(dongu[i]), ...nokta.get(dongu[i + 1]));
+    }
+  }
+}
+
 function finalizeCreasedCADGeometry(positionsArray, creaseDeg = 32) {
+  acikKenarlariKapat(positionsArray);
   const raw = new THREE.BufferGeometry();
   raw.setAttribute('position', new THREE.Float32BufferAttribute(positionsArray, 3));
   const manifold = mergeVertices(raw, 1e-4);
@@ -821,12 +872,17 @@ function buildFemaleHelicalBorePatch(dim, outTris) {
   }
   angleSet.sort((a, b) => a - b);
 
+  // ADJY: İlk açı eklenirken thetas[0] henüz yok; eski koşul NaN'a
+  // düşüp hiçbir açıyı eklemiyordu. Dişi yuva hiç üretilmiyor, alt
+  // çenede açık dikdörtgen bir pencere kalıyordu (basılamaz, vida tutmaz).
   const thetas = [];
   for (let i = 0; i < angleSet.length; i++) {
-    if (thetas.length === 0 || Math.abs(angleSet[i] - thetas[thetas.length - 1]) > 1e-4) {
-      if (Math.PI * 2 - (angleSet[i] - thetas[0]) > 1e-4) {
-        thetas.push(angleSet[i]);
-      }
+    if (thetas.length === 0) {
+      thetas.push(angleSet[i]);
+      continue;
+    }
+    if (Math.abs(angleSet[i] - thetas[thetas.length - 1]) > 1e-4 && Math.PI * 2 - (angleSet[i] - thetas[0]) > 1e-4) {
+      thetas.push(angleSet[i]);
     }
   }
   const nT = thetas.length;

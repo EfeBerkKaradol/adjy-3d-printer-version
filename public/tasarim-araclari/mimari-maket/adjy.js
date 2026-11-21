@@ -149,3 +149,9 @@ window.ADJY_ARAC = {
     if (serit) serit.addEventListener("click", birak);
   },
 };
+
+// Renkli baskı paketi (../_adjy/renkli.js): maket tek filamentle
+// basılır; katların ve pimlerin farklı tonları yalnız ekranda ayırt
+// etmek için.
+window.ADJY_ARAC = window.ADJY_ARAC || {};
+window.ADJY_ARAC.renkliPaket = { tekRenk: true };
