@@ -4,6 +4,7 @@ import { requireAdmin, isUnauthorized } from "@/lib/admin";
 import { resolvePublicImage } from "@/lib/publicAsset";
 import { skudanArac } from "@/lib/tasarim/order";
 import { aracGorseli } from "@/lib/tasarim/catalog";
+import { ornekSiparisleriGerekirseKur } from "@/lib/tasarim/ornekSiparisler";
 
 /**
  * Listede kalemin önizleme görseli. Kendin Üret ürününün kendi
@@ -17,6 +18,8 @@ function onizleme(sku: string | null, thumbnailUrl: string | null): string | nul
 export async function GET(request: NextRequest) {
   const authResult = await requireAdmin();
   if (isUnauthorized(authResult)) return authResult;
+
+  await ornekSiparisleriGerekirseKur(prisma);
 
   const { searchParams } = new URL(request.url);
   const page = Math.max(1, parseInt(searchParams.get("page") || "1"));

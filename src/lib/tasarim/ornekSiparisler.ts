@@ -215,3 +215,32 @@ export async function ornekSiparisleriKur(prisma: PrismaClient): Promise<OrnekSo
 
   return sonuc;
 }
+
+// Örnek siparişler hiç yoksa admin sipariş listesi ya da atölye ilk
+// açıldığında kendiliğinden kurulur: canlıda düğmeye basmayı ya da
+// betik çalıştırmayı beklemesin. Bir örnek bile varsa dokunulmaz
+// (yenilemek için atölyedeki düğme). Aynı süreçte bir kez denetlenir.
+let denetlendi = false;
+let suren: Promise<void> | null = null;
+
+export async function ornekSiparisleriGerekirseKur(prisma: PrismaClient): Promise<void> {
+  if (denetlendi) return;
+  suren ??= (async () => {
+    try {
+      const sayi = await prisma.order.count({
+        where: { orderNumber: { startsWith: ORNEK_SIPARIS_ONEK } },
+      });
+      if (sayi === 0) {
+        const { kurulan, atlanan } = await ornekSiparisleriKur(prisma);
+        console.log(`[ornek-siparis] ${kurulan.length} kuruldu, ${atlanan.length} atlandı`);
+      }
+      denetlendi = true;
+    } catch (e) {
+      // Liste yine açılsın; sonraki istekte yeniden denenir
+      console.error("[ornek-siparis] kurulamadı", e);
+    } finally {
+      suren = null;
+    }
+  })();
+  await suren;
+}

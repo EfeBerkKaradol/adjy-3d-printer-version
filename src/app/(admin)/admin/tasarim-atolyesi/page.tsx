@@ -7,7 +7,7 @@ import { tasarimSku } from "@/lib/tasarim/order";
 import { atolyeAdresi, uretimEkraniAdresi } from "@/lib/tasarim/adresler";
 import { resolvePublicImage } from "@/lib/publicAsset";
 import { formatTRY } from "@/lib/slicer";
-import { ORNEK_SIPARIS_ONEK } from "@/lib/tasarim/ornekSiparisler";
+import { ORNEK_SIPARIS_ONEK, ornekSiparisleriGerekirseKur } from "@/lib/tasarim/ornekSiparisler";
 import { OrnekSiparisDugmesi } from "@/components/admin/OrnekSiparisDugmesi";
 
 export const dynamic = "force-dynamic";
@@ -43,6 +43,7 @@ const DURUM: Record<string, string> = {
 const SIPARIS_SAYISI = 3;
 
 export default async function TasarimAtolyesiPage() {
+  await ornekSiparisleriGerekirseKur(prisma);
   const kalemler = await prisma.orderItem.findMany({
     where: { productSku: { in: TASARIM_ARACLARI.map((a) => tasarimSku(a.id)) } },
     orderBy: { order: { createdAt: "desc" } },
