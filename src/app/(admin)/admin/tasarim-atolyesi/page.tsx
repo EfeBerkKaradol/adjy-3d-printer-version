@@ -7,6 +7,8 @@ import { tasarimSku } from "@/lib/tasarim/order";
 import { atolyeAdresi, uretimEkraniAdresi } from "@/lib/tasarim/adresler";
 import { resolvePublicImage } from "@/lib/publicAsset";
 import { formatTRY } from "@/lib/slicer";
+import { ORNEK_SIPARIS_ONEK } from "@/lib/tasarim/ornekSiparisler";
+import { OrnekSiparisDugmesi } from "@/components/admin/OrnekSiparisDugmesi";
 
 export const dynamic = "force-dynamic";
 
@@ -80,9 +82,14 @@ export default async function TasarimAtolyesiPage() {
             müşterinin kaydıyla açın.
           </p>
         </div>
-        <p className="font-mono text-xs text-muted-foreground">
-          {TASARIM_ARACLARI.length} ürün · {kalemler.length} sipariş kalemi
-        </p>
+        <div className="flex flex-col items-end gap-2">
+          <p className="font-mono text-xs text-muted-foreground">
+            {TASARIM_ARACLARI.length} ürün · {kalemler.length} sipariş kalemi
+          </p>
+          <OrnekSiparisDugmesi
+            varMi={kalemler.some((k) => k.order.orderNumber.startsWith(ORNEK_SIPARIS_ONEK))}
+          />
+        </div>
       </div>
 
       <ul className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
