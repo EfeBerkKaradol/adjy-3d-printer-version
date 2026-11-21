@@ -359,6 +359,246 @@ function analyzeFloorFootprint(scaledPosAttr, y0, y1) {
   };
 }
 
+/* ADJY: Modelin y düzlemindeki gerçek kesiti.
+ *
+ * Önceden her katın tabanı ve kat boyu bir "çevre takviye duvarı",
+ * katın kesit noktalarının dış bükey zarfından (convex hull)
+ * üretiliyordu. Dönen, kademeli ya da L planlı modellerde zarf modelin
+ * dışına taşıyor; müşterinin yüklediği modelde olmayan eğik duvarlar
+ * ve plakalar beliriyordu. Artık çevre duvarı eklenmiyor; kat tabanı
+ * (döşeme) modelin o yükseklikteki kendi kesitinden kuruluyor, yani
+ * modelin dış hattının dışına hiçbir şey eklenmiyor. */
+function kesitDonguleri(scaledPosAttr, yKesit) {
+  const parcalar = [];
+  const triCount = Math.floor(scaledPosAttr.count / 3);
+  for (let t = 0; t < triCount; t++) {
+    const i0 = t * 3;
+    const v = [0, 1, 2].map((j) => ({
+      x: scaledPosAttr.getX(i0 + j),
+      y: scaledPosAttr.getY(i0 + j) - yKesit,
+      z: scaledPosAttr.getZ(i0 + j)
+    }));
+    v.forEach((q) => {
+      if (q.y === 0) q.y = 1e-9;
+    });
+    if ((v[0].y > 0) === (v[1].y > 0) && (v[1].y > 0) === (v[2].y > 0)) continue;
+    const kes = [];
+    for (let e = 0; e < 3; e++) {
+      const a = v[e];
+      const b = v[(e + 1) % 3];
+      if ((a.y > 0) !== (b.y > 0)) {
+        const u = a.y / (a.y - b.y);
+        kes.push({ x: a.x + (b.x - a.x) * u, z: a.z + (b.z - a.z) * u });
+      }
+    }
+    if (kes.length === 2) parcalar.push(kes);
+  }
+  if (parcalar.length < 3) return [];
+
+  const anahtar = (q) => Math.round(q.x * 100) + ',' + Math.round(q.z * 100);
+  const uclar = new Map();
+  parcalar.forEach((sg, i) => {
+    for (const q of sg) {
+      const k = anahtar(q);
+      if (!uclar.has(k)) uclar.set(k, []);
+      uclar.get(k).push(i);
+    }
+  });
+
+  const kullanildi = new Uint8Array(parcalar.length);
+  const donguler = [];
+  for (let i = 0; i < parcalar.length; i++) {
+    if (kullanildi[i]) continue;
+    kullanildi[i] = 1;
+    const dongu = [parcalar[i][0], parcalar[i][1]];
+    const basK = anahtar(parcalar[i][0]);
+    let sonK = anahtar(parcalar[i][1]);
+    let kapandi = false;
+    for (let adim = 0; adim < parcalar.length; adim++) {
+      if (sonK === basK) {
+        kapandi = true;
+        break;
+      }
+      const aday = (uclar.get(sonK) || []).find((j) => !kullanildi[j]);
+      if (aday === undefined) break;
+      kullanildi[aday] = 1;
+      const [a, b] = parcalar[aday];
+      const sonraki = anahtar(a) === sonK ? b : a;
+      dongu.push(sonraki);
+      sonK = anahtar(sonraki);
+    }
+    if (!kapandi) continue;
+    dongu.pop(); // son nokta ilkinin tekrarı
+    if (dongu.length < 3) continue;
+    let alan = 0;
+    for (let k = 0; k < dongu.length; k++) {
+      const a = dongu[k];
+      const b = dongu[(k + 1) % dongu.length];
+      alan += a.x * b.z - b.x * a.z;
+    }
+    if (Math.abs(alan) * 0.5 < 0.5) continue;
+    donguler.push({ noktalar: dongu, alan: Math.abs(alan) * 0.5 });
+  }
+  return donguler;
+}
+
+function noktaCokgenIcinde(px, pz, poly) {
+  let ic = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const a = poly[i];
+    const b = poly[j];
+    if ((a.z > pz) !== (b.z > pz) && px < ((b.x - a.x) * (pz - a.z)) / (b.z - a.z) + a.x) ic = !ic;
+  }
+  return ic;
+}
+
+/** Kesit döngülerinden dış hatlar ve delikler: iç içe derinliği çift olan dış hattır */
+function kesitSekilleri(donguler, pinDelikleri, delikR) {
+  const sirali = donguler.slice().sort((a, b) => b.alan - a.alan);
+  const kayit = sirali.map((d) => ({ d, derinlik: 0, ebeveyn: null, delikler: [] }));
+  kayit.forEach((k, i) => {
+    const p0 = k.d.noktalar[0];
+    for (let j = 0; j < i; j++) {
+      if (noktaCokgenIcinde(p0.x, p0.z, kayit[j].d.noktalar)) {
+        k.derinlik++;
+        k.ebeveyn = kayit[j];
+      }
+    }
+  });
+  const yol = (pts, path) => {
+    pts.forEach((q, i) => (i === 0 ? path.moveTo(q.x, -q.z) : path.lineTo(q.x, -q.z)));
+    path.closePath();
+    return path;
+  };
+  const dislar = kayit.filter((k) => k.derinlik % 2 === 0);
+  kayit.forEach((k) => {
+    if (k.derinlik % 2 === 1 && k.ebeveyn) k.ebeveyn.delikler.push(k);
+  });
+  return dislar.map((k) => {
+    const sekil = yol(k.d.noktalar, new THREE.Shape());
+    k.delikler.forEach((h) => sekil.holes.push(yol(h.d.noktalar, new THREE.Path())));
+    for (const pt of pinDelikleri || []) {
+      const icinde =
+        noktaCokgenIcinde(pt.x, pt.z, k.d.noktalar) &&
+        !k.delikler.some((h) => noktaCokgenIcinde(pt.x, pt.z, h.d.noktalar));
+      if (!icinde) continue;
+      const hp = new THREE.Path();
+      hp.absarc(pt.x, -pt.z, delikR, 0, Math.PI * 2, true);
+      sekil.holes.push(hp);
+    }
+    return sekil;
+  });
+}
+
+function noktaParcaUzakligi(px, pz, a, b) {
+  const dx = b.x - a.x;
+  const dz = b.z - a.z;
+  const l2 = dx * dx + dz * dz;
+  const t = l2 > 1e-12 ? clamp(((px - a.x) * dx + (pz - a.z) * dz) / l2, 0, 1) : 0;
+  return Math.hypot(px - (a.x + dx * t), pz - (a.z + dz * t));
+}
+
+/** Nokta kesitin dolu bölgesinde ve kenarlara en az pay kadar uzak mı */
+function kesitteGuvenli(px, pz, donguler, pay) {
+  let ic = false;
+  for (const d of donguler) if (noktaCokgenIcinde(px, pz, d.noktalar)) ic = !ic;
+  if (!ic) return false;
+  for (const d of donguler) {
+    const n = d.noktalar;
+    for (let i = 0; i < n.length; i++) {
+      if (noktaParcaUzakligi(px, pz, n[i], n[(i + 1) % n.length]) < pay) return false;
+    }
+  }
+  return true;
+}
+
+/** Katın sekiz yükseklikteki gerçek kesitleri (alt, üst ve arası) */
+function katKesitOrnekleri(scaledPosAttr, y0, y1) {
+  const h = y1 - y0;
+  return [0.02, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 0.98]
+    .map((f) => kesitDonguleri(scaledPosAttr, y0 + h * f))
+    .filter((d) => d.length > 0);
+}
+
+/**
+ * ADJY: Pim yerleri modelin gerçek kesitinden. Önceden dış bükey zarf
+ * kullanılıyordu; dönen ya da kademeli katlarda pim kolonları modelin
+ * dışına çıkıyordu. Nokta, iki katın da her örnek yüksekliğinde dolu
+ * bölgede ve kenardan kolon yarı genişliği kadar içeride olmalı.
+ */
+function gercekKesittenPimler(fpA, fpB, orneklerA, orneklerB, bossSizeMm) {
+  const ornekler = orneklerA.concat(orneklerB);
+  // Kare kolonun köşesi merkezden 0.707 × kenar uzakta
+  const pay = bossSizeMm * 0.76;
+  const minX = Math.max(fpA.minX, fpB.minX);
+  const maxX = Math.min(fpA.maxX, fpB.maxX);
+  const minZ = Math.max(fpA.minZ, fpB.minZ);
+  const maxZ = Math.min(fpA.maxZ, fpB.maxZ);
+  if (!(maxX > minX) || !(maxZ > minZ)) return [];
+  const cx = (minX + maxX) * 0.5;
+  const cz = (minZ + maxZ) * 0.5;
+  const N = 28;
+  const gecerli = [];
+  for (let i = 0; i <= N; i++) {
+    for (let j = 0; j <= N; j++) {
+      const x = minX + ((maxX - minX) * i) / N;
+      const z = minZ + ((maxZ - minZ) * j) / N;
+      if (ornekler.every((d) => kesitteGuvenli(x, z, d, pay))) gecerli.push({ x, z });
+    }
+  }
+  const dirs = [
+    { id: 'P1_SOL_ON', sx: -1, sz: +1, label: 'Sol-Ön' },
+    { id: 'P2_SAG_ON', sx: +1, sz: +1, label: 'Sağ-Ön' },
+    { id: 'P3_SAG_ARKA', sx: +1, sz: -1, label: 'Sağ-Arka' },
+    { id: 'P4_SOL_ARKA', sx: -1, sz: -1, label: 'Sol-Arka' }
+  ];
+  const spanX = Math.max(1e-3, (maxX - minX) * 0.5);
+  const spanZ = Math.max(1e-3, (maxZ - minZ) * 0.5);
+  const secilen = [];
+  for (const d of dirs) {
+    let enIyi = null;
+    let puan = -Infinity;
+    for (const q of gecerli) {
+      const u = (d.sx * (q.x - cx)) / spanX;
+      const v = (d.sz * (q.z - cz)) / spanZ;
+      if (u <= 0 || v <= 0) continue;
+      const pp = u + v;
+      if (pp > puan) {
+        puan = pp;
+        enIyi = q;
+      }
+    }
+    if (!enIyi) continue;
+    if (secilen.some((o) => Math.hypot(o.x - enIyi.x, o.z - enIyi.z) < bossSizeMm * 1.6)) continue;
+    secilen.push({ id: d.id, x: enIyi.x, z: enIyi.z, label: d.label });
+  }
+  return secilen;
+}
+
+/** İki kesit aynı mı (döngü sayısı, alan ve sınırlar) */
+function ayniKesit(a, b) {
+  if (a.length !== b.length) return false;
+  const ozet = (k) => {
+    let alan = 0;
+    let x0 = Infinity, x1 = -Infinity, z0 = Infinity, z1 = -Infinity;
+    for (const d of k) {
+      alan += d.alan;
+      for (const q of d.noktalar) {
+        x0 = Math.min(x0, q.x); x1 = Math.max(x1, q.x);
+        z0 = Math.min(z0, q.z); z1 = Math.max(z1, q.z);
+      }
+    }
+    return { alan, x0, x1, z0, z1 };
+  };
+  const p = ozet(a);
+  const q = ozet(b);
+  return (
+    Math.abs(p.alan - q.alan) <= Math.max(0.5, p.alan * 0.01) &&
+    Math.abs(p.x0 - q.x0) < 0.1 && Math.abs(p.x1 - q.x1) < 0.1 &&
+    Math.abs(p.z0 - q.z0) < 0.1 && Math.abs(p.z1 - q.z1) < 0.1
+  );
+}
+
 function pointInConvexPolygon(px, pz, poly) {
   if (!poly || poly.length < 3) return true;
   let pos = 0;
@@ -428,11 +668,28 @@ function solveInterfacePinCoords(fpLower, fpUpper, bossSizeMm) {
   });
 }
 
-function makeDfmFloorTrayAndPins(footprint, heightMm, minWallMm, dosemeMm, bottomPins, topPins, pimCapMm, yuvaCapMm, bossSizeMm, pimYukseklikMm, yuvaDerinlikMm) {
+function makeDfmFloorTrayAndPins(footprint, heightMm, minWallMm, dosemeMm, bottomPins, topPins, pimCapMm, yuvaCapMm, bossSizeMm, pimYukseklikMm, yuvaDerinlikMm, kesit, kesitKalinlik) {
   const parts = [];
 
+  // ADJY: Kat tabanı modelin kendi kesitinden (bkz. kesitDonguleri).
+  // Kesit çıkarılamazsa (kapalı olmayan ağ) eski zarf plakasına düşülür.
+  // Çevre takviye duvarı eklenmez: modelde olmayan duvar üretiyordu.
+  if (kesit && kesit.length > 0) {
+    const sekiller = kesitSekilleri(kesit, bottomPins, yuvaCapMm * 0.5);
+    for (const sekil of sekiller) {
+      const g = new THREE.ExtrudeGeometry(sekil, {
+        depth: kesitKalinlik || Math.min(dosemeMm, heightMm * 0.45),
+        bevelEnabled: false,
+        curveSegments: 24
+      });
+      g.rotateX(-Math.PI / 2);
+      parts.push(stripToPosNormal(g));
+    }
+    footprint = null;
+  }
+
   // 1. DFM Kelepçeli Alt Döşeme Plağı + >=Min_Basilir_Duvar_mm Çevre Takviye Bileziği
-  const outerPoly = insetPolygonTowardCentroid(footprint.contour, footprint.cx, footprint.cz, 0.12);
+  const outerPoly = footprint ? insetPolygonTowardCentroid(footprint.contour, footprint.cx, footprint.cz, 0.12) : [];
   if (outerPoly.length >= 3) {
     // Alt Döşeme Plağı (Alt yüzeyi Z=0 düz baskı tablası oluşturur, dişi pim delikleri açılır)
     const slabShape = new THREE.Shape();
@@ -463,7 +720,7 @@ function makeDfmFloorTrayAndPins(footprint, heightMm, minWallMm, dosemeMm, botto
     // DFM >= 1.2mm İç Çevre Duvarı Halka Takviyesi (İnce kabuklu modellerde nozul perimetre atlamasını önler)
     const innerPoly = insetPolygonTowardCentroid(outerPoly, footprint.cx, footprint.cz, minWallMm * 1.05);
     const ringH = Math.max(0, heightMm - Math.min(dosemeMm, heightMm * 0.45));
-    if (ringH > 0.2 && innerPoly.length >= 3 && Math.min(footprint.widthX, footprint.depthZ) > minWallMm * 4.2) {
+    if (false && ringH > 0.2 && innerPoly.length >= 3 && Math.min(footprint.widthX, footprint.depthZ) > minWallMm * 4.2) {
       const ringShape = new THREE.Shape();
       outerPoly.forEach((p, idx) => {
         if (idx === 0) ringShape.moveTo(p.x, -p.z);
@@ -677,11 +934,19 @@ export function buildCustomModelAssembly(customData, rawParams) {
 
   // Ardışık katlar arası ortak oturum alanına göre eş-eksenli 4× Köşe Pim Koordinatları
   const interfacePins = [];
+  const katKesitleri = [];
+  for (let k = 0; k < katSayisi; k++) {
+    katKesitleri.push(katKesitOrnekleri(posAttr, k * katYukseklikMm, (k + 1) * katYukseklikMm));
+  }
+  const pimler = (a, b) =>
+    katKesitleri[a].length && katKesitleri[b].length
+      ? gercekKesittenPimler(floorFootprints[a], floorFootprints[b], katKesitleri[a], katKesitleri[b], bossBoyutMm)
+      : solveInterfacePinCoords(floorFootprints[a], floorFootprints[b], bossBoyutMm);
   // Arayüz 0: Kademeli Baza -> Kat 1
-  interfacePins.push(solveInterfacePinCoords(floorFootprints[0], floorFootprints[0], bossBoyutMm));
+  interfacePins.push(pimler(0, 0));
   // Arayüz k: Kat k -> Kat k+1
   for (let k = 0; k < katSayisi - 1; k++) {
-    interfacePins.push(solveInterfacePinCoords(floorFootprints[k], floorFootprints[k + 1], bossBoyutMm));
+    interfacePins.push(pimler(k, k + 1));
   }
 
   // 5. Kademeli Vaziyet Bazası İnşası (00_Ozel_Vaziyet_Bazasi)
@@ -754,6 +1019,21 @@ export function buildCustomModelAssembly(customData, rawParams) {
     const topPins = k < katSayisi - 1 ? interfacePins[k + 1] : [];
 
     const slicedShell = sliceMeshBand(posAttr, y0, y1, bottomPins, yuvaCapMm * 0.52, yuvaDerinlikMm);
+
+    // Döşeme modelin taban kesitinden kurulur; kesit plaka kalınlığı
+    // içinde değişiyorsa (kademe, dönen kat) plaka orada biter, üstteki
+    // daha küçük ya da dönmüş katın dışına taşmaz.
+    const kesitPay = Math.min(0.05, katYukseklikMm * 0.01);
+    const kesitAlt = kesitDonguleri(posAttr, y0 + kesitPay);
+    const dosemeEnCok = Math.min(dosemeMm, katYukseklikMm * 0.45);
+    let dosemeKalinlik = dosemeEnCok;
+    for (const f of [0.25, 0.5, 0.75, 1]) {
+      const ust = kesitDonguleri(posAttr, y0 + Math.max(kesitPay, dosemeEnCok * f - kesitPay));
+      if (!ayniKesit(kesitAlt, ust)) {
+        dosemeKalinlik = Math.max(dosemeEnCok * 0.25, dosemeEnCok * (f - 0.25));
+        break;
+      }
+    }
     const dfmTrayParts = makeDfmFloorTrayAndPins(
       floorFootprints[k],
       katYukseklikMm,
@@ -765,7 +1045,9 @@ export function buildCustomModelAssembly(customData, rawParams) {
       yuvaCapMm,
       bossBoyutMm,
       pimYukseklikMm,
-      yuvaDerinlikMm
+      yuvaDerinlikMm,
+      kesitAlt,
+      dosemeKalinlik
     );
 
     const combinedParts = slicedShell ? [slicedShell, ...dfmTrayParts] : dfmTrayParts;
