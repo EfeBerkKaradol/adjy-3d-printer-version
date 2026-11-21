@@ -12,7 +12,8 @@
     "db:reset": "npx prisma migrate reset --force",
     "db:studio": "npx prisma studio",
     "db:seed:furniture": "npx tsx prisma/seed-furniture.ts",
-    "db:seed:tasarim": "npx tsx prisma/seed-tasarim.ts"
+    "db:seed:tasarim": "npx tsx prisma/seed-tasarim.ts",
+    "db:seed:ornek-siparis": "npx tsx prisma/seed-ornek-siparis.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",

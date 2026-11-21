@@ -56,10 +56,16 @@ import { stlVarMi, uretimDosyalari } from "./indirme";
 // siparişteki metinle karşılaştırılır. Tutmayan satır varsa
 // (araç güncellenmiş, bir alan kaldırılmış olabilir) burada
 // yazar — yanlış ölçüde bir parça basılmadan önce.
+//
+// Serbest kip: sipariş olmadan, Kendin Üret Atölyesi'nden açılır.
+// Atölye modeli kendisi ayarlar; sol panel aracın o anki
+// seçimlerini gösterir, dosyalar o anki modelden çıkar.
 // ==========================================
 
 interface Props {
   arac: TasarimAraci;
+  /** Siparişe bağlı olmadan, atölyenin kendi kurduğu model */
+  serbest?: boolean;
   siparis: {
     id: string;
     no: string;
@@ -96,7 +102,7 @@ function genislikDinle(geriCagir: () => void) {
 const DUGME =
   "inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm transition-colors disabled:opacity-40";
 
-export function UretimEkrani({ arac, siparis, kalem }: Props) {
+export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = false }: Props) {
   const { resolvedTheme } = useTheme();
   const cerceveRef = useRef<HTMLIFrameElement>(null);
   // Çerçevenin adresi ilk temayla bir kez belirlenir; tema sonradan
@@ -125,6 +131,23 @@ export function UretimEkrani({ arac, siparis, kalem }: Props) {
     { tur: "tamam"; sonuc: KayitSonucu } | { tur: "hata"; mesaj: string } | null
   >(null);
   const yuklendiRef = useRef(false);
+
+  // Serbest kipte gösterilen ve dosyalara yazılan seçimler aracın
+  // o anki hâlidir; siparişte ise müşterinin kaydı.
+  const kalem = useMemo(
+    () =>
+      serbest
+        ? {
+            ...siparisKalemi,
+            secimler: secimleriTemizle(aracPaketi?.ozet),
+            olcum: {
+              kutleG: aracPaketi?.olcum.kutleG ?? null,
+              sureSaat: aracPaketi?.olcum.sureSaat ?? null,
+            },
+          }
+        : siparisKalemi,
+    [serbest, siparisKalemi, aracPaketi]
+  );
 
   useEffect(() => {
     if (asama === "aciliyor" || !resolvedTheme) return;
@@ -170,14 +193,14 @@ export function UretimEkrani({ arac, siparis, kalem }: Props) {
   // Atölye kipinde araç üretici alanlarını da bildirir; yalnızca
   // müşterinin seçtiği satırlar karşılaştırmaya girer.
   const farklar = useMemo(() => {
-    if (asama !== "hazir" || !aracPaketi || kalem.secimler.length === 0) return [];
+    if (serbest || asama !== "hazir" || !aracPaketi || kalem.secimler.length === 0) return [];
     const simdi = new Map(
       secimleriTemizle(aracPaketi.ozet).map((s) => [s.ad, s.deger])
     );
     return kalem.secimler
       .filter((s) => simdi.has(s.ad) && simdi.get(s.ad) !== s.deger)
       .map((s) => ({ ad: s.ad, siparis: s.deger, arac: simdi.get(s.ad) ?? "" }));
-  }, [asama, aracPaketi, kalem.secimler]);
+  }, [serbest, asama, aracPaketi, kalem.secimler]);
 
   // Fiyat, müşterinin tarayıcısının bildirdiği filament miktarından
   // hesaplandı. Araç burada aynı modeli kurunca kendi ölçümünü yapar;
@@ -185,10 +208,10 @@ export function UretimEkrani({ arac, siparis, kalem }: Props) {
   const olcumFarki = useMemo(() => {
     const siparis = kalem.olcum.kutleG;
     const simdi = aracPaketi?.olcum.kutleG;
-    if (asama !== "hazir" || !siparis || !simdi) return null;
+    if (serbest || asama !== "hazir" || !siparis || !simdi) return null;
     const oran = Math.abs(simdi - siparis) / Math.max(simdi, siparis);
     return oran > 0.15 ? { siparis, simdi } : null;
-  }, [asama, aracPaketi, kalem.olcum.kutleG]);
+  }, [serbest, asama, aracPaketi, kalem.olcum.kutleG]);
 
   const indir = useCallback(
     async (cikti: TasarimCiktisi[]) => {
@@ -259,21 +282,25 @@ export function UretimEkrani({ arac, siparis, kalem }: Props) {
       {/* ---------- SİPARİŞ ---------- */}
       <header className="flex flex-wrap items-center gap-x-5 gap-y-2 border-b-2 border-dashed border-foreground/25 bg-card px-4 py-3">
         <Link
-          href={`/admin/orders/${siparis.id}`}
+          href={serbest ? "/admin/tasarim-atolyesi" : `/admin/orders/${siparis.id}`}
           className={`${DUGME} bg-muted hover:bg-accent`}
         >
           <ArrowLeft className="h-4 w-4" aria-hidden />
-          Sipariş
+          {serbest ? "Atölye" : "Sipariş"}
         </Link>
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold">
             {arac.ad}
-            <span className="ml-2 font-normal text-muted-foreground">
-              × {kalem.adet} adet
-            </span>
+            {!serbest && (
+              <span className="ml-2 font-normal text-muted-foreground">
+                × {kalem.adet} adet
+              </span>
+            )}
           </p>
           <p className="truncate font-mono text-xs text-muted-foreground">
-            {siparis.no} · {siparis.musteri} · {formatTRY(kalem.birimFiyat)}
+            {serbest
+              ? "Serbest kurulum · modeli ayarlayın, imalat dosyalarını indirin"
+              : `${siparis.no} · ${siparis.musteri} · ${formatTRY(kalem.birimFiyat)}`}
           </p>
         </div>
 
@@ -282,6 +309,11 @@ export function UretimEkrani({ arac, siparis, kalem }: Props) {
             <span className="inline-flex items-center gap-1.5 text-muted-foreground">
               <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
               {asama === "aciliyor" ? "Araç açılıyor" : "Müşterinin modeli kuruluyor"}
+            </span>
+          ) : serbest ? (
+            <span className="inline-flex items-center gap-1.5 text-brand-lime">
+              <Check className="h-3.5 w-3.5" aria-hidden />
+              Atölye kipi: bütün ayarlar açık
             </span>
           ) : farklar.length > 0 ? (
             <span className="inline-flex items-center gap-1.5 text-brand-amber">
@@ -401,7 +433,7 @@ export function UretimEkrani({ arac, siparis, kalem }: Props) {
               type="button"
               onClick={() => setPanelTercihi(!secimlerAcik)}
               aria-expanded={secimlerAcik}
-              aria-label="Müşterinin seçimlerini aç ya da kapat"
+              aria-label={serbest ? "Şu anki ayarları aç ya da kapat" : "Müşterinin seçimlerini aç ya da kapat"}
               className="inline-flex items-center gap-1.5 text-sm font-medium"
             >
               <ChevronDown
@@ -410,7 +442,7 @@ export function UretimEkrani({ arac, siparis, kalem }: Props) {
                 }`}
                 aria-hidden
               />
-              {secimlerAcik && "Müşterinin seçimleri"}
+              {secimlerAcik && (serbest ? "Şu anki ayarlar" : "Müşterinin seçimleri")}
             </button>
             {secimlerAcik && kalem.secimler.length > 0 && (
               <button
@@ -452,8 +484,8 @@ export function UretimEkrani({ arac, siparis, kalem }: Props) {
 
               {kalem.secimler.length === 0 ? (
                 <p className="text-sm leading-relaxed text-muted-foreground">
-                  Müşteri ürünü değiştirmeden ekledi. Araç varsayılan
-                  yapılandırmayla açılır; basılacak olan odur.
+                  {serbest ? "Araç açılınca ayarlar burada listelenir." : <>Müşteri ürünü değiştirmeden ekledi. Araç varsayılan
+                  yapılandırmayla açılır; basılacak olan odur.</>}
                 </p>
               ) : (
                 <dl className="space-y-2 text-sm">
@@ -496,33 +528,35 @@ export function UretimEkrani({ arac, siparis, kalem }: Props) {
               <dl className="mt-4 space-y-1 border-t-2 border-dashed border-foreground/25 pt-3 text-xs text-muted-foreground">
                 {kalem.olcum.kutleG && (
                   <div className="flex justify-between gap-3">
-                    <dt>Filament (siparişte)</dt>
+                    <dt>{serbest ? "Filament" : "Filament (siparişte)"}</dt>
                     <dd className="tabular-nums">{kalem.olcum.kutleG} g</dd>
                   </div>
                 )}
                 {kalem.olcum.sureSaat && (
                   <div className="flex justify-between gap-3">
-                    <dt>Baskı süresi (siparişte)</dt>
+                    <dt>{serbest ? "Baskı süresi" : "Baskı süresi (siparişte)"}</dt>
                     <dd className="tabular-nums">{kalem.olcum.sureSaat} saat</dd>
                   </div>
                 )}
-                {hazir && aracPaketi?.olcum.kutleG && (
+                {!serbest && hazir && aracPaketi?.olcum.kutleG && (
                   <div className="flex justify-between gap-3">
                     <dt>Filament (araçta şimdi)</dt>
                     <dd className="tabular-nums">{aracPaketi.olcum.kutleG} g</dd>
                   </div>
                 )}
-                {siparis.telefon && (
+                {!serbest && siparis.telefon && (
                   <div className="flex justify-between gap-3">
                     <dt>Telefon</dt>
                     <dd>{siparis.telefon}</dd>
                   </div>
                 )}
-                <div className="flex justify-between gap-3">
-                  <dt>E-posta</dt>
-                  <dd className="truncate">{siparis.eposta}</dd>
-                </div>
-                {siparis.not && (
+                {!serbest && (
+                  <div className="flex justify-between gap-3">
+                    <dt>E-posta</dt>
+                    <dd className="truncate">{siparis.eposta}</dd>
+                  </div>
+                )}
+                {!serbest && siparis.not && (
                   <div className="pt-1.5">
                     <dt>Sipariş notu</dt>
                     <dd className="mt-0.5 text-foreground">{siparis.not}</dd>

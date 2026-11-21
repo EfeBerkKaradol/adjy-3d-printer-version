@@ -16,6 +16,7 @@ import {
   Bot,
   Activity,
   UserCog,
+  Wrench,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +32,7 @@ const navItems = [
   { href: "/admin/ziyaretler", label: "Ziyaretler", icon: Activity },
   { href: "/admin/users", label: "Kullanıcılar", icon: UserCog },
   { href: "/admin/print-queue", label: "Baskı Kuyruğu", icon: Printer },
+  { href: "/admin/tasarim-atolyesi", label: "Kendin Üret Atölyesi", icon: Wrench },
   { href: "/admin/reports", label: "Raporlar", icon: BarChart3 },
   { href: "/admin/messages", label: "Mesajlar", icon: Mail },
   { href: "/admin/ajan", label: "Ürün Ajanı", icon: Bot },

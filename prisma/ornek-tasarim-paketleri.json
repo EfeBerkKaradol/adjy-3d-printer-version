@@ -1,0 +1,2057 @@
+{
+ "saksi": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "num-Saksi_Capi_mm": "140",
+    "rng-Saksi_Capi_mm": "140",
+    "num-Saksi_Yuksekligi_mm": "150",
+    "rng-Saksi_Yuksekligi_mm": "150",
+    "num-Alt_Tabak_Yukseklik_mm": "20",
+    "rng-Alt_Tabak_Yukseklik_mm": "20",
+    "num-Doku_Kanat_Sayisi": "24",
+    "rng-Doku_Kanat_Sayisi": "24",
+    "num-Kanat_Derinligi_mm": "4.5",
+    "rng-Kanat_Derinligi_mm": "4.5",
+    "num-Burulma_Acisi_Derece": "45",
+    "rng-Burulma_Acisi_Derece": "45",
+    "num-Cidar_Kalinligi_mm": "2",
+    "rng-Cidar_Kalinligi_mm": "2",
+    "num-Kilit_Toleransi_mm": "0.25",
+    "rng-Kilit_Toleransi_mm": "0.25",
+    "sel-material": "PLA",
+    "chk-section": false,
+    "sel-section-axis": "X",
+    "rng-section-offset": "0",
+    "inp-sale-price": "",
+    "inp-filament-kg": "480",
+    "inp-pack-cost": "22"
+   },
+   "gruplar": {
+    ".preset-row|data-preset": "M",
+    "#swatch-group|data-finish": "terracotta",
+    "#assembly-mode-group|data-asm": "assembled",
+    "#display-mode-group|data-disp": "shaded"
+   },
+   "dosyalar": {},
+   "ek": null
+  },
+  "ozet": [
+   {
+    "ad": "Renk",
+    "deger": "Pişmiş Toprak Terracotta"
+   },
+   {
+    "ad": "Saksı çapı",
+    "deger": "140 mm"
+   },
+   {
+    "ad": "Saksı yüksekliği",
+    "deger": "150 mm"
+   },
+   {
+    "ad": "Alt tabak yüksekliği",
+    "deger": "20 mm",
+    "ayrinti": true
+   },
+   {
+    "ad": "Dilim sayısı",
+    "deger": "24 adet"
+   },
+   {
+    "ad": "Dilim derinliği",
+    "deger": "4.5 mm",
+    "ayrinti": true
+   },
+   {
+    "ad": "Burgu açısı",
+    "deger": "45 °"
+   },
+   {
+    "ad": "Malzeme",
+    "deger": "Mat PLA (1.24 g/cm³)"
+   }
+  ],
+  "olcum": {
+   "kutleG": 509,
+   "sureSaat": 8.4
+  }
+ },
+ "avize": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "num-Avize_Capi_mm": "195",
+    "rng-Avize_Capi_mm": "195",
+    "num-Avize_Yuksekligi_mm": "205",
+    "rng-Avize_Yuksekligi_mm": "205",
+    "num-Isi_Tahliye_Delik_Sayisi": "8",
+    "rng-Isi_Tahliye_Delik_Sayisi": "8",
+    "material-selector": "PLA_WARM",
+    "num-Dalga_Frekansi": "2",
+    "rng-Dalga_Frekansi": "2",
+    "num-Burulma_Derecesi": "110",
+    "rng-Burulma_Derecesi": "110",
+    "num-Kanat_Sayisi": "36",
+    "rng-Kanat_Sayisi": "36",
+    "num-Cidar_Kalinligi_mm": "1.2",
+    "rng-Cidar_Kalinligi_mm": "1.2",
+    "chk-support-free-lock": true,
+    "chk-clip-enable": false,
+    "rng-clip-offset": "0",
+    "chk-light-on": true,
+    "chk-show-fixture": true,
+    "rng-light-power": "100"
+   },
+   "gruplar": {
+    ".duy-selector|data-duy": "E27_40mm"
+   },
+   "dosyalar": {},
+   "ek": null
+  },
+  "ozet": [
+   {
+    "ad": "Duy tipi",
+    "deger": "E27_40mm Standart Ø40.0 mm"
+   },
+   {
+    "ad": "Avize çapı",
+    "deger": "195 mm"
+   },
+   {
+    "ad": "Avize yüksekliği",
+    "deger": "205 mm"
+   },
+   {
+    "ad": "Malzeme",
+    "deger": "PLA Mat Sıcak Beyaz (1.24 g/cm³)"
+   },
+   {
+    "ad": "Dalga sıklığı",
+    "deger": "2 x"
+   },
+   {
+    "ad": "Burgu açısı",
+    "deger": "110 °"
+   },
+   {
+    "ad": "Dilim sayısı",
+    "deger": "36 adet",
+    "ayrinti": true
+   }
+  ],
+  "olcum": {
+   "kutleG": 216,
+   "sureSaat": 15.57
+  }
+ },
+ "kelepce-askilik": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "rng-Maks_Masa_Kalinligi_mm": "42",
+    "num-Maks_Masa_Kalinligi_mm": "42",
+    "rng-Aparat_Eni_mm": "30",
+    "num-Aparat_Eni_mm": "30",
+    "rng-Aski_Kolu_Uzunlugu_mm": "65",
+    "num-Aski_Kolu_Uzunlugu_mm": "65",
+    "rng-Alt_J_Derinlik_mm": "58",
+    "num-Alt_J_Derinlik_mm": "58",
+    "rng-Kelepce_Et_Kalinligi_mm": "10",
+    "num-Kelepce_Et_Kalinligi_mm": "10",
+    "rng-Ic_Kose_Radyus_mm": "6",
+    "num-Ic_Kose_Radyus_mm": "6",
+    "rng-Basilir_Vida_Capi_mm": "16",
+    "num-Basilir_Vida_Capi_mm": "16",
+    "rng-Dis_Bosluk_Toleransi_mm": "0.25",
+    "num-Dis_Bosluk_Toleransi_mm": "0.25",
+    "rng-Sikma_Pozisyonu_pct": "78",
+    "num-Sikma_Pozisyonu_pct": "78",
+    "chk-desk-preview": true,
+    "chk-exploded": false,
+    "num-Doluluk_Orani_pct": "40",
+    "num-Filament_Kg_Fiyati_TL": "680",
+    "sel-material": "petg",
+    "rng-clip-offset": "0"
+   },
+   "gruplar": {
+    ".arch-grid|data-style": "cift_katli_j_kanca"
+   },
+   "dosyalar": {},
+   "ek": null
+  },
+  "ozet": [
+   {
+    "ad": "Model",
+    "deger": "Üst Beşik + Alt J-Kanca"
+   },
+   {
+    "ad": "Masa kalınlığı (en fazla)",
+    "deger": "42 mm"
+   },
+   {
+    "ad": "Gövde genişliği",
+    "deger": "30 mm",
+    "ayrinti": true
+   },
+   {
+    "ad": "Askı kolu uzunluğu",
+    "deger": "65 mm"
+   },
+   {
+    "ad": "Alt kanca derinliği",
+    "deger": "58 mm"
+   },
+   {
+    "ad": "Malzeme",
+    "deger": "PETG (1.27 g/cm³ — Önerilen)"
+   }
+  ],
+  "olcum": {
+   "kutleG": 111.4,
+   "sureSaat": 2.87
+  }
+ },
+ "pcb-kutu": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "rng-pcb-en": "85",
+    "num-pcb-en": "85",
+    "rng-pcb-boy": "56",
+    "num-pcb-boy": "56",
+    "rng-ic-yukseklik": "32",
+    "num-ic-yukseklik": "32",
+    "rng-duvar": "2.4",
+    "num-duvar": "2.4",
+    "rng-kenar-mesafe": "3.5",
+    "num-kenar-mesafe": "3.5",
+    "chk-havalandirma": true,
+    "chk-usb": true,
+    "sel-usb-wall": "front",
+    "num-usb-offset": "0",
+    "sel-material": "PETG",
+    "rng-explode": "28",
+    "chk-section": false,
+    "rng-section": "0"
+   },
+   "gruplar": {
+    "#insert-type-group|data-insert": "M3"
+   },
+   "dosyalar": {},
+   "ek": {
+    "portlar": [
+     {
+      "id": "p1",
+      "preset": "DC_JACK",
+      "wall": "back",
+      "offsetMm": -18,
+      "width": 8.2,
+      "height": 8.2,
+      "zAbovePcb": 5.5,
+      "type": "circle",
+      "label": "DC Güç Ø8.2"
+     },
+     {
+      "id": "p2",
+      "preset": "SMA_ANT",
+      "wall": "back",
+      "offsetMm": 18,
+      "width": 6.5,
+      "height": 6.5,
+      "zAbovePcb": 7.5,
+      "type": "circle",
+      "label": "SMA Anten Ø6.5"
+     }
+    ]
+   }
+  },
+  "ozet": [
+   {
+    "ad": "Vida yuvası",
+    "deger": "M3 (Ø4.2)"
+   },
+   {
+    "ad": "Kart genişliği",
+    "deger": "85 mm"
+   },
+   {
+    "ad": "Kart derinliği",
+    "deger": "56 mm"
+   },
+   {
+    "ad": "İç yükseklik",
+    "deger": "32 mm"
+   },
+   {
+    "ad": "Duvar kalınlığı",
+    "deger": "2.4 mm",
+    "ayrinti": true
+   },
+   {
+    "ad": "Vida deliği kenar mesafesi",
+    "deger": "3.5 mm",
+    "ayrinti": true
+   },
+   {
+    "ad": "Havalandırma ızgarası",
+    "deger": "Evet"
+   },
+   {
+    "ad": "USB kesiti",
+    "deger": "Evet"
+   },
+   {
+    "ad": "USB duvarı",
+    "deger": "Ön Duvar (-Y)"
+   },
+   {
+    "ad": "USB kayması",
+    "deger": "0 mm"
+   },
+   {
+    "ad": "Malzeme",
+    "deger": "PETG Endüstriyel (1.27 g/cm³ · 235°C)"
+   },
+   {
+    "ad": "Yan kesit 1",
+    "deger": "DC Güç Ø8.2 — arka duvar, kayma -18 mm, 8.2 × 8.2 mm"
+   },
+   {
+    "ad": "Yan kesit 2",
+    "deger": "SMA Anten Ø6.5 — arka duvar, kayma 18 mm, 6.5 × 6.5 mm"
+   }
+  ],
+  "olcum": {
+   "kutleG": 76.3,
+   "sureSaat": 4.24
+  }
+ },
+ "litofan-lamba": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "preset-specimen-select": "galata_bosphorus",
+    "sel-wrap-mode": "framed_window",
+    "chk-invert-image": false,
+    "inp-image-contrast": "1.12",
+    "sel-smooth-pass": "1",
+    "Capi_veya_En_mm_num": "120",
+    "Capi_veya_En_mm": "120",
+    "Yukseklik_mm_num": "150",
+    "Yukseklik_mm": "150",
+    "Min_Cidar_mm_num": "0.80",
+    "Min_Cidar_mm": "0.8",
+    "Maks_Cidar_mm_num": "3.20",
+    "Maks_Cidar_mm": "3.2",
+    "Cerceve_Kalinlik_mm_num": "3.0",
+    "Cerceve_Kalinlik_mm": "3",
+    "Taban_Gecme_Toleransi_mm_num": "0.20",
+    "Taban_Gecme_Toleransi_mm": "0.2",
+    "Ic_Isik_Test_Slider_num": "78",
+    "Ic_Isik_Test_Slider": "78",
+    "sel-material": "PLA_WHITE",
+    "sel-mesh-quality": "high",
+    "sel-render-mode": "optical",
+    "sel-studio-lighting": "studio_softbox",
+    "sel-assembly-mode": "assembled",
+    "chk-show-grid": false,
+    "chk-section-cut": false,
+    "rng-section-offset": "0"
+   },
+   "gruplar": {
+    ".segmented-form|data-form": "Cylinder"
+   },
+   "dosyalar": {},
+   "ek": null
+  },
+  "ozet": [
+   {
+    "ad": "Form",
+    "deger": "Silindir 360° Silindir"
+   },
+   {
+    "ad": "Fotoğraf yerleşimi",
+    "deger": "Oran Korumalı Pencere + Flüt Sırt",
+    "ayrinti": true
+   },
+   {
+    "ad": "Kontrast",
+    "deger": "1.12",
+    "ayrinti": true
+   },
+   {
+    "ad": "Keskinlik",
+    "deger": "DFM Dengeli",
+    "ayrinti": true
+   },
+   {
+    "ad": "Çap / genişlik",
+    "deger": "120 mm"
+   },
+   {
+    "ad": "Yükseklik",
+    "deger": "150 mm"
+   },
+   {
+    "ad": "Malzeme",
+    "deger": "Beyaz Mat PLA (1.24)"
+   }
+  ],
+  "olcum": {
+   "kutleG": 250,
+   "sureSaat": 9.02
+  }
+ },
+ "nfc-qr": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "inp-qr-url": "https://menu.ornekfirma.com.tr/masa-12",
+    "inp-ust-baslik": "MENÜ & NFC",
+    "rng-taban-en-boy": "85",
+    "num-taban-en-boy": "85",
+    "rng-taban-kalinlik": "3.2",
+    "num-taban-kalinlik": "3.2",
+    "rng-qr-kabartma": "1",
+    "num-qr-kabartma": "1.0",
+    "rng-katman-yukseklik": "0.2",
+    "num-katman-yukseklik": "0.20",
+    "rng-nfc-cap": "26",
+    "num-nfc-cap": "26",
+    "rng-siparis-adedi": "100",
+    "num-siparis-adedi": "100",
+    "rng-tabla-boyutu": "220",
+    "num-tabla-boyutu": "220",
+    "rng-kose-radyus": "7",
+    "num-kose-radyus": "7",
+    "sel-border-style": "Kabartma_Cerceve",
+    "sel-lug-pos": "Yok",
+    "sel-layout": "Cift_Satir_Simetrik",
+    "inp-ust-baslik-2": "MENÜ & NFC",
+    "inp-alt-metin": "TELEFONU YAKLAŞTIR",
+    "sel-font": "Kalin_Tabela",
+    "sel-align": "Orta",
+    "sel-icon": "Kahve_Fincan",
+    "sel-icon-pos": "Baslik_Solu",
+    "sel-material": "PLA",
+    "clr-custom-base": "#17181c",
+    "clr-custom-emboss": "#f4f1ea",
+    "rng-qr-scale": "84",
+    "num-qr-scale": "84",
+    "rng-qr-off-x": "0",
+    "num-qr-off-x": "0",
+    "rng-qr-off-y": "0",
+    "num-qr-off-y": "0",
+    "rng-txt-scale": "108",
+    "num-txt-scale": "108",
+    "rng-txt-off-x": "0",
+    "num-txt-off-x": "0",
+    "rng-txt-off-y": "0",
+    "num-txt-off-y": "0",
+    "sel-clip-axis": "none",
+    "rng-clip-offset": "2"
+   },
+   "gruplar": {
+    ".preset-grid|data-preset": "cafe_arch",
+    "#seg-urun-tipi|data-val": "Angled_Stand",
+    "#shape-selector-grid|data-shape": "Kemer_Stand",
+    "#seg-aspect|data-aspect": "3:4"
+   },
+   "dosyalar": {},
+   "ek": null
+  },
+  "ozet": [
+   {
+    "ad": "Ürün tipi",
+    "deger": "Masa standı"
+   },
+   {
+    "ad": "Gövde şekli",
+    "deger": "Kemerli Stand"
+   },
+   {
+    "ad": "Oran",
+    "deger": "3:4 Dikey",
+    "ayrinti": true
+   },
+   {
+    "ad": "QR bağlantısı",
+    "deger": "https://menu.ornekfirma.com.tr/masa-12"
+   },
+   {
+    "ad": "Üst başlık",
+    "deger": "MENÜ & NFC"
+   },
+   {
+    "ad": "Plaka ölçüsü",
+    "deger": "85 mm"
+   },
+   {
+    "ad": "Köşe yuvarlaklığı",
+    "deger": "7 mm",
+    "ayrinti": true
+   },
+   {
+    "ad": "Çerçeve",
+    "deger": "Kabartma Çerçeve (M600 Kontrast)",
+    "ayrinti": true
+   },
+   {
+    "ad": "Askı halkası",
+    "deger": "Deliksiz (Stand / Masaüstü Etiket)",
+    "ayrinti": true
+   },
+   {
+    "ad": "Yerleşim",
+    "deger": "Çift Satır (Üst Başlık + QR + Alt Metin)",
+    "ayrinti": true
+   },
+   {
+    "ad": "Alt metin",
+    "deger": "TELEFONU YAKLAŞTIR"
+   },
+   {
+    "ad": "Yazı tipi",
+    "deger": "Kalın Tabela (Maks. Okunurluk)",
+    "ayrinti": true
+   },
+   {
+    "ad": "Hizalama",
+    "deger": "Ortala",
+    "ayrinti": true
+   },
+   {
+    "ad": "Simge",
+    "deger": "Kahve / Kafe"
+   },
+   {
+    "ad": "Simge konumu",
+    "deger": "Başlık Yanı"
+   },
+   {
+    "ad": "Malzeme",
+    "deger": "PLA Mat / Pro (1.24 g/cm³)",
+    "ayrinti": true
+   },
+   {
+    "ad": "Gövde rengi",
+    "deger": "#17181c",
+    "ayrinti": true
+   },
+   {
+    "ad": "Kabartma rengi",
+    "deger": "#f4f1ea",
+    "ayrinti": true
+   },
+   {
+    "ad": "QR boyutu",
+    "deger": "84 %",
+    "ayrinti": true
+   },
+   {
+    "ad": "QR yatay konum",
+    "deger": "0 mm",
+    "ayrinti": true
+   },
+   {
+    "ad": "QR dikey konum",
+    "deger": "0 mm",
+    "ayrinti": true
+   },
+   {
+    "ad": "Yazı boyutu",
+    "deger": "108 %",
+    "ayrinti": true
+   },
+   {
+    "ad": "Yazı yatay konum",
+    "deger": "0 mm",
+    "ayrinti": true
+   },
+   {
+    "ad": "Yazı dikey konum",
+    "deger": "0 mm",
+    "ayrinti": true
+   }
+  ],
+  "olcum": {
+   "kutleG": 35.7,
+   "sureSaat": 0.84
+  }
+ },
+ "lazer-uv-fikstur": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "num_Urun_En_mm": "54",
+    "rng_Urun_En_mm": "54",
+    "num_Urun_Boy_mm": "85.6",
+    "rng_Urun_Boy_mm": "85.6",
+    "num_Urun_Kalinligi_mm": "0.8",
+    "rng_Urun_Kalinligi_mm": "0.8",
+    "num_Satir_Adedi": "2",
+    "rng_Satir_Adedi": "2",
+    "num_Sutun_Adedi": "3",
+    "rng_Sutun_Adedi": "3",
+    "chk_Parmak_Alma_Oyugu": true,
+    "num_Yuva_Derinligi_mm": "3.5",
+    "rng_Yuva_Derinligi_mm": "3.5",
+    "num_Yuva_Bosluk_Payi_mm": "0.25",
+    "rng_Yuva_Bosluk_Payi_mm": "0.25",
+    "num_Taban_Kalinligi_mm": "3.5",
+    "rng_Taban_Kalinligi_mm": "3.5",
+    "num_Ara_Duvar_mm": "8",
+    "rng_Ara_Duvar_mm": "8",
+    "sel_Malzeme": "PETG_CF",
+    "selCustomUnitScale": "1",
+    "chkShowLoadedParts": true,
+    "chkShowBreadboard": true,
+    "chkShowFocusPlane": false,
+    "rngExplode": "0",
+    "selClipAxis": "none",
+    "rngClipOffset": "0"
+   },
+   "gruplar": {
+    ".shape-segmented|data-shape": "Rect_Card",
+    ".pitch-segmented|data-grid": "25",
+    ".cm-mode-pills|data-cmpocket": "silhouette"
+   },
+   "dosyalar": {},
+   "ek": null
+  },
+  "ozet": [
+   {
+    "ad": "Ürün şekli",
+    "deger": "Dikdörtgen Kart"
+   },
+   {
+    "ad": "Masa delik aralığı (mm)",
+    "deger": "25 mm M6 Galvo Fiber Lazer Tabla",
+    "ayrinti": true
+   },
+   {
+    "ad": "Ürün eni",
+    "deger": "54 mm"
+   },
+   {
+    "ad": "Ürün boyu",
+    "deger": "85.6 mm"
+   },
+   {
+    "ad": "Ürün kalınlığı",
+    "deger": "0.8 mm"
+   },
+   {
+    "ad": "Satır",
+    "deger": "2"
+   },
+   {
+    "ad": "Sütun",
+    "deger": "3"
+   },
+   {
+    "ad": "Parmak oyuğu",
+    "deger": "Evet",
+    "ayrinti": true
+   },
+   {
+    "ad": "Malzeme",
+    "deger": "PETG-CF Mat Siyah (1.29 g/cm³ — Lazer Yansımasız)"
+   }
+  ],
+  "olcum": {
+   "kutleG": 222.2,
+   "sureSaat": 6.83
+  }
+ },
+ "mimari-maket": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "Maket_Olcegi": "200",
+    "Bina_En_m_range": "24",
+    "Bina_En_m": "24",
+    "Bina_Boy_m_range": "36",
+    "Bina_Boy_m": "36",
+    "Kat_Sayisi_range": "8",
+    "Kat_Sayisi": "8",
+    "Kat_Yuksekligi_m_range": "3.4",
+    "Kat_Yuksekligi_m": "3.4",
+    "Balkon_Cikma_m_range": "1.5",
+    "Balkon_Cikma_m": "1.5",
+    "Pencere_Orani_Yuzde_range": "45",
+    "Pencere_Orani_Yuzde": "45",
+    "Min_Basilir_Duvar_mm_range": "1.2",
+    "Min_Basilir_Duvar_mm": "1.2",
+    "Kat_Pim_Toleransi_mm_range": "0.2",
+    "Kat_Pim_Toleransi_mm": "0.2",
+    "custom-unit-select": "auto",
+    "chk-custom-zup": false,
+    "finish-appearance-select": "plaster",
+    "chk-pin-axes": true,
+    "explode-range": "38",
+    "clip-offset-range": "0",
+    "quote-material-select": "PLA_ARCH_WHITE",
+    "quote-finish-select": "YARISMA"
+   },
+   "gruplar": {
+    ".scale-segmented|data-scale": "200",
+    "#example-cards-strip|data-example": "konut_200"
+   },
+   "dosyalar": {},
+   "ek": null
+  },
+  "ozet": [
+   {
+    "ad": "Maket ölçeği",
+    "deger": "1:200"
+   },
+   {
+    "ad": "Bina eni",
+    "deger": "24 m"
+   },
+   {
+    "ad": "Bina boyu",
+    "deger": "36 m"
+   },
+   {
+    "ad": "Kat sayısı",
+    "deger": "8 kat"
+   },
+   {
+    "ad": "Kat yüksekliği",
+    "deger": "3.4 m",
+    "ayrinti": true
+   },
+   {
+    "ad": "Balkon çıkması",
+    "deger": "1.5 m",
+    "ayrinti": true
+   },
+   {
+    "ad": "Pencere oranı",
+    "deger": "45 %",
+    "ayrinti": true
+   }
+  ],
+  "olcum": {
+   "kutleG": 660.2,
+   "sureSaat": 17
+  }
+ },
+ "moduler-dolap": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {},
+   "gruplar": {},
+   "dosyalar": {},
+   "ek": {
+    "name": "ADJY",
+    "activeRoomId": "ODA_01_Mutfak",
+    "Oda_Kabuk_Tipi": "L_Kose_Kesit",
+    "Maket_Olcegi": 25,
+    "Oda_En_mm": 148,
+    "Oda_Boy_mm": 124,
+    "Duvar_Yukseklik_mm": 104,
+    "Min_Et_Kalinligi_mm": 1.6,
+    "Baski_Gecme_Toleransi_mm": 0.2,
+    "Maks_Tabla_Boyutu_mm": 220,
+    "roomsData": {
+     "ODA_01_Mutfak": [
+      {
+       "id": "m_k1",
+       "type": "Mutfak_Boy_Kiler_Kulesi",
+       "x": -53,
+       "y": 0,
+       "z": -46,
+       "rotDeg": 0,
+       "w": 26,
+       "d": 25,
+       "h": 86,
+       "bays": 1,
+       "shelves": 4,
+       "frontStyle": "flat",
+       "baseStyle": "plinth",
+       "hasExtra": true,
+       "splitTop": false
+      },
+      {
+       "id": "m_k2",
+       "type": "Mutfak_Evye_Modulu",
+       "x": -20,
+       "y": 0,
+       "z": -46,
+       "rotDeg": 0,
+       "w": 40,
+       "d": 24,
+       "h": 35,
+       "bays": 2,
+       "shelves": 1,
+       "frontStyle": "shaker",
+       "baseStyle": "plinth",
+       "hasExtra": true,
+       "splitTop": true
+      },
+      {
+       "id": "m_k3",
+       "type": "Mutfak_Cekmece_Modulu",
+       "x": 14,
+       "y": 0,
+       "z": -46,
+       "rotDeg": 0,
+       "w": 28,
+       "d": 24,
+       "h": 35,
+       "bays": 1,
+       "shelves": 3,
+       "frontStyle": "shaker",
+       "baseStyle": "plinth",
+       "hasExtra": true,
+       "splitTop": true
+      },
+      {
+       "id": "m_k4",
+       "type": "Mutfak_Ocak_Firin_Modulu",
+       "x": 44,
+       "y": 0,
+       "z": -46,
+       "rotDeg": 0,
+       "w": 32,
+       "d": 24,
+       "h": 35,
+       "bays": 1,
+       "shelves": 2,
+       "frontStyle": "flat",
+       "baseStyle": "plinth",
+       "hasExtra": true,
+       "splitTop": true
+      },
+      {
+       "id": "m_k5",
+       "type": "Mutfak_Ust_Duvar_Dolabi",
+       "x": -3,
+       "y": 56,
+       "z": -51,
+       "rotDeg": 0,
+       "w": 68,
+       "d": 14,
+       "h": 28,
+       "bays": 4,
+       "shelves": 2,
+       "frontStyle": "shaker",
+       "baseStyle": "wall_cleat",
+       "hasExtra": true,
+       "splitTop": false
+      },
+      {
+       "id": "m_k6",
+       "type": "Mutfak_Ada_Bar",
+       "x": 6,
+       "y": 0,
+       "z": 16,
+       "rotDeg": 180,
+       "w": 58,
+       "d": 32,
+       "h": 36,
+       "bays": 3,
+       "shelves": 2,
+       "frontStyle": "fluted",
+       "baseStyle": "plinth",
+       "hasExtra": true,
+       "splitTop": true
+      }
+     ],
+     "ODA_02_Salon_Sehpa": [
+      {
+       "id": "m_s1",
+       "type": "Dolap_TV_Konsol",
+       "x": 8,
+       "y": 0,
+       "z": -55,
+       "rotDeg": 0,
+       "w": 76,
+       "d": 18,
+       "h": 22,
+       "bays": 4,
+       "shelves": 1,
+       "frontStyle": "fluted",
+       "baseStyle": "taper45",
+       "hasExtra": true,
+       "splitTop": true
+      },
+      {
+       "id": "m_s2",
+       "type": "Dolap_Kitaplik_Raf",
+       "x": -56,
+       "y": 0,
+       "z": -48,
+       "rotDeg": 0,
+       "w": 34,
+       "d": 16,
+       "h": 82,
+       "bays": 2,
+       "shelves": 4,
+       "frontStyle": "open",
+       "baseStyle": "plinth",
+       "hasExtra": true,
+       "splitTop": false
+      },
+      {
+       "id": "m_s3",
+       "type": "Sehpa_Orta_Tabla",
+       "x": 8,
+       "y": 0,
+       "z": -2,
+       "rotDeg": 0,
+       "w": 44,
+       "d": 26,
+       "h": 17,
+       "bays": 2,
+       "shelves": 1,
+       "frontStyle": "fluted",
+       "baseStyle": "sled",
+       "hasExtra": true,
+       "splitTop": true
+      },
+      {
+       "id": "m_s4",
+       "type": "Sehpa_Zigon_3lu",
+       "x": 54,
+       "y": 0,
+       "z": -4,
+       "rotDeg": 270,
+       "w": 24,
+       "d": 18,
+       "h": 21,
+       "bays": 3,
+       "shelves": 0,
+       "frontStyle": "flat",
+       "baseStyle": "sled",
+       "hasExtra": true,
+       "splitTop": true
+      },
+      {
+       "id": "m_s5",
+       "type": "Sehpa_Yan_Komodin_C",
+       "x": -46,
+       "y": 0,
+       "z": 24,
+       "rotDeg": 90,
+       "w": 18,
+       "d": 18,
+       "h": 23,
+       "bays": 1,
+       "shelves": 1,
+       "frontStyle": "flat",
+       "baseStyle": "sled",
+       "hasExtra": false,
+       "splitTop": true
+      },
+      {
+       "id": "m_s6",
+       "type": "Tefris_Moduler_Koltuk",
+       "x": 6,
+       "y": 0,
+       "z": 40,
+       "rotDeg": 180,
+       "w": 78,
+       "d": 34,
+       "h": 29,
+       "bays": 3,
+       "shelves": 0,
+       "frontStyle": "flat",
+       "baseStyle": "taper45",
+       "hasExtra": true,
+       "splitTop": false
+      }
+     ],
+     "ODA_03_Yatak_Gardirop": [
+      {
+       "id": "m_y1",
+       "type": "Dolap_Surgulu_Gardirop",
+       "x": -8,
+       "y": 0,
+       "z": -51,
+       "rotDeg": 0,
+       "w": 76,
+       "d": 25,
+       "h": 88,
+       "bays": 3,
+       "shelves": 4,
+       "frontStyle": "sliding",
+       "baseStyle": "plinth",
+       "hasExtra": true,
+       "splitTop": false
+      },
+      {
+       "id": "m_y2",
+       "type": "Dolap_Sifonyer_Bufe",
+       "x": 52,
+       "y": 0,
+       "z": -53,
+       "rotDeg": 0,
+       "w": 36,
+       "d": 20,
+       "h": 36,
+       "bays": 2,
+       "shelves": 3,
+       "frontStyle": "fluted",
+       "baseStyle": "taper45",
+       "hasExtra": true,
+       "splitTop": true
+      },
+      {
+       "id": "m_y3",
+       "type": "Tefris_Calisma_Masasi_Yatak",
+       "x": -24,
+       "y": 0,
+       "z": 18,
+       "rotDeg": 90,
+       "w": 66,
+       "d": 76,
+       "h": 34,
+       "bays": 2,
+       "shelves": 1,
+       "frontStyle": "shaker",
+       "baseStyle": "plinth",
+       "hasExtra": true,
+       "splitTop": false
+      },
+      {
+       "id": "m_y4",
+       "type": "Sehpa_Yan_Komodin_C",
+       "x": -60,
+       "y": 0,
+       "z": -26,
+       "rotDeg": 90,
+       "w": 20,
+       "d": 18,
+       "h": 22,
+       "bays": 1,
+       "shelves": 2,
+       "frontStyle": "fluted",
+       "baseStyle": "taper45",
+       "hasExtra": true,
+       "splitTop": true
+      },
+      {
+       "id": "m_y5",
+       "type": "Sehpa_Yan_Komodin_C",
+       "x": -60,
+       "y": 0,
+       "z": 54,
+       "rotDeg": 90,
+       "w": 20,
+       "d": 18,
+       "h": 22,
+       "bays": 1,
+       "shelves": 2,
+       "frontStyle": "fluted",
+       "baseStyle": "taper45",
+       "hasExtra": true,
+       "splitTop": true
+      }
+     ],
+     "ODA_04_Giyinme_Dolap": [
+      {
+       "id": "m_g1",
+       "type": "Dolap_Acik_Giyinme",
+       "x": 0,
+       "y": 0,
+       "z": -48,
+       "rotDeg": 0,
+       "w": 84,
+       "d": 23,
+       "h": 88,
+       "bays": 4,
+       "shelves": 4,
+       "frontStyle": "open",
+       "baseStyle": "plinth",
+       "hasExtra": true,
+       "splitTop": false
+      },
+      {
+       "id": "m_g2",
+       "type": "Dolap_Acik_Giyinme",
+       "x": -54,
+       "y": 0,
+       "z": 8,
+       "rotDeg": 90,
+       "w": 72,
+       "d": 22,
+       "h": 88,
+       "bays": 3,
+       "shelves": 4,
+       "frontStyle": "open",
+       "baseStyle": "plinth",
+       "hasExtra": true,
+       "splitTop": false
+      },
+      {
+       "id": "m_g3",
+       "type": "Dolap_Menteseli_Gardirop",
+       "x": 54,
+       "y": 0,
+       "z": 8,
+       "rotDeg": 270,
+       "w": 72,
+       "d": 22,
+       "h": 88,
+       "bays": 3,
+       "shelves": 4,
+       "frontStyle": "fluted",
+       "baseStyle": "plinth",
+       "hasExtra": true,
+       "splitTop": false
+      },
+      {
+       "id": "m_g4",
+       "type": "Sehpa_Orta_Tabla",
+       "x": 0,
+       "y": 0,
+       "z": 12,
+       "rotDeg": 0,
+       "w": 38,
+       "d": 24,
+       "h": 19,
+       "bays": 2,
+       "shelves": 2,
+       "frontStyle": "shaker",
+       "baseStyle": "plinth",
+       "hasExtra": true,
+       "splitTop": true
+      }
+     ],
+     "ODA_05_Calisma_Kitaplik": [
+      {
+       "id": "m_c1",
+       "type": "Dolap_Kitaplik_Raf",
+       "x": -16,
+       "y": 0,
+       "z": -47,
+       "rotDeg": 0,
+       "w": 68,
+       "d": 16,
+       "h": 84,
+       "bays": 4,
+       "shelves": 5,
+       "frontStyle": "open",
+       "baseStyle": "plinth",
+       "hasExtra": true,
+       "splitTop": false
+      },
+      {
+       "id": "m_c2",
+       "type": "Dolap_Menteseli_Gardirop",
+       "x": 42,
+       "y": 0,
+       "z": -45,
+       "rotDeg": 0,
+       "w": 38,
+       "d": 20,
+       "h": 84,
+       "bays": 2,
+       "shelves": 4,
+       "frontStyle": "flat",
+       "baseStyle": "plinth",
+       "hasExtra": false,
+       "splitTop": false
+      },
+      {
+       "id": "m_c3",
+       "type": "Tefris_Calisma_Masasi_Yatak",
+       "x": -34,
+       "y": 0,
+       "z": 10,
+       "rotDeg": 90,
+       "w": 62,
+       "d": 28,
+       "h": 30,
+       "bays": 1,
+       "shelves": 3,
+       "frontStyle": "flat",
+       "baseStyle": "sled",
+       "hasExtra": false,
+       "splitTop": true
+      },
+      {
+       "id": "m_c4",
+       "type": "Sehpa_Zigon_3lu",
+       "x": 34,
+       "y": 0,
+       "z": 22,
+       "rotDeg": 0,
+       "w": 22,
+       "d": 17,
+       "h": 20,
+       "bays": 3,
+       "shelves": 0,
+       "frontStyle": "flat",
+       "baseStyle": "sled",
+       "hasExtra": true,
+       "splitTop": true
+      }
+     ],
+     "ODA_06_Banyo_Camasir": [
+      {
+       "id": "m_b1",
+       "type": "Dolap_Banyo_Lavabo",
+       "x": -8,
+       "y": 12,
+       "z": -38,
+       "rotDeg": 0,
+       "w": 48,
+       "d": 21,
+       "h": 24,
+       "bays": 2,
+       "shelves": 2,
+       "frontStyle": "fluted",
+       "baseStyle": "wall_cleat",
+       "hasExtra": true,
+       "splitTop": true
+      },
+      {
+       "id": "m_b2",
+       "type": "Mutfak_Boy_Kiler_Kulesi",
+       "x": 34,
+       "y": 0,
+       "z": -37,
+       "rotDeg": 0,
+       "w": 26,
+       "d": 23,
+       "h": 84,
+       "bays": 1,
+       "shelves": 4,
+       "frontStyle": "fluted",
+       "baseStyle": "plinth",
+       "hasExtra": true,
+       "splitTop": false
+      },
+      {
+       "id": "m_b3",
+       "type": "Dolap_Sifonyer_Bufe",
+       "x": -42,
+       "y": 0,
+       "z": 12,
+       "rotDeg": 90,
+       "w": 42,
+       "d": 22,
+       "h": 35,
+       "bays": 2,
+       "shelves": 2,
+       "frontStyle": "flat",
+       "baseStyle": "plinth",
+       "hasExtra": false,
+       "splitTop": true
+      }
+     ],
+     "ODA_07_Tekil_Modul": [
+      {
+       "id": "m_t1",
+       "type": "Mutfak_Evye_Modulu",
+       "x": -28,
+       "y": 0,
+       "z": 0,
+       "rotDeg": 0,
+       "w": 48,
+       "d": 28,
+       "h": 42,
+       "bays": 2,
+       "shelves": 1,
+       "frontStyle": "shaker",
+       "baseStyle": "plinth",
+       "hasExtra": true,
+       "splitTop": true
+      },
+      {
+       "id": "m_t2",
+       "type": "Sehpa_Zigon_3lu",
+       "x": 32,
+       "y": 0,
+       "z": 4,
+       "rotDeg": 0,
+       "w": 28,
+       "d": 22,
+       "h": 25,
+       "bays": 3,
+       "shelves": 0,
+       "frontStyle": "flat",
+       "baseStyle": "sled",
+       "hasExtra": true,
+       "splitTop": true
+      }
+     ]
+    },
+    "bodyFinish": "mese",
+    "topFinish": "ceviz",
+    "Duvar_Pencere_ve_Ray": true,
+    "Oda_Birlestirme_Kilidi": true,
+    "ozelModeller": []
+   }
+  },
+  "ozet": [
+   {
+    "ad": "Oda",
+    "deger": "Mutfak Odası"
+   },
+   {
+    "ad": "Maket ölçeği",
+    "deger": "1:25"
+   },
+   {
+    "ad": "Modül sayısı",
+    "deger": "6"
+   },
+   {
+    "ad": "Oda ölçüsü (baskı)",
+    "deger": "148 × 124 × 104 mm",
+    "ayrinti": true
+   },
+   {
+    "ad": "Oda kabuğu",
+    "deger": "L Kose Kesit",
+    "ayrinti": true
+   },
+   {
+    "ad": "Gövde yüzeyi",
+    "deger": "Doğal Meşe"
+   },
+   {
+    "ad": "Tezgâh yüzeyi",
+    "deger": "Ceviz / Bronz"
+   },
+   {
+    "ad": "Modül 1",
+    "deger": "Boy Kiler & Buzdolabı Dolabı — 26 × 25 × 86 mm, 1 göz, 4 raf, ön: flat, taban: plinth, konum x-53 z-46, dönüş 0°",
+    "ayrinti": true
+   },
+   {
+    "ad": "Modül 2",
+    "deger": "Evyeli Mutfak Dolabı — 40 × 24 × 35 mm, 2 göz, 1 raf, ön: shaker, taban: plinth, konum x-20 z-46, dönüş 0°",
+    "ayrinti": true
+   },
+   {
+    "ad": "Modül 3",
+    "deger": "Çekmeceli Alt Mutfak Modülü — 28 × 24 × 35 mm, 1 göz, 3 raf, ön: shaker, taban: plinth, konum x14 z-46, dönüş 0°",
+    "ayrinti": true
+   },
+   {
+    "ad": "Modül 4",
+    "deger": "Ankastre Ocak & Fırın Modülü — 32 × 24 × 35 mm, 1 göz, 2 raf, ön: flat, taban: plinth, konum x44 z-46, dönüş 0°",
+    "ayrinti": true
+   },
+   {
+    "ad": "Modül 5",
+    "deger": "Duvara Geçmeli Üst Mutfak Dolabı — 68 × 14 × 28 mm, 4 göz, 2 raf, ön: shaker, taban: wall_cleat, konum x-3 z-51, dönüş 0°",
+    "ayrinti": true
+   },
+   {
+    "ad": "Modül 6",
+    "deger": "Modüler Mutfak Adası & Bar — 58 × 32 × 36 mm, 3 göz, 2 raf, ön: fluted, taban: plinth, konum x6 z16, dönüş 180°",
+    "ayrinti": true
+   }
+  ],
+  "olcum": {
+   "kutleG": 288.2,
+   "sureSaat": 6.32
+  }
+ },
+ "organizator": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {},
+   "gruplar": {},
+   "dosyalar": {},
+   "ek": {
+    "sys": 1,
+    "olcu": {
+     "U": 42,
+     "maxPlate": 252,
+     "strategy": "Dengeli_Bolme",
+     "W": 594,
+     "D": 482,
+     "H": 42,
+     "tol": 0.2
+    },
+    "oto": true,
+    "kutular": [
+     {
+      "x": 0,
+      "y": 0,
+      "w": 2,
+      "d": 2,
+      "div": 2
+     },
+     {
+      "x": 2,
+      "y": 0,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 3,
+      "y": 0,
+      "w": 1,
+      "d": 2,
+      "div": 1
+     },
+     {
+      "x": 4,
+      "y": 0,
+      "w": 3,
+      "d": 1,
+      "div": 3
+     },
+     {
+      "x": 7,
+      "y": 0,
+      "w": 2,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 9,
+      "y": 0,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 10,
+      "y": 0,
+      "w": 2,
+      "d": 3,
+      "div": 2
+     },
+     {
+      "x": 12,
+      "y": 0,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 13,
+      "y": 0,
+      "w": 1,
+      "d": 3,
+      "div": 1
+     },
+     {
+      "x": 2,
+      "y": 1,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 4,
+      "y": 1,
+      "w": 1,
+      "d": 2,
+      "div": 1
+     },
+     {
+      "x": 5,
+      "y": 1,
+      "w": 3,
+      "d": 1,
+      "div": 3
+     },
+     {
+      "x": 8,
+      "y": 1,
+      "w": 2,
+      "d": 1,
+      "div": 2
+     },
+     {
+      "x": 12,
+      "y": 1,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 0,
+      "y": 2,
+      "w": 2,
+      "d": 3,
+      "div": 1
+     },
+     {
+      "x": 2,
+      "y": 2,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 3,
+      "y": 2,
+      "w": 1,
+      "d": 3,
+      "div": 1
+     },
+     {
+      "x": 5,
+      "y": 2,
+      "w": 2,
+      "d": 2,
+      "div": 1
+     },
+     {
+      "x": 7,
+      "y": 2,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 8,
+      "y": 2,
+      "w": 1,
+      "d": 2,
+      "div": 1
+     },
+     {
+      "x": 9,
+      "y": 2,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 12,
+      "y": 2,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 2,
+      "y": 3,
+      "w": 1,
+      "d": 3,
+      "div": 1
+     },
+     {
+      "x": 4,
+      "y": 3,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 7,
+      "y": 3,
+      "w": 1,
+      "d": 2,
+      "div": 1
+     },
+     {
+      "x": 9,
+      "y": 3,
+      "w": 3,
+      "d": 1,
+      "div": 3
+     },
+     {
+      "x": 12,
+      "y": 3,
+      "w": 2,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 4,
+      "y": 4,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 5,
+      "y": 4,
+      "w": 2,
+      "d": 3,
+      "div": 1
+     },
+     {
+      "x": 8,
+      "y": 4,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 9,
+      "y": 4,
+      "w": 2,
+      "d": 1,
+      "div": 2
+     },
+     {
+      "x": 11,
+      "y": 4,
+      "w": 1,
+      "d": 3,
+      "div": 1
+     },
+     {
+      "x": 12,
+      "y": 4,
+      "w": 2,
+      "d": 2,
+      "div": 1
+     },
+     {
+      "x": 0,
+      "y": 5,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 1,
+      "y": 5,
+      "w": 1,
+      "d": 2,
+      "div": 1
+     },
+     {
+      "x": 3,
+      "y": 5,
+      "w": 2,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 7,
+      "y": 5,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 8,
+      "y": 5,
+      "w": 2,
+      "d": 3,
+      "div": 1
+     },
+     {
+      "x": 10,
+      "y": 5,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 0,
+      "y": 6,
+      "w": 1,
+      "d": 3,
+      "div": 1
+     },
+     {
+      "x": 2,
+      "y": 6,
+      "w": 2,
+      "d": 2,
+      "div": 1
+     },
+     {
+      "x": 4,
+      "y": 6,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 7,
+      "y": 6,
+      "w": 1,
+      "d": 2,
+      "div": 1
+     },
+     {
+      "x": 10,
+      "y": 6,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 12,
+      "y": 6,
+      "w": 2,
+      "d": 3,
+      "div": 1
+     },
+     {
+      "x": 1,
+      "y": 7,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 4,
+      "y": 7,
+      "w": 2,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 6,
+      "y": 7,
+      "w": 1,
+      "d": 3,
+      "div": 1
+     },
+     {
+      "x": 10,
+      "y": 7,
+      "w": 2,
+      "d": 2,
+      "div": 2
+     },
+     {
+      "x": 1,
+      "y": 8,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 2,
+      "y": 8,
+      "w": 1,
+      "d": 2,
+      "div": 1
+     },
+     {
+      "x": 3,
+      "y": 8,
+      "w": 3,
+      "d": 1,
+      "div": 3
+     },
+     {
+      "x": 7,
+      "y": 8,
+      "w": 2,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 9,
+      "y": 8,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 0,
+      "y": 9,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 1,
+      "y": 9,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 3,
+      "y": 9,
+      "w": 1,
+      "d": 2,
+      "div": 1
+     },
+     {
+      "x": 4,
+      "y": 9,
+      "w": 2,
+      "d": 1,
+      "div": 2
+     },
+     {
+      "x": 7,
+      "y": 9,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 8,
+      "y": 9,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 9,
+      "y": 9,
+      "w": 2,
+      "d": 1,
+      "div": 2
+     },
+     {
+      "x": 11,
+      "y": 9,
+      "w": 2,
+      "d": 2,
+      "div": 1
+     },
+     {
+      "x": 13,
+      "y": 9,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 0,
+      "y": 10,
+      "w": 3,
+      "d": 1,
+      "div": 3
+     },
+     {
+      "x": 4,
+      "y": 10,
+      "w": 2,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 6,
+      "y": 10,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 7,
+      "y": 10,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 8,
+      "y": 10,
+      "w": 2,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 10,
+      "y": 10,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     },
+     {
+      "x": 13,
+      "y": 10,
+      "w": 1,
+      "d": 1,
+      "div": 1
+     }
+    ]
+   }
+  },
+  "ozet": [
+   {
+    "ad": "Ürün",
+    "deger": "Çekmece organizeri"
+   },
+   {
+    "ad": "Çekmece iç ölçüsü",
+    "deger": "594 × 482 mm"
+   },
+   {
+    "ad": "Kutu yüksekliği",
+    "deger": "42 mm"
+   },
+   {
+    "ad": "Kutu sayısı",
+    "deger": "70"
+   },
+   {
+    "ad": "Hücre boyu",
+    "deger": "42 mm",
+    "ayrinti": true
+   },
+   {
+    "ad": "Izgara",
+    "deger": "14 × 11 hücre",
+    "ayrinti": true
+   },
+   {
+    "ad": "Kutu dökümü (hücre: adet)",
+    "deger": "1×1: 29, 1×2: 8, 1×3: 6, 2×1: 11, 2×2: 6, 2×3: 5, 3×1: 5",
+    "ayrinti": true
+   },
+   {
+    "ad": "İç bölmeli kutu",
+    "deger": "12 adet",
+    "ayrinti": true
+   }
+  ],
+  "olcum": {
+   "kutleG": 2816.91,
+   "sureSaat": 56.49
+  }
+ },
+ "araba-yolu": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "hw-tip": "duz",
+    "hw-uzunluk": "200",
+    "hw-yaricap": "120",
+    "hw-aci": "90",
+    "hw-cap": "200",
+    "hw-yukselme": "0",
+    "hw-inis": "cik",
+    "hw-egim": "0",
+    "hw-korkuluk": "0",
+    "hw-yon": "sol",
+    "hw-duvar": "11",
+    "hw-baglanti": "hw",
+    "hw-baglayici": true,
+    "hw-yedek": "2",
+    "hw-ayak": true,
+    "hw-renk": "turuncu",
+    "hw-genislik": "41.3",
+    "hw-taban": "1.6",
+    "hw-cidar": "1.6",
+    "hw-delik": "3.4",
+    "hw-aralik": "6",
+    "hw-tolerans": "0.25"
+   },
+   "gruplar": {},
+   "dosyalar": {},
+   "ek": {
+    "yol": [
+     {
+      "hw-tip": "duz",
+      "hw-uzunluk": "200",
+      "hw-yaricap": "120",
+      "hw-aci": "90",
+      "hw-cap": "200",
+      "hw-yukselme": "0",
+      "hw-inis": "cik",
+      "hw-egim": "0",
+      "hw-korkuluk": "0",
+      "hw-yon": "sol",
+      "hw-ayak": true
+     },
+     {
+      "hw-tip": "viraj",
+      "hw-uzunluk": "200",
+      "hw-yaricap": "100",
+      "hw-aci": "180",
+      "hw-cap": "200",
+      "hw-yukselme": "0",
+      "hw-inis": "cik",
+      "hw-egim": "15",
+      "hw-korkuluk": "0",
+      "hw-yon": "sol",
+      "hw-ayak": true
+     },
+     {
+      "hw-tip": "duz",
+      "hw-uzunluk": "200",
+      "hw-yaricap": "120",
+      "hw-aci": "90",
+      "hw-cap": "200",
+      "hw-yukselme": "0",
+      "hw-inis": "cik",
+      "hw-egim": "0",
+      "hw-korkuluk": "0",
+      "hw-yon": "sol",
+      "hw-ayak": true
+     },
+     {
+      "hw-tip": "viraj",
+      "hw-uzunluk": "200",
+      "hw-yaricap": "100",
+      "hw-aci": "180",
+      "hw-cap": "200",
+      "hw-yukselme": "0",
+      "hw-inis": "cik",
+      "hw-egim": "15",
+      "hw-korkuluk": "0",
+      "hw-yon": "sol",
+      "hw-ayak": true
+     }
+    ],
+    "secili": 0
+   }
+  },
+  "ozet": [
+   {
+    "ad": "Kenar yüksekliği",
+    "deger": "Yüksek"
+   },
+   {
+    "ad": "Bağlantı",
+    "deger": "Orijinal yollara uyumlu"
+   },
+   {
+    "ad": "Bağlantı parçalarını da bas",
+    "deger": "Evet"
+   },
+   {
+    "ad": "Yedek bağlantı parçası",
+    "deger": "2 adet"
+   },
+   {
+    "ad": "Renk",
+    "deger": "Turuncu"
+   },
+   {
+    "ad": "Yol düzeni",
+    "deger": "4 parça · kapalı pist"
+   },
+   {
+    "ad": "1. parça",
+    "deger": "Düz · 200 mm"
+   },
+   {
+    "ad": "2. parça",
+    "deger": "Viraj · sola 180° · R100 mm · 15° yatık"
+   },
+   {
+    "ad": "3. parça",
+    "deger": "Düz · 200 mm"
+   },
+   {
+    "ad": "4. parça",
+    "deger": "Viraj · sola 180° · R100 mm · 15° yatık"
+   },
+   {
+    "ad": "Yol ölçüsü",
+    "deger": "469 × 241 × 22.9 mm"
+   },
+   {
+    "ad": "Bağlantı parçası",
+    "deger": "6 adet (4 eklem + 2 yedek)"
+   }
+  ],
+  "olcum": {
+   "kutleG": 142.27,
+   "sureSaat": 4.49
+  }
+ }
+}
