@@ -103,6 +103,13 @@
           <label class="yb-etiket" for="ag-yildiz-cap">Yıldız boyu</label>
           <div class="yb-kaydir"><input type="range" id="ag-yildiz-cap" min="25" max="70" step="1" value="42" /><span class="num-wrap"><input type="number" data-bagli="ag-yildiz-cap" min="25" max="70" step="1" value="42" aria-label="Yıldız boyu" /><span class="unit">mm</span></span></div>
         </div>
+        <div class="param-row">
+          <label class="yb-kutu"><input type="checkbox" id="ag-toplar" checked /> <span>Süs topları</span></label>
+          <p class="yb-not">Kolların uçlarında ayrı renkte küçük toplar; çok renkli baskıda ayrı parça olarak basılır.</p>
+        </div>
+        <div class="param-row">
+          <label class="yb-kutu"><input type="checkbox" id="ag-doku" checked /> <span>İğne yaprağı dokusu</span></label>
+        </div>
       </section>
 
       <section class="yb-grup" id="grup-renk">
@@ -145,6 +152,23 @@
             <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
           </div>
         </div>
+        <div class="param-row yb-renk-satir" id="ag-renk-top-satir">
+          <label class="yb-etiket" for="ag-renk-top">Top rengi</label>
+          <select id="ag-renk-top" class="yb-gizli-secim">
+            <option value="kirmizi" selected>Kırmızı</option>
+            <option value="altin">Altın</option>
+            <option value="gumus">Gümüş</option>
+            <option value="beyaz">Beyaz</option>
+            <option value="lacivert">Lacivert</option>
+          </select>
+          <div class="yb-renkler" data-secim="ag-renk-top">
+            <button type="button" data-v="kirmizi" style="--r:#c4202b" title="Kırmızı"></button>
+            <button type="button" data-v="altin" style="--r:#d2a347" title="Altın"></button>
+            <button type="button" data-v="gumus" style="--r:#b9bcc2" title="Gümüş"></button>
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
+            <button type="button" data-v="lacivert" style="--r:#1d2a52" title="Lacivert"></button>
+          </div>
+        </div>
       </section>
     </aside>
 
@@ -172,6 +196,7 @@
         <h2 class="yb-baslik">Çıktılar</h2>
         <button type="button" class="yb-cikti" id="ag-stl">Ağaç (STL)</button>
         <button type="button" class="yb-cikti" id="ag-stl-yildiz">Yıldız (STL)</button>
+        <button type="button" class="yb-cikti" id="ag-stl-toplar">Süs topları (STL)</button>
         <button type="button" class="yb-cikti yb-ikincil" id="ag-csv">Ağaç bilgisi (CSV)</button>
         <p class="yb-not">Z yukarı, mm. Ağaç tabanı tablaya oturur, desteksiz. Yıldız yatık basılır; dili yuvaya sıkı geçer (gerekirse damla yapıştırıcı).</p>
       </section>

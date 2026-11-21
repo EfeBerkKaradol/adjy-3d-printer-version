@@ -56,17 +56,29 @@ function yildizCiz(c, x, y, r) {
   c.closePath();
   c.fill();
 }
-function agacCiz(c, x, y, h) {
+function agacCiz(c, x, y, h, yildizli) {
+  // Katlı çam: her katın kenarı tırtıklı (dal uçları), tepede küçük yıldız
   const g = h * 0.62;
+  const katlar = 4;
   c.beginPath();
-  for (const [k, y0, y1] of [[1, 0.12, 0.5], [0.8, 0.35, 0.75], [0.58, 0.58, 1]]) {
-    c.moveTo(x - (g * k) / 2, y + h * y0);
-    c.lineTo(x + (g * k) / 2, y + h * y0);
-    c.lineTo(x, y + h * y1);
+  for (let k = 0; k < katlar; k++) {
+    const y0 = y + h * (0.12 + k * 0.2);
+    const y1 = y + h * (0.46 + k * 0.18);
+    const w = g * (1 - k * 0.2);
+    const dis = 5;
+    c.moveTo(x - w / 2, y0);
+    // Alt kenar dalgalı: dal uçları
+    for (let i = 1; i <= dis; i++) {
+      const xi = x - w / 2 + (w * i) / dis;
+      c.lineTo(xi - w / dis / 2, y0 - h * 0.025);
+      c.lineTo(xi, y0);
+    }
+    c.lineTo(x, Math.min(y1, y + h));
     c.closePath();
   }
   c.rect(x - h * 0.05, y, h * 0.1, h * 0.14);
   c.fill();
+  if (yildizli) yildizCiz(c, x, y + h + 1.6, 1.8);
 }
 function karCiz(c, x, y, r) {
   c.save();
@@ -75,12 +87,81 @@ function karCiz(c, x, y, r) {
   for (let i = 0; i < 6; i++) {
     c.save();
     c.rotate((i * Math.PI) / 3);
-    c.lineWidth = Math.max(0.9, r * 0.16);
+    c.lineWidth = Math.max(0.9, r * 0.14);
     c.beginPath(); c.moveTo(0, 0); c.lineTo(0, r); c.stroke();
-    c.lineWidth = Math.max(0.8, r * 0.12);
-    c.beginPath(); c.moveTo(0, r * 0.55); c.lineTo(r * 0.28, r * 0.8); c.moveTo(0, r * 0.55); c.lineTo(-r * 0.28, r * 0.8); c.stroke();
+    c.lineWidth = Math.max(0.8, r * 0.1);
+    c.beginPath();
+    c.moveTo(0, r * 0.38); c.lineTo(r * 0.22, r * 0.58); c.moveTo(0, r * 0.38); c.lineTo(-r * 0.22, r * 0.58);
+    c.moveTo(0, r * 0.66); c.lineTo(r * 0.16, r * 0.82); c.moveTo(0, r * 0.66); c.lineTo(-r * 0.16, r * 0.82);
+    c.stroke();
     c.restore();
   }
+  c.beginPath(); c.arc(0, 0, Math.max(0.9, r * 0.16), 0, Math.PI * 2); c.fill();
+  c.restore();
+}
+/** Dört köşeli parıltı */
+function parilti(c, x, y, r) {
+  c.beginPath();
+  for (let i = 0; i < 8; i++) {
+    const a = (i * Math.PI) / 4, q = i % 2 ? r * 0.22 : r;
+    i ? c.lineTo(x + q * Math.cos(a), y + q * Math.sin(a)) : c.moveTo(x + q * Math.cos(a), y + q * Math.sin(a));
+  }
+  c.closePath();
+  c.fill();
+}
+/** Ev: pencereleri ve kapısı ince bırakılır (LED yanınca ışık sızar) */
+function evCiz(c, x, y, w, h, bacali) {
+  c.beginPath();
+  c.rect(x - w / 2, y, w, h);
+  c.moveTo(x - w / 2 - w * 0.1, y + h);
+  c.lineTo(x, y + h + w * 0.55);
+  c.lineTo(x + w / 2 + w * 0.1, y + h);
+  c.closePath();
+  if (bacali) c.rect(x + w * 0.18, y + h + w * 0.1, w * 0.14, w * 0.42);
+  c.fill();
+  c.save();
+  c.globalCompositeOperation = "destination-out";
+  const pw = Math.max(1.6, w * 0.2);
+  c.fillRect(x - w * 0.32, y + h * 0.45, pw, pw);
+  c.fillRect(x + w * 0.32 - pw, y + h * 0.45, pw, pw);
+  c.fillRect(x - pw * 0.6, y, pw * 1.2, h * 0.38);
+  c.restore();
+}
+/** Geyik silueti (sağa bakar; ters için sx = −1) */
+function geyikCiz(c, x, y, h, sx) {
+  c.save();
+  c.translate(x, y);
+  c.scale(sx * h, h);
+  c.lineCap = "round";
+  c.lineJoin = "round";
+  // Gövde ve boyun
+  c.beginPath();
+  c.ellipse(0, 0.55, 0.38, 0.17, 0, 0, Math.PI * 2);
+  c.fill();
+  c.beginPath();
+  c.moveTo(0.22, 0.6); c.lineTo(0.38, 0.92); c.lineTo(0.5, 0.92); c.lineTo(0.36, 0.55);
+  c.closePath(); c.fill();
+  // Baş
+  c.beginPath();
+  c.ellipse(0.5, 0.95, 0.12, 0.07, -0.3, 0, Math.PI * 2);
+  c.fill();
+  // Bacaklar
+  c.lineWidth = 0.065;
+  c.beginPath();
+  for (const [x0, x1] of [[-0.28, -0.32], [-0.16, -0.12], [0.18, 0.16], [0.3, 0.36]]) {
+    c.moveTo(x0, 0.5); c.lineTo(x1, 0.02);
+  }
+  c.stroke();
+  // Boynuzlar
+  c.lineWidth = 0.04;
+  c.beginPath();
+  c.moveTo(0.44, 1.0); c.lineTo(0.36, 1.25); c.lineTo(0.28, 1.32);
+  c.moveTo(0.4, 1.13); c.lineTo(0.3, 1.16);
+  c.moveTo(0.48, 1.0); c.lineTo(0.52, 1.26); c.lineTo(0.6, 1.33);
+  c.moveTo(0.51, 1.15); c.lineTo(0.6, 1.17);
+  c.stroke();
+  // Kuyruk
+  c.beginPath(); c.ellipse(-0.39, 0.62, 0.05, 0.04, 0, 0, Math.PI * 2); c.fill();
   c.restore();
 }
 
@@ -98,52 +179,99 @@ function desenCiz(P, C) {
   const ust = P.H - BANT - 3, alt = BANT + 1;
   // Her motif üç kez çizilir (x − C, x, x + C): sarılınca dikiş görünmez
   const sar = (f) => { for (const dx of [-C, 0, C]) { c.save(); c.translate(dx, 0); f(); c.restore(); } };
+  const zemin = (yuk, f1, f2) => sar(() => {
+    c.beginPath();
+    c.moveTo(0, 0);
+    for (let x = 0; x <= C; x += 1.5) c.lineTo(x, alt + yuk + 2.5 * Math.sin((x / C) * Math.PI * 2 * f1) + 1.4 * Math.sin((x / C) * Math.PI * 2 * f2 + 1.3));
+    c.lineTo(C, 0);
+    c.closePath();
+    c.fill();
+  });
+  // Yazı levhasının arkası boş kalsın diye motifler oradan kaçınır
+  const yaziX = C * 0.75, yaziG = P.isim ? Math.min(C * 0.3, 90) * 0.7 : 0;
+  const yaziyaYakin = (x) => P.isim && Math.abs(((x - yaziX + C * 1.5) % C) - C / 2) < yaziG;
 
   if (P.desen === "orman") {
-    // Karlı zemin
-    sar(() => {
-      c.beginPath();
-      c.moveTo(0, 0);
-      for (let x = 0; x <= C; x += 2) c.lineTo(x, alt + 5 + 2.5 * Math.sin((x / C) * Math.PI * 2 * 3) + 1.5 * Math.sin((x / C) * Math.PI * 2 * 7));
-      c.lineTo(C, 0);
-      c.closePath();
-      c.fill();
-    });
-    const n = Math.max(4, Math.round((C / 16) * (0.6 + P.yogun)));
+    zemin(5, 3, 7);
+    // Arka sıra: küçük, sık çamlar
+    const n2 = Math.max(6, Math.round((C / 11) * (0.5 + P.yogun)));
+    for (let i = 0; i < n2; i++) {
+      const x = ((i + R()) / n2) * C;
+      const h = (P.H - 2 * BANT) * (0.18 + R() * 0.12);
+      const yz = R() > 0.6;
+      sar(() => agacCiz(c, x, alt + 7, h, yz));
+    }
+    // Ön sıra: büyük çamlar, aralarda ev ve geyik
+    const n = Math.max(4, Math.round((C / 22) * (0.6 + P.yogun)));
     for (let i = 0; i < n; i++) {
       const x = ((i + 0.3 + R() * 0.4) / n) * C;
-      const h = (P.H - 2 * BANT) * (0.3 + R() * 0.32);
-      sar(() => agacCiz(c, x, alt + 4, h));
+      const h = (P.H - 2 * BANT) * (0.32 + R() * 0.28);
+      const tur = R(), secim = R() > 0.5;
+      if (tur < 0.16 && h > 30) sar(() => evCiz(c, x, alt + 4, Math.min(16, h * 0.32), Math.min(12, h * 0.22), secim));
+      else if (tur < 0.3) sar(() => geyikCiz(c, x, alt + 4.5, Math.min(18, h * 0.36), secim ? 1 : -1));
+      else sar(() => agacCiz(c, x, alt + 3, h, secim));
     }
-    const ns = Math.round(((C * (ust - P.H * 0.6)) / 220) * P.yogun);
+    // Gökyüzü: yıldızlar ve yağan kar
+    const ns = Math.round(((C * (ust - P.H * 0.58)) / 200) * P.yogun);
     for (let i = 0; i < ns; i++) {
-      const x = R() * C, y = P.H * 0.62 + R() * (ust - P.H * 0.62), r = 1.6 + R() * 2.4;
-      sar(() => yildizCiz(c, x, y, r));
+      const x = R() * C, y = P.H * 0.6 + R() * (ust - P.H * 0.6);
+      if (yaziyaYakin(x)) continue;
+      const r = 1.4 + R() * 2.4, bes = R() > 0.5;
+      sar(() => (bes ? yildizCiz(c, x, y, r) : parilti(c, x, y, r * 1.2)));
+    }
+    const nk = Math.round(((C * (ust - alt)) / 90) * P.yogun);
+    for (let i = 0; i < nk; i++) {
+      const x = R() * C, y = alt + 18 + R() * (ust - alt - 18);
+      if (yaziyaYakin(x)) continue;
+      const rr = 0.6 + R() * 0.6;
+      sar(() => { c.beginPath(); c.arc(x, y, rr, 0, Math.PI * 2); c.fill(); });
     }
   } else if (P.desen === "kar") {
-    const n = Math.round(((C * (ust - alt)) / 260) * P.yogun);
+    const n = Math.round(((C * (ust - alt)) / 230) * P.yogun);
     for (let i = 0; i < n; i++) {
-      const r = 3 + R() * 6;
+      const r = 3 + R() * 7;
       const x = R() * C, y = alt + r + R() * (ust - alt - 2 * r);
+      if (yaziyaYakin(x) && Math.abs(y - P.H / 2) < P.H * 0.16) continue;
       sar(() => karCiz(c, x, y, r));
     }
+    const nd = Math.round(((C * (ust - alt)) / 70) * P.yogun);
+    for (let i = 0; i < nd; i++) {
+      const x = R() * C, y = alt + R() * (ust - alt);
+      const rr = 0.55 + R() * 0.5;
+      sar(() => { c.beginPath(); c.arc(x, y, rr, 0, Math.PI * 2); c.fill(); });
+    }
   } else {
-    // Yıldızlı gece: hilal ay, yıldızlar, altta tepeler
-    const ay = { x: C * 0.12, y: P.H * 0.7, r: Math.min(P.H * 0.12, 12) };
+    // Yıldızlı gece: hilal ay, parıltılar, kayan yıldız, altta köy
+    const ay = { x: C * 0.14, y: P.H * 0.72, r: Math.min(P.H * 0.12, 12) };
     sar(() => {
       c.beginPath(); c.arc(ay.x, ay.y, ay.r, 0, Math.PI * 2); c.fill();
       c.save(); c.globalCompositeOperation = "destination-out";
       c.beginPath(); c.arc(ay.x + ay.r * 0.45, ay.y + ay.r * 0.2, ay.r * 0.85, 0, Math.PI * 2); c.fill();
       c.restore();
-      c.beginPath(); c.moveTo(0, 0);
-      for (let x = 0; x <= C; x += 2) c.lineTo(x, alt + 6 + 5 * Math.sin((x / C) * Math.PI * 2 * 2 + 1) + 3 * Math.sin((x / C) * Math.PI * 2 * 5));
-      c.lineTo(C, 0); c.closePath(); c.fill();
+      // Kayan yıldız
+      const kx = C * 0.42, ky = P.H * 0.78;
+      parilti(c, kx, ky, 3);
+      c.lineCap = "round";
+      for (let k = 0; k < 3; k++) {
+        c.lineWidth = 1 - k * 0.2;
+        c.beginPath(); c.moveTo(kx - 2 - k * 0.5, ky - 1 + k * 1.1); c.lineTo(kx - 16 + k * 2, ky + 5 + k * 1.5); c.stroke();
+      }
     });
-    const n = Math.round(((C * (ust - P.H * 0.3)) / 160) * P.yogun);
+    zemin(7, 2, 5);
+    // Köy: tepelerin üstünde evler
+    const ne = Math.max(3, Math.round(C / 45));
+    for (let i = 0; i < ne; i++) {
+      const x = ((i + 0.2 + R() * 0.6) / ne) * C;
+      if (yaziyaYakin(x)) continue;
+      const w = 9 + R() * 6, baca = R() > 0.4;
+      sar(() => evCiz(c, x, alt + 7, w, w * 0.7, baca));
+    }
+    const n = Math.round(((C * (ust - P.H * 0.32)) / 140) * P.yogun);
     for (let i = 0; i < n; i++) {
-      const x = R() * C, y = P.H * 0.3 + R() * (ust - P.H * 0.3);
-      const r = R() < 0.7 ? 1.2 + R() * 1.2 : 2.4 + R() * 2.2;
-      sar(() => (r < 2 ? (c.beginPath(), c.arc(x, y, r * 0.6, 0, Math.PI * 2), c.fill()) : yildizCiz(c, x, y, r)));
+      const x = R() * C, y = P.H * 0.32 + R() * (ust - P.H * 0.32);
+      if (yaziyaYakin(x) && Math.abs(y - P.H / 2) < P.H * 0.15) continue;
+      const r = R() < 0.65 ? 1.0 + R() * 1.0 : 2.2 + R() * 2.4, bes = R() > 0.5;
+      sar(() => (r < 2 ? (c.beginPath(), c.arc(x, y, r * 0.6, 0, Math.PI * 2), c.fill()) : bes ? yildizCiz(c, x, y, r) : parilti(c, x, y, r * 1.2)));
     }
   }
 
@@ -256,7 +384,12 @@ function kur() {
     // φ arttıkça dışarıdan bakan için soldan sağa: yazı düz okunur.
     const u = f / (Math.PI * 2);
     const vv = ornekle(desen, u, t);
-    return P.ters ? P.kalin - fark * vv : P.ince + fark * vv;
+    const k = P.ters ? P.kalin - fark * vv : P.ince + fark * vv;
+    // Üst banda yaklaşırken kalınlık rampayla artar (≤ ~40°)
+    const rampa = fark * 1.25;
+    const ustSinir = P.H - BANT;
+    if (z > ustSinir - rampa) return k + (P.kalin - k) * ((z - (ustSinir - rampa)) / rampa);
+    return k;
   };
   const M = clamp(Math.round(C / P.adim), 180, 640);
   const n = clamp(Math.round(P.H / P.adim), 80, 360);

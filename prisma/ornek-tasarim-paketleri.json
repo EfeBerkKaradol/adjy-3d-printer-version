@@ -2124,7 +2124,7 @@
    }
   ],
   "olcum": {
-   "kutleG": 25.43,
+   "kutleG": 25.46,
    "sureSaat": 0.94
   }
  },
@@ -2206,8 +2206,8 @@
    }
   ],
   "olcum": {
-   "kutleG": 6.26,
-   "sureSaat": 0.33
+   "kutleG": 5.73,
+   "sureSaat": 0.31
   }
  },
  "burgulu-yilbasi-agaci": {
@@ -2224,8 +2224,11 @@
     "ag-led": false,
     "ag-yildiz": true,
     "ag-yildiz-cap": "42",
+    "ag-toplar": true,
+    "ag-doku": true,
     "ag-renk": "yesil",
     "ag-renk-yildiz": "altin",
+    "ag-renk-top": "kirmizi",
     "ag-duvar": "2.2",
     "ag-adim": "1.2"
    },
@@ -2275,6 +2278,14 @@
     "deger": "42 mm"
    },
    {
+    "ad": "Süs topları",
+    "deger": "Evet"
+   },
+   {
+    "ad": "İğne yaprağı dokusu",
+    "deger": "Evet"
+   },
+   {
     "ad": "Ağaç rengi",
     "deger": "Çam yeşili"
    },
@@ -2283,13 +2294,17 @@
     "deger": "Altın"
    },
    {
+    "ad": "Top rengi",
+    "deger": "Kırmızı"
+   },
+   {
     "ad": "Ağaç ölçüsü",
-    "deger": "92 × 92 × 191 mm"
+    "deger": "92 × 92 × 200 mm"
    }
   ],
   "olcum": {
-   "kutleG": 126.01,
-   "sureSaat": 3.78
+   "kutleG": 120.28,
+   "sureSaat": 3.62
   }
  },
  "kum-tepesi-pano": {
@@ -2308,7 +2323,7 @@
     "kp-cerceve": true,
     "kp-renk": "kum",
     "kp-taban": "3",
-    "kp-adim": "0.7"
+    "kp-adim": "0.5"
    },
    "gruplar": {},
    "dosyalar": {},
@@ -2361,12 +2376,12 @@
    },
    {
     "ad": "Pano ölçüsü",
-    "deger": "160 × 100 × 14.2 mm"
+    "deger": "160 × 100 × 15.6 mm"
    }
   ],
   "olcum": {
-   "kutleG": 62.31,
-   "sureSaat": 2.29
+   "kutleG": 67.43,
+   "sureSaat": 2.46
   }
  },
  "col-kurdu-kalemlik": {
@@ -2433,12 +2448,12 @@
    },
    {
     "ad": "Kalemlik ölçüsü",
-    "deger": "100 × 79 × 146 mm"
+    "deger": "99 × 81 × 146 mm"
    }
   ],
   "olcum": {
-   "kutleG": 92.33,
-   "sureSaat": 3.01
+   "kutleG": 165.95,
+   "sureSaat": 5.21
   }
  },
  "kum-dalgasi-kase": {
@@ -2505,12 +2520,12 @@
    },
    {
     "ad": "Kase ölçüsü",
-    "deger": "Ø116 × 176 mm"
+    "deger": "Ø119 × 176 mm"
    }
   ],
   "olcum": {
-   "kutleG": 116.86,
-   "sureSaat": 3.52
+   "kutleG": 213.34,
+   "sureSaat": 6.22
   }
  },
  "kurabiye-kalibi": {
@@ -2641,7 +2656,7 @@
    }
   ],
   "olcum": {
-   "kutleG": 21.96,
+   "kutleG": 21.83,
    "sureSaat": 0.98
   }
  },
@@ -2661,7 +2676,7 @@
     "yf-renk": "beyaz",
     "yf-ince": "0.8",
     "yf-kalin": "2.6",
-    "yf-adim": "0.6"
+    "yf-adim": "0.7"
    },
    "gruplar": {},
    "dosyalar": {},
@@ -2714,8 +2729,8 @@
    }
   ],
   "olcum": {
-   "kutleG": 55.36,
-   "sureSaat": 3.06
+   "kutleG": 54.27,
+   "sureSaat": 3
   }
  }
 }

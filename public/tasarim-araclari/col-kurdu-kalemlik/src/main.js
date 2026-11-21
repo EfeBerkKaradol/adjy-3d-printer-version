@@ -52,26 +52,49 @@ function disFn(P) {
 
 function govdeKur(P) {
   const R = P.D / 2;
-  const segH = P.H / P.bogum;
-  // Boğumun alt yarısı en çok ~42° açılsın: yükselme payı kısıtlı
-  const dbMax = (0.9 * 0.55 * segH) / (1.5 * R);
-  const db = Math.min(P.bogumDerin, dbMax);
-  const a = 0.55; // boğumun yükselen kısmı
   const dis = disFn(P);
   const tacBas = 0.86;
+  // Boğumlar yalnız gövdede (dudağın altı); dudak ve ağız düz sırtta başlar
+  const govdeSon = dis ? tacBas - 0.075 : 1;
+  const segH = (P.H * govdeSon) / P.bogum;
+  // Dış yüzeyin eğimi = boğumun yükselişi + eksenin yatıklığı (eğri gövde)
+  // ≤ 0.92 (~43°). Boğumun yükselen kısmı a; ayrinti() en dik yerde 1,5×.
+  const a = 0.55; // boğumun yükselen kısmı
+  const eksenEgim = Math.tan((P.egri * Math.PI) / 180);
+  const boguEgim = Math.max(0.12, 0.92 - eksenEgim - 0.12 /* pul payı */);
+  const dbMax = (boguEgim * a * segH) / (1.5 * R);
+  const db = Math.min(P.bogumDerin, dbMax);
   const egimTan = Math.tan((P.disEgim * Math.PI) / 180);
   const Kp = Math.max(12, Math.round((Math.PI * P.D) / 5.5)); // pul çizgisi sayısı
   const egriTan = Math.tan((P.egri * Math.PI) / 180);
+  // Dudak yüksekliği: yükselişi (1,5 × dudakH / boy) + eksen yatıklığı ≤ 0.85
+  const dudakBoy = 0.5 * 0.075 * P.H;
+  const dudakH = clamp(((0.85 - egriTan) * dudakBoy) / 1.5, 0, 1.6);
   const r = (t, f) => {
-    const u = (t * P.bogum) % 1;
-    const son = t * P.bogum >= P.bogum - 1; // son boğum ağza kadar düz gider
-    let k;
-    if (u < a && !(son && t >= 1)) k = ayrinti(u / a);
-    else if (u < 0.86 || son) k = 1;
-    else k = 1 - ayrinti((u - 0.86) / 0.14); // üstte içe basamak (yukarı bakan yüzey)
-    if (t >= 1) k = 1;
+    let k = 1;
+    if (t < govdeSon) {
+      const tb = t / govdeSon;
+      const u = (tb * P.bogum) % 1;
+      const son = tb * P.bogum >= P.bogum - 1; // son boğum dudağa kadar düz gider
+      if (u < a) k = ayrinti(u / a);
+      else if (u < 0.86 || son) k = 1;
+      else k = 1 - ayrinti((u - 0.86) / 0.14); // üstte içe basamak (yukarı bakan yüzey)
+    }
     let rr = R * (1 - db + db * k);
-    if (P.pul) rr += 0.45 * k * Math.cos(f * Kp);
+    // Pullar: baklava örgüsü (iki yöne eğik dalganın toplamı), boğumların sırtında
+    if (P.pul) {
+      const z = t * P.H;
+      const dz = (z / 4.2) * Math.PI * 2;
+      // Yalnız boğumun düz sırtında (k³): eğimli kısımda boğum eğimine eklenip 45°'yi aşmasın
+      // Dudağa yaklaşırken söner (dudağın yükselişine eklenmesin)
+      const sonum = clamp((govdeSon - t) / 0.03, 0, 1);
+      rr += 0.42 * k * k * k * sonum * 0.5 * (Math.cos(f * Kp + dz) + Math.cos(f * Kp - dz));
+    }
+    // Dudak: dişlerin altında kalın halka. Altı ≤ ~40° açılır, üstü içe döner.
+    if (dis) {
+      const tl = (t - (tacBas - 0.075)) / 0.075;
+      if (tl > 0 && tl < 1) rr += dudakH * (tl < 0.5 ? ayrinti(tl / 0.5) : 1 - ayrinti((tl - 0.5) / 0.5));
+    }
     // Dişler ağza doğru içe eğilir
     if (dis) {
       const tac = P.disBoy * dis(f) * ayrinti(clamp((t - tacBas) / (1 - tacBas), 0, 1));
@@ -79,8 +102,19 @@ function govdeKur(P) {
     }
     return rr;
   };
+  // İç yüzey: gövdede düz (boğumların içte tavan yapması desteksiz
+  // basılmazdı), dudak ve dişlerde dış yüzeyi duvar kadar içeriden izler.
+  const icSabit = R * (1 - db) - P.duvar - 0.6;
+  const icBas = tacBas - 0.075;
+  const ic = (t, f) => {
+    const izle = r(t, f) - P.duvar;
+    if (t <= icBas) return Math.min(icSabit, izle);
+    // İç yüzey yukarı doğru eksen yatıklığıyla birlikte ≤ 0.8 eğimle açılır
+    return Math.min(izle, icSabit + (t - icBas) * P.H * Math.max(0.25, 0.8 - egriTan));
+  };
   const g = kapKur({
     H: P.H,
+    ic,
     M: Math.max(160, Math.min(360, (P.dis || 1) * 14, Math.round(Math.PI * P.D / 0.8))),
     n: Math.round(P.H / 0.8),
     dis: r,

@@ -15,7 +15,8 @@
 import {
   THREE, el, sayi, clamp, VITRIN, sahneKur, malzeme, ag, maske, maskeBirlestir, maskeDoluMu, asindir,
   maskedenKati, hacim, olcum, stl, indir, dosyaAdi, csv, formBagla, alanlariYaz, tabloYaz, sureYaz,
-} from "../../_adjy/yilbasi-ortak.js";
+  pahliKati,
+} from "../../_adjy/arac-ortak.js";
 
 if (VITRIN) document.documentElement.classList.add("yb-vitrin");
 
@@ -296,9 +297,12 @@ function kur() {
     c.restore();
   }
 
-  const gGovde = maskedenKati(govde, P.T, 0);
+  // Pahlı kenarlar: yazı ve çerçeve 0,4 mm. Gövdenin üst kenarı yalnız
+  // çerçevesizken pahlanır (çerçeve kenarı örter; pah çerçevenin altında
+  // kalsa çerçevenin dış şeridi havada kalırdı).
+  const gGovde = pahliKati(govde, P.T, 0, P.kenar ? 0 : 0.6, 3);
   const yaziVar = maskeDoluMu(yazi);
-  const gYazi = yaziVar ? maskedenKati(yazi, P.H, P.T) : null;
+  const gYazi = yaziVar ? pahliKati(yazi, P.H, P.T, Math.min(0.4, P.H * 0.4), 2) : null;
 
   matGovde.color.setHex(RENK[P.renkGovde] ?? RENK.kirmizi);
   matYazi.color.setHex(RENK[P.renkYazi] ?? RENK.beyaz);

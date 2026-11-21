@@ -22,7 +22,8 @@
 import {
   THREE, el, sayi, clamp, VITRIN, sahneKur, malzeme, ag, hacim, olcum, stl, indir, csv,
   formBagla, alanlariYaz, tabloYaz, sureYaz,
-} from "../../_adjy/yilbasi-ortak.js";
+} from "../../_adjy/arac-ortak.js";
+import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 
 if (VITRIN) document.documentElement.classList.add("yb-vitrin");
 
@@ -56,6 +57,9 @@ function oku() {
     yildizCap: clamp(sayi("ag-yildiz-cap", 42), 25, 70),
     renk: el("ag-renk").value,
     renkYildiz: el("ag-renk-yildiz").value,
+    toplar: el("ag-toplar").checked,
+    doku: el("ag-doku").checked,
+    renkTop: el("ag-renk-top").value,
     duvar: clamp(sayi("ag-duvar", 2.2), 1.2, 4),
     adim: clamp(sayi("ag-adim", 1.2), 0.6, 3),
   };
@@ -95,6 +99,19 @@ function kesit(P, phi, t = 0) {
   return 1 - P.d * yumusak * (1 - Math.cos(P.K * phi)) * 0.5;
 }
 
+/**
+ * İğne yaprağı dokusu (mm): kolların üstünde ince oluklar. Oluk sayısı kol
+ * başına 7; kolların sırtında belirgin, aralarında söner; tabanın ilk
+ * 2 mm'sinde ve tepede yok (taban düz otursun, yuva temiz kalsın).
+ */
+function doku(P, phi, t, z) {
+  if (!P.doku) return 0;
+  const u = clamp((1 - t) / TEPE_YUMUSAK, 0, 1);
+  const sirt = 0.5 + 0.5 * Math.cos(P.K * phi); // kol sırtında 1
+  const altSon = clamp(z / 2, 0, 1);
+  return 0.38 * Math.sin(P.K * 7 * phi) * sirt * u * altSon;
+}
+
 // ---------------------------------------------------------------- AĞ
 function agKur(P) {
   const R = P.D / 2;
@@ -127,7 +144,7 @@ function agKur(P) {
   const disR = (z, j) => {
     const t = clamp(z / P.H, 0, 1);
     const phi = (j / M) * Math.PI * 2;
-    return R * zarf(t) * kesit(P, phi - burgu * t, t);
+    return R * zarf(t) * kesit(P, phi - burgu * t, t) + doku(P, phi - burgu * t, t, z);
   };
   const halka = (z, rFn) => {
     const h = new Array(M);
@@ -254,6 +271,7 @@ const S_ = sahneKur({ tuval: el("ag-tuval"), kutu: document.querySelector(".yb-s
 S_.bakis.set(-0.35, -0.95, 0.42);
 const matAgac = malzeme(RENK.yesil, { roughness: 0.5 });
 const matYildiz = malzeme(RENK.altin, { roughness: 0.38 });
+const matTop = malzeme(RENK.kirmizi, { roughness: 0.25, metalness: 0.0 });
 let SON = null;
 
 function kur() {
@@ -273,6 +291,35 @@ function kur() {
     goster.translate(0, 0, P.H + YILDIZ_ARA + ys.altUc);
     aglar.push(ag(goster, matYildiz, "yildiz"));
   }
+  // Süs topları: kol sırtlarına, spiral boyunca. Topun büyük kısmı
+  // gövdeye gömülü (merkez yüzeyin 0,15·r dışında): açıkta kalan alt
+  // kısım küçük, desteksiz basılır.
+  let gToplar = null;
+  if (P.toplar) {
+    const R = P.D / 2;
+    const zarf = zarfFn(P);
+    const burgu = (P.burgu * Math.PI) / 180;
+    const rb = clamp(R * 0.075, 2.4, 4.2);
+    const katSayisi = Math.max(3, Math.round(P.H / 28));
+    const parca = [];
+    for (let i = 0; i < katSayisi; i++) {
+      const t = 0.12 + (0.72 * i) / Math.max(1, katSayisi - 1);
+      const z = t * P.H;
+      for (let k = 0; k < P.K; k += 2) {
+        const kol = (k + (i % 2)) % P.K;
+        const phi = burgu * t + (kol * Math.PI * 2) / P.K;
+        const r = R * zarf(t) * kesit(P, 0, t) + rb * 0.15;
+        const s = new THREE.SphereGeometry(rb, 14, 10);
+        s.translate(r * Math.cos(phi), r * Math.sin(phi), z);
+        parca.push(s);
+      }
+    }
+    if (parca.length) {
+      gToplar = mergeGeometries(parca, false);
+      matTop.color.setHex(RENK[P.renkTop] ?? RENK.kirmizi);
+      aglar.push(ag(gToplar, matTop, "toplar"));
+    }
+  }
   S_.modeliYaz(aglar);
 
   const vAgac = hacim(g);
@@ -288,7 +335,7 @@ function kur() {
 
   // Burgu eğimi: kolun yana kayması / yükselme ≤ 1 (≈45°)
   const egim = ((P.D / 2) * (P.burgu * Math.PI / 180)) / P.H;
-  SON = { P, g, ys, vAgac, vYildiz, olcum: o, boyut, ledUygun, egim };
+  SON = { P, g, ys, gToplar, vAgac, vYildiz, olcum: o, boyut, ledUygun, egim };
   bilgiYaz();
   if (!S_.elleOynandi) S_.ortala();
   window.__ADJY_AG = {
@@ -338,6 +385,10 @@ el("ag-stl-yildiz").addEventListener("click", () => {
   if (!SON || !SON.ys) return;
   indir(stl([SON.ys.g], "yildiz"), `${onEk()}_yildiz_D${Math.round(SON.P.yildizCap)}_${SON.P.renkYildiz}.stl`, "model/stl");
 });
+el("ag-stl-toplar").addEventListener("click", () => {
+  if (!SON || !SON.gToplar) return;
+  indir(stl([SON.gToplar], "toplar"), `${onEk()}_toplar_${SON.P.renkTop}.stl`, "model/stl");
+});
 el("ag-csv").addEventListener("click", () => {
   if (!SON) return;
   const { P, boyut, olcum: o } = SON;
@@ -378,6 +429,7 @@ function gorunurluk() {
   el("ag-yildiz-cap-satir").hidden = !yildiz;
   el("ag-yildiz-cap").disabled = !yildiz;
   el("ag-renk-yildiz-satir").hidden = !yildiz;
+  el("ag-renk-top-satir").hidden = !el("ag-toplar").checked;
 }
 
 formBagla((t) => {

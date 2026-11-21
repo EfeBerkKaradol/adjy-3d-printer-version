@@ -14,9 +14,9 @@
    kalınlığı en az 1,6 mm (dört perimetre).
    ========================================================================== */
 import {
-  THREE, el, sayi, clamp, VITRIN, sahneKur, malzeme, ag, maske, maskedenKati,
-  hacim, olcum, stl, indir, csv, formBagla, alanlariYaz, tabloYaz, sureYaz,
-} from "../../_adjy/yilbasi-ortak.js";
+  THREE, el, sayi, clamp, VITRIN, sahneKur, malzeme, ag, maske,
+  hacim, olcum, stl, indir, csv, formBagla, alanlariYaz, tabloYaz, sureYaz, pahliKati,
+} from "../../_adjy/arac-ortak.js";
 
 if (VITRIN) document.documentElement.classList.add("yb-vitrin");
 
@@ -167,7 +167,7 @@ function dallar(P, R) {
     const kucul = 1 - (0.55 * i) / Math.max(1, n);
     const L = Math.max(P.k * 1.6, R * (P.boy / 100) * kucul * (0.8 + rnd() * 0.4));
     const aci = clamp(P.aci + (rnd() - 0.5) * 16, 20, 80);
-    d.push({ t, L: Math.min(L, R * (1 - t) * 1.6 + P.k), aci, w: 0.8 + rnd() * 0.15, alt: rnd() > 0.62 && i === 0 });
+    d.push({ t, L: Math.min(L, R * (1 - t) * 1.6 + P.k), aci, w: 0.8 + rnd() * 0.15, alt: rnd() > 0.3 });
   }
   return d;
 }
@@ -223,7 +223,8 @@ function kur() {
     }
   });
 
-  const g = maskedenKati(m, P.T, 0);
+  // Kristal fasetleri: üst kenar kol genişliğinin ~%38'i kadar pahlanır
+  const g = pahliKati(m, P.T, 0, Math.min(1.0, P.k * 0.38, P.T * 0.45), 4);
   mat.color.setHex(RENK[P.renk] ?? RENK.beyaz);
   S_.modeliYaz([ag(g, mat, "kar-tanesi")]);
   const v = hacim(g);

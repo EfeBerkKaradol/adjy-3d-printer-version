@@ -532,6 +532,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ciktilar: [
       { ad: "Ağaç STL", sec: "#ag-stl", tur: "stl" },
       { ad: "Yıldız STL", sec: "#ag-stl-yildiz", tur: "stl" },
+      { ad: "Süs topları STL", sec: "#ag-stl-toplar", tur: "stl" },
       RENKLI_PAKET,
       { ad: "Ağaç bilgisi (CSV)", sec: "#ag-csv", tur: "belge" },
     ],

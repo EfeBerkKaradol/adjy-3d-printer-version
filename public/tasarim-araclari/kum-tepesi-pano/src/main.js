@@ -39,7 +39,7 @@ function oku() {
     cerceve: el("kp-cerceve").checked,
     renk: el("kp-renk").value,
     taban: clamp(sayi("kp-taban", 3), 2, 6),
-    adim: clamp(sayi("kp-adim", 0.7), 0.4, 1.5),
+    adim: clamp(sayi("kp-adim", 0.5), 0.4, 1.5),
   };
 }
 
@@ -79,6 +79,16 @@ function alanFn(P) {
     const sirt = Math.floor(a2 / L);
     const genlik = 0.45 + 0.55 * n3(b / (L * 1.3) + sirt * 3.1, sirt * 0.7);
     let h = P.Y * genlik * kesit(u, P.kayma);
+    // İkinci ölçek: büyük tepelerin üstüne binen küçük tepeler (biraz
+    // başka yönden esen rüzgâr), asıl tepelerin rüzgâr yüzünde belirgin
+    {
+      const y2 = yon + 0.45;
+      const a3 = x * Math.cos(y2) + y * Math.sin(y2) + 0.35 * L * (n2(b / (L * 0.5), a / L) - 0.5);
+      const u2 = ((a3 / (L * 0.42)) % 1 + 1) % 1;
+      const sf = 0.5 - 0.36 * P.kayma;
+      const yuz = u < 1 - sf ? 1 : 0.35;
+      h += P.Y * 0.2 * yuz * (0.5 + 0.5 * n1(x / 22, y / 22)) * kesit(u2, P.kayma * 0.8);
+    }
     // Taban kumu: tepeler arası çukurlar sıfıra inmesin
     h += P.Y * 0.08 * n2(x / 30, y / 30);
     // Dalgacıklar: rüzgâra dik, yalnız rüzgâr yüzünde belirgin
@@ -92,8 +102,9 @@ function alanFn(P) {
       const kx = P.W / 2 - Math.abs(x), ky = P.D / 2 - Math.abs(y);
       const k = Math.min(kx, ky) - ic;
       const son = ayrinti(clamp(k / CERCEVE.pay, 0, 1));
-      // Pervazın dibinde 45°'lik yumuşak geçiş
       h = h * son + (1 - son) * Math.min(h, P.Y * 0.2);
+      // Pervazın iç kenarı 45° pahla tarlaya iner (yukarı bakan yüzey)
+      h = Math.max(h, P.Y * 0.42 + 1.2 - k);
     }
     return Math.max(0, h);
   };

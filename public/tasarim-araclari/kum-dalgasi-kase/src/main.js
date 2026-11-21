@@ -14,7 +14,7 @@
    ========================================================================== */
 import {
   THREE, el, sayi, clamp, VITRIN, sahneKur, malzeme, ag, hacim, stl, indir, csv,
-  formBagla, alanlariYaz, tabloYaz, sureYaz, kapKur, ayrinti, PLA,
+  formBagla, alanlariYaz, tabloYaz, sureYaz, kapKur, ayrinti, gurultu, PLA,
 } from "../../_adjy/arac-ortak.js";
 
 if (VITRIN) document.documentElement.classList.add("yb-vitrin");
@@ -23,7 +23,8 @@ const RENK = {
   kum: 0xd8b98a, okra: 0xc9965a, baharat: 0xc77b2a, pas: 0xa4532f,
   kemik: 0xece3cf, gece: 0x24324d, antrasit: 0x2f3033,
 };
-const EGIM = 0.95; // yarıçap artışı / yükselme ≤ 0.95 (≈ 43,5°)
+// Dış yüzeyin aşağı bakma eğimi ≤ 0.95 (≈ 43,5°)
+const EGIM = 0.95;
 
 function oku() {
   return {
@@ -49,8 +50,13 @@ function dalgaKesit(u, kayma) {
   return u < tepe ? ayrinti(u / tepe) : 1 - ayrinti((u - tepe) / sf);
 }
 
-/** Profil: t → yarıçap; eğim sınırı uygulanmış tablo */
-function profilTablosu(P, n) {
+/**
+ * Profil tablosu: t → yarıçap. Dış yüzey = profil + W(t, f) (dalgalar,
+ * dudak). Her satırda, ağın tam köşe noktalarında, yüzeyin aşağı bakma
+ * eğimi ölçülür: dr/dz ≤ EGIM · √(1 + (∂r/r∂φ)²) (yana yatık yüzey daha çok
+ * yükselebilir). Profilin büyümesi bu bütçeyle sınırlanır.
+ */
+function profilTablosu(P, n, M, W) {
   const R = P.D / 2;
   const r0 = P.profil === "silindir" ? R : R * P.tabanOran;
   const iste = (t) => {
@@ -61,7 +67,27 @@ function profilTablosu(P, n) {
   const tab = new Float32Array(n + 1);
   tab[0] = iste(0);
   const dz = P.H / n;
-  for (let i = 1; i <= n; i++) tab[i] = Math.min(iste(i / n), tab[i - 1] + EGIM * dz);
+  const df = (Math.PI * 2) / M;
+  let once = new Float32Array(M);
+  let simdi = new Float32Array(M);
+  for (let j = 0; j < M; j++) once[j] = W(0, j * df);
+  for (let i = 1; i <= n; i++) {
+    const t = i / n;
+    for (let j = 0; j < M; j++) simdi[j] = W(t, j * df);
+    const r = tab[i - 1];
+    let butce = Infinity;
+    for (let j = 0; j < M; j++) {
+      const artis = simdi[j] - once[j];
+      if (artis <= 0) continue;
+      const yan = Math.min(
+        Math.abs(simdi[(j + 1) % M] - simdi[j]),
+        Math.abs(simdi[j] - simdi[(j + M - 1) % M]),
+      ) / (r * df);
+      butce = Math.min(butce, EGIM * dz * Math.sqrt(1 + yan * yan) - artis);
+    }
+    tab[i] = Math.min(iste(t), tab[i - 1] + Math.max(0, butce));
+    [once, simdi] = [simdi, once];
+  }
   return tab;
 }
 
@@ -73,25 +99,52 @@ let SON = null;
 function kur() {
   const P = oku();
   const n = Math.max(40, Math.round(P.H / 0.7));
-  const tab = profilTablosu(P, n);
+  const M = Math.min(720, Math.max(240, P.dalga * 18));
+  // Burgu sırtları yana yatırır: yatıklık (R·burgu/H) ≤ 0.9 (~42°)
+  const burguIste = (P.burgu * Math.PI) / 180;
+  const burguSinir = (0.9 * P.H) / (P.D / 2 + P.derin);
+  const burgu = Math.min(burguIste, burguSinir);
+  const burguKisildi = burguIste > burguSinir + 0.01;
+  const dalgaFn = (t, f) => {
+    const faz = (((f + burgu * t) * P.dalga) / (Math.PI * 2)) % 1;
+    return dalgaKesit((faz + 1) % 1, P.kayma);
+  };
+  // Dalga yüksekliği gürültüyle değişir (kumda her sırt başka), üstüne
+  // ince ikincil dalgacık; tabanda dalga yavaşça başlar (taban düzgün otursun)
+  const gr = gurultu(P.dalga * 17 + Math.round(P.burgu));
+  const ince = (t, f) => {
+    const faz = (((f + burgu * t * 1.4) * P.dalga * 3) / (Math.PI * 2)) % 1;
+    return dalgaKesit((faz + 1) % 1, P.kayma) - 0.5;
+  };
+  const rampaH = Math.max(0.12 * P.H, 6);
+  const dalgaW = (t, f) => {
+    const ac = ayrinti(clamp((t * P.H) / rampaH, 0, 1));
+    const genlik = 0.7 + 0.6 * gr(Math.cos(f) * 2.2 + 3, Math.sin(f) * 2.2 + t * 2.5);
+    return P.derin * ac * (genlik * dalgaFn(t, f) + 0.18 * ince(t, f));
+  };
+  const dudakFn = (t) => {
+    const tl = (t - 0.955) / 0.045;
+    if (tl <= 0) return 0;
+    return tl < 0.8 ? ayrinti(tl / 0.8) : 1 - 0.4 * ayrinti((tl - 0.8) / 0.2);
+  };
+  let tab = profilTablosu(P, n, M, dalgaW);
+  // Ağız dudağı: yalnız ağızda profil dikken (eğim küçük) dışa yuvarlanır
+  const tepeEgim = (tab[n] - tab[Math.max(0, n - 4)]) / ((4 * P.H) / n);
+  const dudak = tepeEgim < 0.45 ? 1.2 : 0;
+  if (dudak) tab = profilTablosu(P, n, M, (t, f) => dalgaW(t, f) + dudak * dudakFn(t));
   const rp = (t) => {
     const x = clamp(t, 0, 1) * n;
     const i = Math.min(n - 1, Math.floor(x));
     return tab[i] + (tab[i + 1] - tab[i]) * (x - i);
   };
-  const burgu = (P.burgu * Math.PI) / 180;
-  const dalgaFn = (t, f) => {
-    const faz = (((f + burgu * t) * P.dalga) / (Math.PI * 2)) % 1;
-    return dalgaKesit((faz + 1) % 1, P.kayma);
-  };
-  // Tabanda dalga yavaşça başlar (taban kenarı düzgün otursun)
-  const dis = (t, f) => rp(t) + P.derin * dalgaFn(t, f) * ayrinti(clamp(t / 0.12, 0, 1));
+  const dis = (t, f) => rp(t) + dalgaW(t, f) + (dudak ? dudak * dudakFn(t) : 0);
   const g = kapKur({
     H: P.H,
-    M: Math.min(720, Math.max(240, P.dalga * 18)),
+    M,
     n,
     dis,
-    duvar: P.duvar,
+    // İç yüzey düz: dalgalar yalnız dışta (içte sırtlar tavan yapardı)
+    ic: (t) => rp(t) - P.duvar + (dudak ? dudak * ayrinti(clamp((t - 0.955) / 0.036, 0, 1)) : 0),
     taban: P.taban,
     tac: P.dalgaliAgiz ? (f) => P.derin * 1.6 * dalgaFn(1, f) : null,
     tacBas: 0.88,
@@ -103,7 +156,7 @@ function kur() {
   const sureSaat = v / 8 / 3600 + 0.25;
   const boyut = S_.kutu.getSize(new THREE.Vector3());
   const ulasilanCap = tab[n] * 2;
-  SON = { P, g, v, olcum: { kutleG, sureSaat }, boyut, ulasilanCap };
+  SON = { P, g, v, olcum: { kutleG, sureSaat }, boyut, ulasilanCap, burguGercek: Math.round((burgu * 180) / Math.PI), burguKisildi };
   bilgiYaz();
   if (!S_.elleOynandi) S_.ortala();
   window.__ADJY_KD = {
@@ -116,16 +169,17 @@ function kur() {
 function bilgiYaz() {
   const { P, boyut, olcum: o, v, ulasilanCap } = SON;
   el("kd-olcu").textContent = `Ø${boyut.x.toFixed(0)} × ${boyut.z.toFixed(0)} mm`;
-  const uyar = ulasilanCap < P.D - 1
-    ? `Duvar 45°'den fazla açılmasın diye ağız Ø${ulasilanCap.toFixed(0)} mm'de kaldı: yüksekliği artırın ya da tabanı genişletin`
-    : "";
+  const uyarilar = [];
+  if (ulasilanCap < P.D - 1) uyarilar.push(`Duvar 45°'den fazla açılmasın diye ağız Ø${ulasilanCap.toFixed(0)} mm'de kaldı: yüksekliği artırın ya da tabanı genişletin`);
+  if (SON.burguKisildi) uyarilar.push(`Burgu desteksiz baskı için ${SON.burguGercek}°'de tutuldu`);
+  const uyar = uyarilar.join(" · ");
   const u = el("kd-uyari");
   u.hidden = !uyar;
   u.textContent = uyar;
   tabloYaz(el("kd-tablo"), [
     ["Dış ölçü", `${boyut.x.toFixed(1)} × ${boyut.y.toFixed(1)} × ${boyut.z.toFixed(1)} mm`],
     ["Profil", `${P.profil} · taban Ø${(P.D * (P.profil === "silindir" ? 1 : P.tabanOran)).toFixed(0)} mm`],
-    ["Dalga", `${P.dalga} × ${P.derin} mm · burgu ${P.burgu}°`],
+    ["Dalga", `${P.dalga} × ${P.derin} mm · burgu ${SON.burguGercek}°`],
     ["Hacim", `${(v / 1000).toFixed(1)} cm³`],
     ["Filament (PLA)", `${o.kutleG.toFixed(0)} g`],
     ["Baskı süresi ≈", sureYaz(o.sureSaat)],

@@ -11,7 +11,7 @@
 import {
   THREE, el, sayi, clamp, VITRIN, sahneKur, malzeme, ag, hacim, stl, indir, csv,
   formBagla, alanlariYaz, tabloYaz, sureYaz, maske, maskeBirlestir, maskeDoluMu, asindir,
-  maskedenKati, dosyaAdi, PLA,
+  maskedenKati, dosyaAdi, pahliKati, PLA,
 } from "../../_adjy/arac-ortak.js";
 
 if (VITRIN) document.documentElement.classList.add("yb-vitrin");
@@ -180,8 +180,9 @@ function kur() {
     maskeBirlestir(bant, asindir(maske(gen, yuk, P.px, plaka), cerceveG), "destination-out");
     maskeBirlestir(yaziM, bant, "lighter");
   }
-  const gKart = maskedenKati(kart, P.T, 0);
-  const gYazi = maskeDoluMu(yaziM) ? maskedenKati(yaziM, P.h, P.T) : null;
+  // Çerçeveliyken kart kenarını çerçeve örter: pah yalnız çerçevesizken
+  const gKart = pahliKati(kart, P.T, 0, P.cerceve ? 0 : 0.6, 3);
+  const gYazi = maskeDoluMu(yaziM) ? pahliKati(yaziM, P.h, P.T, Math.min(0.4, P.h * 0.4), 2) : null;
 
   // Ayak: yan profil (y, z), X boyunca çekilir
   let gAyak = null;

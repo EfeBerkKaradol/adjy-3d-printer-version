@@ -13,7 +13,8 @@
 
    Birim mm, Z yukarı. Bütün yüzeyler dışa bakar (işaretli hacim pozitif).
    ========================================================================== */
-import { THREE, clamp, konturlar } from "./yilbasi-ortak.js";
+import { THREE, clamp, konturlar, asindir, maskedenKati } from "./yilbasi-ortak.js";
+import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 export * from "./yilbasi-ortak.js";
 
 const ayrinti = (t) => t * t * (3 - 2 * t);
@@ -189,6 +190,32 @@ export function maskeKopya(m) {
   const ctx = tuval.getContext("2d", { willReadFrequently: true });
   ctx.drawImage(m.tuval, 0, 0);
   return { tuval, ctx, w: m.w, h: m.h, pxMm: m.pxMm };
+}
+
+/**
+ * Pahlı ekstrüzyon: maske z0'dan kalınlık kadar yükselir; üstteki "pah"
+ * kadarlık kısım "adim" katmanda, her katta pah/adim kadar içe çekilerek
+ * basamaklanır. 0,2 mm katmanla basılınca gerçek pah gibi görünür; her
+ * kat bir alttakinin içinde kaldığı için sarkma yok. Katlar ayrı kapalı
+ * katılar, tek geometride birleşir.
+ */
+export function pahliKati(m, kalinlik, z0 = 0, pah = 0.6, adim = 3, tol) {
+  pah = Math.min(pah, kalinlik * 0.6);
+  if (!(pah > 0.05) || adim < 1) return maskedenKati(m, kalinlik, z0, tol);
+  const govde = kalinlik - pah;
+  const parcalar = [];
+  const alt = maskedenKati(m, govde, z0, tol);
+  if (alt) parcalar.push(alt);
+  for (let k = 1; k <= adim; k++) {
+    const mk = asindir(maskeKopya(m), (pah * k) / adim);
+    const g = maskedenKati(mk, pah / adim, z0 + govde + (pah * (k - 1)) / adim, tol);
+    if (g) parcalar.push(g);
+  }
+  if (!parcalar.length) return null;
+  if (parcalar.length === 1) return parcalar[0];
+  const birlesik = mergeGeometries(parcalar.map((g) => (g.index ? g.toNonIndexed() : g)), false);
+  birlesik.computeVertexNormals();
+  return birlesik;
 }
 
 /** Tekrarlanabilir rastgele dizi (desen numarası) */
