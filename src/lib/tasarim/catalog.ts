@@ -67,7 +67,19 @@ export interface TasarimAraci {
   gorseller: string[];
   ciktilar: TasarimCiktisi[];
   anahtarKelimeler: string[];
+  /**
+   * Ürün satırının bağlanacağı mağaza etiketleri (slug). Ör. yılbaşı
+   * araçları "koleksiyon-yilbasi" ile yılbaşı koleksiyonunda ve ana
+   * sayfa vitrininde görünür. Satır ilk açılırken bağlanır.
+   */
+  etiketler?: string[];
 }
+
+/** Etiket ilk kez açılırken kullanılacak adlar */
+export const ETIKET_ADLARI: Record<string, string> = {
+  "koleksiyon-yilbasi": "Yılbaşı Koleksiyonu",
+  "koleksiyon-kum-tepesi": "Kum Tepesi Koleksiyonu",
+};
 
 /** Araçların ortak mağaza kategorisi — eşleşen kategori yoksa buraya düşer */
 export const TASARIM_KATEGORISI = {
@@ -436,6 +448,269 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { ad: "Parça bilgisi (CSV)", sec: "#hw-csv", tur: "belge" },
     ],
     anahtarKelimeler: ["oyuncak araba yolu", "hot wheels yol parçası", "hot wheels viraj", "araba pisti", "1:64 araba yolu", "rampa", "looping", "araba yolu looping"],
+  },
+  // ---------------- YILBAŞI ----------------
+  {
+    id: "isimli-yilbasi-susu",
+    ad: "İsimli Yılbaşı Süsü",
+    ozet: "Şeklini, ismini ve renklerini sizin seçtiğiniz iki renkli yılbaşı süsü.",
+    aciklama:
+      "Ağaca, kapıya ya da hediye paketinin üstüne kişiye özel yılbaşı süsü. Top, yıldız, çam ağacı, çan ya da kalp şeklini seçin; ismi ve alt satıra yılı ya da kısa bir sözü yazın. Yazı süsün içine kendiliğinden sığar, Türkçe harfler olduğu gibi basılır; yuvarlak, el yazısı ve modern yazı tipleri arasından seçebilirsiniz. Gövde ve kabartma yazı ayrı renkte basılır; isterseniz kenarı da yazı renginde bir çerçeveyle çevrilir. Asmak için halka ya da delik, ya da hiçbiri.",
+    ayarlar: ["Top, yıldız, çam ağacı, çan ya da kalp", "İsim ve alt satır (yıl, tarih, kısa söz)", "Yuvarlak, el yazısı ya da modern yazı tipi", "Genişlik ve kalınlık", "Kenar çerçevesi ve askı", "Gövde ve yazı rengi"],
+    kategoriler: ["yilbasi-susler", "yilbasi", "hediye-yilbasi", "hediye"],
+    malzeme: "PLA",
+    malzemeSabit: true,
+    varsayilan: { kutleG: 26, sureSaat: 0.95 },
+    // En küçük: 50 mm yıldız, 2,4 mm; en büyük: 120 mm top, 6 mm
+    sinir: { kutleG: [3, 120], sureSaat: [0.3, 4.5] },
+    tabanFiyat: 150,
+    teslim: "Sipariş sonrası üretilir, 1–3 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "İsim süsün içine sığar", metin: "Yazıyı yazdıkça süs kendini ayarlar: harfler şeklin içine, çerçeveye değmeden yerleşir. Türkçe harfler olduğu gibi basılır." },
+      { baslik: "İki renk, kabartma yazı", metin: "Gövde ve yazı ayrı renkte basılır; yazı ve çerçeve gövdenin üstünde kabarık durur, dokununca hissedilir." },
+      { baslik: "Hediyenin üstüne de olur", metin: "Halkasıyla ağaca, deliğiyle kurdeleye; askısız seçerseniz hediye paketinin üstüne ya da masaya." },
+    ],
+    gorseller: ["Top süs: el yazısıyla aile adı, altın yazı", "Yıldız: ilk yılbaşı, pembe yazı", "Çam ağacı: Mutlu Yıllar", "Kalp: iki isim, el yazısı"],
+    ciktilar: [
+      { ad: "Gövde STL", sec: "#yb-stl-govde", tur: "stl" },
+      { ad: "Yazı ve çerçeve STL", sec: "#yb-stl-yazi", tur: "stl" },
+      RENKLI_PAKET,
+      { ad: "Tek parça, tek renk STL", sec: "#yb-stl-tek", tur: "cad" },
+      { ad: "Süs bilgisi (CSV)", sec: "#yb-csv", tur: "belge" },
+    ],
+    anahtarKelimeler: ["isimli yılbaşı süsü", "kişiye özel yılbaşı süsü", "isimli ağaç süsü", "yılbaşı hediyesi", "isimli top süs", "yeni yıl süsü"],
+    etiketler: ["koleksiyon-yilbasi"],
+  },
+  {
+    id: "kar-tanesi-susu",
+    ad: "Kar Tanesi Süsü",
+    ozet: "Dallarını, merkezini ve desenini kendiniz kurduğunuz altı kollu kar tanesi.",
+    aciklama:
+      "Her biri ayrı desende, altı kollu kar tanesi süsü. Hazır desenlerden biriyle başlayın ya da ✦ Yeni desen ile kendinize özgü bir kar tanesi üretin; dal sayısını, açısını ve uzunluğunu, kol uçlarını (kristal, yuvarlak, çatal) ve merkezi (altıgen, daire, yıldız, halka) siz belirleyin. İç halka kolları ortada birbirine bağlar, dantel gibi görünür ve süsü sağlamlaştırır. Ağaca halkasıyla asılır; büyük boyları cama ve kapıya da yakışır.",
+    ayarlar: ["Hazır desen ya da desen numarası", "Dal sayısı, açısı ve uzunluğu", "Kol ucu: kristal, yuvarlak, çatal, düz", "Merkez ve iç halka", "Çap, kol kalınlığı ve kalınlık", "Askı ve renk"],
+    kategoriler: ["yilbasi-susler", "yilbasi", "hediye-yilbasi", "hediye"],
+    malzeme: "PLA",
+    malzemeSabit: true,
+    varsayilan: { kutleG: 5.5, sureSaat: 0.35 },
+    sinir: { kutleG: [1.5, 60], sureSaat: [0.2, 3.5] },
+    tabanFiyat: 90,
+    teslim: "Sipariş sonrası üretilir, 1–3 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Her desen bir kez", metin: "Desen numarası dalların yerini ve açısını değiştirir; doksan dokuz desenin her biri ayrı bir kar tanesi. Beğendiğiniz numarayı tekrar seçtiğinizde aynısı gelir." },
+      { baslik: "İnce ama sağlam", metin: "Kollar en az 1,6 mm kalınlıkta basılır; iç halka kolları ortada birbirine bağlar, ağaçtan düşse kırılmaz." },
+      { baslik: "Ağaçtan cama", metin: "6–9 cm ağaç süsü, 12 cm ve üstü cam, kapı ve hediye paketi süsü olarak." },
+    ],
+    gorseller: ["Klasik: üç dal, kristal uçlar", "Dantel: iç halkalı, dört dal", "Kristal: yıldız göbek", "Yalın: uzun kollar, buz mavisi"],
+    ciktilar: [
+      { ad: "Kar tanesi STL", sec: "#kt-stl", tur: "stl" },
+      RENKLI_PAKET,
+      { ad: "Süs bilgisi (CSV)", sec: "#kt-csv", tur: "belge" },
+    ],
+    anahtarKelimeler: ["kar tanesi süsü", "yılbaşı kar tanesi", "kar tanesi ağaç süsü", "3d baskı kar tanesi", "yılbaşı süsü"],
+    etiketler: ["koleksiyon-yilbasi"],
+  },
+  {
+    id: "burgulu-yilbasi-agaci",
+    ad: "Burgulu Yılbaşı Ağacı",
+    ozet: "Boyunu, kollarını ve burgusunu sizin belirlediğiniz, isterseniz ışıklı masaüstü ağacı.",
+    aciklama:
+      "Yıldız kesitli kollarıyla dönerek yükselen masaüstü yılbaşı ağacı. Kat kat klasik çam, düz konik ya da ince tepeli kavisli biçimden birini seçin; yüksekliğini, taban çapını, kol sayısını, kolların derinliğini ve ne kadar döneceğini siz belirleyin. LED yuvalı seçerseniz ağaç içi boş basılır, alttan konan pilli mum LED gövdeyi içten aydınlatır. Tepe yıldızı ayrı renkte basılır ve ağacın tepesindeki yuvaya geçer.",
+    ayarlar: ["Kat kat, konik ya da kavisli biçim", "Yükseklik ve taban çapı", "Kol sayısı ve derinliği", "Burgu", "LED yuvası (içi boş, ışıklı)", "Tepe yıldızı ve boyu", "Ağaç ve yıldız rengi"],
+    kategoriler: ["yilbasi-dekorasyon", "yilbasi", "aydinlatma-masa-gece", "ev-dekorasyon"],
+    malzeme: "PLA",
+    malzemeSabit: true,
+    varsayilan: { kutleG: 126, sureSaat: 3.8 },
+    sinir: { kutleG: [15, 900], sureSaat: [0.8, 28] },
+    tabanFiyat: 350,
+    teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Kolları siz döndürün", metin: "Kol sayısı, derinliği ve burgusu ağacın dokusunu belirler: sakin bir çamdan sarmal bir heykele kadar." },
+      { baslik: "İçten ışıklı", metin: "LED yuvalı ağaç içi boş basılır; alttan konan mum LED kolların arasından yumuşak bir ışık verir." },
+      { baslik: "Desteksiz, temiz yüzey", metin: "Katların altı 45° pahla açılır, iç boşluğun tavanı konidir: ağaç destek izi olmadan, tek parça basılır." },
+    ],
+    gorseller: ["Klasik: beş kat, altın yıldız", "Işıklı: içi boş, mum LED'li", "Modern: kavisli, altın", "Mini: masaüstü, kırmızı"],
+    ciktilar: [
+      { ad: "Ağaç STL", sec: "#ag-stl", tur: "stl" },
+      { ad: "Yıldız STL", sec: "#ag-stl-yildiz", tur: "stl" },
+      RENKLI_PAKET,
+      { ad: "Ağaç bilgisi (CSV)", sec: "#ag-csv", tur: "belge" },
+    ],
+    anahtarKelimeler: ["masaüstü yılbaşı ağacı", "3d baskı yılbaşı ağacı", "ışıklı yılbaşı ağacı", "led yılbaşı ağacı", "burgulu çam ağacı", "yılbaşı dekorasyon"],
+    etiketler: ["koleksiyon-yilbasi"],
+  },
+  // ---------------- KUM TEPESİ / ÇÖL ----------------
+  {
+    id: "kum-tepesi-pano",
+    ad: "Kum Tepesi Kabartma Pano",
+    ozet: "Rüzgârını, tepelerini ve dokusunu sizin kurduğunuz çöl manzarası kabartma pano.",
+    aciklama:
+      "Rüzgârın biçimlendirdiği kum tepeleri, duvara ya da rafa kabartma pano olarak. Rüzgârın yönünü, tepelerin aralığını, sırtların ne kadar kıvrılacağını ve kayma yüzlerinin dikliğini siz belirleyin; ✦ Yeni çöl ile her biri ayrı tepeler üretin. İnce kum dalgacıkları rüzgâr yüzünde belirir, yandan gelen ışıkta tepeler gölgeleriyle canlanır. İsterseniz kenarı düz bir pervazla çevrilir.",
+    ayarlar: ["Hazır manzara ya da desen numarası", "Rüzgâr yönü ve tepe aralığı", "Sırt kıvrımı ve kayma yüzü dikliği", "Genişlik, derinlik ve tepe yüksekliği", "Kum dalgacıkları ve çerçeve", "Renk"],
+    kategoriler: ["dekor-duvar", "ev-dekorasyon"],
+    malzeme: "PLA",
+    malzemeSabit: true,
+    varsayilan: { kutleG: 60, sureSaat: 2.2 },
+    sinir: { kutleG: [15, 420], sureSaat: [0.6, 14] },
+    tabanFiyat: 450,
+    teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Kendi çölünüz", metin: "Doksan dokuz desen, rüzgârın her yönü: aynı numara hep aynı tepeleri verir, beğendiğinizi saklarsınız." },
+      { baslik: "Gerçek kum tepesi gibi", metin: "Rüzgâr yüzü yumuşak yükselir, kayma yüzü dik iner; ince dalgacıklar rüzgâra dik uzanır." },
+      { baslik: "Işıkla değişir", metin: "Yandan vuran güneşte tepeler uzun gölgeler bırakır; gün boyu başka görünür." },
+    ],
+    gorseller: ["Hilal tepeler, kum rengi", "Kum denizi: sık, paralel sırtlar", "Kıvrık sırtlar, pas rengi", "Tek tepe, kemik rengi"],
+    ciktilar: [
+      { ad: "Pano STL", sec: "#kp-stl", tur: "stl" },
+      RENKLI_PAKET,
+      { ad: "Pano bilgisi (CSV)", sec: "#kp-csv", tur: "belge" },
+    ],
+    anahtarKelimeler: ["kum tepesi pano", "çöl temalı dekor", "dune dekor", "kabartma duvar panosu", "3d baskı manzara", "çöl manzarası"],
+    etiketler: ["koleksiyon-kum-tepesi"],
+  },
+  {
+    id: "col-kurdu-kalemlik",
+    ad: "Çöl Kurdu Kalemlik",
+    ozet: "Boğumlarını, dişlerini ve duruşunu sizin belirlediğiniz çöl kurdu kalemlik ya da saksı.",
+    aciklama:
+      "Kumdan yükselen dev bir kurt: boğum boğum gövdesi ve dişlerle çevrili ağzıyla kalemlik, fırçalık ya da küçük saksı. Yüksekliğini, çapını ve gövdenin ne kadar eğileceğini, boğumların sayısını ve derinliğini, dişlerin sayısını, boyunu ve ağzın içine ne kadar eğileceğini siz belirleyin. Dişler içe doğru eğildiği için kalemler dışarı taşmaz; gövde tek parça, desteksiz basılır.",
+    ayarlar: ["Hazır biçim", "Yükseklik, çap ve gövde eğriliği", "Boğum sayısı, derinliği ve pullu doku", "Diş sayısı, boyu ve içe eğimi", "Renk"],
+    kategoriler: ["masa-ofis-duzenleyiciler", "ofis-aksesuarlari"],
+    malzeme: "PLA",
+    malzemeSabit: true,
+    varsayilan: { kutleG: 74, sureSaat: 2.45 },
+    sinir: { kutleG: [25, 320], sureSaat: [0.8, 11] },
+    tabanFiyat: 380,
+    teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Kumdan yükselir", metin: "Gövde tabandan yukarı doğru bir yana eğilir; boğumlar halka halka belirir, pullu doku ışığı yakalar." },
+      { baslik: "Dişler kalemi tutar", metin: "Ağzın dişleri içe doğru eğilir: kalemler, fırçalar ve makaslar dik durur, dışarı devrilmez." },
+      { baslik: "Desteksiz, tek parça", metin: "Boğumların altı 45°'yi aşmaz, dişler 40°'den fazla eğilmez; kurt destek izi olmadan basılır." },
+    ],
+    gorseller: ["Çöl kurdu: açık ağız, 18 diş", "Yaşlı kurt: derin boğumlar", "Yavru: kısa, küçük dişler", "Kurt saksı: geniş gövde"],
+    ciktilar: [
+      { ad: "Kalemlik STL", sec: "#ck-stl", tur: "stl" },
+      RENKLI_PAKET,
+      { ad: "Kalemlik bilgisi (CSV)", sec: "#ck-csv", tur: "belge" },
+    ],
+    anahtarKelimeler: ["çöl kurdu kalemlik", "kum kurdu kalemlik", "dune temalı kalemlik", "ilginç kalemlik", "3d baskı kalemlik", "dişli saksı"],
+    etiketler: ["koleksiyon-kum-tepesi"],
+  },
+  {
+    id: "kum-dalgasi-kase",
+    ad: "Kum Dalgası Kase",
+    ozet: "Ölçüsünü, dalgalarını ve burgusunu sizin kurduğunuz kum dokulu kase ya da vazo.",
+    aciklama:
+      "Rüzgârın kumda bıraktığı dalgacıklar gibi bir yüzü yumuşak, öbür yüzü dik inen sırtlarla dokulu kase. Meyve kasesinden anahtar tabağına, derin kaseden yüksek bir kum vazosuna: profili, ağız çapını, yüksekliği ve taban genişliğini, dalgaların sayısını, derinliğini, eğikliğini ve gövde boyunca ne kadar döneceğini siz belirleyin. İsterseniz ağzın kenarı da dalgalarla iner çıkar. Duvar hiçbir yerde 45°'den fazla açılmaz: kase desteksiz basılır.",
+    ayarlar: ["Hazır kase ve profil (kase, lale, düz)", "Ağız çapı, yükseklik ve taban oranı", "Dalga sayısı, derinliği ve eğikliği", "Burgu ve dalgalı ağız", "Renk"],
+    kategoriler: ["dekor-kase", "ev-dekorasyon"],
+    malzeme: "PLA",
+    malzemeSabit: true,
+    varsayilan: { kutleG: 97, sureSaat: 3 },
+    sinir: { kutleG: [20, 480], sureSaat: [0.7, 16] },
+    tabanFiyat: 380,
+    teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Kumun dokusu", metin: "Dalgalar gerçek kum dalgacıkları gibi asimetrik: bir yüzü yumuşak, öbürü dik; burgu onları gövde boyunca döndürür." },
+      { baslik: "Kaseden vazoya", metin: "Profil, ağız çapı ve yükseklikle aynı araçtan meyve kasesi, anahtar tabağı ya da yüksek bir vazo çıkar." },
+      { baslik: "Desteksiz açılır", metin: "Duvarın açılması 45°'yi geçmeyecek şekilde sınırlanır; istenen ağız çapı sığmazsa araç söyler." },
+    ],
+    gorseller: ["Meyve kasesi, kum rengi", "Anahtar tabağı, dalgalı ağız", "Derin kase, okra", "Kum vazosu: yüksek, burgulu"],
+    ciktilar: [
+      { ad: "Kase STL", sec: "#kd-stl", tur: "stl" },
+      RENKLI_PAKET,
+      { ad: "Kase bilgisi (CSV)", sec: "#kd-csv", tur: "belge" },
+    ],
+    anahtarKelimeler: ["kum dokulu kase", "dalgalı kase", "dekoratif kase", "3d baskı kase", "meyve kasesi", "çöl temalı dekor"],
+    etiketler: ["koleksiyon-kum-tepesi"],
+  },
+  // ---------------- YILBAŞI (2) ----------------
+  {
+    id: "kurabiye-kalibi",
+    ad: "Yılbaşı Kurabiye Kalıbı",
+    ozet: "Şeklini, ölçüsünü ve derinliğini sizin seçtiğiniz yılbaşı kurabiye kalıbı.",
+    aciklama:
+      "Yıldız, çam, kardan adam, çan, kurabiye adam, eldiven, şeker baston, kalp, ev ya da kar tanesi: on yılbaşı şeklinden birini seçin, kurabiyenin boyunu ve kesme derinliğini belirleyin. Kalıbın bıçağı şeklin hemen dışında durur, kurabiye tam seçtiğiniz ölçüde kesilir; bıçağın ucu incelir, hamuru temiz keser. Üstteki tutma kenarı bastırırken parmağınızı korur; isterseniz kalıpları bir ipe dizip asmak için delik eklenir. Elde ılık suyla yıkayın; bulaşık makinesine ve sıcak fırına koymayın.",
+    ayarlar: ["On yılbaşı şekli", "Kurabiye boyu", "Kesme derinliği", "Tutma kenarı ve asma deliği", "Renk"],
+    kategoriler: ["mutfak", "yilbasi", "hediye"],
+    malzeme: "PLA",
+    malzemeSabit: true,
+    varsayilan: { kutleG: 8, sureSaat: 0.5 },
+    sinir: { kutleG: [3, 40], sureSaat: [0.25, 2.5] },
+    tabanFiyat: 90,
+    teslim: "Sipariş sonrası üretilir, 1–3 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Tam ölçüde keser", metin: "Bıçak şeklin dışında durur: 75 mm seçtiyseniz kurabiye 75 mm çıkar." },
+      { baslik: "Keskin, temiz kenar", metin: "Bıçağın son 3 mm'si incelir; hamur yırtılmadan, kenarları düzgün kesilir." },
+      { baslik: "Parmağı korur", metin: "Geniş tutma kenarı bastırırken avucunuza oturur; deliğiyle kalıplar bir ipe dizilip asılır." },
+    ],
+    gorseller: ["Yıldız, kırmızı", "Kurabiye adam, yeşil", "Kardan adam, beyaz", "Kar tanesi, buz mavisi"],
+    ciktilar: [
+      { ad: "Kalıp STL", sec: "#kk-stl", tur: "stl" },
+      RENKLI_PAKET,
+      { ad: "Kalıp bilgisi (CSV)", sec: "#kk-csv", tur: "belge" },
+    ],
+    anahtarKelimeler: ["yılbaşı kurabiye kalıbı", "kurabiye kalıbı", "kurabiye adam kalıbı", "yıldız kurabiye kalıbı", "kişiye özel kurabiye kalıbı", "3d baskı kurabiye kalıbı"],
+    etiketler: ["koleksiyon-yilbasi"],
+  },
+  {
+    id: "isimli-sofra-karti",
+    ad: "İsimli Yılbaşı Sofra Kartı",
+    ozet: "Misafirin adı, motif ve renkleriyle ayaklı yılbaşı sofra kartı.",
+    aciklama:
+      "Yılbaşı sofrasında her tabağın başında misafirin adı. İsmi ve alt satırı yazın, yuvarlak, el yazısı ya da modern yazı tipini, çam, yıldız, kar tanesi, çan ya da hediye motifini seçin. Kart, yazı ve ayak ayrı renkte basılabilir; yazı ve motif kartın üstünde kabarır, kart ayağın yuvasına dik oturur. Sofradan sonra misafirinize küçük bir hatıra.",
+    ayarlar: ["Hazır kart", "İsim ve alt satır", "Yazı tipi", "Motif ve kenar çerçevesi", "Genişlik ve yükseklik, ayak", "Kart, yazı ve ayak rengi"],
+    kategoriler: ["yilbasi", "hediye-yilbasi", "hediye"],
+    malzeme: "PLA",
+    malzemeSabit: true,
+    varsayilan: { kutleG: 24, sureSaat: 1.05 },
+    sinir: { kutleG: [8, 60], sureSaat: [0.4, 2.5] },
+    tabanFiyat: 90,
+    teslim: "Sipariş sonrası üretilir, 1–3 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Her misafire bir kart", metin: "İsimler Türkçe harfleriyle basılır; yazı kartın içine kendiliğinden sığar." },
+      { baslik: "Üç renk", metin: "Kart, kabartma yazı ve ayak ayrı renkte: çam yeşiline altın, kırmızıya beyaz." },
+      { baslik: "Sofradan sonra hatıra", metin: "Kart ayağından çıkar; misafiriniz evine götürür, ağaca ya da rafa koyar." },
+    ],
+    gorseller: ["Klasik: çam, el yazısı, altın", "Yıldızlı: siyah ve altın", "Kar tanesi: beyaz ve buz mavisi", "Kırmızı çan"],
+    ciktilar: [
+      { ad: "Kart STL", sec: "#sk-stl-kart", tur: "stl" },
+      { ad: "Yazı ve motif STL", sec: "#sk-stl-yazi", tur: "stl" },
+      { ad: "Ayak STL", sec: "#sk-stl-ayak", tur: "stl" },
+      RENKLI_PAKET,
+      { ad: "Kart bilgisi (CSV)", sec: "#sk-csv", tur: "belge" },
+    ],
+    anahtarKelimeler: ["isimli sofra kartı", "yılbaşı sofra kartı", "isimlik", "masa isimliği", "yılbaşı masa süsü", "kişiye özel isimlik"],
+    etiketler: ["koleksiyon-yilbasi"],
+  },
+  {
+    id: "isikli-yilbasi-feneri",
+    ad: "Işıklı Yılbaşı Feneri",
+    ozet: "Deseni ve yazısı duvarına işlenmiş, içine mum LED konan yılbaşı feneri.",
+    aciklama:
+      "İçine pilli mum LED konunca deseni ışıkla beliren fener. Çam ormanı, kar yağışı ya da yıldızlı gece desenlerinden birini seçin; desen numarası ve yoğunlukla kendinize özgü bir gece kurun, isterseniz ön yüzüne bir isim ya da \"Mutlu Yıllar\" yazın. Desen duvarın kalınlığına işlenir: ışık ince yerlerden parlar, kalın yerlerde gölge olur; isterseniz tersine motifler parlar. Silindir, fıçı ya da konik biçim; fener mum LED'in üstüne kapatılır.",
+    ayarlar: ["Hazır fener ve desen (orman, kar, yıldızlı gece)", "Desen numarası ve yoğunluk", "Motifler parlasın", "Yazı ve yazı tipi", "Çap, yükseklik ve biçim", "Renk"],
+    kategoriler: ["aydinlatma-masa-gece", "aydinlatma", "yilbasi"],
+    malzeme: "PLA",
+    malzemeSabit: true,
+    varsayilan: { kutleG: 61, sureSaat: 3.3 },
+    sinir: { kutleG: [25, 200], sureSaat: [1.2, 11] },
+    ekMaliyet: 60,
+    ekMaliyetAciklamasi: "Pilli mum LED",
+    tabanFiyat: 450,
+    teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Işıkla beliren desen", metin: "Gündüz yalnızca hafif bir kabartma; mum LED yanınca çam ormanı, kar taneleri ya da yıldızlı gece ortaya çıkar." },
+      { baslik: "Sizin geceniz", metin: "Desen numarası ve yoğunlukla her fener ayrı; ön yüzüne aile adı ya da kısa bir söz." },
+      { baslik: "Mum LED'iyle birlikte", metin: "Fener pilli mum LED'in üstüne kapatılır; LED kutudan çıkar." },
+    ],
+    gorseller: ["Çam ormanı, ışık yanınca", "Kar yağışı: parlayan kar taneleri", "Yıldızlı gece, hilal ay", "İsimli: Mutlu Yıllar"],
+    ciktilar: [
+      { ad: "Fener STL", sec: "#yf-stl", tur: "stl" },
+      RENKLI_PAKET,
+      { ad: "Fener bilgisi (CSV)", sec: "#yf-csv", tur: "belge" },
+    ],
+    anahtarKelimeler: ["yılbaşı feneri", "litofan fener", "led mumluk", "ışıklı yılbaşı süsü", "isimli fener", "yılbaşı dekorasyon"],
+    etiketler: ["koleksiyon-yilbasi"],
   },
 ];
 

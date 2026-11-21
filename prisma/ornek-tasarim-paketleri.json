@@ -2053,5 +2053,669 @@
    "kutleG": 142.27,
    "sureSaat": 4.49
   }
+ },
+ "isimli-yilbasi-susu": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "yb-sekil": "top",
+    "yb-isim": "Yılmaz Ailesi",
+    "yb-yil": "2027",
+    "yb-yazi-tipi": "elyazisi",
+    "yb-boyut": "80",
+    "yb-kalinlik": "3.6",
+    "yb-kenar": true,
+    "yb-aski": "halka",
+    "yb-renk-govde": "kirmizi",
+    "yb-renk-yazi": "altin",
+    "yb-yazi-yuksek": "1.2",
+    "yb-kenar-genislik": "2",
+    "yb-delik": "4",
+    "yb-cozunurluk": "10"
+   },
+   "gruplar": {},
+   "dosyalar": {},
+   "ek": null
+  },
+  "ozet": [
+   {
+    "ad": "Şekil",
+    "deger": "Top"
+   },
+   {
+    "ad": "İsim",
+    "deger": "Yılmaz Ailesi"
+   },
+   {
+    "ad": "Alt satır",
+    "deger": "2027"
+   },
+   {
+    "ad": "Yazı tipi",
+    "deger": "El yazısı"
+   },
+   {
+    "ad": "Genişlik",
+    "deger": "80 mm"
+   },
+   {
+    "ad": "Kalınlık",
+    "deger": "3.6 mm"
+   },
+   {
+    "ad": "Kenar çerçevesi",
+    "deger": "Evet"
+   },
+   {
+    "ad": "Asma",
+    "deger": "Halka"
+   },
+   {
+    "ad": "Gövde rengi",
+    "deger": "Kırmızı"
+   },
+   {
+    "ad": "Yazı rengi",
+    "deger": "Altın"
+   },
+   {
+    "ad": "Süs ölçüsü",
+    "deger": "82 × 92 × 4.8 mm"
+   }
+  ],
+  "olcum": {
+   "kutleG": 25.43,
+   "sureSaat": 0.94
+  }
+ },
+ "kar-tanesi-susu": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "kt-desen": "23",
+    "kt-dal": "4",
+    "kt-aci": "42",
+    "kt-boy": "34",
+    "kt-uc": "yuvarlak",
+    "kt-merkez": "halka",
+    "kt-ic-halka": true,
+    "kt-cap": "80",
+    "kt-kol": "2.2",
+    "kt-kalinlik": "3",
+    "kt-aski": "halka",
+    "kt-renk": "beyaz",
+    "kt-delik": "3.5",
+    "kt-cozunurluk": "10"
+   },
+   "gruplar": {},
+   "dosyalar": {},
+   "ek": null
+  },
+  "ozet": [
+   {
+    "ad": "Desen numarası",
+    "deger": "23 #"
+   },
+   {
+    "ad": "Dal sayısı",
+    "deger": "4 çift"
+   },
+   {
+    "ad": "Dal açısı",
+    "deger": "42 °"
+   },
+   {
+    "ad": "Dal uzunluğu",
+    "deger": "34 %"
+   },
+   {
+    "ad": "Kol ucu",
+    "deger": "Yuvarlak"
+   },
+   {
+    "ad": "Merkez",
+    "deger": "Halka"
+   },
+   {
+    "ad": "İç halka",
+    "deger": "Evet"
+   },
+   {
+    "ad": "Çap",
+    "deger": "80 mm"
+   },
+   {
+    "ad": "Kol kalınlığı",
+    "deger": "2.2 mm"
+   },
+   {
+    "ad": "Kalınlık",
+    "deger": "3 mm"
+   },
+   {
+    "ad": "Asma",
+    "deger": "Halka"
+   },
+   {
+    "ad": "Renk",
+    "deger": "Kar beyazı"
+   },
+   {
+    "ad": "Süs ölçüsü",
+    "deger": "71 × 87 × 3.0 mm"
+   }
+  ],
+  "olcum": {
+   "kutleG": 6.26,
+   "sureSaat": 0.33
+  }
+ },
+ "burgulu-yilbasi-agaci": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "ag-bicim": "kademeli",
+    "ag-kat": "5",
+    "ag-yukseklik": "160",
+    "ag-cap": "100",
+    "ag-kol": "7",
+    "ag-derinlik": "32",
+    "ag-burgu": "120",
+    "ag-led": false,
+    "ag-yildiz": true,
+    "ag-yildiz-cap": "42",
+    "ag-renk": "yesil",
+    "ag-renk-yildiz": "altin",
+    "ag-duvar": "2.2",
+    "ag-adim": "1.2"
+   },
+   "gruplar": {},
+   "dosyalar": {},
+   "ek": null
+  },
+  "ozet": [
+   {
+    "ad": "Biçim",
+    "deger": "Kat kat"
+   },
+   {
+    "ad": "Kat sayısı",
+    "deger": "5 kat"
+   },
+   {
+    "ad": "Yükseklik",
+    "deger": "160 mm"
+   },
+   {
+    "ad": "Taban çapı",
+    "deger": "100 mm"
+   },
+   {
+    "ad": "Kol sayısı",
+    "deger": "7 kol"
+   },
+   {
+    "ad": "Kol derinliği",
+    "deger": "32 %"
+   },
+   {
+    "ad": "Burgu",
+    "deger": "120 °"
+   },
+   {
+    "ad": "LED yuvası (içi boş, ışıklı)",
+    "deger": "Hayır"
+   },
+   {
+    "ad": "Tepe yıldızı",
+    "deger": "Evet"
+   },
+   {
+    "ad": "Yıldız boyu",
+    "deger": "42 mm"
+   },
+   {
+    "ad": "Ağaç rengi",
+    "deger": "Çam yeşili"
+   },
+   {
+    "ad": "Yıldız rengi",
+    "deger": "Altın"
+   },
+   {
+    "ad": "Ağaç ölçüsü",
+    "deger": "92 × 92 × 191 mm"
+   }
+  ],
+  "olcum": {
+   "kutleG": 126.01,
+   "sureSaat": 3.78
+  }
+ },
+ "kum-tepesi-pano": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "kp-desen": "12",
+    "kp-yon": "35",
+    "kp-siklik": "46",
+    "kp-kivrim": "70",
+    "kp-kayma": "75",
+    "kp-gen": "160",
+    "kp-der": "100",
+    "kp-yuk": "12",
+    "kp-dalgacik": true,
+    "kp-cerceve": true,
+    "kp-renk": "kum",
+    "kp-taban": "3",
+    "kp-adim": "0.7"
+   },
+   "gruplar": {},
+   "dosyalar": {},
+   "ek": null
+  },
+  "ozet": [
+   {
+    "ad": "Desen numarası",
+    "deger": "12 #"
+   },
+   {
+    "ad": "Rüzgâr yönü",
+    "deger": "35 °"
+   },
+   {
+    "ad": "Tepe aralığı",
+    "deger": "46 mm"
+   },
+   {
+    "ad": "Sırt kıvrımı",
+    "deger": "70 %"
+   },
+   {
+    "ad": "Kayma yüzü dikliği",
+    "deger": "75 %"
+   },
+   {
+    "ad": "Genişlik",
+    "deger": "160 mm"
+   },
+   {
+    "ad": "Derinlik",
+    "deger": "100 mm"
+   },
+   {
+    "ad": "Tepe yüksekliği",
+    "deger": "12 mm"
+   },
+   {
+    "ad": "Kum dalgacıkları",
+    "deger": "Evet"
+   },
+   {
+    "ad": "Çerçeve",
+    "deger": "Evet"
+   },
+   {
+    "ad": "Renk",
+    "deger": "Kum"
+   },
+   {
+    "ad": "Pano ölçüsü",
+    "deger": "160 × 100 × 14.2 mm"
+   }
+  ],
+  "olcum": {
+   "kutleG": 62.31,
+   "sureSaat": 2.29
+  }
+ },
+ "col-kurdu-kalemlik": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "ck-yuk": "130",
+    "ck-cap": "78",
+    "ck-egri": "18",
+    "ck-bogum": "7",
+    "ck-bogum-derin": "16",
+    "ck-pul": true,
+    "ck-dis": "24",
+    "ck-dis-boy": "16",
+    "ck-dis-egim": "30",
+    "ck-renk": "okra",
+    "ck-duvar": "2.2",
+    "ck-taban": "2.4"
+   },
+   "gruplar": {},
+   "dosyalar": {},
+   "ek": null
+  },
+  "ozet": [
+   {
+    "ad": "Yükseklik",
+    "deger": "130 mm"
+   },
+   {
+    "ad": "Çap",
+    "deger": "78 mm"
+   },
+   {
+    "ad": "Gövde eğriliği",
+    "deger": "18 °"
+   },
+   {
+    "ad": "Boğum sayısı",
+    "deger": "7 adet"
+   },
+   {
+    "ad": "Boğum derinliği",
+    "deger": "16 %"
+   },
+   {
+    "ad": "Pullu doku",
+    "deger": "Evet"
+   },
+   {
+    "ad": "Diş sayısı",
+    "deger": "24 adet"
+   },
+   {
+    "ad": "Diş boyu",
+    "deger": "16 mm"
+   },
+   {
+    "ad": "İçe eğim",
+    "deger": "30 °"
+   },
+   {
+    "ad": "Renk",
+    "deger": "Okra"
+   },
+   {
+    "ad": "Kalemlik ölçüsü",
+    "deger": "100 × 79 × 146 mm"
+   }
+  ],
+  "olcum": {
+   "kutleG": 92.33,
+   "sureSaat": 3.01
+  }
+ },
+ "kum-dalgasi-kase": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "kd-profil": "lale",
+    "kd-cap": "110",
+    "kd-yuk": "170",
+    "kd-taban-oran": "55",
+    "kd-dalga": "14",
+    "kd-derin": "4",
+    "kd-burgu": "160",
+    "kd-kayma": "65",
+    "kd-dalgali-agiz": true,
+    "kd-renk": "kum",
+    "kd-duvar": "2",
+    "kd-taban": "2.4"
+   },
+   "gruplar": {},
+   "dosyalar": {},
+   "ek": null
+  },
+  "ozet": [
+   {
+    "ad": "Profil",
+    "deger": "Lale"
+   },
+   {
+    "ad": "Ağız çapı",
+    "deger": "110 mm"
+   },
+   {
+    "ad": "Yükseklik",
+    "deger": "170 mm"
+   },
+   {
+    "ad": "Taban oranı",
+    "deger": "55 %"
+   },
+   {
+    "ad": "Dalga sayısı",
+    "deger": "14 adet"
+   },
+   {
+    "ad": "Dalga derinliği",
+    "deger": "4 mm"
+   },
+   {
+    "ad": "Burgu",
+    "deger": "160 °"
+   },
+   {
+    "ad": "Dalga eğikliği",
+    "deger": "65 %"
+   },
+   {
+    "ad": "Dalgalı ağız",
+    "deger": "Evet"
+   },
+   {
+    "ad": "Renk",
+    "deger": "Kum"
+   },
+   {
+    "ad": "Kase ölçüsü",
+    "deger": "Ø116 × 176 mm"
+   }
+  ],
+  "olcum": {
+   "kutleG": 116.86,
+   "sureSaat": 3.52
+  }
+ },
+ "kurabiye-kalibi": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "kk-sekil": "yildiz",
+    "kk-boy": "75",
+    "kk-derin": "13",
+    "kk-kenar": "4.5",
+    "kk-aski": false,
+    "kk-renk": "kirmizi",
+    "kk-bicak": "1",
+    "kk-kenar-kal": "2",
+    "kk-cozunurluk": "10"
+   },
+   "gruplar": {},
+   "dosyalar": {},
+   "ek": null
+  },
+  "ozet": [
+   {
+    "ad": "Şekil",
+    "deger": "Yıldız"
+   },
+   {
+    "ad": "Kurabiye boyu",
+    "deger": "75 mm"
+   },
+   {
+    "ad": "Kesme derinliği",
+    "deger": "13 mm"
+   },
+   {
+    "ad": "Tutma kenarı",
+    "deger": "4.5 mm"
+   },
+   {
+    "ad": "Asma deliği",
+    "deger": "Hayır"
+   },
+   {
+    "ad": "Renk",
+    "deger": "Kırmızı"
+   },
+   {
+    "ad": "Kalıp ölçüsü",
+    "deger": "Kurabiye 75 × 72 mm"
+   }
+  ],
+  "olcum": {
+   "kutleG": 7.99,
+   "sureSaat": 0.5
+  }
+ },
+ "isimli-sofra-karti": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "sk-isim": "Ayşe",
+    "sk-alt": "Mutlu Yıllar",
+    "sk-yazi-tipi": "elyazisi",
+    "sk-motif": "agac",
+    "sk-cerceve": true,
+    "sk-gen": "95",
+    "sk-yuk": "42",
+    "sk-ayak": true,
+    "sk-renk-kart": "yesil",
+    "sk-renk-yazi": "altin",
+    "sk-renk-ayak": "altin",
+    "sk-kal": "2.4",
+    "sk-yazi-yuksek": "1",
+    "sk-bosluk": "0.35",
+    "sk-cozunurluk": "10"
+   },
+   "gruplar": {},
+   "dosyalar": {},
+   "ek": null
+  },
+  "ozet": [
+   {
+    "ad": "İsim",
+    "deger": "Ayşe"
+   },
+   {
+    "ad": "Alt satır",
+    "deger": "Mutlu Yıllar"
+   },
+   {
+    "ad": "Yazı tipi",
+    "deger": "El yazısı"
+   },
+   {
+    "ad": "Motif",
+    "deger": "Çam"
+   },
+   {
+    "ad": "Kenar çerçevesi",
+    "deger": "Evet"
+   },
+   {
+    "ad": "Genişlik",
+    "deger": "95 mm"
+   },
+   {
+    "ad": "Yükseklik",
+    "deger": "42 mm"
+   },
+   {
+    "ad": "Ayak",
+    "deger": "Evet"
+   },
+   {
+    "ad": "Kart rengi",
+    "deger": "Çam yeşili"
+   },
+   {
+    "ad": "Yazı rengi",
+    "deger": "Altın"
+   },
+   {
+    "ad": "Ayak rengi",
+    "deger": "Altın"
+   },
+   {
+    "ad": "Kart ölçüsü",
+    "deger": "Kart 95 × 42 mm · ayaklı"
+   }
+  ],
+  "olcum": {
+   "kutleG": 21.96,
+   "sureSaat": 0.98
+  }
+ },
+ "isikli-yilbasi-feneri": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "yf-desen": "orman",
+    "yf-tohum": "14",
+    "yf-yogun": "45",
+    "yf-ters": false,
+    "yf-isim": "Mutlu Yıllar",
+    "yf-yazi-tipi": "yuvarlak",
+    "yf-cap": "80",
+    "yf-yuk": "120",
+    "yf-bicim": "silindir",
+    "yf-renk": "beyaz",
+    "yf-ince": "0.8",
+    "yf-kalin": "2.6",
+    "yf-adim": "0.6"
+   },
+   "gruplar": {},
+   "dosyalar": {},
+   "ek": null
+  },
+  "ozet": [
+   {
+    "ad": "Desen",
+    "deger": "Çam ormanı"
+   },
+   {
+    "ad": "Desen numarası",
+    "deger": "14 #"
+   },
+   {
+    "ad": "Yoğunluk",
+    "deger": "45 %"
+   },
+   {
+    "ad": "Motifler parlasın",
+    "deger": "Hayır"
+   },
+   {
+    "ad": "Yazı",
+    "deger": "Mutlu Yıllar"
+   },
+   {
+    "ad": "Yazı tipi",
+    "deger": "Yuvarlak"
+   },
+   {
+    "ad": "Çap",
+    "deger": "80 mm"
+   },
+   {
+    "ad": "Yükseklik",
+    "deger": "120 mm"
+   },
+   {
+    "ad": "Biçim",
+    "deger": "Silindir"
+   },
+   {
+    "ad": "Renk",
+    "deger": "Beyaz"
+   },
+   {
+    "ad": "Fener ölçüsü",
+    "deger": "Ø80 × 120 mm"
+   }
+  ],
+  "olcum": {
+   "kutleG": 55.36,
+   "sureSaat": 3.06
+  }
  }
 }

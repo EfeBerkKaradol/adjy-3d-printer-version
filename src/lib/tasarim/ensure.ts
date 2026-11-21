@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import {
   TASARIM_ARACLARI,
   TASARIM_KATEGORISI,
+  ETIKET_ADLARI,
   aracGorseli,
   tasarimUrunSlug,
   type TasarimAraci,
@@ -133,6 +134,21 @@ async function urunuBulVeyaAc(arac: TasarimAraci): Promise<string | null> {
         stockQty: 999,
         isActive: true,
         featured: false,
+        // Koleksiyon etiketleri (yılbaşı araçları yılbaşı koleksiyonunda)
+        ...(arac.etiketler?.length
+          ? {
+              tags: {
+                create: arac.etiketler.map((slug) => ({
+                  tag: {
+                    connectOrCreate: {
+                      where: { slug },
+                      create: { slug, name: ETIKET_ADLARI[slug] ?? slug },
+                    },
+                  },
+                })),
+              },
+            }
+          : {}),
       },
       select: { id: true },
     });

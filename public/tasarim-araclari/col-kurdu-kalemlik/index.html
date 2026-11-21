@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Çöl Kurdu Kalemlik — Boğumlu Gövde, Dişli Ağız</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "../_adjy/three.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <!-- ADJY mağaza köprüsü: tema, müşteri/atölye kipi, durum kaydı -->
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="../_adjy/yilbasi.css" />
+  <link rel="stylesheet" href="../_adjy/kopru.css" />
+  <script src="./adjy.js"></script>
+  <script src="../_adjy/kopru.js"></script>
+  <script src="../_adjy/olcu.js"></script>
+  <script src="../_adjy/renkli.js"></script>
+</head>
+<body>
+  <div class="yb-izgara">
+    <!-- ================= AYARLAR ================= -->
+    <aside class="yb-panel">
+      <section class="yb-grup" id="grup-hazir">
+        <h2 class="yb-baslik">Hazır kurtlar</h2>
+        <div class="yb-hazirlar">
+          <button type="button" data-hazir="klasik" class="on"><b>Çöl kurdu</b><small>Açık ağız, 18 diş</small></button>
+          <button type="button" data-hazir="yasli"><b>Yaşlı kurt</b><small>Derin boğumlar</small></button>
+          <button type="button" data-hazir="yavru"><b>Yavru</b><small>Kısa, küçük dişler</small></button>
+          <button type="button" data-hazir="saksi"><b>Kurt saksı</b><small>Geniş gövde</small></button>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-govde">
+        <h2 class="yb-baslik">Gövde</h2>
+        <div class="param-row">
+          <label class="yb-etiket" for="ck-yuk">Yükseklik</label>
+          <div class="yb-kaydir"><input type="range" id="ck-yuk" min="60" max="160" step="5" value="110" /><span class="num-wrap"><input type="number" data-bagli="ck-yuk" min="60" max="160" step="5" value="110" aria-label="Yükseklik" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="ck-cap">Çap</label>
+          <div class="yb-kaydir"><input type="range" id="ck-cap" min="50" max="120" step="2" value="72" /><span class="num-wrap"><input type="number" data-bagli="ck-cap" min="50" max="120" step="2" value="72" aria-label="Çap" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="ck-egri">Gövde eğriliği</label>
+          <div class="yb-kaydir"><input type="range" id="ck-egri" min="0" max="30" step="1" value="12" /><span class="num-wrap"><input type="number" data-bagli="ck-egri" min="0" max="30" step="1" value="12" aria-label="Gövde eğriliği" /><span class="unit">°</span></span></div>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-bogum">
+        <h2 class="yb-baslik">Boğumlar</h2>
+        <div class="param-row">
+          <label class="yb-etiket" for="ck-bogum">Boğum sayısı</label>
+          <div class="yb-kaydir"><input type="range" id="ck-bogum" min="3" max="14" step="1" value="8" /><span class="num-wrap"><input type="number" data-bagli="ck-bogum" min="3" max="14" step="1" value="8" aria-label="Boğum sayısı" /><span class="unit">adet</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="ck-bogum-derin">Boğum derinliği</label>
+          <div class="yb-kaydir"><input type="range" id="ck-bogum-derin" min="0" max="30" step="1" value="12" /><span class="num-wrap"><input type="number" data-bagli="ck-bogum-derin" min="0" max="30" step="1" value="12" aria-label="Boğum derinliği" /><span class="unit">%</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-kutu"><input type="checkbox" id="ck-pul" checked /> <span>Pullu doku</span></label>
+          <p class="yb-not">Boğumların üstünde ince boyuna çizgiler.</p>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-agiz">
+        <h2 class="yb-baslik">Ağız</h2>
+        <div class="param-row">
+          <label class="yb-etiket" for="ck-dis">Diş sayısı</label>
+          <div class="yb-kaydir"><input type="range" id="ck-dis" min="0" max="28" step="1" value="18" /><span class="num-wrap"><input type="number" data-bagli="ck-dis" min="0" max="28" step="1" value="18" aria-label="Diş sayısı" /><span class="unit">adet</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="ck-dis-boy">Diş boyu</label>
+          <div class="yb-kaydir"><input type="range" id="ck-dis-boy" min="0" max="24" step="1" value="12" /><span class="num-wrap"><input type="number" data-bagli="ck-dis-boy" min="0" max="24" step="1" value="12" aria-label="Diş boyu" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="ck-dis-egim">İçe eğim</label>
+          <div class="yb-kaydir"><input type="range" id="ck-dis-egim" min="0" max="40" step="1" value="22" /><span class="num-wrap"><input type="number" data-bagli="ck-dis-egim" min="0" max="40" step="1" value="22" aria-label="İçe eğim" /><span class="unit">°</span></span></div>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-renk">
+        <h2 class="yb-baslik">Renk</h2>
+        <div class="param-row yb-renk-satir">
+          <label class="yb-etiket" for="ck-renk">Renk</label>
+          <select id="ck-renk" class="yb-gizli-secim">
+            <option value="kum">Kum</option>
+            <option value="okra" selected>Okra</option>
+            <option value="baharat">Baharat</option>
+            <option value="pas">Pas</option>
+            <option value="kemik">Kemik</option>
+            <option value="gece">Gece mavisi</option>
+            <option value="antrasit">Antrasit</option>
+          </select>
+          <div class="yb-renkler" data-secim="ck-renk">
+            <button type="button" data-v="kum" style="--r:#d8b98a" title="Kum"></button>
+            <button type="button" data-v="okra" style="--r:#c9965a" title="Okra"></button>
+            <button type="button" data-v="baharat" style="--r:#c77b2a" title="Baharat"></button>
+            <button type="button" data-v="pas" style="--r:#a4532f" title="Pas"></button>
+            <button type="button" data-v="kemik" style="--r:#ece3cf" title="Kemik"></button>
+            <button type="button" data-v="gece" style="--r:#24324d" title="Gece mavisi"></button>
+            <button type="button" data-v="antrasit" style="--r:#2f3033" title="Antrasit"></button>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <!-- ================= SAHNE ================= -->
+    <section class="yb-sahne">
+      <canvas id="ck-tuval" class="yb-tuval"></canvas>
+      <div class="yb-sahne-ust">
+        <span class="yb-olcu" id="ck-olcu">—</span>
+        <span class="yb-uyari" id="ck-uyari" hidden></span>
+      </div>
+    </section>
+
+    <!-- ================= ATÖLYE (müşteriye gizli) ================= -->
+    <aside class="yb-atolye">
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Üretim</h2>
+        <dl class="yb-tablo" id="ck-tablo"></dl>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Baskı ayarları</h2>
+        <div class="param-row"><label class="yb-etiket" for="ck-duvar">Duvar</label><span class="num-wrap"><input type="number" id="ck-duvar" min="1.6" max="3.2" step="0.1" value="2.2" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="ck-taban">Taban</label><span class="num-wrap"><input type="number" id="ck-taban" min="1.6" max="4" step="0.2" value="2.4" /><span class="unit">mm</span></span></div>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Çıktılar</h2>
+        <button type="button" class="yb-cikti" id="ck-stl">Kalemlik (STL)</button>
+        <button type="button" class="yb-cikti yb-ikincil" id="ck-csv">Kalemlik bilgisi (CSV)</button>
+        <p class="yb-not">Z yukarı, mm. Taban tablaya oturur. Dişler ve eğri gövde 45°'yi aşmaz, desteksiz. 3 perimetre, dolgu %15.</p>
+      </section>
+    </aside>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

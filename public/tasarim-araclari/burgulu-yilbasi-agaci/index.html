@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Burgulu Yılbaşı Ağacı — Kendi Ağacın</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "../_adjy/three.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <!-- ADJY mağaza köprüsü: tema, müşteri/atölye kipi, durum kaydı -->
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="../_adjy/yilbasi.css" />
+  <link rel="stylesheet" href="../_adjy/kopru.css" />
+  <script src="./adjy.js"></script>
+  <script src="../_adjy/kopru.js"></script>
+  <script src="../_adjy/olcu.js"></script>
+  <script src="../_adjy/renkli.js"></script>
+</head>
+<body>
+  <div class="yb-izgara">
+    <!-- ================= AYARLAR ================= -->
+    <aside class="yb-panel">
+      <section class="yb-grup" id="grup-hazir">
+        <h2 class="yb-baslik">Hazır ağaçlar</h2>
+        <div class="yb-hazirlar">
+          <button type="button" data-hazir="klasik" class="on"><b>Klasik</b><small>5 kat, yıldızlı</small></button>
+          <button type="button" data-hazir="isikli"><b>Işıklı</b><small>İçi boş, LED'li</small></button>
+          <button type="button" data-hazir="modern"><b>Modern</b><small>Sert burgu, altın</small></button>
+          <button type="button" data-hazir="mini"><b>Mini</b><small>9 cm, masaüstü</small></button>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-bicim">
+        <h2 class="yb-baslik">Biçim</h2>
+        <div class="param-row">
+          <label class="yb-etiket" for="ag-bicim">Biçim</label>
+          <select id="ag-bicim" class="yb-gizli-secim">
+            <option value="kademeli" selected>Kat kat</option>
+            <option value="konik">Konik</option>
+            <option value="kavisli">Kavisli</option>
+          </select>
+          <div class="yb-seg" data-secim="ag-bicim">
+            <button type="button" data-v="kademeli"><b>Kat kat</b><small>Klasik çam</small></button>
+            <button type="button" data-v="konik"><b>Konik</b><small>Düz çizgi</small></button>
+            <button type="button" data-v="kavisli"><b>Kavisli</b><small>İnce tepe</small></button>
+          </div>
+        </div>
+        <div class="param-row" id="ag-kat-satir">
+          <label class="yb-etiket" for="ag-kat">Kat sayısı</label>
+          <div class="yb-kaydir"><input type="range" id="ag-kat" min="3" max="9" step="1" value="5" /><span class="num-wrap"><input type="number" data-bagli="ag-kat" min="3" max="9" step="1" value="5" aria-label="Kat sayısı" /><span class="unit">kat</span></span></div>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-olcu">
+        <h2 class="yb-baslik">Ölçü</h2>
+        <div class="param-row">
+          <label class="yb-etiket" for="ag-yukseklik">Yükseklik</label>
+          <div class="yb-kaydir"><input type="range" id="ag-yukseklik" min="80" max="260" step="5" value="160" /><span class="num-wrap"><input type="number" data-bagli="ag-yukseklik" min="80" max="260" step="5" value="160" aria-label="Yükseklik" /><span class="unit">mm</span></span></div>
+          <p class="yb-not">Yıldız hariç.</p>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="ag-cap">Taban çapı</label>
+          <div class="yb-kaydir"><input type="range" id="ag-cap" min="50" max="160" step="5" value="100" /><span class="num-wrap"><input type="number" data-bagli="ag-cap" min="50" max="160" step="5" value="100" aria-label="Taban çapı" /><span class="unit">mm</span></span></div>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-kol">
+        <h2 class="yb-baslik">Kollar ve burgu</h2>
+        <div class="param-row">
+          <label class="yb-etiket" for="ag-kol">Kol sayısı</label>
+          <div class="yb-kaydir"><input type="range" id="ag-kol" min="4" max="12" step="1" value="7" /><span class="num-wrap"><input type="number" data-bagli="ag-kol" min="4" max="12" step="1" value="7" aria-label="Kol sayısı" /><span class="unit">kol</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="ag-derinlik">Kol derinliği</label>
+          <div class="yb-kaydir"><input type="range" id="ag-derinlik" min="10" max="60" step="1" value="32" /><span class="num-wrap"><input type="number" data-bagli="ag-derinlik" min="10" max="60" step="1" value="32" aria-label="Kol derinliği" /><span class="unit">%</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="ag-burgu">Burgu</label>
+          <div class="yb-kaydir"><input type="range" id="ag-burgu" min="0" max="540" step="10" value="120" /><span class="num-wrap"><input type="number" data-bagli="ag-burgu" min="0" max="540" step="10" value="120" aria-label="Burgu" /><span class="unit">°</span></span></div>
+          <p class="yb-not">Kollar tabandan tepeye bu kadar döner.</p>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-isik">
+        <h2 class="yb-baslik">Işık ve yıldız</h2>
+        <div class="param-row">
+          <label class="yb-kutu"><input type="checkbox" id="ag-led" /> <span>LED yuvası (içi boş, ışıklı)</span></label>
+          <p class="yb-not" id="ag-led-not"></p>
+        </div>
+        <div class="param-row">
+          <label class="yb-kutu"><input type="checkbox" id="ag-yildiz" checked /> <span>Tepe yıldızı</span></label>
+          <p class="yb-not">Ayrı basılır, dili ağacın tepesindeki yuvaya geçer.</p>
+        </div>
+        <div class="param-row" id="ag-yildiz-cap-satir">
+          <label class="yb-etiket" for="ag-yildiz-cap">Yıldız boyu</label>
+          <div class="yb-kaydir"><input type="range" id="ag-yildiz-cap" min="25" max="70" step="1" value="42" /><span class="num-wrap"><input type="number" data-bagli="ag-yildiz-cap" min="25" max="70" step="1" value="42" aria-label="Yıldız boyu" /><span class="unit">mm</span></span></div>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-renk">
+        <h2 class="yb-baslik">Renk</h2>
+        <div class="param-row yb-renk-satir">
+          <label class="yb-etiket" for="ag-renk">Ağaç rengi</label>
+          <select id="ag-renk" class="yb-gizli-secim">
+            <option value="yesil" selected>Çam yeşili</option>
+            <option value="cam">Orman yeşili</option>
+            <option value="beyaz">Kar beyazı</option>
+            <option value="altin">Altın</option>
+            <option value="kirmizi">Kırmızı</option>
+            <option value="gumus">Gümüş</option>
+            <option value="lacivert">Lacivert</option>
+          </select>
+          <div class="yb-renkler" data-secim="ag-renk">
+            <button type="button" data-v="yesil" style="--r:#1f6b3a" title="Çam yeşili"></button>
+            <button type="button" data-v="cam" style="--r:#2f7d4f" title="Orman yeşili"></button>
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Kar beyazı"></button>
+            <button type="button" data-v="altin" style="--r:#d2a347" title="Altın"></button>
+            <button type="button" data-v="kirmizi" style="--r:#c4202b" title="Kırmızı"></button>
+            <button type="button" data-v="gumus" style="--r:#b9bcc2" title="Gümüş"></button>
+            <button type="button" data-v="lacivert" style="--r:#1d2a52" title="Lacivert"></button>
+          </div>
+        </div>
+        <div class="param-row yb-renk-satir" id="ag-renk-yildiz-satir">
+          <label class="yb-etiket" for="ag-renk-yildiz">Yıldız rengi</label>
+          <select id="ag-renk-yildiz" class="yb-gizli-secim">
+            <option value="altin" selected>Altın</option>
+            <option value="sari">Sarı</option>
+            <option value="gumus">Gümüş</option>
+            <option value="kirmizi">Kırmızı</option>
+            <option value="beyaz">Beyaz</option>
+          </select>
+          <div class="yb-renkler" data-secim="ag-renk-yildiz">
+            <button type="button" data-v="altin" style="--r:#d2a347" title="Altın"></button>
+            <button type="button" data-v="sari" style="--r:#f0c23a" title="Sarı"></button>
+            <button type="button" data-v="gumus" style="--r:#b9bcc2" title="Gümüş"></button>
+            <button type="button" data-v="kirmizi" style="--r:#c4202b" title="Kırmızı"></button>
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <!-- ================= SAHNE ================= -->
+    <section class="yb-sahne">
+      <canvas id="ag-tuval" class="yb-tuval"></canvas>
+      <div class="yb-sahne-ust">
+        <span class="yb-olcu" id="ag-olcu">—</span>
+        <span class="yb-uyari" id="ag-uyari" hidden></span>
+      </div>
+    </section>
+
+    <!-- ================= ATÖLYE (müşteriye gizli) ================= -->
+    <aside class="yb-atolye">
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Üretim</h2>
+        <dl class="yb-tablo" id="ag-tablo"></dl>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Baskı ayarları</h2>
+        <div class="param-row"><label class="yb-etiket" for="ag-duvar">LED'li ağaçta duvar</label><span class="num-wrap"><input type="number" id="ag-duvar" min="1.2" max="4" step="0.1" value="2.2" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="ag-adim">Halka aralığı</label><span class="num-wrap"><input type="number" id="ag-adim" min="0.6" max="3" step="0.1" value="1.2" /><span class="unit">mm</span></span></div>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Çıktılar</h2>
+        <button type="button" class="yb-cikti" id="ag-stl">Ağaç (STL)</button>
+        <button type="button" class="yb-cikti" id="ag-stl-yildiz">Yıldız (STL)</button>
+        <button type="button" class="yb-cikti yb-ikincil" id="ag-csv">Ağaç bilgisi (CSV)</button>
+        <p class="yb-not">Z yukarı, mm. Ağaç tabanı tablaya oturur, desteksiz. Yıldız yatık basılır; dili yuvaya sıkı geçer (gerekirse damla yapıştırıcı).</p>
+      </section>
+    </aside>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

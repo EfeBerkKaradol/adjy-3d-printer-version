@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>İsimli Yılbaşı Sofra Kartı — Ayaklı</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "../_adjy/three.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <!-- ADJY mağaza köprüsü: tema, müşteri/atölye kipi, durum kaydı -->
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Baloo+2:wght@800&family=Pacifico&display=swap" />
+  <link rel="stylesheet" href="../_adjy/yilbasi.css" />
+  <link rel="stylesheet" href="../_adjy/kopru.css" />
+  <script src="./adjy.js"></script>
+  <script src="../_adjy/kopru.js"></script>
+  <script src="../_adjy/olcu.js"></script>
+  <script src="../_adjy/renkli.js"></script>
+</head>
+<body>
+  <div class="yb-izgara">
+    <!-- ================= AYARLAR ================= -->
+    <aside class="yb-panel">
+      <section class="yb-grup" id="grup-hazir">
+        <h2 class="yb-baslik">Hazır kartlar</h2>
+        <div class="yb-hazirlar">
+          <button type="button" data-hazir="klasik" class="on"><b>Klasik</b><small>Çam, el yazısı</small></button>
+          <button type="button" data-hazir="yildizli"><b>Yıldızlı</b><small>Altın, modern</small></button>
+          <button type="button" data-hazir="kar"><b>Kar tanesi</b><small>Beyaz, yuvarlak</small></button>
+          <button type="button" data-hazir="can"><b>Kırmızı çan</b><small>El yazısı</small></button>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-yazi">
+        <h2 class="yb-baslik">Yazı</h2>
+        <div class="param-row">
+          <label class="yb-etiket" for="sk-isim">İsim <span class="yb-sayac" id="sk-isim-sayac"></span></label>
+          <input type="text" id="sk-isim" class="yb-metin" maxlength="14" value="Ayşe" autocomplete="off" spellcheck="false" />
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="sk-alt">Alt satır</label>
+          <input type="text" id="sk-alt" class="yb-metin" maxlength="20" value="Mutlu Yıllar" autocomplete="off" spellcheck="false" />
+          <p class="yb-not">Boş bırakabilirsiniz.</p>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="sk-yazi-tipi">Yazı tipi</label>
+          <select id="sk-yazi-tipi" class="yb-gizli-secim">
+            <option value="yuvarlak">Yuvarlak</option>
+            <option value="elyazisi" selected>El yazısı</option>
+            <option value="modern">Modern</option>
+          </select>
+          <div class="yb-seg" data-secim="sk-yazi-tipi">
+            <button type="button" data-v="yuvarlak">Yuvarlak</button>
+            <button type="button" data-v="elyazisi">El yazısı</button>
+            <button type="button" data-v="modern">Modern</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-motif">
+        <h2 class="yb-baslik">Motif</h2>
+        <div class="param-row">
+          <label class="yb-etiket" for="sk-motif">Motif</label>
+          <select id="sk-motif" class="yb-gizli-secim">
+            <option value="agac" selected>Çam</option>
+            <option value="yildiz">Yıldız</option>
+            <option value="kar">Kar tanesi</option>
+            <option value="can">Çan</option>
+            <option value="hediye">Hediye</option>
+            <option value="yok">Motifsiz</option>
+          </select>
+          <div class="yb-sekiller" data-secim="sk-motif">
+            <button type="button" data-v="agac"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2l7 9h-3l6 8h-3l6 8H3l6-8H6l6-8H9zM14 26h4v5h-4z"/></svg>Çam</button>
+            <button type="button" data-v="yildiz"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2l4 9.6 10.3.9-7.8 6.8 2.4 10.1L16 24l-8.9 5.4 2.4-10.1-7.8-6.8 10.3-.9z"/></svg>Yıldız</button>
+            <button type="button" data-v="kar"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M15 2h2v28h-2zM3.9 8.5l1-1.7 23.2 13.4-1 1.7zM28.1 8.5l-1-1.7L3.9 20.2l1 1.7z"/></svg>Kar tanesi</button>
+            <button type="button" data-v="can"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4c5 0 7 4 7 9s2 7 6 10v2H3v-2c4-3 6-5 6-10s2-9 7-9zm0 21.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z"/></svg>Çan</button>
+            <button type="button" data-v="hediye"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 12h24v6H4zM6 18h20v11H6zM15 12h2v17h-2zM16 12c-3-6-9-6-8-2 1 2 5 2 8 2zm0 0c3-6 9-6 8-2-1 2-5 2-8 2z"/></svg>Hediye</button>
+            <button type="button" data-v="yok"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 8l16 16M24 8L8 24"/></svg>Motifsiz</button>
+          </div>
+        </div>
+        <div class="param-row">
+          <label class="yb-kutu"><input type="checkbox" id="sk-cerceve" checked /> <span>Kenar çerçevesi</span></label>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-olcu">
+        <h2 class="yb-baslik">Ölçü</h2>
+        <div class="param-row">
+          <label class="yb-etiket" for="sk-gen">Genişlik</label>
+          <div class="yb-kaydir"><input type="range" id="sk-gen" min="70" max="130" step="5" value="95" /><span class="num-wrap"><input type="number" data-bagli="sk-gen" min="70" max="130" step="5" value="95" aria-label="Genişlik" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="sk-yuk">Yükseklik</label>
+          <div class="yb-kaydir"><input type="range" id="sk-yuk" min="32" max="60" step="1" value="42" /><span class="num-wrap"><input type="number" data-bagli="sk-yuk" min="32" max="60" step="1" value="42" aria-label="Yükseklik" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-kutu"><input type="checkbox" id="sk-ayak" checked /> <span>Ayak</span></label>
+          <p class="yb-not">Kapalıysa yalnız kart basılır (tabak üstüne ya da peçeteye).</p>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-renk">
+        <h2 class="yb-baslik">Renk</h2>
+        <div class="param-row yb-renk-satir">
+          <label class="yb-etiket" for="sk-renk-kart">Kart rengi</label>
+          <select id="sk-renk-kart" class="yb-gizli-secim">
+            <option value="kirmizi">Kırmızı</option>
+            <option value="yesil" selected>Çam yeşili</option>
+            <option value="beyaz">Beyaz</option>
+            <option value="altin">Altın</option>
+            <option value="gumus">Gümüş</option>
+            <option value="pembe">Pembe</option>
+            <option value="mavi">Buz mavisi</option>
+            <option value="siyah">Siyah</option>
+          </select>
+          <div class="yb-renkler" data-secim="sk-renk-kart">
+            <button type="button" data-v="kirmizi" style="--r:#c4202b" title="Kırmızı"></button>
+            <button type="button" data-v="yesil" style="--r:#1f6b3a" title="Çam yeşili"></button>
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
+            <button type="button" data-v="altin" style="--r:#d2a347" title="Altın"></button>
+            <button type="button" data-v="gumus" style="--r:#b9bcc2" title="Gümüş"></button>
+            <button type="button" data-v="pembe" style="--r:#e58fb0" title="Pembe"></button>
+            <button type="button" data-v="mavi" style="--r:#5d9bd8" title="Buz mavisi"></button>
+            <button type="button" data-v="siyah" style="--r:#25262a" title="Siyah"></button>
+          </div>
+        </div>
+        <div class="param-row yb-renk-satir">
+          <label class="yb-etiket" for="sk-renk-yazi">Yazı rengi</label>
+          <select id="sk-renk-yazi" class="yb-gizli-secim">
+            <option value="kirmizi">Kırmızı</option>
+            <option value="yesil">Çam yeşili</option>
+            <option value="beyaz">Beyaz</option>
+            <option value="altin" selected>Altın</option>
+            <option value="gumus">Gümüş</option>
+            <option value="pembe">Pembe</option>
+            <option value="mavi">Buz mavisi</option>
+            <option value="siyah">Siyah</option>
+          </select>
+          <div class="yb-renkler" data-secim="sk-renk-yazi">
+            <button type="button" data-v="kirmizi" style="--r:#c4202b" title="Kırmızı"></button>
+            <button type="button" data-v="yesil" style="--r:#1f6b3a" title="Çam yeşili"></button>
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
+            <button type="button" data-v="altin" style="--r:#d2a347" title="Altın"></button>
+            <button type="button" data-v="gumus" style="--r:#b9bcc2" title="Gümüş"></button>
+            <button type="button" data-v="pembe" style="--r:#e58fb0" title="Pembe"></button>
+            <button type="button" data-v="mavi" style="--r:#5d9bd8" title="Buz mavisi"></button>
+            <button type="button" data-v="siyah" style="--r:#25262a" title="Siyah"></button>
+          </div>
+        </div>
+        <div class="param-row yb-renk-satir" id="sk-renk-ayak-satir">
+          <label class="yb-etiket" for="sk-renk-ayak">Ayak rengi</label>
+          <select id="sk-renk-ayak" class="yb-gizli-secim">
+            <option value="kirmizi">Kırmızı</option>
+            <option value="yesil">Çam yeşili</option>
+            <option value="beyaz">Beyaz</option>
+            <option value="altin" selected>Altın</option>
+            <option value="gumus">Gümüş</option>
+            <option value="pembe">Pembe</option>
+            <option value="mavi">Buz mavisi</option>
+            <option value="siyah">Siyah</option>
+          </select>
+          <div class="yb-renkler" data-secim="sk-renk-ayak">
+            <button type="button" data-v="kirmizi" style="--r:#c4202b" title="Kırmızı"></button>
+            <button type="button" data-v="yesil" style="--r:#1f6b3a" title="Çam yeşili"></button>
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
+            <button type="button" data-v="altin" style="--r:#d2a347" title="Altın"></button>
+            <button type="button" data-v="gumus" style="--r:#b9bcc2" title="Gümüş"></button>
+            <button type="button" data-v="pembe" style="--r:#e58fb0" title="Pembe"></button>
+            <button type="button" data-v="mavi" style="--r:#5d9bd8" title="Buz mavisi"></button>
+            <button type="button" data-v="siyah" style="--r:#25262a" title="Siyah"></button>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <!-- ================= SAHNE ================= -->
+    <section class="yb-sahne">
+      <canvas id="sk-tuval" class="yb-tuval"></canvas>
+      <div class="yb-sahne-ust">
+        <span class="yb-olcu" id="sk-olcu">—</span>
+        <span class="yb-uyari" id="sk-uyari" hidden></span>
+      </div>
+    </section>
+
+    <!-- ================= ATÖLYE (müşteriye gizli) ================= -->
+    <aside class="yb-atolye">
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Üretim</h2>
+        <dl class="yb-tablo" id="sk-tablo"></dl>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Baskı ayarları</h2>
+        <div class="param-row"><label class="yb-etiket" for="sk-kal">Kart kalınlığı</label><span class="num-wrap"><input type="number" id="sk-kal" min="2" max="4" step="0.2" value="2.4" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="sk-yazi-yuksek">Yazı yüksekliği</label><span class="num-wrap"><input type="number" id="sk-yazi-yuksek" min="0.6" max="1.6" step="0.2" value="1" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="sk-bosluk">Yuva boşluğu</label><span class="num-wrap"><input type="number" id="sk-bosluk" min="0.15" max="0.6" step="0.05" value="0.35" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="sk-cozunurluk">Kontur çözünürlüğü</label><span class="num-wrap"><input type="number" id="sk-cozunurluk" min="6" max="16" step="1" value="10" /><span class="unit">px/mm</span></span></div>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Çıktılar</h2>
+        <button type="button" class="yb-cikti" id="sk-stl-kart">Kart (STL)</button>
+        <button type="button" class="yb-cikti" id="sk-stl-yazi">Yazı ve motif (STL)</button>
+        <button type="button" class="yb-cikti" id="sk-stl-ayak">Ayak (STL)</button>
+        <button type="button" class="yb-cikti yb-ikincil" id="sk-csv">Kart bilgisi (CSV)</button>
+        <p class="yb-not">Z yukarı, mm. Kart tablaya yatar, yazı kartın üstünden başlar (Z'de renk değişimi). Ayak yan yatık profilden çekilir, yuvası yukarı açık; desteksiz.</p>
+      </section>
+    </aside>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

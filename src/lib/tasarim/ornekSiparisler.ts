@@ -216,10 +216,11 @@ export async function ornekSiparisleriKur(prisma: PrismaClient): Promise<OrnekSo
   return sonuc;
 }
 
-// Örnek siparişler hiç yoksa admin sipariş listesi ya da atölye ilk
-// açıldığında kendiliğinden kurulur: canlıda düğmeye basmayı ya da
-// betik çalıştırmayı beklemesin. Bir örnek bile varsa dokunulmaz
-// (yenilemek için atölyedeki düğme). Aynı süreçte bir kez denetlenir.
+// Örnek siparişler hiç yoksa ya da örneği olmayan yeni bir Kendin Üret
+// aracı eklendiyse admin sipariş listesi ya da atölye açıldığında
+// kendiliğinden kurulur: canlıda düğmeye basmayı ya da betik
+// çalıştırmayı beklemesin. Hepsi yerindeyse dokunulmaz (yenilemek için
+// atölyedeki düğme). Aynı süreçte bir kez denetlenir.
 let denetlendi = false;
 let suren: Promise<void> | null = null;
 
@@ -227,10 +228,23 @@ export async function ornekSiparisleriGerekirseKur(prisma: PrismaClient): Promis
   if (denetlendi) return;
   suren ??= (async () => {
     try {
-      const sayi = await prisma.order.count({
-        where: { orderNumber: { startsWith: ORNEK_SIPARIS_ONEK } },
+      // Örnek kaydı ve ürün satırı olan her Kendin Üret aracının örnek
+      // siparişi var mı? Yeni bir araç eklendiğinde (ör. yılbaşı
+      // araçları) eksik örneği kendiliğinden tamamlanır.
+      const paketler = PAKETLER as unknown as Record<string, Paket>;
+      const adaylar = TASARIM_ARACLARI.filter((a) => paketler[a.id]);
+      const urunu = await prisma.product.findMany({
+        where: { sku: { in: adaylar.map((a) => `TSR-${a.id.toUpperCase()}`) } },
+        select: { sku: true },
       });
-      if (sayi === 0) {
+      const beklenen = adaylar
+        .filter((a) => urunu.some((u) => u.sku === `TSR-${a.id.toUpperCase()}`))
+        .map((a) => `${ORNEK_SIPARIS_ONEK}${a.id.toUpperCase()}`);
+      const [sayi, eslesen] = await Promise.all([
+        prisma.order.count({ where: { orderNumber: { startsWith: ORNEK_SIPARIS_ONEK } } }),
+        prisma.order.count({ where: { orderNumber: { in: beklenen } } }),
+      ]);
+      if (sayi === 0 || eslesen < beklenen.length) {
         const { kurulan, atlanan } = await ornekSiparisleriKur(prisma);
         console.log(`[ornek-siparis] ${kurulan.length} kuruldu, ${atlanan.length} atlandı`);
       }

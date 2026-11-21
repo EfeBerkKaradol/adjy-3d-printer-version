@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kum Tepesi Kabartma Pano — Kendi Çölün</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "../_adjy/three.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <!-- ADJY mağaza köprüsü: tema, müşteri/atölye kipi, durum kaydı -->
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="../_adjy/yilbasi.css" />
+  <link rel="stylesheet" href="../_adjy/kopru.css" />
+  <script src="./adjy.js"></script>
+  <script src="../_adjy/kopru.js"></script>
+  <script src="../_adjy/olcu.js"></script>
+  <script src="../_adjy/renkli.js"></script>
+</head>
+<body>
+  <div class="yb-izgara">
+    <!-- ================= AYARLAR ================= -->
+    <aside class="yb-panel">
+      <section class="yb-grup" id="grup-manzara">
+        <h2 class="yb-baslik">Manzara</h2>
+        <div class="yb-hazirlar">
+          <button type="button" data-hazir="hilal" class="on"><b>Hilal tepeler</b><small>Rüzgâr altında kavis</small></button>
+          <button type="button" data-hazir="deniz"><b>Kum denizi</b><small>Sık, paralel sırtlar</small></button>
+          <button type="button" data-hazir="kivrik"><b>Kıvrık sırtlar</b><small>Dolambaçlı tepeler</small></button>
+          <button type="button" data-hazir="yalniz"><b>Tek tepe</b><small>Sakin, geniş</small></button>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="kp-desen">Desen numarası</label>
+          <div class="yb-kaydir"><input type="range" id="kp-desen" min="1" max="99" step="1" value="12" /><span class="num-wrap"><input type="number" data-bagli="kp-desen" min="1" max="99" step="1" value="12" aria-label="Desen numarası" /><span class="unit">#</span></span></div>
+        </div>
+        <div class="param-row">
+          <button type="button" class="yb-ikincil" id="kp-yeni" style="width:100%;border-radius:10px">✦ Yeni çöl</button>
+          <p class="yb-not">Aynı numara hep aynı tepeleri verir.</p>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-ruzgar">
+        <h2 class="yb-baslik">Rüzgâr ve tepeler</h2>
+        <div class="param-row">
+          <label class="yb-etiket" for="kp-yon">Rüzgâr yönü</label>
+          <div class="yb-kaydir"><input type="range" id="kp-yon" min="0" max="355" step="5" value="35" /><span class="num-wrap"><input type="number" data-bagli="kp-yon" min="0" max="355" step="5" value="35" aria-label="Rüzgâr yönü" /><span class="unit">°</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="kp-siklik">Tepe aralığı</label>
+          <div class="yb-kaydir"><input type="range" id="kp-siklik" min="18" max="90" step="1" value="42" /><span class="num-wrap"><input type="number" data-bagli="kp-siklik" min="18" max="90" step="1" value="42" aria-label="Tepe aralığı" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="kp-kivrim">Sırt kıvrımı</label>
+          <div class="yb-kaydir"><input type="range" id="kp-kivrim" min="0" max="100" step="1" value="55" /><span class="num-wrap"><input type="number" data-bagli="kp-kivrim" min="0" max="100" step="1" value="55" aria-label="Sırt kıvrımı" /><span class="unit">%</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="kp-kayma">Kayma yüzü dikliği</label>
+          <div class="yb-kaydir"><input type="range" id="kp-kayma" min="0" max="100" step="1" value="70" /><span class="num-wrap"><input type="number" data-bagli="kp-kayma" min="0" max="100" step="1" value="70" aria-label="Kayma yüzü dikliği" /><span class="unit">%</span></span></div>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-olcu">
+        <h2 class="yb-baslik">Ölçü</h2>
+        <div class="param-row">
+          <label class="yb-etiket" for="kp-gen">Genişlik</label>
+          <div class="yb-kaydir"><input type="range" id="kp-gen" min="80" max="220" step="5" value="160" /><span class="num-wrap"><input type="number" data-bagli="kp-gen" min="80" max="220" step="5" value="160" aria-label="Genişlik" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="kp-der">Derinlik</label>
+          <div class="yb-kaydir"><input type="range" id="kp-der" min="60" max="160" step="5" value="100" /><span class="num-wrap"><input type="number" data-bagli="kp-der" min="60" max="160" step="5" value="100" aria-label="Derinlik" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="kp-yuk">Tepe yüksekliği</label>
+          <div class="yb-kaydir"><input type="range" id="kp-yuk" min="3" max="22" step="0.5" value="11" /><span class="num-wrap"><input type="number" data-bagli="kp-yuk" min="3" max="22" step="0.5" value="11" aria-label="Tepe yüksekliği" /><span class="unit">mm</span></span></div>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-doku">
+        <h2 class="yb-baslik">Doku</h2>
+        <div class="param-row">
+          <label class="yb-kutu"><input type="checkbox" id="kp-dalgacik" checked /> <span>Kum dalgacıkları</span></label>
+        </div>
+        <div class="param-row">
+          <label class="yb-kutu"><input type="checkbox" id="kp-cerceve" checked /> <span>Çerçeve</span></label>
+          <p class="yb-not">Panonun kenarını düz bir pervazla çevirir; duvarda ya da rafta tablo gibi durur.</p>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-renk">
+        <h2 class="yb-baslik">Renk</h2>
+        <div class="param-row yb-renk-satir">
+          <label class="yb-etiket" for="kp-renk">Renk</label>
+          <select id="kp-renk" class="yb-gizli-secim">
+            <option value="kum" selected>Kum</option>
+            <option value="okra">Okra</option>
+            <option value="baharat">Baharat</option>
+            <option value="pas">Pas</option>
+            <option value="kemik">Kemik</option>
+            <option value="gece">Gece mavisi</option>
+            <option value="antrasit">Antrasit</option>
+          </select>
+          <div class="yb-renkler" data-secim="kp-renk">
+            <button type="button" data-v="kum" style="--r:#d8b98a" title="Kum"></button>
+            <button type="button" data-v="okra" style="--r:#c9965a" title="Okra"></button>
+            <button type="button" data-v="baharat" style="--r:#c77b2a" title="Baharat"></button>
+            <button type="button" data-v="pas" style="--r:#a4532f" title="Pas"></button>
+            <button type="button" data-v="kemik" style="--r:#ece3cf" title="Kemik"></button>
+            <button type="button" data-v="gece" style="--r:#24324d" title="Gece mavisi"></button>
+            <button type="button" data-v="antrasit" style="--r:#2f3033" title="Antrasit"></button>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <!-- ================= SAHNE ================= -->
+    <section class="yb-sahne">
+      <canvas id="kp-tuval" class="yb-tuval"></canvas>
+      <div class="yb-sahne-ust">
+        <span class="yb-olcu" id="kp-olcu">—</span>
+        <span class="yb-uyari" id="kp-uyari" hidden></span>
+      </div>
+    </section>
+
+    <!-- ================= ATÖLYE (müşteriye gizli) ================= -->
+    <aside class="yb-atolye">
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Üretim</h2>
+        <dl class="yb-tablo" id="kp-tablo"></dl>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Baskı ayarları</h2>
+        <div class="param-row"><label class="yb-etiket" for="kp-taban">Taban kalınlığı</label><span class="num-wrap"><input type="number" id="kp-taban" min="2" max="6" step="0.2" value="3" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="kp-adim">Izgara aralığı</label><span class="num-wrap"><input type="number" id="kp-adim" min="0.4" max="1.5" step="0.1" value="0.7" /><span class="unit">mm</span></span></div>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Çıktılar</h2>
+        <button type="button" class="yb-cikti" id="kp-stl">Pano (STL)</button>
+        <button type="button" class="yb-cikti yb-ikincil" id="kp-csv">Pano bilgisi (CSV)</button>
+        <p class="yb-not">Z yukarı, mm. Taban tablaya oturur; üst yüzey yükseklik alanı, sarkma yok, desteksiz. 0,2 mm katman; ince dalgacıklar için 0,12 mm önerilir.</p>
+      </section>
+    </aside>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

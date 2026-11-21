@@ -25,6 +25,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import {
   TASARIM_ARACLARI,
   TASARIM_KATEGORISI,
+  ETIKET_ADLARI,
   aracGorseli,
   tasarimUrunSlug,
   type TasarimAraci,
@@ -91,11 +92,26 @@ async function main() {
       isActive: true,
     };
     const sku = `TSR-${arac.id.toUpperCase()}`;
-    await prisma.product.upsert({
+    const urun = await prisma.product.upsert({
       where: { sku },
       update: veri,
       create: { ...veri, sku, stockQty: 999, featured: false },
+      select: { id: true },
     });
+    // Koleksiyon etiketleri (ör. yılbaşı araçları → koleksiyon-yilbasi)
+    for (const slug of arac.etiketler ?? []) {
+      const etiket = await prisma.tag.upsert({
+        where: { slug },
+        update: {},
+        create: { slug, name: ETIKET_ADLARI[slug] ?? slug },
+        select: { id: true },
+      });
+      await prisma.productTag.upsert({
+        where: { productId_tagId: { productId: urun.id, tagId: etiket.id } },
+        update: {},
+        create: { productId: urun.id, tagId: etiket.id },
+      });
+    }
     console.log(`  ✓ ${arac.ad} — ${veri.basePrice} TL`);
   }
 }

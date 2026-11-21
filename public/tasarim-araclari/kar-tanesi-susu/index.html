@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kar Tanesi Süsü — Kendi Desenin</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "../_adjy/three.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <!-- ADJY mağaza köprüsü: tema, müşteri/atölye kipi, durum kaydı -->
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="../_adjy/yilbasi.css" />
+  <link rel="stylesheet" href="../_adjy/kopru.css" />
+  <script src="./adjy.js"></script>
+  <script src="../_adjy/kopru.js"></script>
+  <script src="../_adjy/olcu.js"></script>
+  <script src="../_adjy/renkli.js"></script>
+</head>
+<body>
+  <div class="yb-izgara">
+    <!-- ================= AYARLAR ================= -->
+    <aside class="yb-panel">
+      <section class="yb-grup" id="grup-desen">
+        <h2 class="yb-baslik">Desen</h2>
+        <div class="yb-hazirlar">
+          <button type="button" data-hazir="klasik" class="on"><b>Klasik</b><small>3 dal, kristal uç</small></button>
+          <button type="button" data-hazir="dantel"><b>Dantel</b><small>İç halkalı, 4 dal</small></button>
+          <button type="button" data-hazir="kristal"><b>Kristal</b><small>Yıldız göbek</small></button>
+          <button type="button" data-hazir="yalin"><b>Yalın</b><small>Uzun kollar</small></button>
+        </div>
+        <div class="param-row" style="margin-top:12px">
+          <label class="yb-etiket" for="kt-desen">Desen numarası</label>
+          <div class="yb-kaydir"><input type="range" id="kt-desen" min="1" max="99" step="1" value="7" /><span class="num-wrap"><input type="number" data-bagli="kt-desen" min="1" max="99" step="1" value="7" aria-label="Desen numarası" /><span class="unit">#</span></span></div>
+          <button type="button" class="yb-ikincil" id="kt-yeni" style="margin-top:8px;width:100%;border-radius:10px">✦ Yeni desen</button>
+          <p class="yb-not">Her numara dalların yerini ve açısını biraz değiştirir; aynı numara hep aynı kar tanesini verir.</p>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-dal">
+        <h2 class="yb-baslik">Dallar</h2>
+        <div class="param-row">
+          <label class="yb-etiket" for="kt-dal">Dal sayısı</label>
+          <div class="yb-kaydir"><input type="range" id="kt-dal" min="0" max="5" step="1" value="3" /><span class="num-wrap"><input type="number" data-bagli="kt-dal" min="0" max="5" step="1" value="3" aria-label="Dal sayısı" /><span class="unit">çift</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="kt-aci">Dal açısı</label>
+          <div class="yb-kaydir"><input type="range" id="kt-aci" min="25" max="75" step="1" value="50" /><span class="num-wrap"><input type="number" data-bagli="kt-aci" min="25" max="75" step="1" value="50" aria-label="Dal açısı" /><span class="unit">°</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="kt-boy">Dal uzunluğu</label>
+          <div class="yb-kaydir"><input type="range" id="kt-boy" min="15" max="70" step="1" value="40" /><span class="num-wrap"><input type="number" data-bagli="kt-boy" min="15" max="70" step="1" value="40" aria-label="Dal uzunluğu" /><span class="unit">%</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="kt-uc">Kol ucu</label>
+          <select id="kt-uc" class="yb-gizli-secim">
+            <option value="kristal" selected>Kristal</option>
+            <option value="yuvarlak">Yuvarlak</option>
+            <option value="catal">Çatal</option>
+            <option value="duz">Düz</option>
+          </select>
+          <div class="yb-seg" data-secim="kt-uc">
+            <button type="button" data-v="kristal">Kristal</button>
+            <button type="button" data-v="yuvarlak">Yuvarlak</button>
+            <button type="button" data-v="catal">Çatal</button>
+            <button type="button" data-v="duz">Düz</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-merkez">
+        <h2 class="yb-baslik">Merkez</h2>
+        <div class="param-row">
+          <label class="yb-etiket" for="kt-merkez">Merkez</label>
+          <select id="kt-merkez" class="yb-gizli-secim">
+            <option value="altigen" selected>Altıgen</option>
+            <option value="daire">Daire</option>
+            <option value="yildiz">Yıldız</option>
+            <option value="halka">Halka</option>
+          </select>
+          <div class="yb-seg" data-secim="kt-merkez">
+            <button type="button" data-v="altigen">Altıgen</button>
+            <button type="button" data-v="daire">Daire</button>
+            <button type="button" data-v="yildiz">Yıldız</button>
+            <button type="button" data-v="halka">Halka</button>
+          </div>
+        </div>
+        <div class="param-row">
+          <label class="yb-kutu"><input type="checkbox" id="kt-ic-halka" /> <span>İç halka</span></label>
+          <p class="yb-not">Kolları ortada birbirine bağlar: dantel görünüm, daha sağlam süs.</p>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-olcu">
+        <h2 class="yb-baslik">Ölçü</h2>
+        <div class="param-row">
+          <label class="yb-etiket" for="kt-cap">Çap</label>
+          <div class="yb-kaydir"><input type="range" id="kt-cap" min="40" max="130" step="5" value="80" /><span class="num-wrap"><input type="number" data-bagli="kt-cap" min="40" max="130" step="5" value="80" aria-label="Çap" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="kt-kol">Kol kalınlığı</label>
+          <div class="yb-kaydir"><input type="range" id="kt-kol" min="1.6" max="4.5" step="0.1" value="2.6" /><span class="num-wrap"><input type="number" data-bagli="kt-kol" min="1.6" max="4.5" step="0.1" value="2.6" aria-label="Kol kalınlığı" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="kt-kalinlik">Kalınlık</label>
+          <div class="yb-kaydir"><input type="range" id="kt-kalinlik" min="2" max="5" step="0.2" value="3" /><span class="num-wrap"><input type="number" data-bagli="kt-kalinlik" min="2" max="5" step="0.2" value="3" aria-label="Kalınlık" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="kt-aski">Asma</label>
+          <select id="kt-aski" class="yb-gizli-secim">
+            <option value="halka" selected>Halka</option>
+            <option value="delik">Delik</option>
+            <option value="yok">Yok</option>
+          </select>
+          <div class="yb-seg" data-secim="kt-aski">
+            <button type="button" data-v="halka">Halka</button>
+            <button type="button" data-v="delik">Delik</button>
+            <button type="button" data-v="yok">Yok</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-renk">
+        <h2 class="yb-baslik">Renk</h2>
+        <div class="param-row">
+          <label class="yb-etiket" for="kt-renk">Renk</label>
+          <select id="kt-renk" class="yb-gizli-secim">
+            <option value="beyaz" selected>Kar beyazı</option>
+            <option value="mavi">Buz mavisi</option>
+            <option value="gumus">Gümüş</option>
+            <option value="altin">Altın</option>
+            <option value="kirmizi">Kırmızı</option>
+            <option value="lacivert">Lacivert</option>
+            <option value="yesil">Çam yeşili</option>
+          </select>
+          <div class="yb-renkler" data-secim="kt-renk">
+            <button type="button" data-v="beyaz" style="--r:#f4f3ee" title="Kar beyazı"></button>
+            <button type="button" data-v="mavi" style="--r:#8fc3ea" title="Buz mavisi"></button>
+            <button type="button" data-v="gumus" style="--r:#b9bcc2" title="Gümüş"></button>
+            <button type="button" data-v="altin" style="--r:#d2a347" title="Altın"></button>
+            <button type="button" data-v="kirmizi" style="--r:#c4202b" title="Kırmızı"></button>
+            <button type="button" data-v="lacivert" style="--r:#1d2a52" title="Lacivert"></button>
+            <button type="button" data-v="yesil" style="--r:#1f6b3a" title="Çam yeşili"></button>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <!-- ================= SAHNE ================= -->
+    <section class="yb-sahne">
+      <canvas id="kt-tuval" class="yb-tuval"></canvas>
+      <div class="yb-sahne-ust">
+        <span class="yb-olcu" id="kt-olcu">—</span>
+        <span class="yb-uyari" id="kt-uyari" hidden></span>
+      </div>
+    </section>
+
+    <!-- ================= ATÖLYE (müşteriye gizli) ================= -->
+    <aside class="yb-atolye">
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Üretim</h2>
+        <dl class="yb-tablo" id="kt-tablo"></dl>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Baskı ayarları</h2>
+        <div class="param-row"><label class="yb-etiket" for="kt-delik">Askı deliği</label><span class="num-wrap"><input type="number" id="kt-delik" min="2.5" max="6" step="0.5" value="3.5" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="kt-cozunurluk">Kontur çözünürlüğü</label><span class="num-wrap"><input type="number" id="kt-cozunurluk" min="6" max="16" step="1" value="10" /><span class="unit">px/mm</span></span></div>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Çıktılar</h2>
+        <button type="button" class="yb-cikti" id="kt-stl">Kar tanesi (STL)</button>
+        <button type="button" class="yb-cikti yb-ikincil" id="kt-csv">Süs bilgisi (CSV)</button>
+        <p class="yb-not">Z yukarı, mm. Tablaya yatar, desteksiz. İnce kollar için 0,4 meme ve 0,2 mm katman; ilk katman yavaş.</p>
+      </section>
+    </aside>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Işıklı Yılbaşı Feneri — Desenli, İsimli</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "../_adjy/three.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <!-- ADJY mağaza köprüsü: tema, müşteri/atölye kipi, durum kaydı -->
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Baloo+2:wght@800&family=Pacifico&display=swap" />
+  <link rel="stylesheet" href="../_adjy/yilbasi.css" />
+  <link rel="stylesheet" href="../_adjy/kopru.css" />
+  <script src="./adjy.js"></script>
+  <script src="../_adjy/kopru.js"></script>
+  <script src="../_adjy/olcu.js"></script>
+  <script src="../_adjy/renkli.js"></script>
+</head>
+<body>
+  <div class="yb-izgara">
+    <!-- ================= AYARLAR ================= -->
+    <aside class="yb-panel">
+      <section class="yb-grup" id="grup-desen">
+        <h2 class="yb-baslik">Desen</h2>
+        <div class="yb-hazirlar">
+          <button type="button" data-hazir="orman" class="on"><b>Çam ormanı</b><small>Ağaçlar, yıldızlar</small></button>
+          <button type="button" data-hazir="kar"><b>Kar yağışı</b><small>Uçuşan taneler</small></button>
+          <button type="button" data-hazir="gece"><b>Yıldızlı gece</b><small>Ay ve yıldızlar</small></button>
+          <button type="button" data-hazir="isim"><b>İsimli</b><small>Ortada isim</small></button>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="yf-desen">Desen</label>
+          <select id="yf-desen" class="yb-gizli-secim">
+            <option value="orman" selected>Çam ormanı</option>
+            <option value="kar">Kar yağışı</option>
+            <option value="gece">Yıldızlı gece</option>
+          </select>
+          <div class="yb-seg" data-secim="yf-desen">
+            <button type="button" data-v="orman">Çam ormanı</button>
+            <button type="button" data-v="kar">Kar yağışı</button>
+            <button type="button" data-v="gece">Yıldızlı gece</button>
+          </div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="yf-tohum">Desen numarası</label>
+          <div class="yb-kaydir"><input type="range" id="yf-tohum" min="1" max="99" step="1" value="8" /><span class="num-wrap"><input type="number" data-bagli="yf-tohum" min="1" max="99" step="1" value="8" aria-label="Desen numarası" /><span class="unit">#</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="yf-yogun">Yoğunluk</label>
+          <div class="yb-kaydir"><input type="range" id="yf-yogun" min="20" max="100" step="1" value="60" /><span class="num-wrap"><input type="number" data-bagli="yf-yogun" min="20" max="100" step="1" value="60" aria-label="Yoğunluk" /><span class="unit">%</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-kutu"><input type="checkbox" id="yf-ters" /> <span>Motifler parlasın</span></label>
+          <p class="yb-not">Kapalı: motifler koyu gölge, zemin parlak. Açık: motifler parlak, zemin koyu.</p>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-yazi">
+        <h2 class="yb-baslik">Yazı</h2>
+        <div class="param-row">
+          <label class="yb-etiket" for="yf-isim">Yazı</label>
+          <input type="text" id="yf-isim" class="yb-metin" maxlength="18" value="" autocomplete="off" spellcheck="false" />
+          <p class="yb-not">Ör. aile adı, "Mutlu Yıllar" ya da 2027.</p>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="yf-yazi-tipi">Yazı tipi</label>
+          <select id="yf-yazi-tipi" class="yb-gizli-secim">
+            <option value="yuvarlak" selected>Yuvarlak</option>
+            <option value="elyazisi">El yazısı</option>
+            <option value="modern">Modern</option>
+          </select>
+          <div class="yb-seg" data-secim="yf-yazi-tipi">
+            <button type="button" data-v="yuvarlak">Yuvarlak</button>
+            <button type="button" data-v="elyazisi">El yazısı</button>
+            <button type="button" data-v="modern">Modern</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-olcu">
+        <h2 class="yb-baslik">Ölçü</h2>
+        <div class="param-row">
+          <label class="yb-etiket" for="yf-cap">Çap</label>
+          <div class="yb-kaydir"><input type="range" id="yf-cap" min="60" max="120" step="2" value="80" /><span class="num-wrap"><input type="number" data-bagli="yf-cap" min="60" max="120" step="2" value="80" aria-label="Çap" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="yf-yuk">Yükseklik</label>
+          <div class="yb-kaydir"><input type="range" id="yf-yuk" min="70" max="180" step="5" value="120" /><span class="num-wrap"><input type="number" data-bagli="yf-yuk" min="70" max="180" step="5" value="120" aria-label="Yükseklik" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="yf-bicim">Biçim</label>
+          <select id="yf-bicim" class="yb-gizli-secim">
+            <option value="silindir" selected>Silindir</option>
+            <option value="fici">Fıçı</option>
+            <option value="konik">Konik</option>
+          </select>
+          <div class="yb-seg" data-secim="yf-bicim">
+            <button type="button" data-v="silindir">Silindir</button>
+            <button type="button" data-v="fici">Fıçı</button>
+            <button type="button" data-v="konik">Konik</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-renk">
+        <h2 class="yb-baslik">Renk</h2>
+        <div class="param-row yb-renk-satir">
+          <label class="yb-etiket" for="yf-renk">Renk</label>
+          <select id="yf-renk" class="yb-gizli-secim">
+            <option value="beyaz" selected>Beyaz</option>
+            <option value="krem">Krem</option>
+            <option value="mavi">Buz mavisi</option>
+            <option value="pembe">Açık pembe</option>
+            <option value="altin">Şampanya</option>
+          </select>
+          <div class="yb-renkler" data-secim="yf-renk">
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
+            <button type="button" data-v="krem" style="--r:#efe3c8" title="Krem"></button>
+            <button type="button" data-v="mavi" style="--r:#bcd8ef" title="Buz mavisi"></button>
+            <button type="button" data-v="pembe" style="--r:#f2c9d6" title="Açık pembe"></button>
+            <button type="button" data-v="altin" style="--r:#e6cf9a" title="Şampanya"></button>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <!-- ================= SAHNE ================= -->
+    <section class="yb-sahne">
+      <canvas id="yf-tuval" class="yb-tuval"></canvas>
+      <div class="yb-sahne-ust">
+        <span class="yb-olcu" id="yf-olcu">—</span>
+        <span class="yb-uyari" id="yf-uyari" hidden></span>
+      </div>
+    </section>
+
+    <!-- ================= ATÖLYE (müşteriye gizli) ================= -->
+    <aside class="yb-atolye">
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Üretim</h2>
+        <dl class="yb-tablo" id="yf-tablo"></dl>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Baskı ayarları</h2>
+        <div class="param-row"><label class="yb-etiket" for="yf-ince">En ince duvar</label><span class="num-wrap"><input type="number" id="yf-ince" min="0.6" max="1.4" step="0.1" value="0.8" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="yf-kalin">En kalın duvar</label><span class="num-wrap"><input type="number" id="yf-kalin" min="1.8" max="3.4" step="0.1" value="2.6" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="yf-adim">Ağ aralığı</label><span class="num-wrap"><input type="number" id="yf-adim" min="0.4" max="1" step="0.05" value="0.7" /><span class="unit">mm</span></span></div>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Çıktılar</h2>
+        <button type="button" class="yb-cikti" id="yf-stl">Fener (STL)</button>
+        <button type="button" class="yb-cikti yb-ikincil" id="yf-csv">Fener bilgisi (CSV)</button>
+        <p class="yb-not">Z yukarı, mm. Alt ve üst açık tüp, dik basılır; desen geçişleri yumuşatıldı (≤45°), desteksiz. Litofan gibi: %100 dolgu, 0,12 mm katman, beyaz PLA.</p>
+      </section>
+    </aside>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
