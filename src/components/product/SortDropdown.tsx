@@ -8,6 +8,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Check, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { GLASS_MENU_ITEM_ACTIVE } from "@/lib/glass";
 
 // ==========================================
 // SIRALAMA
@@ -50,12 +52,15 @@ export function SortDropdown() {
           <ChevronDown className="h-3.5 w-3.5" aria-hidden />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-60">
+      <DropdownMenuContent align="end" sideOffset={10} className="w-64">
         {SORT_OPTIONS.map((option) => (
           <DropdownMenuItem
             key={option.value}
             onClick={() => select(option.value)}
-            className="flex cursor-pointer items-center justify-between gap-2"
+            className={cn(
+              "flex cursor-pointer items-center justify-between gap-2",
+              current === option.value && GLASS_MENU_ITEM_ACTIVE
+            )}
           >
             {option.label}
             {current === option.value && <Check className="h-4 w-4" aria-hidden />}

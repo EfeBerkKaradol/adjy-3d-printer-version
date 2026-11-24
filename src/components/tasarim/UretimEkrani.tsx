@@ -55,6 +55,8 @@ import {
   type KayitSonucu,
 } from "@/lib/tasarim/kaydet";
 import { parcaDosyalari, stlVarMi, uretimDosyalari, uretimProjesi } from "./indirme";
+import { GlassSelect } from "@/components/ui/glass-select";
+import { GLASS_MENU, GLASS_MENU_ITEM } from "@/lib/glass";
 
 // ==========================================
 // ÜRETİM EKRANI
@@ -492,17 +494,18 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
           </DosyaGrubu>
 
           <DosyaGrubu baslik="Tabla düzeni">
-            <select
+            <GlassSelect
               value={duzen}
-              onChange={(e) => setDuzen(e.target.value as TablaDuzeni)}
+              onValueChange={(v) => setDuzen(v as TablaDuzeni)}
               aria-label="Tabla düzeni"
               title="Otomatik: tek tablaya sığıyor ve filament değişimi az kalıyorsa tek tabla; değilse renge göre ayrı tablalar"
-              className="adjy-pixel-frame h-9 rounded-lg bg-card px-2 text-sm outline-none"
-            >
-              <option value="oto">Otomatik</option>
-              <option value="tek">Tek tabla</option>
-              <option value="ayri">Renge göre ayrı</option>
-            </select>
+              className="w-auto min-w-36"
+              options={[
+                { value: "oto", label: "Otomatik" },
+                { value: "tek", label: "Tek tabla" },
+                { value: "ayri", label: "Renge göre ayrı" },
+              ]}
+            />
           </DosyaGrubu>
 
           <DosyaGrubu baslik="Üretim">
@@ -612,14 +615,14 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
                     Diğer biçimler
                     <ChevronDown className="h-3.5 w-3.5" aria-hidden />
                   </summary>
-                  <div className="absolute left-0 top-full z-30 mt-1 flex min-w-56 flex-col rounded-lg bg-popover p-1 adjy-pixel-frame">
+                  <div className={`absolute left-0 top-full z-30 mt-2 flex min-w-56 flex-col ${GLASS_MENU}`}>
                     {digerleri.map((c) => (
                       <button
                         key={c.sec}
                         type="button"
                         disabled={!hazir || !!indirilen}
                         onClick={() => indir([c])}
-                        className="rounded-md px-3 py-2 text-left text-sm hover:bg-muted disabled:opacity-40"
+                        className={`text-left disabled:opacity-40 ${GLASS_MENU_ITEM}`}
                       >
                         {c.ad}
                       </button>

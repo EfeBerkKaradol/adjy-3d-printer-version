@@ -18,6 +18,7 @@ import {
   FlaskConical,
 } from "lucide-react";
 import { toast } from "sonner";
+import { GlassSelect } from "@/components/ui/glass-select";
 
 // ===== Types =====
 
@@ -577,40 +578,23 @@ export function ParameterManager({ productId }: ParameterManagerProps) {
             <label className="text-xs font-medium mb-1 block">
               Tip
             </label>
-            <select
+            <GlassSelect
+              size="sm"
               value={form.type}
-              onChange={(e) =>
+              onValueChange={(v) =>
                 setForm((f) => ({
                   ...f,
-                  type: e.target.value as ParameterType,
+                  type: v as ParameterType,
                   // Tip değişince ilgili alanları sıfırla
-                  options:
-                    e.target.value === "DROPDOWN" ? f.options : [],
-                  minValue:
-                    e.target.value === "SLIDER" ||
-                    e.target.value === "NUMBER"
-                      ? f.minValue
-                      : "",
-                  maxValue:
-                    e.target.value === "SLIDER" ||
-                    e.target.value === "NUMBER"
-                      ? f.maxValue
-                      : "",
+                  options: v === "DROPDOWN" ? f.options : [],
+                  minValue: v === "SLIDER" || v === "NUMBER" ? f.minValue : "",
+                  maxValue: v === "SLIDER" || v === "NUMBER" ? f.maxValue : "",
                 }))
               }
-              className="flex h-8 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
-            >
-              {(
-                Object.entries(TYPE_LABELS) as [
-                  ParameterType,
-                  string,
-                ][]
-              ).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
+              options={(
+                Object.entries(TYPE_LABELS) as [ParameterType, string][]
+              ).map(([value, label]) => ({ value, label }))}
+            />
           </div>
         </div>
 
@@ -822,23 +806,20 @@ export function ParameterManager({ productId }: ParameterManagerProps) {
               />
             </div>
           ) : showsOptions ? (
-            <select
+            <GlassSelect
+              size="sm"
               value={form.defaultValue}
-              onChange={(e) =>
+              onValueChange={(v) =>
                 setForm((f) => ({
                   ...f,
-                  defaultValue: e.target.value,
+                  defaultValue: v,
                 }))
               }
-              className="flex h-8 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
-            >
-              <option value="">Seçin...</option>
-              {form.options.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
+              options={[
+                { value: "", label: "Seçin..." },
+                ...form.options.map((opt) => ({ value: opt, label: opt })),
+              ]}
+            />
           ) : (
             <Input
               type={showsNumericFields ? "number" : "text"}

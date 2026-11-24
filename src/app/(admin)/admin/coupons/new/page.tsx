@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { GlassSelect } from "@/components/ui/glass-select";
 
 export default function NewCouponPage() {
   const router = useRouter();
@@ -88,15 +89,15 @@ export default function NewCouponPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="type">Indirim Tipi</Label>
-                <select
+                <GlassSelect
                   id="type"
                   value={form.type}
-                  onChange={(e) => setForm({ ...form, type: e.target.value as "PERCENTAGE" | "FIXED" })}
-                  className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm"
-                >
-                  <option value="PERCENTAGE">Yuzde (%)</option>
-                  <option value="FIXED">Sabit Tutar (TL)</option>
-                </select>
+                  onValueChange={(v) => setForm({ ...form, type: v as "PERCENTAGE" | "FIXED" })}
+                  options={[
+                    { value: "PERCENTAGE", label: "Yuzde (%)" },
+                    { value: "FIXED", label: "Sabit Tutar (TL)" },
+                  ]}
+                />
               </div>
             </div>
 

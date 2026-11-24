@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { toast } from "sonner";
+import { GlassSelect } from "@/components/ui/glass-select";
 
 interface Category {
   id: string;
@@ -156,17 +157,13 @@ export default function NewProductPage() {
             </div>
             <div>
               <label className="text-sm font-medium mb-1.5 block">Kategori *</label>
-              <select
+              <GlassSelect
                 value={form.categoryId}
-                onChange={(e) => setForm((p) => ({ ...p, categoryId: e.target.value }))}
-                className="w-full px-3 py-2 adjy-pixel-frame rounded-lg bg-background text-sm h-9"
+                onValueChange={(v) => setForm((p) => ({ ...p, categoryId: v }))}
+                placeholder="Seçin..."
                 required
-              >
-                <option value="">Seçin...</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
+                options={categories.map((c) => ({ value: c.id, label: c.name }))}
+              />
             </div>
           </div>
         </div>

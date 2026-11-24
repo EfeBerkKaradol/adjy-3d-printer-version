@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { GlassSelect } from "@/components/ui/glass-select";
 
 interface Category {
     id: string;
@@ -266,20 +267,16 @@ export default function AdminCategoriesPage() {
                         </div>
                         <div className="space-y-2">
                             <Label>Üst Kategori</Label>
-                            <select
+                            <GlassSelect
                                 value={parentId}
-                                onChange={(e) => setParentId(e.target.value)}
-                                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors"
-                            >
-                                <option value="">Yok (Ana kategori)</option>
-                                {getAllCategories()
-                                    .filter((c) => c.id !== editingId)
-                                    .map((c) => (
-                                        <option key={c.id} value={c.id}>
-                                            {c.name}
-                                        </option>
-                                    ))}
-                            </select>
+                                onValueChange={setParentId}
+                                options={[
+                                    { value: "", label: "Yok (Ana kategori)" },
+                                    ...getAllCategories()
+                                        .filter((c) => c.id !== editingId)
+                                        .map((c) => ({ value: c.id, label: c.name })),
+                                ]}
+                            />
                         </div>
                         <div className="space-y-2">
                             <Label>Sıralama</Label>
