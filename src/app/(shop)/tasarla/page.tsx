@@ -47,9 +47,9 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 /** Izgaranın başında büyük duran ürün */
-const VITRIN = "neon-sahil-tabela";
+const VITRIN = "foto-yapboz";
 /** Girişteki dört kare: birbirinden farklı görünen ürünler */
-const KOLAJ = ["neon-sahil-tabela", "lav-catlagi-zar-tepsisi", "kahraman-amblemi", "col-ufku-pano"];
+const KOLAJ = ["foto-yapboz", "neon-sahil-tabela", "ses-dalgasi-plaketi", "foto-kutu"];
 
 const NASIL = [
   {

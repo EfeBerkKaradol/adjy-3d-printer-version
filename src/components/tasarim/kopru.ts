@@ -47,7 +47,7 @@ export interface AracArayuzu {
    * ayrı tablalara dizilmiş ve adet kadar çoğaltılmış dilimleyici projesi
    */
   uretimProjesi?: (
-    kaynak: (AracDosyasi & { nesne?: string })[],
+    kaynak: (AracDosyasi & { nesne?: string; tekRenk?: boolean })[],
     secenek: { adet: number; duzen?: TablaDuzeni }
   ) => Promise<UretimSonucu>;
   /** Modelin basılacak renkleri (atölye, renkli.js) */

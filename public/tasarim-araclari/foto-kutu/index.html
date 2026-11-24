@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fotoğraflı Hediye Kutusu — Kapağında Fotoğrafınız</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "../_adjy/three.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <!-- ADJY mağaza köprüsü: tema, müşteri/atölye kipi, durum kaydı -->
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="../_adjy/yilbasi.css" />
+  <link rel="stylesheet" href="../_adjy/foto.css" />
+  <link rel="stylesheet" href="../_adjy/kopru.css" />
+  <script src="./adjy.js"></script>
+  <script src="../_adjy/kopru.js"></script>
+  <script src="../_adjy/olcu.js"></script>
+  <script src="../_adjy/renkli.js"></script>
+</head>
+<body>
+  <div class="yb-izgara">
+    <!-- ================= AYARLAR ================= -->
+    <aside class="yb-panel">
+      <section class="yb-grup" id="grup-hazir">
+        <h2 class="yb-baslik">Hazır kutular</h2>
+        <div class="yb-hazirlar">
+          <button type="button" data-hazir="hatira" class="on"><b>Hatıra kutusu</b><small>120 × 90 × 50 mm</small></button>
+          <button type="button" data-hazir="taki"><b>Takı kutusu</b><small>Kare, 4 göz</small></button>
+          <button type="button" data-hazir="kalem"><b>Uzun kutu</b><small>190 mm, 3 göz</small></button>
+          <button type="button" data-hazir="klasik"><b>Klasik</b><small>Siyah beyaz, geniş kenarlık</small></button>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-foto">
+        <h2 class="yb-baslik">Fotoğraf</h2>
+        <div class="param-row" id="fk-foto-satir">
+          <label class="yb-etiket" for="fk-foto">Fotoğrafınız</label>
+          <label class="fo-yukle"><input type="file" id="fk-foto" accept="image/*" /><b>Fotoğraf seç</b><small id="fk-foto-ad">Örnek fotoğraf gösteriliyor</small></label>
+          <p class="yb-not">Yüzlerin ve ana konunun net, arka planın sade olduğu fotoğraflar en iyi sonucu verir.</p>
+        </div>
+        <div class="param-row" id="fk-ornek-satir">
+          <label class="yb-etiket" for="fk-ornek">Örnekle deneyin</label>
+          <select id="fk-ornek" class="yb-gizli-secim">
+            <option value="balon">Balon</option>
+            <option value="gunbatimi">Gün batımı</option>
+            <option value="cicek" selected>Çiçek</option>
+            <option value="portre">Portre</option>
+            <option value="sehir">Şehir</option>
+            <option value="dag">Dağ</option>
+          </select>
+          <div class="yb-seg yb-seg-coklu" data-secim="fk-ornek">
+            <button type="button" data-v="balon">Balon</button>
+            <button type="button" data-v="gunbatimi">Gün batımı</button>
+            <button type="button" data-v="cicek">Çiçek</button>
+            <button type="button" data-v="portre">Portre</button>
+            <button type="button" data-v="sehir">Şehir</button>
+            <button type="button" data-v="dag">Dağ</button>
+          </div>
+        </div>
+        <div class="param-row" id="fk-zoom-satir">
+          <label class="yb-etiket" for="fk-zoom">Yakınlaştır</label>
+          <div class="yb-kaydir"><input type="range" id="fk-zoom" min="1" max="3" step="0.05" value="1" /><span class="num-wrap"><input type="number" data-bagli="fk-zoom" min="1" max="3" step="0.05" value="1" aria-label="Yakınlaştır" /><span class="unit">×</span></span></div>
+        </div>
+        <div class="param-row" id="fk-kx-satir">
+          <label class="yb-etiket" for="fk-kx">Yatay kaydır</label>
+          <div class="yb-kaydir"><input type="range" id="fk-kx" min="-1" max="1" step="0.05" value="0" /><span class="num-wrap"><input type="number" data-bagli="fk-kx" min="-1" max="1" step="0.05" value="0" aria-label="Yatay kaydır" /><span class="unit"></span></span></div>
+        </div>
+        <div class="param-row" id="fk-ky-satir">
+          <label class="yb-etiket" for="fk-ky">Dikey kaydır</label>
+          <div class="yb-kaydir"><input type="range" id="fk-ky" min="-1" max="1" step="0.05" value="0" /><span class="num-wrap"><input type="number" data-bagli="fk-ky" min="-1" max="1" step="0.05" value="0" aria-label="Dikey kaydır" /><span class="unit"></span></span></div>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-olcu">
+        <h2 class="yb-baslik">Kutu</h2>
+        <div class="param-row" id="fk-gen-satir">
+          <label class="yb-etiket" for="fk-gen">Genişlik</label>
+          <div class="yb-kaydir"><input type="range" id="fk-gen" min="80" max="200" step="5" value="120" /><span class="num-wrap"><input type="number" data-bagli="fk-gen" min="80" max="200" step="5" value="120" aria-label="Genişlik" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row" id="fk-der-satir">
+          <label class="yb-etiket" for="fk-der">Derinlik</label>
+          <div class="yb-kaydir"><input type="range" id="fk-der" min="60" max="200" step="5" value="90" /><span class="num-wrap"><input type="number" data-bagli="fk-der" min="60" max="200" step="5" value="90" aria-label="Derinlik" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row" id="fk-yuk-satir">
+          <label class="yb-etiket" for="fk-yuk">Yükseklik (kapalı)</label>
+          <div class="yb-kaydir"><input type="range" id="fk-yuk" min="30" max="120" step="2" value="50" /><span class="num-wrap"><input type="number" data-bagli="fk-yuk" min="30" max="120" step="2" value="50" aria-label="Yükseklik (kapalı)" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row" id="fk-kose-satir">
+          <label class="yb-etiket" for="fk-kose">Köşe yuvarlaklığı</label>
+          <div class="yb-kaydir"><input type="range" id="fk-kose" min="4" max="20" step="1" value="10" /><span class="num-wrap"><input type="number" data-bagli="fk-kose" min="4" max="20" step="1" value="10" aria-label="Köşe yuvarlaklığı" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row" id="fk-bolme-satir">
+          <label class="yb-etiket" for="fk-bolme">İç bölme</label>
+          <select id="fk-bolme" class="yb-gizli-secim">
+            <option value="yok" selected>Yok</option>
+            <option value="2">2 göz</option>
+            <option value="3">3 göz</option>
+            <option value="4">4 göz</option>
+          </select>
+          <div class="yb-seg" data-secim="fk-bolme">
+            <button type="button" data-v="yok">Yok</button>
+            <button type="button" data-v="2">2 göz</button>
+            <button type="button" data-v="3">3 göz</button>
+            <button type="button" data-v="4">4 göz</button>
+          </div>
+        </div>
+        <div class="param-row" id="fk-acik-satir">
+          <label class="yb-kutu"><input type="checkbox" id="fk-acik" /> <span>Kapağı kaldır (önizleme)</span></label>
+          <p class="yb-not">Yalnız görüntü içindir; kutunun içini ve bölmeleri gösterir.</p>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-renk">
+        <h2 class="yb-baslik">Renkler</h2>
+        <div class="param-row" id="fk-mod-satir">
+          <label class="yb-etiket" for="fk-mod">Renk düzeni</label>
+          <select id="fk-mod" class="yb-gizli-secim">
+            <option value="renkli" selected>Renkli</option>
+            <option value="sb">Siyah beyaz</option>
+          </select>
+          <div class="yb-seg" data-secim="fk-mod">
+            <button type="button" data-v="renkli">Renkli</button>
+            <button type="button" data-v="sb">Siyah beyaz</button>
+          </div>
+        </div>
+        <div class="param-row" id="fk-renk-sayi-satir">
+          <label class="yb-etiket" for="fk-renk-sayi">Renk sayısı</label>
+          <select id="fk-renk-sayi" class="yb-gizli-secim">
+            <option value="2">2 renk</option>
+            <option value="3">3 renk</option>
+            <option value="4" selected>4 renk</option>
+          </select>
+          <div class="yb-seg" data-secim="fk-renk-sayi">
+            <button type="button" data-v="2">2 renk</button>
+            <button type="button" data-v="3">3 renk</button>
+            <button type="button" data-v="4">4 renk</button>
+          </div>
+          <p class="yb-not">Fotoğraf bu kadar filament rengine ayrılır; her renk ayrı filamentle, tek baskıda çıkar.</p>
+        </div>
+        <div class="param-row yb-renk-satir" id="fk-renk-1-satir">
+          <label class="yb-etiket" for="fk-renk-1">Renk 1 (en koyu)</label>
+          <select id="fk-renk-1" class="yb-gizli-secim">
+            <option value="siyah">Siyah</option><option value="antrasit">Antrasit</option><option value="gri">Gri</option><option value="acikgri">Açık gri</option><option value="beyaz">Beyaz</option><option value="kahve">Kahverengi</option><option value="ten">Ten</option><option value="kirmizi">Kırmızı</option><option value="turuncu">Turuncu</option><option value="sari">Sarı</option><option value="yesil" selected>Yeşil</option><option value="acikyesil">Açık yeşil</option><option value="lacivert">Lacivert</option><option value="mavi">Mavi</option><option value="acikmavi">Açık mavi</option><option value="turkuaz">Turkuaz</option><option value="mor">Mor</option><option value="pembe">Pembe</option>
+          </select>
+          <div class="yb-renkler" data-secim="fk-renk-1">
+            <button type="button" data-v="siyah" style="--r:#1b1b1f" title="Siyah"></button>
+            <button type="button" data-v="antrasit" style="--r:#4a4d52" title="Antrasit"></button>
+            <button type="button" data-v="gri" style="--r:#8a8d91" title="Gri"></button>
+            <button type="button" data-v="acikgri" style="--r:#c4c7cb" title="Açık gri"></button>
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
+            <button type="button" data-v="kahve" style="--r:#5b3a26" title="Kahverengi"></button>
+            <button type="button" data-v="ten" style="--r:#e0b48c" title="Ten"></button>
+            <button type="button" data-v="kirmizi" style="--r:#c8242b" title="Kırmızı"></button>
+            <button type="button" data-v="turuncu" style="--r:#f07a1f" title="Turuncu"></button>
+            <button type="button" data-v="sari" style="--r:#f6c927" title="Sarı"></button>
+            <button type="button" data-v="yesil" style="--r:#2f8f46" title="Yeşil"></button>
+            <button type="button" data-v="acikyesil" style="--r:#8cc152" title="Açık yeşil"></button>
+            <button type="button" data-v="lacivert" style="--r:#1f2f5c" title="Lacivert"></button>
+            <button type="button" data-v="mavi" style="--r:#2a6fd6" title="Mavi"></button>
+            <button type="button" data-v="acikmavi" style="--r:#7fb8e6" title="Açık mavi"></button>
+            <button type="button" data-v="turkuaz" style="--r:#21b5b0" title="Turkuaz"></button>
+            <button type="button" data-v="mor" style="--r:#6a3fa0" title="Mor"></button>
+            <button type="button" data-v="pembe" style="--r:#ef6fa5" title="Pembe"></button>
+          </div>
+        </div>
+        <div class="param-row yb-renk-satir" id="fk-renk-2-satir">
+          <label class="yb-etiket" for="fk-renk-2">Renk 2</label>
+          <select id="fk-renk-2" class="yb-gizli-secim">
+            <option value="siyah">Siyah</option><option value="antrasit">Antrasit</option><option value="gri">Gri</option><option value="acikgri">Açık gri</option><option value="beyaz">Beyaz</option><option value="kahve">Kahverengi</option><option value="ten">Ten</option><option value="kirmizi">Kırmızı</option><option value="turuncu">Turuncu</option><option value="sari">Sarı</option><option value="yesil">Yeşil</option><option value="acikyesil" selected>Açık yeşil</option><option value="lacivert">Lacivert</option><option value="mavi">Mavi</option><option value="acikmavi">Açık mavi</option><option value="turkuaz">Turkuaz</option><option value="mor">Mor</option><option value="pembe">Pembe</option>
+          </select>
+          <div class="yb-renkler" data-secim="fk-renk-2">
+            <button type="button" data-v="siyah" style="--r:#1b1b1f" title="Siyah"></button>
+            <button type="button" data-v="antrasit" style="--r:#4a4d52" title="Antrasit"></button>
+            <button type="button" data-v="gri" style="--r:#8a8d91" title="Gri"></button>
+            <button type="button" data-v="acikgri" style="--r:#c4c7cb" title="Açık gri"></button>
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
+            <button type="button" data-v="kahve" style="--r:#5b3a26" title="Kahverengi"></button>
+            <button type="button" data-v="ten" style="--r:#e0b48c" title="Ten"></button>
+            <button type="button" data-v="kirmizi" style="--r:#c8242b" title="Kırmızı"></button>
+            <button type="button" data-v="turuncu" style="--r:#f07a1f" title="Turuncu"></button>
+            <button type="button" data-v="sari" style="--r:#f6c927" title="Sarı"></button>
+            <button type="button" data-v="yesil" style="--r:#2f8f46" title="Yeşil"></button>
+            <button type="button" data-v="acikyesil" style="--r:#8cc152" title="Açık yeşil"></button>
+            <button type="button" data-v="lacivert" style="--r:#1f2f5c" title="Lacivert"></button>
+            <button type="button" data-v="mavi" style="--r:#2a6fd6" title="Mavi"></button>
+            <button type="button" data-v="acikmavi" style="--r:#7fb8e6" title="Açık mavi"></button>
+            <button type="button" data-v="turkuaz" style="--r:#21b5b0" title="Turkuaz"></button>
+            <button type="button" data-v="mor" style="--r:#6a3fa0" title="Mor"></button>
+            <button type="button" data-v="pembe" style="--r:#ef6fa5" title="Pembe"></button>
+          </div>
+        </div>
+        <div class="param-row yb-renk-satir" id="fk-renk-3-satir">
+          <label class="yb-etiket" for="fk-renk-3">Renk 3</label>
+          <select id="fk-renk-3" class="yb-gizli-secim">
+            <option value="siyah">Siyah</option><option value="antrasit">Antrasit</option><option value="gri">Gri</option><option value="acikgri">Açık gri</option><option value="beyaz">Beyaz</option><option value="kahve">Kahverengi</option><option value="ten">Ten</option><option value="kirmizi">Kırmızı</option><option value="turuncu">Turuncu</option><option value="sari">Sarı</option><option value="yesil">Yeşil</option><option value="acikyesil">Açık yeşil</option><option value="lacivert">Lacivert</option><option value="mavi">Mavi</option><option value="acikmavi">Açık mavi</option><option value="turkuaz">Turkuaz</option><option value="mor">Mor</option><option value="pembe" selected>Pembe</option>
+          </select>
+          <div class="yb-renkler" data-secim="fk-renk-3">
+            <button type="button" data-v="siyah" style="--r:#1b1b1f" title="Siyah"></button>
+            <button type="button" data-v="antrasit" style="--r:#4a4d52" title="Antrasit"></button>
+            <button type="button" data-v="gri" style="--r:#8a8d91" title="Gri"></button>
+            <button type="button" data-v="acikgri" style="--r:#c4c7cb" title="Açık gri"></button>
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
+            <button type="button" data-v="kahve" style="--r:#5b3a26" title="Kahverengi"></button>
+            <button type="button" data-v="ten" style="--r:#e0b48c" title="Ten"></button>
+            <button type="button" data-v="kirmizi" style="--r:#c8242b" title="Kırmızı"></button>
+            <button type="button" data-v="turuncu" style="--r:#f07a1f" title="Turuncu"></button>
+            <button type="button" data-v="sari" style="--r:#f6c927" title="Sarı"></button>
+            <button type="button" data-v="yesil" style="--r:#2f8f46" title="Yeşil"></button>
+            <button type="button" data-v="acikyesil" style="--r:#8cc152" title="Açık yeşil"></button>
+            <button type="button" data-v="lacivert" style="--r:#1f2f5c" title="Lacivert"></button>
+            <button type="button" data-v="mavi" style="--r:#2a6fd6" title="Mavi"></button>
+            <button type="button" data-v="acikmavi" style="--r:#7fb8e6" title="Açık mavi"></button>
+            <button type="button" data-v="turkuaz" style="--r:#21b5b0" title="Turkuaz"></button>
+            <button type="button" data-v="mor" style="--r:#6a3fa0" title="Mor"></button>
+            <button type="button" data-v="pembe" style="--r:#ef6fa5" title="Pembe"></button>
+          </div>
+        </div>
+        <div class="param-row yb-renk-satir" id="fk-renk-4-satir">
+          <label class="yb-etiket" for="fk-renk-4">Renk 4</label>
+          <select id="fk-renk-4" class="yb-gizli-secim">
+            <option value="siyah">Siyah</option><option value="antrasit">Antrasit</option><option value="gri">Gri</option><option value="acikgri">Açık gri</option><option value="beyaz" selected>Beyaz</option><option value="kahve">Kahverengi</option><option value="ten">Ten</option><option value="kirmizi">Kırmızı</option><option value="turuncu">Turuncu</option><option value="sari">Sarı</option><option value="yesil">Yeşil</option><option value="acikyesil">Açık yeşil</option><option value="lacivert">Lacivert</option><option value="mavi">Mavi</option><option value="acikmavi">Açık mavi</option><option value="turkuaz">Turkuaz</option><option value="mor">Mor</option><option value="pembe">Pembe</option>
+          </select>
+          <div class="yb-renkler" data-secim="fk-renk-4">
+            <button type="button" data-v="siyah" style="--r:#1b1b1f" title="Siyah"></button>
+            <button type="button" data-v="antrasit" style="--r:#4a4d52" title="Antrasit"></button>
+            <button type="button" data-v="gri" style="--r:#8a8d91" title="Gri"></button>
+            <button type="button" data-v="acikgri" style="--r:#c4c7cb" title="Açık gri"></button>
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
+            <button type="button" data-v="kahve" style="--r:#5b3a26" title="Kahverengi"></button>
+            <button type="button" data-v="ten" style="--r:#e0b48c" title="Ten"></button>
+            <button type="button" data-v="kirmizi" style="--r:#c8242b" title="Kırmızı"></button>
+            <button type="button" data-v="turuncu" style="--r:#f07a1f" title="Turuncu"></button>
+            <button type="button" data-v="sari" style="--r:#f6c927" title="Sarı"></button>
+            <button type="button" data-v="yesil" style="--r:#2f8f46" title="Yeşil"></button>
+            <button type="button" data-v="acikyesil" style="--r:#8cc152" title="Açık yeşil"></button>
+            <button type="button" data-v="lacivert" style="--r:#1f2f5c" title="Lacivert"></button>
+            <button type="button" data-v="mavi" style="--r:#2a6fd6" title="Mavi"></button>
+            <button type="button" data-v="acikmavi" style="--r:#7fb8e6" title="Açık mavi"></button>
+            <button type="button" data-v="turkuaz" style="--r:#21b5b0" title="Turkuaz"></button>
+            <button type="button" data-v="mor" style="--r:#6a3fa0" title="Mor"></button>
+            <button type="button" data-v="pembe" style="--r:#ef6fa5" title="Pembe"></button>
+          </div>
+        </div>
+        <div class="param-row">
+          <button type="button" class="yb-ikincil fo-dugme" id="fk-oner">Renkleri fotoğraftan öner</button>
+        </div>
+        <div class="param-row" id="fk-parlak-satir">
+          <label class="yb-etiket" for="fk-parlak">Parlaklık</label>
+          <div class="yb-kaydir"><input type="range" id="fk-parlak" min="-50" max="50" step="5" value="0" /><span class="num-wrap"><input type="number" data-bagli="fk-parlak" min="-50" max="50" step="5" value="0" aria-label="Parlaklık" /><span class="unit"></span></span></div>
+        </div>
+        <div class="param-row" id="fk-kontrast-satir">
+          <label class="yb-etiket" for="fk-kontrast">Kontrast</label>
+          <div class="yb-kaydir"><input type="range" id="fk-kontrast" min="-50" max="50" step="5" value="0" /><span class="num-wrap"><input type="number" data-bagli="fk-kontrast" min="-50" max="50" step="5" value="0" aria-label="Kontrast" /><span class="unit"></span></span></div>
+        </div>
+        <div class="param-row" id="fk-kenarlik-satir">
+          <label class="yb-etiket" for="fk-kenarlik">Fotoğraf kenarlığı</label>
+          <div class="yb-kaydir"><input type="range" id="fk-kenarlik" min="2" max="8" step="1" value="4" /><span class="num-wrap"><input type="number" data-bagli="fk-kenarlik" min="2" max="8" step="1" value="4" aria-label="Fotoğraf kenarlığı" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row yb-renk-satir" id="fk-renk-kapak-satir">
+          <label class="yb-etiket" for="fk-renk-kapak">Kapak ve kenarlık rengi</label>
+          <select id="fk-renk-kapak" class="yb-gizli-secim">
+            <option value="1" selected>Renk 1</option><option value="2">Renk 2</option><option value="3">Renk 3</option><option value="4">Renk 4</option>
+          </select>
+          <div class="yb-renkler" data-secim="fk-renk-kapak" data-yuva="fk-renk-kapak">
+            <button type="button" data-v="1" style="--r:#8a8d91" title="Renk 1"></button>
+            <button type="button" data-v="2" style="--r:#8a8d91" title="Renk 2"></button>
+            <button type="button" data-v="3" style="--r:#8a8d91" title="Renk 3"></button>
+            <button type="button" data-v="4" style="--r:#8a8d91" title="Renk 4"></button>
+          </div>
+        </div>
+        <div class="param-row yb-renk-satir" id="fk-renk-kutu-satir">
+          <label class="yb-etiket" for="fk-renk-kutu">Kutu rengi</label>
+          <select id="fk-renk-kutu" class="yb-gizli-secim">
+            <option value="1" selected>Renk 1</option><option value="2">Renk 2</option><option value="3">Renk 3</option><option value="4">Renk 4</option>
+          </select>
+          <div class="yb-renkler" data-secim="fk-renk-kutu" data-yuva="fk-renk-kutu">
+            <button type="button" data-v="1" style="--r:#8a8d91" title="Renk 1"></button>
+            <button type="button" data-v="2" style="--r:#8a8d91" title="Renk 2"></button>
+            <button type="button" data-v="3" style="--r:#8a8d91" title="Renk 3"></button>
+            <button type="button" data-v="4" style="--r:#8a8d91" title="Renk 4"></button>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <!-- ================= SAHNE ================= -->
+    <section class="yb-sahne">
+      <canvas id="fk-tuval" class="yb-tuval"></canvas>
+      <div class="yb-sahne-ust">
+        <span class="yb-olcu" id="fk-olcu">—</span>
+        <span class="yb-uyari" id="fk-uyari" hidden></span>
+      </div>
+    </section>
+
+    <!-- ================= ATÖLYE (müşteriye gizli) ================= -->
+    <aside class="yb-atolye">
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Üretim</h2>
+        <dl class="yb-tablo" id="fk-tablo"></dl>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Baskı ayarları</h2>
+        <div class="param-row"><label class="yb-etiket" for="fk-duvar">Etek / boyun duvarı</label><span class="num-wrap"><input type="number" id="fk-duvar" min="1.2" max="2" step="0.2" value="1.2" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="fk-bosluk">Kapak boşluğu</label><span class="num-wrap"><input type="number" id="fk-bosluk" min="0.15" max="0.4" step="0.05" value="0.25" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="fk-kapak-kal">Kapak levhası</label><span class="num-wrap"><input type="number" id="fk-kapak-kal" min="1.6" max="3" step="0.2" value="2" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="fk-renk-kat">Renk katı</label><span class="num-wrap"><input type="number" id="fk-renk-kat" min="0.4" max="1.2" step="0.2" value="0.8" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="fk-px">Kontur hassasiyeti</label><span class="num-wrap"><input type="number" id="fk-px" min="4" max="6" step="1" value="5" /><span class="unit">px/mm</span></span></div>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Çıktılar</h2>
+        <button type="button" class="yb-cikti" id="fk-stl-kapak-r1">Kapak · renk 1 (STL)</button>
+        <button type="button" class="yb-cikti" id="fk-stl-kapak-r2">Kapak · renk 2 (STL)</button>
+        <button type="button" class="yb-cikti" id="fk-stl-kapak-r3">Kapak · renk 3 (STL)</button>
+        <button type="button" class="yb-cikti" id="fk-stl-kapak-r4">Kapak · renk 4 (STL)</button>
+        <button type="button" class="yb-cikti" id="fk-stl-govde">Kutu gövdesi (STL)</button>
+        <button type="button" class="yb-cikti yb-ikincil" id="fk-csv">Kutu bilgisi (CSV)</button>
+        <p class="yb-not">Z yukarı, mm. Kapak STL'leri baskı yönündedir: fotoğraf yüzü tablada, etek yukarı yükselir. Gövde tabanı üstüne basılır; omuz ve boyun desteksizdir. Kapak, boynun üstüne dıştan geçer ve gövdeyle aynı hizada kapanır.</p>
+      </section>
+    </aside>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

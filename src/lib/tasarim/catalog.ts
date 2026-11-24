@@ -33,6 +33,12 @@ export interface TasarimCiktisi {
    * kendi başına bir parçadır, rengine göre ayrı tablaya dizilir.
    */
   nesne?: string;
+  /**
+   * Dosyanın tamamı tek filamenttir (fotoğraf araçlarında bir rengin bütün
+   * bölgeleri). Rengi kabuk kabuk değil, dosyanın çoğunluğundan okunur:
+   * binlerce küçük bölgede tek tek eşleştirme yanılabilir.
+   */
+  tekRenk?: boolean;
 }
 
 export interface TasarimAraci {
@@ -86,6 +92,7 @@ export const ETIKET_ADLARI: Record<string, string> = {
   "koleksiyon-yilbasi": "Yılbaşı Koleksiyonu",
   "koleksiyon-kum-tepesi": "Kum Tepesi Koleksiyonu",
   "koleksiyon-oyun-odasi": "Oyun Odası Koleksiyonu",
+  "koleksiyon-ani": "Anı Koleksiyonu",
 };
 
 /** Araçların ortak mağaza kategorisi — eşleşen kategori yoksa buraya düşer */
@@ -885,6 +892,155 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ],
     anahtarKelimeler: ["isimli yılbaşı çelengi", "kişiye özel kapı süsü", "yılbaşı kapı çelengi", "aile isimli çelenk", "yılbaşı hediyesi", "çok renkli 3d baskı"],
     etiketler: ["koleksiyon-yilbasi"],
+  },
+  {
+    id: "foto-yapboz",
+    ad: "Fotoğraflı Yapboz",
+    ozet: "Kendi fotoğrafınızdan, gerçek geçmeli parçalı, çok renkli yapboz; çerçevesi ve ayağıyla.",
+    aciklama:
+      "Fotoğrafınızı yükleyin, yapboza dönüşsün. Fotoğraf iki, üç ya da dört filament rengine ayrılır; parçalar gerçek yapboz gibi birbirine geçer: her kenarda yönü ve duruşu farklı bir çıkıntı vardır, iki yapboz birbirinin aynısı olmaz. Biçimi (yatay, dikey, kare), uzun kenarı ve parça sayısını siz seçersiniz: 12 parçalık çocuk yapbozundan 100 parçalık portreye. Renkler baskının içindedir; boya, çıkartma ya da kâğıt yok, ıslanınca soyulmaz. Parçalar yuvalı çerçevesine dizilir; çerçevenin alt bandına bir isim ya da tarih yazabilir, kalp ya da yıldız kabartması ekleyebilirsiniz. İki ayağıyla rafta 15° yatık durur.",
+    ayarlar: ["Kendi fotoğrafınız: yakınlaştırma ve kaydırma", "Biçim, uzun kenar ve parça sayısı", "2–4 filament rengi, renkli ya da siyah beyaz", "Kesim deseni", "Çerçeve: düz, kalpli, yıldızlı; alt bantta yazı", "Masa ayağı"],
+    kategoriler: ["hediye", "koleksiyon-kisiye-ozel", "ev-dekorasyon", "masa-ofis-standlar"],
+    malzeme: "PLA",
+    malzemeSabit: true,
+    varsayilan: { kutleG: 176, sureSaat: 5.4 },
+    sinir: { kutleG: [25, 300], sureSaat: [0.8, 10] },
+    tabanFiyat: 450,
+    dosyaGerekli: {
+      giris: "fy-foto",
+      uyari: "Yapboz fotoğrafınızla üretilecek. Sepete eklemeden önce kendi fotoğrafınızı yükleyin.",
+    },
+    teslim: "Sipariş sonrası üretilir, 3–5 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Gerçek geçmeli parçalar", metin: "Her kenarda dar boyunlu, geniş başlı bir geçme: parçalar yerine oturur, yapboz kaldırınca dağılmaz." },
+      { baslik: "Renk baskının içinde", metin: "Fotoğraf dört filamentle parçanın kendisine basılır; kâğıt, çıkartma ya da boya yok, yıpranmaz." },
+      { baslik: "Çerçevesiyle sergilenir", metin: "Tamamlanan yapboz yuvalı çerçevesinde durur; alt bandına adınızı ya da tarihi yazarsınız." },
+    ],
+    gorseller: ["Balonlar: 48 parça, kalpli çerçeve", "Portre: 100 parça, siyah beyaz", "Şehir manzarası: 48 parça, ayaklı", "Mini: 16 parça, çerçevesiz"],
+    ciktilar: [
+      { ad: "Yapboz · renk 1 STL", sec: "#fy-stl-r1", tur: "stl", nesne: "Yapboz", tekRenk: true },
+      { ad: "Yapboz · renk 2 STL", sec: "#fy-stl-r2", tur: "stl", nesne: "Yapboz", tekRenk: true },
+      { ad: "Yapboz · renk 3 STL", sec: "#fy-stl-r3", tur: "stl", nesne: "Yapboz", tekRenk: true },
+      { ad: "Yapboz · renk 4 STL", sec: "#fy-stl-r4", tur: "stl", nesne: "Yapboz", tekRenk: true },
+      { ad: "Çerçeve STL", sec: "#fy-stl-cerceve", tur: "stl", nesne: "Çerçeve" },
+      { ad: "Çerçeve yazısı STL", sec: "#fy-stl-cerceve-yazi", tur: "stl", nesne: "Çerçeve" },
+      { ad: "Masa ayağı STL", sec: "#fy-stl-ayak", tur: "stl" },
+      RENKLI_PAKET,
+      { ad: "Yapboz bilgisi (CSV)", sec: "#fy-csv", tur: "belge" },
+    ],
+    anahtarKelimeler: ["fotoğraflı yapboz", "kişiye özel puzzle", "fotoğraftan yapboz", "isimli çerçeveli yapboz", "sevgiliye hediye yapboz", "çok renkli 3d baskı"],
+    etiketler: ["koleksiyon-ani", "koleksiyon-kisiye-ozel"],
+  },
+  {
+    id: "foto-duvar-panosu",
+    ad: "Fotoğraf Duvar Panosu",
+    ozet: "Fotoğrafınızdan çok renkli, ince ve hafif duvar panosu; istenirse iki ya da üç panelde.",
+    aciklama:
+      "Bir fotoğrafı duvara asılacak çok renkli bir panoya çevirin. Fotoğraf iki, üç ya da dört gerçek filament rengine ayrılır; öneriyi beğenmezseniz her rengi tek tek değiştirirsiniz. Pano yalnızca iki milimetre kalınlığındadır: çift taraflı bantla, delik açmadan duvara yapışır. Tablaya sığmayan genişlikte iki ya da üç panele bölünür ve fotoğraf panellerin üstünden kesintisiz geçer; 70 santime kadar üçlü pano kurabilirsiniz. Köşe yuvarlaklığını ve kenarlığı siz ayarlarsınız. Tek panelde iki küçük ayağıyla masada da durur.",
+    ayarlar: ["Kendi fotoğrafınız: yakınlaştırma ve kaydırma", "Biçim: yatay, dikey, kare, geniş", "Toplam genişlik ve panel sayısı (1–3)", "2–4 filament rengi, renkli ya da siyah beyaz", "Köşe yuvarlaklığı ve kenarlık", "Duvar ya da masa ayağı"],
+    kategoriler: ["dekor-duvar", "ev-dekorasyon", "hediye", "koleksiyon-kisiye-ozel"],
+    malzeme: "PLA",
+    malzemeSabit: true,
+    varsayilan: { kutleG: 74, sureSaat: 2.55 },
+    sinir: { kutleG: [12, 700], sureSaat: [0.5, 22] },
+    tabanFiyat: 290,
+    dosyaGerekli: {
+      giris: "fp-foto",
+      uyari: "Pano fotoğrafınızla üretilecek. Sepete eklemeden önce kendi fotoğrafınızı yükleyin.",
+    },
+    teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Delik açmadan asılır", metin: "İki milimetre kalınlığında, hafif bir levha: çift taraflı bant ya da yapışkanlı askı yeter." },
+      { baslik: "Üç panele kadar", metin: "Geniş fotoğraflar iki ya da üç panele bölünür; görüntü panelden panele kesintisiz devam eder." },
+      { baslik: "Gerçek filament renkleri", metin: "Ekranda gördüğünüz renk, makineye takılan filamentin rengidir; solmaz, soyulmaz." },
+    ],
+    gorseller: ["Gün batımı: tek pano, kenarlıklı", "Üçlü pano: 45 cm, kenarlıksız", "Kare portre: siyah beyaz", "Masa panosu: dikey, ayaklı"],
+    ciktilar: [
+      { ad: "Panel 1 · renk 1 STL", sec: "#fp-stl-p1-r1", tur: "stl", nesne: "Panel 1", tekRenk: true },
+      { ad: "Panel 1 · renk 2 STL", sec: "#fp-stl-p1-r2", tur: "stl", nesne: "Panel 1", tekRenk: true },
+      { ad: "Panel 1 · renk 3 STL", sec: "#fp-stl-p1-r3", tur: "stl", nesne: "Panel 1", tekRenk: true },
+      { ad: "Panel 1 · renk 4 STL", sec: "#fp-stl-p1-r4", tur: "stl", nesne: "Panel 1", tekRenk: true },
+      { ad: "Panel 2 · renk 1 STL", sec: "#fp-stl-p2-r1", tur: "stl", nesne: "Panel 2", tekRenk: true },
+      { ad: "Panel 2 · renk 2 STL", sec: "#fp-stl-p2-r2", tur: "stl", nesne: "Panel 2", tekRenk: true },
+      { ad: "Panel 2 · renk 3 STL", sec: "#fp-stl-p2-r3", tur: "stl", nesne: "Panel 2", tekRenk: true },
+      { ad: "Panel 2 · renk 4 STL", sec: "#fp-stl-p2-r4", tur: "stl", nesne: "Panel 2", tekRenk: true },
+      { ad: "Panel 3 · renk 1 STL", sec: "#fp-stl-p3-r1", tur: "stl", nesne: "Panel 3", tekRenk: true },
+      { ad: "Panel 3 · renk 2 STL", sec: "#fp-stl-p3-r2", tur: "stl", nesne: "Panel 3", tekRenk: true },
+      { ad: "Panel 3 · renk 3 STL", sec: "#fp-stl-p3-r3", tur: "stl", nesne: "Panel 3", tekRenk: true },
+      { ad: "Panel 3 · renk 4 STL", sec: "#fp-stl-p3-r4", tur: "stl", nesne: "Panel 3", tekRenk: true },
+      { ad: "Masa ayağı STL", sec: "#fp-stl-ayak", tur: "stl" },
+      RENKLI_PAKET,
+      { ad: "Pano bilgisi (CSV)", sec: "#fp-csv", tur: "belge" },
+    ],
+    anahtarKelimeler: ["fotoğraf duvar panosu", "kişiye özel duvar süsü", "fotoğraftan tablo", "üçlü pano", "çok renkli 3d baskı tablo", "hediye duvar dekoru"],
+    etiketler: ["koleksiyon-ani", "koleksiyon-kisiye-ozel"],
+  },
+  {
+    id: "foto-kutu",
+    ad: "Fotoğraflı Hediye Kutusu",
+    ozet: "Kapağında fotoğrafınız olan, omuzlu, bölmeli hediye kutusu.",
+    aciklama:
+      "Kapağında fotoğrafınız olan bir kutu: takı, mektup, hatıra ya da hediyenin kendisi için. Fotoğraf kapağa dört filament rengiyle basılır ve seçtiğiniz renkte bir kenarlıkla çerçevelenir. Genişliği, derinliği ve yüksekliği siz belirlersiniz; iç ölçü modelin üstünde yazar. Kutu omuzludur: kapak gövdenin boynuna dıştan geçer ve dış yüzeyle aynı hizada kapanır, ne sallanır ne sıkışır. İçine iki, üç ya da dört gözlü bölme ekleyebilirsiniz. Kapak ve kutu, fotoğrafın renklerinden biriyle basılır; fazladan filament gerekmez.",
+    ayarlar: ["Kendi fotoğrafınız: yakınlaştırma ve kaydırma", "Genişlik, derinlik, yükseklik", "Köşe yuvarlaklığı", "İç bölme: 2, 3 ya da 4 göz", "2–4 filament rengi ve fotoğraf kenarlığı", "Kapak ve kutu rengi"],
+    kategoriler: ["hediye", "duzen-kutular", "koleksiyon-kisiye-ozel", "ev-dekorasyon"],
+    malzeme: "PLA",
+    malzemeSabit: true,
+    varsayilan: { kutleG: 106, sureSaat: 3.45 },
+    sinir: { kutleG: [30, 520], sureSaat: [1, 16] },
+    tabanFiyat: 390,
+    dosyaGerekli: {
+      giris: "fk-foto",
+      uyari: "Kutu fotoğrafınızla üretilecek. Sepete eklemeden önce kendi fotoğrafınızı yükleyin.",
+    },
+    teslim: "Sipariş sonrası üretilir, 3–5 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Fotoğraf kapağın kendisinde", metin: "Görüntü kapağa filamentle basılır; yapıştırma ya da kaplama yok, kenarından kalkmaz." },
+      { baslik: "Omuzlu kapak", metin: "Kapak boynun üstüne geçer ve gövdeyle aynı hizada kapanır; açarken hafifçe direnir, kendiliğinden düşmez." },
+      { baslik: "İçi sizin düzeninizde", metin: "İki, üç ya da dört göz: yüzük, küpe, kalem ya da kartlar ayrı durur." },
+    ],
+    gorseller: ["Hatıra kutusu: çiçekli kapak", "Takı kutusu: kare, dört göz", "Uzun kutu: üç göz", "Klasik: siyah beyaz, geniş kenarlık"],
+    ciktilar: [
+      { ad: "Kapak · renk 1 STL", sec: "#fk-stl-kapak-r1", tur: "stl", nesne: "Kapak", tekRenk: true },
+      { ad: "Kapak · renk 2 STL", sec: "#fk-stl-kapak-r2", tur: "stl", nesne: "Kapak", tekRenk: true },
+      { ad: "Kapak · renk 3 STL", sec: "#fk-stl-kapak-r3", tur: "stl", nesne: "Kapak", tekRenk: true },
+      { ad: "Kapak · renk 4 STL", sec: "#fk-stl-kapak-r4", tur: "stl", nesne: "Kapak", tekRenk: true },
+      { ad: "Kutu gövdesi STL", sec: "#fk-stl-govde", tur: "stl" },
+      RENKLI_PAKET,
+      { ad: "Kutu bilgisi (CSV)", sec: "#fk-csv", tur: "belge" },
+    ],
+    anahtarKelimeler: ["fotoğraflı kutu", "kişiye özel hediye kutusu", "takı kutusu", "hatıra kutusu", "fotoğraflı takı kutusu", "çok renkli 3d baskı"],
+    etiketler: ["koleksiyon-ani", "koleksiyon-kisiye-ozel"],
+  },
+  {
+    id: "ses-dalgasi-plaketi",
+    ad: "Ses Dalgası Plaketi",
+    ozet: "Kendi sesinizin dalgası kabartma olarak: bir söz, bir kahkaha, bir ilk kelime.",
+    aciklama:
+      "Birkaç saniyelik bir sesi elinizde tutabileceğiniz bir plakete çevirin: \"seni seviyorum\", bir kahkaha, bebeğinizin ilk kelimesi ya da şarkınızın nakaratı. Sesi tarayıcıda kaydedin ya da bir ses dosyası seçin; dalga anında plaketin üstünde belirir. Ses cihazınızdan çıkmaz, hiçbir yere gönderilmez: siparişe yalnız dalganın biçimi yazılır. Dalgayı çubuk, dolu dalga ya da halka olarak kurabilir, altına bir söz ya da tarih yazabilirsiniz. Zemin, dalga ve yazı ayrı renkte, tek seferde basılır. Masada eğik ayağıyla durur ya da iki delikten duvara asılır.",
+    ayarlar: ["Ses kaydı ya da ses dosyası", "Dalga biçimi: çubuk, dolu dalga, halka", "Çubuk sayısı", "Yazı ve yazı tipi", "Genişlik, yükseklik ve duruş (masa ayağı, duvar)", "Zemin, dalga ve yazı rengi"],
+    kategoriler: ["hediye", "koleksiyon-kisiye-ozel", "masa-ofis-standlar", "ev-dekorasyon"],
+    malzeme: "PLA",
+    malzemeSabit: true,
+    varsayilan: { kutleG: 62, sureSaat: 2.06 },
+    sinir: { kutleG: [20, 190], sureSaat: [0.7, 6.5] },
+    tabanFiyat: 320,
+    teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Dalga sizin sesiniz", metin: "Hazır bir desen değil: kaydınızın her hecesi çubukların boyunda okunur, iki plaket aynı olmaz." },
+      { baslik: "Ses sizde kalır", metin: "Kayıt tarayıcınızda çözülür ve hiçbir yere yüklenmez; siparişe yalnız dalganın biçimi girer." },
+      { baslik: "Üç renk, tek baskı", metin: "Zemin, dalga ve yazı ayrı filamentle aynı baskıda çıkar; kabartma elde hissedilir." },
+    ],
+    gorseller: ["Seni seviyorum: çubuk dalga, masa ayağı", "İlk kelime: dolu dalga, turkuaz", "Ses halkası: kare, duvar", "Bizim şarkı: uzun, 90 çubuk"],
+    ciktilar: [
+      { ad: "Zemin STL", sec: "#sd-stl-zemin", tur: "stl", nesne: "Plaket" },
+      { ad: "Dalga STL", sec: "#sd-stl-dalga", tur: "stl", nesne: "Plaket" },
+      { ad: "Yazı STL", sec: "#sd-stl-yazi", tur: "stl", nesne: "Plaket" },
+      { ad: "Masa ayağı STL", sec: "#sd-stl-ayak", tur: "stl" },
+      RENKLI_PAKET,
+      { ad: "Plaket bilgisi (CSV)", sec: "#sd-csv", tur: "belge" },
+    ],
+    anahtarKelimeler: ["ses dalgası plaketi", "ses kaydından hediye", "sevgiliye kişiye özel hediye", "bebek ilk kelime hatırası", "şarkı dalgası tablo", "çok renkli 3d baskı"],
+    etiketler: ["koleksiyon-ani", "koleksiyon-kisiye-ozel"],
   },
 ];
 

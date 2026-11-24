@@ -128,7 +128,7 @@ export function bilgiDosyasi(
 }
 
 /** Aracın parça STL'leri, hangi çıktıdan geldiği işaretli */
-type ParcaDosyasi = AracDosyasi & { nesne?: string };
+type ParcaDosyasi = AracDosyasi & { nesne?: string; tekRenk?: boolean };
 
 /**
  * Aracın baskı yönündeki parça STL'lerini toplar. Çıktılar tek tek
@@ -142,7 +142,7 @@ export async function parcaDosyalari(
   const parcalar: ParcaDosyasi[] = [];
   for (const c of arac.ciktilar) {
     if (c.tur !== "stl" || c.sec === RENKLI_PAKET_SECICI) continue;
-    for (const d of await arayuz.topla([c.sec])) parcalar.push({ ...d, nesne: c.nesne });
+    for (const d of await arayuz.topla([c.sec])) parcalar.push({ ...d, nesne: c.nesne, tekRenk: c.tekRenk });
   }
   return parcalar;
 }

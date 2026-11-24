@@ -24,6 +24,7 @@ ARACLAR = [
     "kurabiye-kalibi", "isimli-sofra-karti", "isikli-yilbasi-feneri",
     "neon-sahil-tabela", "col-ufku-pano", "kahraman-amblemi",
     "lav-catlagi-zar-tepsisi", "isimli-yilbasi-celengi",
+    "foto-yapboz", "foto-duvar-panosu", "foto-kutu", "ses-dalgasi-plaketi",
 ]
 # Varsayılandan farklı, göze çarpan bir kurulum isteyen araçlar
 HAZIRLIK = {

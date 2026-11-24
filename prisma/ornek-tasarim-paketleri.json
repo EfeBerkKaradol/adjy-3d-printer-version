@@ -3140,5 +3140,466 @@
    "kutleG": 41.38,
    "sureSaat": 1.55
   }
+ },
+ "foto-yapboz": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "fy-ornek": "balon",
+    "fy-zoom": "1",
+    "fy-kx": "0",
+    "fy-ky": "0",
+    "fy-oran": "yatay",
+    "fy-boy": "180",
+    "fy-sutun": "8",
+    "fy-tohum": "7",
+    "fy-mod": "renkli",
+    "fy-renk-sayi": "4",
+    "fy-renk-1": "kirmizi",
+    "fy-renk-2": "yesil",
+    "fy-renk-3": "acikmavi",
+    "fy-renk-4": "beyaz",
+    "fy-parlak": "0",
+    "fy-kontrast": "0",
+    "fy-govde": "3",
+    "fy-cerceve": "kalp",
+    "fy-yazi": "Ailemiz",
+    "fy-renk-cerceve": "1",
+    "fy-renk-yazi": "4",
+    "fy-ayak": true,
+    "fy-kalin": "2.4",
+    "fy-renk-kat": "0.8",
+    "fy-bosluk": "0.3",
+    "fy-px": "5"
+   },
+   "gruplar": {},
+   "dosyalar": {},
+   "ek": null
+  },
+  "ozet": [
+   {
+    "ad": "Yakınlaştır",
+    "deger": "1 ×"
+   },
+   {
+    "ad": "Yatay kaydır",
+    "deger": "0"
+   },
+   {
+    "ad": "Dikey kaydır",
+    "deger": "0"
+   },
+   {
+    "ad": "Biçim",
+    "deger": "Yatay"
+   },
+   {
+    "ad": "Uzun kenar",
+    "deger": "180 mm"
+   },
+   {
+    "ad": "Yatayda parça",
+    "deger": "8 adet"
+   },
+   {
+    "ad": "Kesim deseni",
+    "deger": "7 no"
+   },
+   {
+    "ad": "Renk düzeni",
+    "deger": "Renkli"
+   },
+   {
+    "ad": "Renk sayısı",
+    "deger": "4 renk"
+   },
+   {
+    "ad": "Renk 1 (en koyu)",
+    "deger": "Kırmızı"
+   },
+   {
+    "ad": "Renk 2",
+    "deger": "Yeşil"
+   },
+   {
+    "ad": "Renk 3",
+    "deger": "Açık mavi"
+   },
+   {
+    "ad": "Renk 4",
+    "deger": "Beyaz"
+   },
+   {
+    "ad": "Parlaklık",
+    "deger": "0"
+   },
+   {
+    "ad": "Kontrast",
+    "deger": "0"
+   },
+   {
+    "ad": "Parça gövdesi",
+    "deger": "Renk 3"
+   },
+   {
+    "ad": "Çerçeve",
+    "deger": "Kalpli"
+   },
+   {
+    "ad": "Çerçeve yazısı",
+    "deger": "Ailemiz"
+   },
+   {
+    "ad": "Çerçeve rengi",
+    "deger": "Renk 1"
+   },
+   {
+    "ad": "Yazı ve süs rengi",
+    "deger": "Renk 4"
+   },
+   {
+    "ad": "Masa ayağı",
+    "deger": "Evet"
+   },
+   {
+    "ad": "Yapboz",
+    "deger": "180 × 135 mm · 48 parça"
+   },
+   {
+    "ad": "Filamentler",
+    "deger": "Kırmızı, Yeşil, Açık mavi, Beyaz"
+   }
+  ],
+  "olcum": {
+   "kutleG": 176.25,
+   "sureSaat": 5.41
+  }
+ },
+ "foto-duvar-panosu": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "fp-ornek": "gunbatimi",
+    "fp-zoom": "1",
+    "fp-kx": "0",
+    "fp-ky": "0",
+    "fp-oran": "yatay",
+    "fp-gen": "200",
+    "fp-bolme": "1",
+    "fp-kose": "4",
+    "fp-kenarlik": "3",
+    "fp-renk-kenarlik": "1",
+    "fp-asma": "bant",
+    "fp-mod": "renkli",
+    "fp-renk-sayi": "4",
+    "fp-renk-1": "lacivert",
+    "fp-renk-2": "mor",
+    "fp-renk-3": "turuncu",
+    "fp-renk-4": "sari",
+    "fp-parlak": "0",
+    "fp-kontrast": "0",
+    "fp-govde": "1",
+    "fp-kalin": "2",
+    "fp-renk-kat": "0.8",
+    "fp-px": "5"
+   },
+   "gruplar": {},
+   "dosyalar": {},
+   "ek": null
+  },
+  "ozet": [
+   {
+    "ad": "Yakınlaştır",
+    "deger": "1 ×"
+   },
+   {
+    "ad": "Yatay kaydır",
+    "deger": "0"
+   },
+   {
+    "ad": "Dikey kaydır",
+    "deger": "0"
+   },
+   {
+    "ad": "Biçim",
+    "deger": "Yatay"
+   },
+   {
+    "ad": "Toplam genişlik",
+    "deger": "200 mm"
+   },
+   {
+    "ad": "Panel sayısı",
+    "deger": "Tek"
+   },
+   {
+    "ad": "Köşe yuvarlaklığı",
+    "deger": "4 mm"
+   },
+   {
+    "ad": "Kenarlık",
+    "deger": "3 mm"
+   },
+   {
+    "ad": "Kenarlık rengi",
+    "deger": "Renk 1"
+   },
+   {
+    "ad": "Duruş",
+    "deger": "Duvar (bant)"
+   },
+   {
+    "ad": "Renk düzeni",
+    "deger": "Renkli"
+   },
+   {
+    "ad": "Renk sayısı",
+    "deger": "4 renk"
+   },
+   {
+    "ad": "Renk 1 (en koyu)",
+    "deger": "Lacivert"
+   },
+   {
+    "ad": "Renk 2",
+    "deger": "Mor"
+   },
+   {
+    "ad": "Renk 3",
+    "deger": "Turuncu"
+   },
+   {
+    "ad": "Renk 4",
+    "deger": "Sarı"
+   },
+   {
+    "ad": "Parlaklık",
+    "deger": "0"
+   },
+   {
+    "ad": "Kontrast",
+    "deger": "0"
+   },
+   {
+    "ad": "Arka yüz",
+    "deger": "Renk 1"
+   },
+   {
+    "ad": "Pano",
+    "deger": "200 × 150 mm"
+   },
+   {
+    "ad": "Filamentler",
+    "deger": "Lacivert, Mor, Turuncu, Sarı"
+   }
+  ],
+  "olcum": {
+   "kutleG": 74.36,
+   "sureSaat": 2.55
+  }
+ },
+ "foto-kutu": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "fk-ornek": "cicek",
+    "fk-zoom": "1",
+    "fk-kx": "0",
+    "fk-ky": "0",
+    "fk-gen": "120",
+    "fk-der": "90",
+    "fk-yuk": "50",
+    "fk-kose": "10",
+    "fk-bolme": "yok",
+    "fk-acik": false,
+    "fk-mod": "renkli",
+    "fk-renk-sayi": "4",
+    "fk-renk-1": "yesil",
+    "fk-renk-2": "acikyesil",
+    "fk-renk-3": "pembe",
+    "fk-renk-4": "beyaz",
+    "fk-parlak": "0",
+    "fk-kontrast": "0",
+    "fk-kenarlik": "4",
+    "fk-renk-kapak": "1",
+    "fk-renk-kutu": "1",
+    "fk-duvar": "1.2",
+    "fk-bosluk": "0.25",
+    "fk-kapak-kal": "2",
+    "fk-renk-kat": "0.8",
+    "fk-px": "5"
+   },
+   "gruplar": {},
+   "dosyalar": {},
+   "ek": null
+  },
+  "ozet": [
+   {
+    "ad": "Yakınlaştır",
+    "deger": "1 ×"
+   },
+   {
+    "ad": "Yatay kaydır",
+    "deger": "0"
+   },
+   {
+    "ad": "Dikey kaydır",
+    "deger": "0"
+   },
+   {
+    "ad": "Genişlik",
+    "deger": "120 mm"
+   },
+   {
+    "ad": "Derinlik",
+    "deger": "90 mm"
+   },
+   {
+    "ad": "Yükseklik (kapalı)",
+    "deger": "50 mm"
+   },
+   {
+    "ad": "Köşe yuvarlaklığı",
+    "deger": "10 mm"
+   },
+   {
+    "ad": "İç bölme",
+    "deger": "Yok"
+   },
+   {
+    "ad": "Renk düzeni",
+    "deger": "Renkli"
+   },
+   {
+    "ad": "Renk sayısı",
+    "deger": "4 renk"
+   },
+   {
+    "ad": "Renk 1 (en koyu)",
+    "deger": "Yeşil"
+   },
+   {
+    "ad": "Renk 2",
+    "deger": "Açık yeşil"
+   },
+   {
+    "ad": "Renk 3",
+    "deger": "Pembe"
+   },
+   {
+    "ad": "Renk 4",
+    "deger": "Beyaz"
+   },
+   {
+    "ad": "Parlaklık",
+    "deger": "0"
+   },
+   {
+    "ad": "Kontrast",
+    "deger": "0"
+   },
+   {
+    "ad": "Fotoğraf kenarlığı",
+    "deger": "4 mm"
+   },
+   {
+    "ad": "Kapak ve kenarlık rengi",
+    "deger": "Renk 1"
+   },
+   {
+    "ad": "Kutu rengi",
+    "deger": "Renk 1"
+   },
+   {
+    "ad": "Kutu",
+    "deger": "120 × 90 × 50 mm (iç 115 × 85 × 46 mm)"
+   },
+   {
+    "ad": "Filamentler",
+    "deger": "Yeşil, Açık yeşil, Pembe, Beyaz"
+   }
+  ],
+  "olcum": {
+   "kutleG": 106.2,
+   "sureSaat": 3.44
+  }
+ },
+ "ses-dalgasi-plaketi": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "sd-dalga": "191c252b352e3a424a564a66765f7e7c81a18eaeb5a89fa49aa1ad8f89ac8d7a8b7f879368847070897b83878b7da9aba4bcaecfcfe3d3c6dbece0f6d0eed9aac1a399a3967165666c5f5347464e4c414d4c4b5957655b6f786580887996ac8a9abbbdaca4acd1b4cac59dc0c1ac94b2928392919164785d665c6a79806c74959f89b0b7b9c0f6f2f2e8edeee2dcffcdb0c5baa0a77a717b736f6564686370626d6e85727ca88fb790a2b0939f9bbd9b8c99a19098927169765d6051515b4a4e47495153465766505a657c857784817d7f989a9f848681946d757e6d575052434538362d292421191911130d100b0c0c",
+    "sd-bicim": "cubuk",
+    "sd-cubuk": "60",
+    "sd-yazi": "Seni seviyorum",
+    "sd-tip": "elyazisi",
+    "sd-gen": "160",
+    "sd-yuk": "70",
+    "sd-durus": "ayak",
+    "sd-renk-zemin": "siyah",
+    "sd-renk-dalga": "beyaz",
+    "sd-renk-yazi": "pembe",
+    "sd-kalin": "2.4",
+    "sd-kabartma": "1.4",
+    "sd-px": "7"
+   },
+   "gruplar": {},
+   "dosyalar": {},
+   "ek": null
+  },
+  "ozet": [
+   {
+    "ad": "Dalga biçimi",
+    "deger": "Çubuk"
+   },
+   {
+    "ad": "Çubuk sayısı",
+    "deger": "60 adet"
+   },
+   {
+    "ad": "Yazı",
+    "deger": "Seni seviyorum"
+   },
+   {
+    "ad": "Yazı tipi",
+    "deger": "El yazısı"
+   },
+   {
+    "ad": "Genişlik",
+    "deger": "160 mm"
+   },
+   {
+    "ad": "Yükseklik",
+    "deger": "70 mm"
+   },
+   {
+    "ad": "Duruş",
+    "deger": "Masa ayağı"
+   },
+   {
+    "ad": "Zemin rengi",
+    "deger": "Siyah"
+   },
+   {
+    "ad": "Dalga rengi",
+    "deger": "Beyaz"
+   },
+   {
+    "ad": "Yazı rengi",
+    "deger": "Pembe"
+   },
+   {
+    "ad": "Plaket ölçüsü",
+    "deger": "160 × 70 × 3.8 mm"
+   },
+   {
+    "ad": "Dalga kaynağı",
+    "deger": "Kayıtlı dalga biçimi (240 örnek)"
+   }
+  ],
+  "olcum": {
+   "kutleG": 62.48,
+   "sureSaat": 2.06
+  }
  }
 }

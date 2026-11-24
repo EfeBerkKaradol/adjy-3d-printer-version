@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ses Dalgası Plaketi — Sesiniz Kabartma Olarak</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "../_adjy/three.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <!-- ADJY mağaza köprüsü: tema, müşteri/atölye kipi, durum kaydı -->
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Pacifico&family=Bungee&family=Righteous&display=swap" />
+  <link rel="stylesheet" href="../_adjy/yilbasi.css" />
+  <link rel="stylesheet" href="../_adjy/foto.css" />
+  <link rel="stylesheet" href="../_adjy/kopru.css" />
+  <script src="./adjy.js"></script>
+  <script src="../_adjy/kopru.js"></script>
+  <script src="../_adjy/olcu.js"></script>
+  <script src="../_adjy/renkli.js"></script>
+</head>
+<body>
+  <div class="yb-izgara">
+    <!-- ================= AYARLAR ================= -->
+    <aside class="yb-panel">
+      <section class="yb-grup" id="grup-hazir">
+        <h2 class="yb-baslik">Hazır plaketler</h2>
+        <div class="yb-hazirlar">
+          <button type="button" data-hazir="sevgi" class="on"><b>Seni seviyorum</b><small>Çubuk dalga, masa ayağı</small></button>
+          <button type="button" data-hazir="bebek"><b>İlk kelime</b><small>Dolu dalga, turkuaz</small></button>
+          <button type="button" data-hazir="halka"><b>Ses halkası</b><small>Kare, duvar</small></button>
+          <button type="button" data-hazir="sarki"><b>Bizim şarkı</b><small>Uzun, 90 çubuk</small></button>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-ses">
+        <h2 class="yb-baslik">Ses</h2>
+        <div class="param-row" id="sd-ses-satir">
+          <label class="yb-etiket" for="sd-ses">Sesiniz</label>
+          <div class="fo-kayit">
+            <button type="button" class="yb-cikti" id="sd-kayit">Sesimi kaydet</button>
+            <label class="yb-ikincil fo-yukle-dugme"><input type="file" id="sd-ses" accept="audio/*,.m4a,.mp3,.wav,.ogg,.aac,.webm" />Ses dosyası seç</label>
+          </div>
+          <canvas id="sd-onizleme" class="fo-dalga"></canvas>
+          <p class="yb-not" id="sd-ses-durum">Örnek dalga gösteriliyor. "Seni seviyorum", bir kahkaha, bir ilk kelime: birkaç saniye yeter.</p>
+          <input type="text" id="sd-dalga" class="fo-gizli" value="" autocomplete="off" tabindex="-1" aria-hidden="true" />
+        </div>
+        <div class="param-row" id="sd-ornek-satir">
+          <span class="yb-etiket">Örnek dalgalar</span>
+          <div class="yb-seg">
+            <button type="button" data-ornek-ses="soz" class="on">Söz</button>
+            <button type="button" data-ornek-ses="kalp">Kalp atışı</button>
+            <button type="button" data-ornek-ses="kahkaha">Kahkaha</button>
+            <button type="button" data-ornek-ses="muzik">Şarkı</button>
+          </div>
+          <p class="yb-not">Sesiniz tarayıcınızdan çıkmaz: yalnız dalganın biçimi siparişe yazılır.</p>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-dalga">
+        <h2 class="yb-baslik">Dalga ve yazı</h2>
+        <div class="param-row" id="sd-bicim-satir">
+          <label class="yb-etiket" for="sd-bicim">Dalga biçimi</label>
+          <select id="sd-bicim" class="yb-gizli-secim">
+            <option value="cubuk" selected>Çubuk</option>
+            <option value="dalga">Dolu dalga</option>
+            <option value="halka">Halka</option>
+          </select>
+          <div class="yb-seg" data-secim="sd-bicim">
+            <button type="button" data-v="cubuk">Çubuk</button>
+            <button type="button" data-v="dalga">Dolu dalga</button>
+            <button type="button" data-v="halka">Halka</button>
+          </div>
+        </div>
+        <div class="param-row" id="sd-cubuk-satir">
+          <label class="yb-etiket" for="sd-cubuk">Çubuk sayısı</label>
+          <div class="yb-kaydir"><input type="range" id="sd-cubuk" min="24" max="96" step="2" value="60" /><span class="num-wrap"><input type="number" data-bagli="sd-cubuk" min="24" max="96" step="2" value="60" aria-label="Çubuk sayısı" /><span class="unit">adet</span></span></div>
+        </div>
+        <div class="param-row" id="sd-yazi-satir">
+          <label class="yb-etiket" for="sd-yazi">Yazı <span class="yb-sayac" id="sd-yazi-sayac"></span></label>
+          <input type="text" id="sd-yazi" class="yb-metin" maxlength="28" value="Seni seviyorum" autocomplete="off" spellcheck="false" />
+        </div>
+        <div class="param-row" id="sd-tip-satir">
+          <label class="yb-etiket" for="sd-tip">Yazı tipi</label>
+          <select id="sd-tip" class="yb-gizli-secim">
+            <option value="elyazisi" selected>El yazısı</option>
+            <option value="retro">Retro</option>
+            <option value="blok">Blok</option>
+          </select>
+          <div class="yb-seg" data-secim="sd-tip">
+            <button type="button" data-v="elyazisi">El yazısı</button>
+            <button type="button" data-v="retro">Retro</button>
+            <button type="button" data-v="blok">Blok</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-olcu">
+        <h2 class="yb-baslik">Ölçü ve duruş</h2>
+        <div class="param-row" id="sd-gen-satir">
+          <label class="yb-etiket" for="sd-gen">Genişlik</label>
+          <div class="yb-kaydir"><input type="range" id="sd-gen" min="100" max="220" step="5" value="160" /><span class="num-wrap"><input type="number" data-bagli="sd-gen" min="100" max="220" step="5" value="160" aria-label="Genişlik" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row" id="sd-yuk-satir">
+          <label class="yb-etiket" for="sd-yuk">Yükseklik</label>
+          <div class="yb-kaydir"><input type="range" id="sd-yuk" min="50" max="120" step="5" value="70" /><span class="num-wrap"><input type="number" data-bagli="sd-yuk" min="50" max="120" step="5" value="70" aria-label="Yükseklik" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row" id="sd-durus-satir">
+          <label class="yb-etiket" for="sd-durus">Duruş</label>
+          <select id="sd-durus" class="yb-gizli-secim">
+            <option value="ayak" selected>Masa ayağı</option>
+            <option value="delik">Duvar</option>
+            <option value="yok">Yalnız plaket</option>
+          </select>
+          <div class="yb-seg" data-secim="sd-durus">
+            <button type="button" data-v="ayak">Masa ayağı</button>
+            <button type="button" data-v="delik">Duvar</button>
+            <button type="button" data-v="yok">Yalnız plaket</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-renk">
+        <h2 class="yb-baslik">Renk</h2>
+        <div class="param-row yb-renk-satir" id="sd-renk-zemin-satir">
+          <label class="yb-etiket" for="sd-renk-zemin">Zemin rengi</label>
+          <select id="sd-renk-zemin" class="yb-gizli-secim">
+            <option value="siyah" selected>Siyah</option><option value="antrasit">Antrasit</option><option value="beyaz">Beyaz</option><option value="lacivert">Lacivert</option><option value="kahve">Kahverengi</option><option value="acikgri">Açık gri</option>
+          </select>
+          <div class="yb-renkler" data-secim="sd-renk-zemin">
+            <button type="button" data-v="siyah" style="--r:#1b1b1f" title="Siyah"></button>
+            <button type="button" data-v="antrasit" style="--r:#4a4d52" title="Antrasit"></button>
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
+            <button type="button" data-v="lacivert" style="--r:#1f2f5c" title="Lacivert"></button>
+            <button type="button" data-v="kahve" style="--r:#5b3a26" title="Kahverengi"></button>
+            <button type="button" data-v="acikgri" style="--r:#c4c7cb" title="Açık gri"></button>
+          </div>
+        </div>
+        <div class="param-row yb-renk-satir" id="sd-renk-dalga-satir">
+          <label class="yb-etiket" for="sd-renk-dalga">Dalga rengi</label>
+          <select id="sd-renk-dalga" class="yb-gizli-secim">
+            <option value="beyaz" selected>Beyaz</option><option value="sari">Sarı</option><option value="turkuaz">Turkuaz</option><option value="pembe">Pembe</option><option value="kirmizi">Kırmızı</option><option value="mavi">Mavi</option><option value="mor">Mor</option><option value="siyah">Siyah</option>
+          </select>
+          <div class="yb-renkler" data-secim="sd-renk-dalga">
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
+            <button type="button" data-v="sari" style="--r:#f6c927" title="Sarı"></button>
+            <button type="button" data-v="turkuaz" style="--r:#21b5b0" title="Turkuaz"></button>
+            <button type="button" data-v="pembe" style="--r:#ef6fa5" title="Pembe"></button>
+            <button type="button" data-v="kirmizi" style="--r:#c8242b" title="Kırmızı"></button>
+            <button type="button" data-v="mavi" style="--r:#2a6fd6" title="Mavi"></button>
+            <button type="button" data-v="mor" style="--r:#6a3fa0" title="Mor"></button>
+            <button type="button" data-v="siyah" style="--r:#1b1b1f" title="Siyah"></button>
+          </div>
+        </div>
+        <div class="param-row yb-renk-satir" id="sd-renk-yazi-satir">
+          <label class="yb-etiket" for="sd-renk-yazi">Yazı rengi</label>
+          <select id="sd-renk-yazi" class="yb-gizli-secim">
+            <option value="pembe" selected>Pembe</option><option value="beyaz">Beyaz</option><option value="sari">Sarı</option><option value="turkuaz">Turkuaz</option><option value="kirmizi">Kırmızı</option><option value="mavi">Mavi</option><option value="lacivert">Lacivert</option><option value="siyah">Siyah</option>
+          </select>
+          <div class="yb-renkler" data-secim="sd-renk-yazi">
+            <button type="button" data-v="pembe" style="--r:#ef6fa5" title="Pembe"></button>
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
+            <button type="button" data-v="sari" style="--r:#f6c927" title="Sarı"></button>
+            <button type="button" data-v="turkuaz" style="--r:#21b5b0" title="Turkuaz"></button>
+            <button type="button" data-v="kirmizi" style="--r:#c8242b" title="Kırmızı"></button>
+            <button type="button" data-v="mavi" style="--r:#2a6fd6" title="Mavi"></button>
+            <button type="button" data-v="lacivert" style="--r:#1f2f5c" title="Lacivert"></button>
+            <button type="button" data-v="siyah" style="--r:#1b1b1f" title="Siyah"></button>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <!-- ================= SAHNE ================= -->
+    <section class="yb-sahne">
+      <canvas id="sd-tuval" class="yb-tuval"></canvas>
+      <div class="yb-sahne-ust">
+        <span class="yb-olcu" id="sd-olcu">—</span>
+        <span class="yb-uyari" id="sd-uyari" hidden></span>
+      </div>
+    </section>
+
+    <!-- ================= ATÖLYE (müşteriye gizli) ================= -->
+    <aside class="yb-atolye">
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Üretim</h2>
+        <dl class="yb-tablo" id="sd-tablo"></dl>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Baskı ayarları</h2>
+        <div class="param-row"><label class="yb-etiket" for="sd-kalin">Zemin kalınlığı</label><span class="num-wrap"><input type="number" id="sd-kalin" min="1.6" max="4" step="0.2" value="2.4" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="sd-kabartma">Kabartma</label><span class="num-wrap"><input type="number" id="sd-kabartma" min="0.8" max="3" step="0.2" value="1.4" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="sd-px">Kontur hassasiyeti</label><span class="num-wrap"><input type="number" id="sd-px" min="5" max="10" step="1" value="7" /><span class="unit">px/mm</span></span></div>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Çıktılar</h2>
+        <button type="button" class="yb-cikti" id="sd-stl-zemin">Zemin (STL)</button>
+        <button type="button" class="yb-cikti" id="sd-stl-dalga">Dalga (STL)</button>
+        <button type="button" class="yb-cikti" id="sd-stl-yazi">Yazı (STL)</button>
+        <button type="button" class="yb-cikti" id="sd-stl-ayak">Masa ayağı (STL)</button>
+        <button type="button" class="yb-cikti yb-ikincil" id="sd-csv">Plaket bilgisi (CSV)</button>
+        <p class="yb-not">Z yukarı, mm. Zemin tablaya yatar; dalga ve yazı zeminin üstünde kendi renginde kabarır. Desteksiz. Çok renkli yazıcıda Üretim 3MF ile tek baskı.</p>
+      </section>
+    </aside>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

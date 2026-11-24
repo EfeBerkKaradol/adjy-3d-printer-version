@@ -783,7 +783,8 @@
         var nesne = nesneMap.get(anahtar);
         if (!nesne) nesneMap.set(anahtar, (nesne = { ad: d.nesne ? d.nesneAdi || d.nesne : d.ad.replace(/\.stl$/i, ""), renk: new Map() }));
         ada.forEach(function (k) {
-          var hex = k.hex || cogunluk;
+          // tekRenk: dosyanın tamamı bir filament (fotoğrafın bir rengi); çoğunluk karar verir
+          var hex = d.tekRenk ? cogunluk || k.hex : k.hex || cogunluk;
           if (!hex) { hex = "?"; eslesmeyen++; }
           var l = nesne.renk.get(hex);
           if (!l) nesne.renk.set(hex, (l = []));
@@ -986,6 +987,28 @@
         if (!l) obekler.set(nesneler[ni].anahtar, (l = []));
         l.push(ni);
       });
+      // Tek renkli öbek (ayak), o rengi zaten kullanan çok renkli öbeğin (çerçeve +
+      // yazısı) tablasına sığıyor ve filament değişimini pek artırmıyorsa oraya
+      // katılır: bir tabla, bir baskı işi eksilir
+      var degisimSay = function (liste) {
+        return diz(liste, true).reduce(function (t, tb) { return t + katmanDegisimi(tb.ogeler.map(function (o) { return o.nesne; })); }, 0);
+      };
+      if (duzen !== "ayri") {
+        Array.from(obekler.keys()).filter(function (a) { return a.indexOf("+") < 0; }).forEach(function (tek) {
+          var en = null;
+          obekler.forEach(function (liste, cok) {
+            if (cok === tek || cok.split("+").indexOf(tek) < 0) return;
+            var once = diz(liste, true), birlesik = liste.concat(obekler.get(tek)), sonra = diz(birlesik, true);
+            if (sonra.length > once.length || sonra.some(function (tb) { return tb.ogeler.some(function (o) { return o.tasiyor; }); })) return;
+            var artis = degisimSay(birlesik) - degisimSay(liste);
+            if (artis <= 6 && (!en || artis < en.artis)) en = { cok: cok, birlesik: birlesik, artis: artis };
+          });
+          if (en) {
+            obekler.set(en.cok, en.birlesik);
+            obekler.delete(tek);
+          }
+        });
+      }
       Array.from(obekler.keys())
         .sort(function (a, b) { return a.split("+").length - b.split("+").length || parseInt(a, 10) - parseInt(b, 10); })
         .forEach(function (anahtar) {
@@ -1141,7 +1164,7 @@
     return profilSozu
       .then(function () {
         return Promise.all((kaynak || []).map(function (k) {
-          return k.blob.arrayBuffer().then(function (b) { return { ad: k.ad, nesne: k.nesne || null, u: stlOku(b) }; });
+          return k.blob.arrayBuffer().then(function (b) { return { ad: k.ad, nesne: k.nesne || null, tekRenk: !!k.tekRenk, u: stlOku(b) }; });
         }));
       })
       .then(function (dosyalar) {

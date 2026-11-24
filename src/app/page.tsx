@@ -68,12 +68,12 @@ const RAIL_SELECT = {
  * birbirine benzemeyen ürünler dursun.
  */
 const TASARIM_VITRINI = [
+  "foto-yapboz",
   "neon-sahil-tabela",
+  "ses-dalgasi-plaketi",
+  "foto-kutu",
   "kahraman-amblemi",
   "lav-catlagi-zar-tepsisi",
-  "col-ufku-pano",
-  "isimli-yilbasi-celengi",
-  "litofan-lamba",
 ];
 
 /** Son 30 günde eklenen ürün "yeni" sayılır */
