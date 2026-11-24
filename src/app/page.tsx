@@ -215,14 +215,77 @@ async function getCategories(): Promise<HomeCategory[]> {
   }
 }
 
-async function getFeaturedRail(compareAt: Map<string, number>): Promise<RailProduct[]> {
+/** Çok sevilenler bölümünde bir satış, bir beğeniden bu kadar ağır basar */
+const SALE_WEIGHT = 2;
+const RAIL_SIZE = 4;
+
+/**
+ * Çok sevilen ürünler: en çok satılan ve en çok beğenilen (favoriye
+ * eklenen) ürünler. Puan = satılan adet × SALE_WEIGHT + beğeni sayısı.
+ *
+ * Satış olarak yalnızca ödemesi alınmış, iptal edilmemiş siparişler
+ * sayılır; yarıda bırakılan ödemeler ürünü "çok sevilen" yapmasın.
+ *
+ * Puanı olan ürün dörde yetmezse boşluk, "yeni çıkanlar" bölümünde
+ * zaten görünen ürünler atlanarak doldurulur: önce öne çıkarılanlar,
+ * sonra çok yorum alanlar, sonra mağazanın en eski (yerleşik) ürünleri.
+ * Böylece iki bölüm aynı dört ürünü göstermez.
+ */
+async function getFeaturedRail(
+  compareAt: Map<string, number>,
+  newArrivalIds: string[]
+): Promise<RailProduct[]> {
   try {
-    const rows = await prisma.product.findMany({
-      where: { isActive: true, thumbnailUrl: { not: null } },
-      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      take: 4,
-      select: RAIL_SELECT,
-    });
+    const [sales, likes] = await Promise.all([
+      prisma.orderItem.groupBy({
+        by: ["productId"],
+        where: {
+          order: { status: { not: "CANCELLED" }, paymentStatus: "PAID" },
+          product: { isActive: true, thumbnailUrl: { not: null } },
+        },
+        _sum: { quantity: true },
+      }),
+      prisma.wishlist.groupBy({
+        by: ["productId"],
+        where: { product: { isActive: true, thumbnailUrl: { not: null } } },
+        _count: { _all: true },
+      }),
+    ]);
+
+    const scores = new Map<string, number>();
+    for (const s of sales) {
+      scores.set(s.productId, (scores.get(s.productId) ?? 0) + (s._sum.quantity ?? 0) * SALE_WEIGHT);
+    }
+    for (const l of likes) {
+      scores.set(l.productId, (scores.get(l.productId) ?? 0) + l._count._all);
+    }
+    const rankedIds = [...scores.entries()]
+      .filter(([, score]) => score > 0)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, RAIL_SIZE)
+      .map(([id]) => id);
+
+    const ranked =
+      rankedIds.length > 0
+        ? await prisma.product.findMany({
+            where: { id: { in: rankedIds } },
+            select: RAIL_SELECT,
+          })
+        : [];
+    ranked.sort((a, b) => rankedIds.indexOf(a.id) - rankedIds.indexOf(b.id));
+
+    let rows = ranked;
+    if (rows.length < RAIL_SIZE) {
+      const exclude = [...rankedIds, ...newArrivalIds];
+      const fill = await prisma.product.findMany({
+        where: { isActive: true, thumbnailUrl: { not: null }, id: { notIn: exclude } },
+        orderBy: [{ featured: "desc" }, { reviews: { _count: "desc" } }, { createdAt: "asc" }],
+        take: RAIL_SIZE - rows.length,
+        select: RAIL_SELECT,
+      });
+      rows = [...rows, ...fill];
+    }
+
     return rows.map((p) => toRailProduct(p, true, compareAt.get(p.id) ?? null));
   } catch {
     return [];
@@ -318,15 +381,19 @@ async function getCustomerVoices(): Promise<{ sozler: Soz[]; ortalama: number }>
 
 export default async function HomePage() {
   const compareAt = await getCompareAtPrices();
-  const [categories, featured, newArrivals, sesler, printables, yilbasi] =
+  const [categories, newArrivals, sesler, printables, yilbasi] =
     await Promise.all([
       getCategories(),
-      getFeaturedRail(compareAt),
       getNewArrivals(compareAt),
       getCustomerVoices(),
       getPrintables(),
       getYilbasiRail(compareAt),
     ]);
+  // Yeni çıkanlar önce gelir ki çok sevilenler onları tekrar etmesin
+  const featured = await getFeaturedRail(
+    compareAt,
+    newArrivals.map((p) => p.id)
+  );
   const tasarimVitrini = TASARIM_VITRINI.map((id) => aracBul(id)).filter((a) => a !== null);
 
   return (
