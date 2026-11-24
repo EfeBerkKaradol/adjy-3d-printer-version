@@ -4,9 +4,7 @@ import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/db";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { secondImageOf } from "@/lib/gallery";
-import { ProductFilters } from "@/components/product/ProductFilters";
-import { FilterDrawer } from "@/components/product/FilterDrawer";
-import { SortDropdown } from "@/components/product/SortDropdown";
+import { FilterDropdown } from "@/components/product/FilterDropdown";
 import { ActiveFilterChips } from "@/components/product/ActiveFilterChips";
 import { CategoryChips } from "@/components/product/CategoryChips";
 import { Pagination } from "@/components/ui/pagination";
@@ -34,7 +32,8 @@ const PARAMETRIK = { slug: { startsWith: "tasarla-" } };
 
 // ==========================================
 // MAĞAZA (Server Component)
-// Solda filtre kenar çubuğu, sağda ürün listesi.
+// Üstte açılır buzlu filtre menüsü, altında tam genişlik
+// ürün ızgarası (masaüstünde satırda 5 ürün).
 // Veri doğrudan Prisma ile okunur — Vercel'de
 // self-fetch sorunu yaşanmaz.
 // ==========================================
@@ -50,7 +49,9 @@ export const metadata: Metadata = {
   },
 };
 
-const PAGE_SIZE = 12;
+// 5 sütunlu ızgarada tam satırlar: 20 ürün = masaüstünde 4 satır
+// (4, 2 sütunda da tam satır)
+const PAGE_SIZE = 20;
 
 // Filtre çubuğunun listeleri (kategori ağacı, koleksiyonlar,
 // malzemeler) seçilen filtreden bağımsız ve seyrek değişiyor;
@@ -371,40 +372,17 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         </Suspense>
       </div>
 
-      <div className="mt-10 grid gap-10 lg:grid-cols-[248px_minmax(0,1fr)] lg:gap-14">
-        {/* Kenar çubuğu — masaüstü */}
-        <aside className="hidden lg:block" aria-label="Ürün filtreleri">
-          <div className="sticky top-24">
-            <Suspense fallback={<div className="h-96" />}>
-              <ProductFilters categories={categories} collections={collections} materials={materialChoices} />
-            </Suspense>
-          </div>
-        </aside>
-
-        {/* Liste */}
+      <div className="mt-10">
         <div>
-          <div className="flex items-center justify-between gap-4 border-b-2 border-dashed border-foreground/25 pb-4">
-            <p className="text-sm text-muted-foreground">
-              <span className="font-medium text-foreground tabular-nums">
-                {totalCount}
-              </span>{" "}
-              ürün
-            </p>
-            <div className="hidden lg:block">
-              <Suspense fallback={null}>
-                <SortDropdown />
-              </Suspense>
-            </div>
-            {/* Mobil/tablet: filtre ve sıralama çekmeceleri */}
-            <Suspense fallback={null}>
-              <FilterDrawer
-                categories={categories}
-                collections={collections}
-                materials={materialChoices}
-                resultCount={totalCount}
-              />
-            </Suspense>
-          </div>
+          {/* Filtreler: düğmeye basınca yukarıdan açılan buzlu panel */}
+          <Suspense fallback={<div className="h-[54px] border-b-2 border-dashed border-foreground/25" />}>
+            <FilterDropdown
+              categories={categories}
+              collections={collections}
+              materials={materialChoices}
+              resultCount={totalCount}
+            />
+          </Suspense>
 
           <Suspense fallback={null}>
             <ActiveFilterChips categories={categories} collections={collections} />
@@ -419,7 +397,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                 </p>
               </div>
             ) : (
-              <ProductGrid products={products} />
+              <ProductGrid products={products} columns={5} />
             )}
           </div>
 
