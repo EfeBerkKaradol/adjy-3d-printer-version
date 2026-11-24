@@ -27,6 +27,12 @@ export interface TasarimCiktisi {
   sec: string;
   /** stl: basılacak parça · belge: pafta ve tablo · cad: diğer biçimler */
   tur: "stl" | "belge" | "cad";
+  /**
+   * Üretim projesinde aynı adı taşıyan STL'ler tek nesnedir: aynı orijinde,
+   * üst üste oturan renk parçaları (levha + kabartma yazı). Adsız STL
+   * kendi başına bir parçadır, rengine göre ayrı tablaya dizilir.
+   */
+  nesne?: string;
 }
 
 export interface TasarimAraci {
@@ -91,14 +97,16 @@ export const TASARIM_KATEGORISI = {
 };
 
 /**
- * Renkli baskı çıktıları. Düğmeleri atölye kipinde
- * public/tasarim-araclari/_adjy/renkli.js kurar; her araçta vardır.
+ * Renkli baskı çıktıları (public/tasarim-araclari/_adjy/renkli.js; atölye
+ * kipinde, her araçta).
  *
- *   3MF   → dilimleyici projesi: müşterinin modeli tek nesne, her renk
- *           ayrı parça ve kendi filament yuvasına atanmış, filament
- *           renkleri ve yazıcı profili içinde. Aç, dilimle, bas.
- *   paket → aynı 3MF + renk başına STL + renk listesi (başka dilimleyici
- *           ya da elle atama için). "Klasöre kaydet" bunu yazar.
+ *   üretim projesi → basılan dosya. Aracın baskı yönündeki parça
+ *           STL'lerinden kurulur (aşağıdaki "stl" çıktıları): tek renkli
+ *           parçalar rengine göre ayrı tablada, çok renkli nesneler
+ *           ("nesne" adı aynı olan STL'ler) kendi tablasında, sipariş
+ *           adedi kadar dizili. Filament renkleri ve yazıcı profili içinde.
+ *   paket → modelin ekrandaki (montajlı) duruşu: renk başına STL + renk
+ *           listesi. Bu duruş basılmaz; renkleri görmek içindir.
  */
 export const RENKLI_3MF_SECICI = "#adjy-renkli-3mf";
 export const RENKLI_PAKET_SECICI = "#adjy-renkli-paket";
@@ -481,8 +489,8 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ],
     gorseller: ["Top süs: el yazısıyla aile adı, altın yazı", "Yıldız: ilk yılbaşı, pembe yazı", "Çam ağacı: Mutlu Yıllar", "Kalp: iki isim, el yazısı"],
     ciktilar: [
-      { ad: "Gövde STL", sec: "#yb-stl-govde", tur: "stl" },
-      { ad: "Yazı ve çerçeve STL", sec: "#yb-stl-yazi", tur: "stl" },
+      { ad: "Gövde STL", sec: "#yb-stl-govde", tur: "stl", nesne: "Süs" },
+      { ad: "Yazı ve çerçeve STL", sec: "#yb-stl-yazi", tur: "stl", nesne: "Süs" },
       RENKLI_PAKET,
       { ad: "Tek parça, tek renk STL", sec: "#yb-stl-tek", tur: "cad" },
       { ad: "Süs bilgisi (CSV)", sec: "#yb-csv", tur: "belge" },
@@ -539,9 +547,9 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ],
     gorseller: ["Klasik: beş kat, altın yıldız", "Işıklı: içi boş, mum LED'li", "Modern: kavisli, altın", "Mini: masaüstü, kırmızı"],
     ciktilar: [
-      { ad: "Ağaç STL", sec: "#ag-stl", tur: "stl" },
+      { ad: "Ağaç STL", sec: "#ag-stl", tur: "stl", nesne: "Ağaç" },
       { ad: "Yıldız STL", sec: "#ag-stl-yildiz", tur: "stl" },
-      { ad: "Süs topları STL", sec: "#ag-stl-toplar", tur: "stl" },
+      { ad: "Süs topları STL", sec: "#ag-stl-toplar", tur: "stl", nesne: "Ağaç" },
       RENKLI_PAKET,
       { ad: "Ağaç bilgisi (CSV)", sec: "#ag-csv", tur: "belge" },
     ],
@@ -683,8 +691,8 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ],
     gorseller: ["Klasik: çam, el yazısı, altın", "Yıldızlı: siyah ve altın", "Kar tanesi: beyaz ve buz mavisi", "Kırmızı çan"],
     ciktilar: [
-      { ad: "Kart STL", sec: "#sk-stl-kart", tur: "stl" },
-      { ad: "Yazı ve motif STL", sec: "#sk-stl-yazi", tur: "stl" },
+      { ad: "Kart STL", sec: "#sk-stl-kart", tur: "stl", nesne: "Kart" },
+      { ad: "Yazı ve motif STL", sec: "#sk-stl-yazi", tur: "stl", nesne: "Kart" },
       { ad: "Ayak STL", sec: "#sk-stl-ayak", tur: "stl" },
       RENKLI_PAKET,
       { ad: "Kart bilgisi (CSV)", sec: "#sk-csv", tur: "belge" },
@@ -744,10 +752,10 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ],
     gorseller: ["Gün batımı: turuncu güneş, pembe yazı", "Neon gece: mor güneş, turkuaz palmiye", "Öğlen sahili: beyaz zemin, duvar delikli", "Yalnız yazı: çerçeve ve palmiyeler"],
     ciktilar: [
-      { ad: "Zemin STL", sec: "#ns-stl-zemin", tur: "stl" },
-      { ad: "Güneş STL", sec: "#ns-stl-gunes", tur: "stl" },
-      { ad: "Palmiye STL", sec: "#ns-stl-palmiye", tur: "stl" },
-      { ad: "Yazı ve çerçeve STL", sec: "#ns-stl-yazi", tur: "stl" },
+      { ad: "Zemin STL", sec: "#ns-stl-zemin", tur: "stl", nesne: "Tabela" },
+      { ad: "Güneş STL", sec: "#ns-stl-gunes", tur: "stl", nesne: "Tabela" },
+      { ad: "Palmiye STL", sec: "#ns-stl-palmiye", tur: "stl", nesne: "Tabela" },
+      { ad: "Yazı ve çerçeve STL", sec: "#ns-stl-yazi", tur: "stl", nesne: "Tabela" },
       { ad: "Masa ayağı STL", sec: "#ns-stl-ayak", tur: "stl" },
       RENKLI_PAKET,
       { ad: "Tabela bilgisi (CSV)", sec: "#ns-csv", tur: "belge" },
@@ -776,9 +784,9 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ],
     gorseller: ["Şimşek: daire, kırmızı ve sarı", "Baş harf: kalkan, lacivert ve gümüş", "Kral: altıgen, taç", "Gece bekçisi: elmas, siyah ve sarı"],
     ciktilar: [
-      { ad: "Zemin STL", sec: "#ka-stl-zemin", tur: "stl" },
-      { ad: "Bordür ve patlama STL", sec: "#ka-stl-ikinci", tur: "stl" },
-      { ad: "Simge STL", sec: "#ka-stl-simge", tur: "stl" },
+      { ad: "Zemin STL", sec: "#ka-stl-zemin", tur: "stl", nesne: "Amblem" },
+      { ad: "Bordür ve patlama STL", sec: "#ka-stl-ikinci", tur: "stl", nesne: "Amblem" },
+      { ad: "Simge STL", sec: "#ka-stl-simge", tur: "stl", nesne: "Amblem" },
       RENKLI_PAKET,
       { ad: "Amblem bilgisi (CSV)", sec: "#ka-csv", tur: "belge" },
     ],
@@ -806,8 +814,8 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ],
     gorseller: ["Cehennem kapısı: altıgen, rün halkası", "Volkan ağzı: daire, sık çatlak", "Plazma çekirdeği: sekizgen, mavi", "Asit kuyusu: yeşil, mühürsüz"],
     ciktilar: [
-      { ad: "Taş STL", sec: "#lt-stl-tas", tur: "stl" },
-      { ad: "Lav katı STL", sec: "#lt-stl-lav", tur: "stl" },
+      { ad: "Taş STL", sec: "#lt-stl-tas", tur: "stl", nesne: "Tepsi" },
+      { ad: "Lav katı STL", sec: "#lt-stl-lav", tur: "stl", nesne: "Tepsi" },
       RENKLI_PAKET,
       { ad: "Tepsi bilgisi (CSV)", sec: "#lt-csv", tur: "belge" },
     ],
@@ -835,10 +843,10 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ],
     gorseller: ["İki ay: kemer, gün batımı", "Gece yürüyüşü: gezgin, lacivert gök", "Baharat vadisi: daire, turuncu ay", "Sessiz çöl: kemik tonları, çerçevesiz"],
     ciktilar: [
-      { ad: "Gök levhası STL", sec: "#cu-stl-gok", tur: "stl" },
-      { ad: "Aylar STL", sec: "#cu-stl-ay", tur: "stl" },
-      { ad: "Açık kum STL", sec: "#cu-stl-acik", tur: "stl" },
-      { ad: "Koyu kum ve çerçeve STL", sec: "#cu-stl-koyu", tur: "stl" },
+      { ad: "Gök levhası STL", sec: "#cu-stl-gok", tur: "stl", nesne: "Pano" },
+      { ad: "Aylar STL", sec: "#cu-stl-ay", tur: "stl", nesne: "Pano" },
+      { ad: "Açık kum STL", sec: "#cu-stl-acik", tur: "stl", nesne: "Pano" },
+      { ad: "Koyu kum ve çerçeve STL", sec: "#cu-stl-koyu", tur: "stl", nesne: "Pano" },
       RENKLI_PAKET,
       { ad: "Pano bilgisi (CSV)", sec: "#cu-csv", tur: "belge" },
     ],
@@ -866,10 +874,10 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ],
     gorseller: ["Klasik: yeşil yaprak, kırmızı fiyonk", "Altın: koyu yeşil, Mutlu Yıllar", "Karlı: beyaz yaprak, lacivert kokina", "Yalnız çelenk: şeritsiz, fiyonk üstte"],
     ciktilar: [
-      { ad: "Taban ve yapraklar STL", sec: "#yc-stl-yaprak", tur: "stl" },
-      { ad: "Kokina ve fiyonk STL", sec: "#yc-stl-meyve", tur: "stl" },
-      { ad: "Şerit STL", sec: "#yc-stl-serit", tur: "stl" },
-      { ad: "Yazı STL", sec: "#yc-stl-yazi", tur: "stl" },
+      { ad: "Taban ve yapraklar STL", sec: "#yc-stl-yaprak", tur: "stl", nesne: "Çelenk" },
+      { ad: "Kokina ve fiyonk STL", sec: "#yc-stl-meyve", tur: "stl", nesne: "Çelenk" },
+      { ad: "Şerit STL", sec: "#yc-stl-serit", tur: "stl", nesne: "Çelenk" },
+      { ad: "Yazı STL", sec: "#yc-stl-yazi", tur: "stl", nesne: "Çelenk" },
       RENKLI_PAKET,
       { ad: "Çelenk bilgisi (CSV)", sec: "#yc-csv", tur: "belge" },
     ],

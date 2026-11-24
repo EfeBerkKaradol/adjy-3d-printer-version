@@ -2,7 +2,13 @@
    RENKLİ BASKI PAKETİ (yalnız atölye kipi)
 
    Müşterinin sitede kurduğu model (ölçüler, biçim, renkler) atölyede
-   aynen yüklenir; bu paket o modeli ekrandaki hâliyle, RENGE GÖRE
+   aynen yüklenir. Buradan iki şey çıkar:
+
+   ÜRETİM PROJESİ (ADJY_RENKLI.uretim): aracın baskı yönündeki parça
+   STL'lerinden, renge göre ayrı tablalara dizilmiş ve sipariş adedi
+   kadar çoğaltılmış çok tablalı dilimleyici projesi. Basılan budur.
+
+   RENK PAKETİ: modeli ekrandaki (montajlı) hâliyle, renge göre
    ayrılmış dosyalar olarak indirir:
 
      <arac>_renkli.3mf          Dilimleyici projesi: bütün renkler tek nesne,
@@ -85,15 +91,15 @@
   }
 
   // ---------- Geometri ----------
-  /** Renk → dünya koordinatlarında üçgen dizisi (mm, Z yukarı) */
-  function renkGruplari() {
+  /** Sahnedeki basılacak ağlar: [{ hex, u: [x, y, z, …] }] (mm, Z yukarı, sahnedeki yerinde) */
+  function sahneAglari() {
     var m = window.ADJY_OLCU && window.ADJY_OLCU.model();
     if (!m || !m.aglar.length) throw new Error("Model sahnesi bulunamadı");
     var T = m.T;
     var up = m.kamera ? m.kamera.up : new T.Vector3(0, 1, 0);
     var zYukari = Math.abs(up.z) > Math.abs(up.y);
     var olcek = m.birim;
-    var gruplar = new Map();
+    var aglar = [];
     var v = new T.Vector3();
 
     // Tek filamentli araçta bütün parçalar en çok yüzeyi olan rengi alır
@@ -140,8 +146,8 @@
           if (!mt || !mt.color || mt.visible === false) return;
           if (basilmaz(o, mt)) return;
           var hex = PAKET.tekRenk ? tekRenk : "#" + mt.color.getHexString();
-          if (!gruplar.has(hex)) gruplar.set(hex, []);
-          var hedef = gruplar.get(hex);
+          var hedef = [];
+          aglar.push({ hex: hex, u: hedef });
           var idx = g.index;
           var bitis = pc.bas + pc.say;
           for (var i = pc.bas; i + 2 < bitis; i += 3) {
@@ -156,6 +162,18 @@
           }
         });
       }
+    });
+
+    return aglar;
+  }
+
+  /** Renk → dünya koordinatlarında üçgen dizisi (mm, Z yukarı) */
+  function renkGruplari() {
+    var gruplar = new Map();
+    sahneAglari().forEach(function (a) {
+      if (!gruplar.has(a.hex)) gruplar.set(a.hex, []);
+      var h = gruplar.get(a.hex);
+      for (var i = 0; i < a.u.length; i++) h.push(a.u[i]);
     });
 
     // Tablaya oturt ve XY'de ortala
@@ -180,10 +198,21 @@
       }
     });
 
-    // Büyükten küçüğe (en çok üçgenli renk gövdedir)
+    // Büyükten küçüğe, hacme göre (en çok filament giden renk 1 numara;
+    // üretim projesindeki filament sırasıyla aynı)
+    function hacmi(u) {
+      var v = 0;
+      for (var q = 0; q + 8 < u.length; q += 9) {
+        v += (u[q] * (u[q + 4] * u[q + 8] - u[q + 5] * u[q + 7]) -
+          u[q + 1] * (u[q + 3] * u[q + 8] - u[q + 5] * u[q + 6]) +
+          u[q + 2] * (u[q + 3] * u[q + 7] - u[q + 4] * u[q + 6])) / 6;
+      }
+      return Math.abs(v);
+    }
     return Array.from(gruplar.entries())
       .filter(function (e) { return e[1].length >= 9; })
-      .sort(function (a, b) { return b[1].length - a[1].length; })
+      .map(function (e) { return [e[0], e[1], hacmi(e[1])]; })
+      .sort(function (a, b) { return b[2] - a[2]; })
       .map(function (e, i) {
         var r = parseInt(e[0].slice(1, 3), 16);
         var gg = parseInt(e[0].slice(3, 5), 16);
@@ -473,7 +502,6 @@
     var gruplar = renkGruplari();
     var a = adlar();
     var on = a.on;
-    indir(paket3mf(gruplar, a.nesneAdi), on + "_renkli.3mf");
     gruplar.forEach(function (g) {
       indir(stl(g.ucgenler, "ADJY " + on + " renk " + g.no + " " + g.hex), stlAdi(on, g));
     });
@@ -492,13 +520,9 @@
     });
     satirlar.push(
       "",
-      on + "_renkli.3mf: dilimleyici projesi" + (PROFIL ? " (" + PROFIL.ad + ", " + PROFIL.islem + ", " + PROFIL.filament + ")." : "."),
-      "Anycubic Slicer Next, OrcaSlicer ya da Bambu Studio'da Dosya → Projeyi aç ile açın:",
-      "  · tek nesne gelir, her renk ayrı parça ve kendi filament yuvasına atanmıştır,",
-      "  · filament renkleri yukarıdaki listeyle aynı sırada ayarlıdır,",
-      "  · makinedeki makaraları aynı sıraya takın (ya da yuvaları eşleyin), dilimleyip basın.",
-      "Başka yazıcıda: projeyi açtıktan sonra yazıcıyı ve filamenti değiştirin; parça atamaları kalır.",
-      "Parçalar atanmış gelmezse (eski sürüm): parça adları filament numarasıyla başlar; elle atayın.",
+      "Bu STL'ler modelin ekrandaki (montajlı) duruşudur: renkleri görmek ve elle düzenlemek için.",
+      "Basmak için üretim projesini kullanın (…_uretim_Nadet.3mf): parçalar baskı yönünde,",
+      "renge göre ayrı tablalarda ve sipariş adedi kadar dizilidir.",
       "STL ile: bütün renk STL'lerini birlikte sürükleyin, 'tek nesne olarak yükle' sorusuna Evet deyin.",
       "Ayrı basılan parçalar (vida, kapak vb.) için aracın kendi parça STL'leri baskı yönüne göre hazırdır."
     );
@@ -511,6 +535,502 @@
     return renkGruplari().map(function (g) {
       return { no: g.no, hex: g.hex, ad: g.ad };
     });
+  }
+
+  // ---------- ÜRETİM DÜZENİ ----------
+  // Renkli 3MF modeli sahnedeki (montajlı) duruşuyla verir: vidası gövdenin
+  // içinde, parçalar dik. Öyle basılınca her katmanda renk değişir, baskı
+  // günlerce sürer. Üretim projesi ise aracın kendi parça STL'lerinden
+  // kurulur; onlar baskı yönünde, tablaya yatık ve ayrı ayrıdır:
+  //
+  //   · her parça dosyası ayrı nesne (katalogda aynı "nesne" adını taşıyan
+  //     dosyalar aynı orijinde üst üste oturur: tek nesnenin renk parçaları)
+  //   · renkler sahneden okunur: STL'deki her kabuk, sahnedeki eş kabukla
+  //     (üçgen sayısı + hacim; dönmeden etkilenmez) eşlenir
+  //   · tek renkli nesneler rengine göre ayrı tablalara dizilir: o tablada
+  //     filament hiç değişmez, temizleme kulesi gerekmez
+  //   · çok renkli nesneler (kabartma yazılı levha gibi) kendi tablasında
+  //   · sipariş adedi kadar çoğaltılır, tablaya sığmayan sonraki tablaya geçer
+  var TABLA_PAYI = 6; // tabla kenarından ve nesneler arası boşluk (mm)
+
+  function stlOku(buf) {
+    var dv = new DataView(buf);
+    var n = buf.byteLength >= 84 ? dv.getUint32(80, true) : 0;
+    if (buf.byteLength === 84 + n * 50) {
+      var u = new Float32Array(n * 9);
+      for (var t = 0; t < n; t++) {
+        var o = 84 + t * 50 + 12;
+        for (var k = 0; k < 9; k++) u[t * 9 + k] = dv.getFloat32(o + k * 4, true);
+      }
+      return u;
+    }
+    // Metin STL
+    var metin = new TextDecoder().decode(buf);
+    var sayilar = [];
+    var re = /vertex\s+(\S+)\s+(\S+)\s+(\S+)/g;
+    var e;
+    while ((e = re.exec(metin))) sayilar.push(+e[1], +e[2], +e[3]);
+    return new Float32Array(sayilar.slice(0, Math.floor(sayilar.length / 9) * 9));
+  }
+
+  /** Üçgen çorbasını bağlı kabuklara ayırır: [{ u, n, hacim }] */
+  function kabuklar(u) {
+    var nt = u.length / 9;
+    var harita = new Map();
+    var ust = [];
+    var kose = new Int32Array(nt * 3);
+    for (var i = 0; i < nt * 3; i++) {
+      var key = Math.round(u[i * 3] * 500) + "," + Math.round(u[i * 3 + 1] * 500) + "," + Math.round(u[i * 3 + 2] * 500);
+      var id = harita.get(key);
+      if (id === undefined) {
+        id = ust.length;
+        harita.set(key, id);
+        ust.push(id);
+      }
+      kose[i] = id;
+    }
+    function bul(a) {
+      while (ust[a] !== a) {
+        ust[a] = ust[ust[a]];
+        a = ust[a];
+      }
+      return a;
+    }
+    for (var t = 0; t < nt; t++) {
+      var a = bul(kose[t * 3]), b = bul(kose[t * 3 + 1]), c = bul(kose[t * 3 + 2]);
+      if (b !== a) ust[b] = a;
+      c = bul(c);
+      if (c !== a) ust[c] = a;
+    }
+    var grup = new Map();
+    for (var t2 = 0; t2 < nt; t2++) {
+      var kok = bul(kose[t2 * 3]);
+      var l = grup.get(kok);
+      if (!l) grup.set(kok, (l = []));
+      l.push(t2);
+    }
+    var cikti = [];
+    grup.forEach(function (l) {
+      var w = new Float32Array(l.length * 9);
+      var hacim = 0;
+      for (var j = 0; j < l.length; j++) {
+        var q = l[j] * 9;
+        for (var k = 0; k < 9; k++) w[j * 9 + k] = u[q + k];
+        hacim +=
+          (u[q] * (u[q + 4] * u[q + 8] - u[q + 5] * u[q + 7]) -
+            u[q + 1] * (u[q + 3] * u[q + 8] - u[q + 5] * u[q + 6]) +
+            u[q + 2] * (u[q + 3] * u[q + 7] - u[q + 4] * u[q + 6])) / 6;
+      }
+      var k = kutu([{ u: w }]);
+      cikti.push({ u: w, n: l.length, hacim: Math.abs(hacim), mn: k.mn, mx: k.mx });
+    });
+    return cikti;
+  }
+
+  /**
+   * Kabukları adalara ayırır: kutuları birbirine değen kabuklar aynı parçadır
+   * (kutu + içindeki dikmeler), değmeyenler ayrı parça (tablaya dizilmiş kutular).
+   */
+  function adalar(ks) {
+    var ust = ks.map(function (_, i) { return i; });
+    function bul(a) {
+      while (ust[a] !== a) { ust[a] = ust[ust[a]]; a = ust[a]; }
+      return a;
+    }
+    var pay = 0.3;
+    for (var i = 0; i < ks.length; i++) {
+      for (var j = i + 1; j < ks.length; j++) {
+        var a = ks[i], b = ks[j];
+        if (a.mn[0] - pay <= b.mx[0] && b.mn[0] - pay <= a.mx[0] &&
+            a.mn[1] - pay <= b.mx[1] && b.mn[1] - pay <= a.mx[1] &&
+            a.mn[2] - pay <= b.mx[2] && b.mn[2] - pay <= a.mx[2]) {
+          var ra = bul(i), rb = bul(j);
+          if (ra !== rb) ust[rb] = ra;
+        }
+      }
+    }
+    var grup = new Map();
+    ks.forEach(function (k, i) {
+      var r = bul(i);
+      var l = grup.get(r);
+      if (!l) grup.set(r, (l = []));
+      l.push(k);
+    });
+    return Array.from(grup.values());
+  }
+
+  /** Sahne kabuklarından renk bulucu: (kabuk) → hex | null */
+  function renkBulucu() {
+    var dizin = new Map();
+    sahneAglari().forEach(function (a) {
+      kabuklar(new Float32Array(a.u)).forEach(function (k) {
+        var l = dizin.get(k.n);
+        if (!l) dizin.set(k.n, (l = []));
+        l.push({ hacim: k.hacim, hex: a.hex.toUpperCase() });
+      });
+    });
+    var baskin = null, enBuyuk = -1;
+    var toplam = new Map();
+    dizin.forEach(function (l) {
+      l.forEach(function (x) {
+        var t = (toplam.get(x.hex) || 0) + x.hacim + 1e-6;
+        toplam.set(x.hex, t);
+        if (t > enBuyuk) { enBuyuk = t; baskin = x.hex; }
+      });
+    });
+    renkBulucu.baskin = baskin;
+    return function (k) {
+      var l = dizin.get(k.n);
+      if (!l) return null;
+      var en = null, fark = Infinity;
+      l.forEach(function (x) {
+        var d = Math.abs(x.hacim - k.hacim);
+        if (d < fark) { fark = d; en = x; }
+      });
+      return en && fark <= Math.max(0.5, k.hacim * 0.004) ? en.hex : null;
+    };
+  }
+
+  function kutu(parcalar) {
+    var mn = [Infinity, Infinity, Infinity], mx = [-Infinity, -Infinity, -Infinity];
+    parcalar.forEach(function (pc) {
+      var u = pc.u;
+      for (var i = 0; i < u.length; i += 3) {
+        for (var a = 0; a < 3; a++) {
+          if (u[i + a] < mn[a]) mn[a] = u[i + a];
+          if (u[i + a] > mx[a]) mx[a] = u[i + a];
+        }
+      }
+    });
+    return { mn: mn, mx: mx };
+  }
+
+  /**
+   * @param dosyalar [{ ad, u: Float32Array, nesne? }]  aracın parça STL'leri
+   * @param adet     sipariş adedi
+   * @returns { nesneler, renkler, tablalar, eslesmeyen }
+   */
+  function uretimPlani(dosyalar, adet) {
+    var bul = renkBulucu();
+    var tabla = PROFIL && PROFIL.tabla ? PROFIL.tabla : [250, 250];
+    var hacimler = new Map();
+    var eslesmeyen = 0;
+    var kaynaklar = [];
+
+    // 1) Dosyalar → nesneler (aynı "nesne" adı: tek nesnenin parçaları)
+    var nesneMap = new Map();
+    dosyalar.forEach(function (d, di) {
+      var ks = kabuklar(d.u);
+      var oy = new Map();
+      ks.forEach(function (k) {
+        k.hex = bul(k);
+        if (k.hex) oy.set(k.hex, (oy.get(k.hex) || 0) + k.hacim + 1e-6);
+      });
+      var kk = kutu(ks);
+      kaynaklar.push({ ad: d.ad, kabuk: ks.length, eslesen: ks.filter(function (k) { return k.hex; }).length, mn: kk.mn, mx: kk.mx });
+      var cogunluk = null, enCok = -1;
+      oy.forEach(function (v, h) { if (v > enCok) { enCok = v; cogunluk = h; } });
+      // Aynı "nesne" adını taşıyan dosyalar tek nesnedir (yerinde, üst üste);
+      // adsız dosya adalarına ayrılır: her ada ayrı dizilir
+      var obek = d.nesne ? [ks] : adalar(ks);
+      obek.forEach(function (ada, ai) {
+        var anahtar = d.nesne ? "n:" + d.nesne : "d:" + di + ":" + ai;
+        var nesne = nesneMap.get(anahtar);
+        if (!nesne) nesneMap.set(anahtar, (nesne = { ad: d.nesne ? d.nesneAdi || d.nesne : d.ad.replace(/\.stl$/i, ""), renk: new Map() }));
+        ada.forEach(function (k) {
+          var hex = k.hex || cogunluk;
+          if (!hex) { hex = "?"; eslesmeyen++; }
+          var l = nesne.renk.get(hex);
+          if (!l) nesne.renk.set(hex, (l = []));
+          l.push(k);
+          hacimler.set(hex, (hacimler.get(hex) || 0) + k.hacim);
+        });
+      });
+    });
+
+    // Rengi bulunamayan kabuklar en çok kullanılan rengi alır
+    var sirali = Array.from(hacimler.entries()).filter(function (e) { return e[0] !== "?"; })
+      .sort(function (a, b) { return b[1] - a[1]; });
+    var yedek = sirali.length ? sirali[0][0] : renkBulucu.baskin || "#B4B4B4";
+    if (hacimler.has("?")) hacimler.set(yedek, (hacimler.get(yedek) || 0) + hacimler.get("?"));
+    hacimler.delete("?");
+    var renkler = Array.from(hacimler.entries()).sort(function (a, b) { return b[1] - a[1]; }).map(function (e, i) {
+      var h = e[0];
+      return { no: i + 1, hex: h, ad: renkAdi(parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)) };
+    });
+    var renkNo = new Map(renkler.map(function (r) { return [r.hex, r.no]; }));
+
+    // 2) Nesneyi kendi orijinine oturt (XY ortada, Z tablada); geniş kenar X'te
+    var nesneler = [];
+    nesneMap.forEach(function (n) {
+      var parcalar = [];
+      n.renk.forEach(function (ks, hex) {
+        if (hex === "?") hex = yedek;
+        var toplam = ks.reduce(function (t, k) { return t + k.u.length; }, 0);
+        var u = new Float32Array(toplam);
+        var o = 0;
+        ks.forEach(function (k) { u.set(k.u, o); o += k.u.length; });
+        var var_ = parcalar.find(function (pc) { return pc.hex === hex; });
+        if (var_) {
+          var b = new Float32Array(var_.u.length + u.length);
+          b.set(var_.u);
+          b.set(u, var_.u.length);
+          var_.u = b;
+        } else parcalar.push({ hex: hex, no: renkNo.get(hex), u: u });
+      });
+      if (!parcalar.length) return;
+      var k0 = kutu(parcalar);
+      var w = k0.mx[0] - k0.mn[0], d = k0.mx[1] - k0.mn[1];
+      var cevir = d > w; // uzun kenar X'e
+      var cx = (k0.mn[0] + k0.mx[0]) / 2, cy = (k0.mn[1] + k0.mx[1]) / 2, z0 = k0.mn[2];
+      parcalar.forEach(function (pc) {
+        var u = pc.u;
+        for (var i = 0; i < u.length; i += 3) {
+          var x = u[i] - cx, y = u[i + 1] - cy;
+          u[i] = cevir ? y : x;
+          u[i + 1] = cevir ? -x : y;
+          u[i + 2] -= z0;
+        }
+      });
+      parcalar.sort(function (a, b) { return a.no - b.no; });
+      nesneler.push({
+        ad: n.ad,
+        parcalar: parcalar,
+        w: cevir ? d : w,
+        d: cevir ? w : d,
+        h: k0.mx[2] - z0,
+        anahtar: parcalar.map(function (pc) { return pc.no; }).join("+")
+      });
+    });
+
+    // 3) Tablalar: renk takımına göre öbekle, raf raf diz
+    var obekler = new Map();
+    nesneler.forEach(function (n, ni) {
+      var l = obekler.get(n.anahtar);
+      if (!l) obekler.set(n.anahtar, (l = []));
+      for (var k = 0; k < adet; k++) l.push(ni);
+    });
+    var tablalar = [];
+    Array.from(obekler.keys())
+      .sort(function (a, b) { return a.split("+").length - b.split("+").length || parseInt(a, 10) - parseInt(b, 10); })
+      .forEach(function (anahtar) {
+        var cokRenk = anahtar.indexOf("+") >= 0;
+        var W = tabla[0] - 2 * TABLA_PAYI;
+        // Çok renkli tablada temizleme kulesine arkada yer bırakılır
+        var D = tabla[1] - 2 * TABLA_PAYI - (cokRenk ? 45 : 0);
+        var liste = obekler.get(anahtar).slice().sort(function (a, b) { return nesneler[b].d - nesneler[a].d; });
+        var simdi = null, x = 0, y = 0, raf = 0;
+        function yeniTabla() {
+          simdi = { anahtar: anahtar, renkNo: anahtar.split("+").map(Number), ogeler: [] };
+          tablalar.push(simdi);
+          x = 0; y = 0; raf = 0;
+        }
+        liste.forEach(function (ni) {
+          var n = nesneler[ni];
+          if (!simdi) yeniTabla();
+          if (x > 0 && x + n.w > W) { x = 0; y += raf + TABLA_PAYI; raf = 0; }
+          if (y > 0 && y + n.d > D) { yeniTabla(); }
+          var buyuk = n.w > W || n.d > D;
+          simdi.ogeler.push({
+            nesne: ni,
+            x: buyuk ? tabla[0] / 2 : TABLA_PAYI + x + n.w / 2,
+            y: buyuk ? tabla[1] / 2 : TABLA_PAYI + y + n.d / 2,
+            tasiyor: n.w > tabla[0] || n.d > tabla[1]
+          });
+          x += n.w + TABLA_PAYI;
+          raf = Math.max(raf, n.d);
+        });
+      });
+    return { nesneler: nesneler, renkler: renkler, tablalar: tablalar, eslesmeyen: eslesmeyen, tabla: tabla, adet: adet, kaynaklar: kaynaklar };
+  }
+
+  function agXml(u) {
+    var harita = new Map(), kose = [], ucgen = [];
+    for (var t = 0; t < u.length; t += 9) {
+      var ix = [];
+      for (var j = 0; j < 3; j++) {
+        var x = u[t + j * 3], y = u[t + j * 3 + 1], z = u[t + j * 3 + 2];
+        var key = Math.round(x * 1e4) + "," + Math.round(y * 1e4) + "," + Math.round(z * 1e4);
+        var n = harita.get(key);
+        if (n === undefined) {
+          n = kose.length;
+          harita.set(key, n);
+          kose.push('<vertex x="' + sayi(x) + '" y="' + sayi(y) + '" z="' + sayi(z) + '"/>');
+        }
+        ix.push(n);
+      }
+      if (ix[0] === ix[1] || ix[1] === ix[2] || ix[0] === ix[2]) continue;
+      ucgen.push('<triangle v1="' + ix[0] + '" v2="' + ix[1] + '" v3="' + ix[2] + '"/>');
+    }
+    return "   <mesh>\n    <vertices>\n" + kose.join("\n") + "\n    </vertices>\n    <triangles>\n" + ucgen.join("\n") + "\n    </triangles>\n   </mesh>\n";
+  }
+
+
+  /** Planı çok tablalı dilimleyici projesine yazar */
+  function uretim3mf(plan, nesneAdi) {
+    var model = [
+      '<?xml version="1.0" encoding="UTF-8"?>\n' +
+        '<model unit="millimeter" xml:lang="tr-TR" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:BambuStudio="http://schemas.bambulab.com/package/2021">\n' +
+        ' <metadata name="Application">BambuStudio-2.0.0.0</metadata>\n' +
+        ' <metadata name="BambuStudio:3mfVersion">1</metadata>\n' +
+        ' <metadata name="Title">' + xmlKacis(nesneAdi) + '</metadata>\n' +
+        ' <metadata name="Designer">ADJY</metadata>\n <resources>\n  <basematerials id="10000">\n'
+    ];
+    plan.renkler.forEach(function (r) {
+      model.push('   <base name="' + xmlKacis(r.ad + " " + r.hex) + '" displaycolor="' + r.hex + 'FF"/>\n');
+    });
+    model.push("  </basematerials>\n");
+
+    // Ağlar: nesnenin her renk parçası bir kez yazılır, kopyalar aynı ağı paylaşır
+    var id = 0;
+    plan.nesneler.forEach(function (n) {
+      n.parcalar.forEach(function (pc) {
+        pc.id = ++id;
+        model.push('  <object id="' + pc.id + '" type="model" pid="10000" pindex="' + (pc.no - 1) + '" name="' +
+          xmlKacis(pc.no + " " + plan.renkler[pc.no - 1].ad) + '">\n' + agXml(pc.u) + "  </object>\n");
+      });
+    });
+
+    var cols = Math.ceil(Math.sqrt(plan.tablalar.length));
+    var adimX = plan.tabla[0] * 1.2, adimY = plan.tabla[1] * 1.2;
+    var ayar = ['<?xml version="1.0" encoding="UTF-8"?>\n<config>\n'];
+    var tablaXml = [];
+    var yapi = [];
+    var sayac = 0;
+    plan.tablalar.forEach(function (t, ti) {
+      var ox = (ti % cols) * adimX, oy = -Math.floor(ti / cols) * adimY;
+      var ornekler = [];
+      t.ogeler.forEach(function (o) {
+        var n = plan.nesneler[o.nesne];
+        var oid = ++id;
+        sayac++;
+        model.push('  <object id="' + oid + '" type="model" name="' + xmlKacis(n.ad) + '">\n   <components>\n');
+        n.parcalar.forEach(function (pc) {
+          model.push('    <component objectid="' + pc.id + '" transform="1 0 0 0 1 0 0 0 1 0 0 0"/>\n');
+        });
+        model.push("   </components>\n  </object>\n");
+        yapi.push('  <item objectid="' + oid + '" transform="1 0 0 0 1 0 0 0 1 ' + sayi(ox + o.x) + " " + sayi(oy + o.y) + ' 0" printable="1"/>\n');
+        ayar.push('  <object id="' + oid + '">\n    <metadata key="name" value="' + xmlKacis(n.ad) + '"/>\n' +
+          '    <metadata key="extruder" value="' + n.parcalar[0].no + '"/>\n');
+        n.parcalar.forEach(function (pc) {
+          ayar.push('    <part id="' + pc.id + '" subtype="normal_part">\n' +
+            '      <metadata key="name" value="' + xmlKacis(pc.no + " " + plan.renkler[pc.no - 1].ad + " " + pc.hex) + '"/>\n' +
+            '      <metadata key="matrix" value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>\n' +
+            '      <metadata key="extruder" value="' + pc.no + '"/>\n    </part>\n');
+        });
+        ayar.push("  </object>\n");
+        ornekler.push('    <model_instance>\n      <metadata key="object_id" value="' + oid + '"/>\n' +
+          '      <metadata key="instance_id" value="0"/>\n      <metadata key="identify_id" value="' + (1000 + sayac) + '"/>\n    </model_instance>\n');
+      });
+      tablaXml.push('  <plate>\n    <metadata key="plater_id" value="' + (ti + 1) + '"/>\n' +
+        '    <metadata key="plater_name" value=""/>\n' +
+        '    <metadata key="locked" value="false"/>\n' + ornekler.join("") + "  </plate>\n");
+    });
+    model.push(" </resources>\n <build>\n" + yapi.join("") + " </build>\n</model>\n");
+    ayar.push(tablaXml.join("") + "</config>\n");
+
+    var dosyalar = [
+      {
+        ad: "[Content_Types].xml",
+        veri:
+          '<?xml version="1.0" encoding="UTF-8"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+          '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+          '<Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/></Types>'
+      },
+      {
+        ad: "_rels/.rels",
+        veri:
+          '<?xml version="1.0" encoding="UTF-8"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+          '<Relationship Target="/3D/3dmodel.model" Id="rel-1" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/></Relationships>'
+      },
+      { ad: "3D/3dmodel.model", veri: model.join("") },
+      { ad: "Metadata/model_settings.config", veri: ayar.join("") }
+    ];
+    var proje = projeAyari(plan.renkler);
+    if (proje) dosyalar.push({ ad: "Metadata/project_settings.config", veri: proje });
+    return zip(dosyalar);
+  }
+
+  /** Planın okunur özeti (yönetim ekranı ve tabla listesi dosyası) */
+  function planOzeti(plan) {
+    return plan.tablalar.map(function (t, ti) {
+      var say = new Map();
+      t.ogeler.forEach(function (o) {
+        var ad = plan.nesneler[o.nesne].ad;
+        say.set(ad, (say.get(ad) || 0) + 1);
+      });
+      return {
+        no: ti + 1,
+        renkler: t.renkNo.map(function (no) { return plan.renkler[no - 1]; }),
+        parcalar: Array.from(say.entries()).map(function (e) { return { ad: e[0], adet: e[1] }; }),
+        tasiyor: t.ogeler.some(function (o) { return o.tasiyor; })
+      };
+    });
+  }
+
+  /**
+   * Aracın parça STL'lerinden üretim projesi.
+   * @param kaynak [{ ad, blob, nesne? }]
+   * @param secenek { adet }
+   * @returns Promise<{ dosyalar: [{ ad, blob }], ozet, renkler, eslesmeyen }>
+   */
+  function uretimPaketi(kaynak, secenek) {
+    var adet = Math.max(1, Math.min(60, Math.round((secenek && secenek.adet) || 1)));
+    return profilSozu
+      .then(function () {
+        return Promise.all((kaynak || []).map(function (k) {
+          return k.blob.arrayBuffer().then(function (b) { return { ad: k.ad, nesne: k.nesne || null, u: stlOku(b) }; });
+        }));
+      })
+      .then(function (dosyalar) {
+        dosyalar = dosyalar.filter(function (d) { return d.u.length >= 9; });
+        if (!dosyalar.length) throw new Error("Araç basılacak parça üretmedi");
+        var plan = uretimPlani(dosyalar, adet);
+        var a = adlar();
+        var ozet = planOzeti(plan);
+        var satirlar = [
+          "ÜRETİM PROJESİ — " + a.nesneAdi + " × " + adet + " adet",
+          "Parçalar baskı yönünde ve tablaya yatık; tek renkli parçalar rengine göre ayrı tablada",
+          "(o tablada filament değişmez). Çok renkli parçalar kendi tablasında, yalnız renk",
+          "değişen katmanlarda filament değiştirir.",
+          "",
+          "Filament yuvaları:"
+        ];
+        plan.renkler.forEach(function (r) { satirlar.push("  Filament " + r.no + " → " + r.ad + " (" + r.hex + ")"); });
+        satirlar.push("", "Tablalar:");
+        ozet.forEach(function (t) {
+          satirlar.push("  Tabla " + t.no + " — " + t.renkler.map(function (r) { return r.ad; }).join(" + ") + ": " +
+            t.parcalar.map(function (pc) { return pc.adet + " × " + pc.ad; }).join(", ") +
+            (t.tasiyor ? "  (!) tablaya sığmıyor: elle bölün ya da büyük makinede basın" : ""));
+        });
+        if (plan.eslesmeyen) satirlar.push("", "(!) " + plan.eslesmeyen + " parçanın rengi sahneden okunamadı; en çok kullanılan renge atandı. Dilimleyicide kontrol edin.");
+        satirlar.push(
+          "",
+          "Dilimleyicide Dosya → Projeyi aç ile açın" + (PROFIL ? " (" + PROFIL.ad + ", " + PROFIL.islem + ")." : "."),
+          "Her tablayı ayrı dilimleyip basın; makaraları yukarıdaki sıraya takın."
+        );
+        var on = a.on + "_uretim_" + adet + "adet";
+        // Dilimleyici bir projede en çok 36 tabla açar: fazlası ayrı projeye
+        var EN_COK = 30;
+        var projeler = [];
+        for (var b = 0; b < plan.tablalar.length; b += EN_COK) {
+          var dilim = Object.assign({}, plan, { tablalar: plan.tablalar.slice(b, b + EN_COK) });
+          var ek = plan.tablalar.length > EN_COK ? "_" + (b / EN_COK + 1) : "";
+          projeler.push({ ad: on + ek + ".3mf", blob: uretim3mf(dilim, a.nesneAdi + " × " + adet) });
+        }
+        return {
+          dosyalar: projeler.concat([
+            { ad: on + "_tablalar.txt", blob: new Blob(["\ufeff" + satirlar.join("\r\n") + "\r\n"], { type: "text/plain;charset=utf-8" }) }
+          ]),
+          ozet: ozet,
+          renkler: plan.renkler,
+          eslesmeyen: plan.eslesmeyen,
+          kaynaklar: plan.kaynaklar,
+          nesneler: plan.nesneler.map(function (n) {
+            return { ad: n.ad, w: n.w, d: n.d, h: n.h, renkNo: n.parcalar.map(function (pc) { return pc.no; }) };
+          })
+        };
+      });
   }
 
   function dugme(id, is) {
@@ -534,6 +1054,11 @@
   function kur() {
     dugme("adjy-renkli-paket", paketiIndir);
     dugme("adjy-renkli-3mf", ucMfIndir);
+    // Yönetim paneli aracın köprüsü (window.ADJY) üzerinden çağırır
+    if (window.ADJY) {
+      window.ADJY.uretimProjesi = uretimPaketi;
+      window.ADJY.renkListesi = renkListesi;
+    }
   }
   if (document.body) kur();
   else document.addEventListener("DOMContentLoaded", kur);
@@ -544,6 +1069,7 @@
     indir: paketiIndir,
     ucMf: ucMfIndir,
     paket3mf: paket3mf,
+    uretim: uretimPaketi,
     profil: function () { return profilSozu; }
   };
 })();

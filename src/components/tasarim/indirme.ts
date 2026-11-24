@@ -7,10 +7,10 @@
 // kısım burada durur ki iki yerde iki ayrı davranış oluşmasın.
 // ==========================================
 
-import type { TasarimAraci } from "@/lib/tasarim/catalog";
+import { RENKLI_PAKET_SECICI, type TasarimAraci } from "@/lib/tasarim/catalog";
 import type { TasarimDosyasi, TasarimSecimi } from "@/lib/tasarim/order";
 import type { KaydedilecekDosya } from "@/lib/tasarim/kaydet";
-import type { AracArayuzu } from "./kopru";
+import type { AracArayuzu, AracDosyasi, UretimSonucu } from "./kopru";
 
 export interface IndirilecekSiparis {
   id: string;
@@ -127,9 +127,49 @@ export function bilgiDosyasi(
   };
 }
 
+/** Aracın parça STL'leri, hangi çıktıdan geldiği işaretli */
+type ParcaDosyasi = AracDosyasi & { nesne?: string };
+
+/**
+ * Aracın baskı yönündeki parça STL'lerini toplar. Çıktılar tek tek
+ * basılır: dosyanın hangi çıktıdan geldiği (aynı nesnenin renk parçası
+ * mı, ayrı parça mı) üretim projesi için gerekli.
+ */
+export async function parcaDosyalari(
+  arayuz: AracArayuzu,
+  arac: TasarimAraci
+): Promise<ParcaDosyasi[]> {
+  const parcalar: ParcaDosyasi[] = [];
+  for (const c of arac.ciktilar) {
+    if (c.tur !== "stl" || c.sec === RENKLI_PAKET_SECICI) continue;
+    for (const d of await arayuz.topla([c.sec])) parcalar.push({ ...d, nesne: c.nesne });
+  }
+  return parcalar;
+}
+
+/**
+ * Üretim projesi: parçalar baskı yönünde, tek renkliler rengine göre ayrı
+ * tablada (o tablada filament değişmez), sipariş adedi kadar dizili.
+ * Araç STL vermediyse (yalnızca ZIP ya da hiç) null.
+ */
+export async function uretimProjesi(
+  arayuz: AracArayuzu,
+  parcalar: ParcaDosyasi[],
+  adet: number
+): Promise<UretimSonucu | null> {
+  const stller = parcalar.filter((d) => /\.stl$/i.test(d.ad));
+  if (!arayuz.uretimProjesi || stller.length === 0) return null;
+  try {
+    return await arayuz.uretimProjesi(stller, { adet });
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Basılacak parçaları ve imalat belgelerini araçtan toplar; yanına
- * sipariş bilgisini ve müşterinin yüklediği dosyaları koyar.
+ * üretim projesini, sipariş bilgisini ve müşterinin yüklediği dosyaları
+ * koyar.
  */
 export async function uretimDosyalari(
   arayuz: AracArayuzu,
@@ -137,10 +177,18 @@ export async function uretimDosyalari(
   siparis: IndirilecekSiparis,
   kalem: IndirilecekKalem
 ): Promise<KaydedilecekDosya[]> {
-  const seciciler = arac.ciktilar
-    .filter((c) => c.tur === "stl" || c.tur === "belge")
+  const parcalar = await parcaDosyalari(arayuz, arac);
+  const dosyalar: KaydedilecekDosya[] = parcalar.map((d) => ({ ad: d.ad, blob: d.blob }));
+
+  // Basılacak dosya: üretim projesi (klasörde en üstte dursun diye adı öne alınır)
+  const proje = await uretimProjesi(arayuz, parcalar, kalem.adet);
+  if (proje) dosyalar.unshift(...proje.dosyalar);
+
+  // Renk STL'leri (montajlı duruş) ve belgeler
+  const digerleri = arac.ciktilar
+    .filter((c) => c.tur === "belge" || c.sec === RENKLI_PAKET_SECICI)
     .map((c) => c.sec);
-  const dosyalar: KaydedilecekDosya[] = await arayuz.topla(seciciler);
+  dosyalar.push(...(await arayuz.topla(digerleri)));
 
   dosyalar.push(bilgiDosyasi(arac, siparis, kalem));
 

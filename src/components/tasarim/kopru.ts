@@ -42,6 +42,16 @@ export interface AracArayuzu {
   /** Sade görünüm ile bütün ayarlar arasında geçiş */
   ayar: (kip: "sade" | "tum") => void;
   gelismisVar: boolean;
+  /**
+   * Üretim projesi (atölye, renkli.js): parça STL'lerinden, renge göre
+   * ayrı tablalara dizilmiş ve adet kadar çoğaltılmış dilimleyici projesi
+   */
+  uretimProjesi?: (
+    kaynak: (AracDosyasi & { nesne?: string })[],
+    secenek: { adet: number }
+  ) => Promise<UretimSonucu>;
+  /** Modelin basılacak renkleri (atölye, renkli.js) */
+  renkListesi?: () => AracRengi[];
   dosyalariYukle: () => Promise<Record<string, unknown>>;
   dosyaVar: (girisId: string) => boolean;
   dosyaSayisi: () => number;
@@ -70,6 +80,23 @@ export interface AracRengi {
   no: number;
   hex: string;
   ad: string;
+}
+
+/** Üretim projesinin bir tablası: hangi renk(ler), hangi parçadan kaç tane */
+export interface UretimTablasi {
+  no: number;
+  renkler: AracRengi[];
+  parcalar: { ad: string; adet: number }[];
+  /** Parça tablaya sığmıyor: elle bölünmeli ya da büyük makinede basılmalı */
+  tasiyor: boolean;
+}
+
+export interface UretimSonucu {
+  dosyalar: AracDosyasi[];
+  ozet: UretimTablasi[];
+  renkler: AracRengi[];
+  /** Rengi sahneden okunamayan parça sayısı */
+  eslesmeyen: number;
 }
 
 /**

@@ -25,7 +25,6 @@ import {
 } from "lucide-react";
 import {
   aracUretimKaynagi,
-  RENKLI_3MF_SECICI,
   RENKLI_PAKET_SECICI,
   type TasarimAraci,
   type TasarimCiktisi,
@@ -43,6 +42,7 @@ import {
   aracRenkleri,
   type AracPaketi,
   type AracRengi,
+  type UretimTablasi,
 } from "./kopru";
 import {
   klasoreYaz,
@@ -50,7 +50,7 @@ import {
   siparisKlasoruAdi,
   type KayitSonucu,
 } from "@/lib/tasarim/kaydet";
-import { stlVarMi, uretimDosyalari } from "./indirme";
+import { parcaDosyalari, stlVarMi, uretimDosyalari, uretimProjesi } from "./indirme";
 
 // ==========================================
 // ÜRETİM EKRANI
@@ -163,6 +163,10 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
   const [kayit, setKayit] = useState<
     { tur: "tamam"; sonuc: KayitSonucu } | { tur: "hata"; mesaj: string } | null
   >(null);
+  // Üretim projesi kaç adet için kurulacak: siparişte kalemin adedi,
+  // atölye kipinde elle. Son kurulan projenin tabla listesi altta yazar.
+  const [uretimAdedi, setUretimAdedi] = useState(Math.max(1, siparisKalemi.adet));
+  const [tablalar, setTablalar] = useState<UretimTablasi[] | null>(null);
   const yuklendiRef = useRef(false);
   // Modelin renkleri = 3MF'teki filament yuvaları. Model her
   // değiştiğinde (atölye kipinde ayar oynanınca) yeniden okunur;
@@ -270,6 +274,37 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
     []
   );
 
+  // Üretim projesi: parçalar baskı yönünde, renge göre ayrı tablalarda,
+  // adet kadar dizili. Dosya bu sayfadan iner (çerçevenin içinden değil).
+  const uretimIndir = useCallback(async () => {
+    const arayuz = aracArayuzu(cerceveRef.current);
+    if (!arayuz) return;
+    setKayit(null);
+    setTablalar(null);
+    setIndirilen("Üretim projesi");
+    const parcalar = await parcaDosyalari(arayuz, arac);
+    const proje = await uretimProjesi(arayuz, parcalar, uretimAdedi);
+    if (!proje) {
+      setKayit({ tur: "hata", mesaj: "Araç parça STL'si vermedi; parçaları tek tek indirin" });
+    } else {
+      for (const d of proje.dosyalar) {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(d.blob);
+        a.download = d.ad;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          URL.revokeObjectURL(a.href);
+          a.remove();
+        }, 4000);
+        await new Promise((r) => setTimeout(r, 500));
+      }
+      setTablalar(proje.ozet);
+      setRenkler(proje.renkler);
+    }
+    setIndirilen(null);
+  }, [arac, uretimAdedi]);
+
   // Bütün üretim dosyaları tek seferde, "Müşteri - Sipariş No"
   // klasörüne. Klasör penceresi yalnızca tıklamanın hemen ardından
   // açılabildiği için hedef dosyalardan önce hazırlanır.
@@ -281,7 +316,10 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
     setKayit(null);
     setIndirilen("Üretim dosyaları");
     try {
-      const dosyalar = await uretimDosyalari(arayuz, arac, siparis, kalem);
+      const dosyalar = await uretimDosyalari(arayuz, arac, siparis, {
+        ...kalem,
+        adet: uretimAdedi,
+      });
       if (!stlVarMi(dosyalar)) throw new Error("Araç STL üretmedi");
       const sonuc = await klasoreYaz(
         hedef,
@@ -297,7 +335,7 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
       });
     }
     setIndirilen(null);
-  }, [arac, kalem, siparis]);
+  }, [arac, kalem, siparis, uretimAdedi]);
 
   const kopyala = useCallback(async () => {
     const baslik = [
@@ -388,13 +426,27 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
             <button
               type="button"
               disabled={!hazir || !!indirilen}
-              onClick={() => indir([{ ad: "Renkli 3MF", sec: RENKLI_3MF_SECICI, tur: "stl" }])}
-              title="Dilimleyici projesi: her renk kendi filament yuvasına atanmış, filament renkleri ayarlı"
+              onClick={uretimIndir}
+              title="Dilimleyici projesi: parçalar baskı yönünde, renge göre ayrı tablalarda, adet kadar dizili"
               className={`${DUGME} bg-foreground font-medium text-background hover:opacity-90`}
             >
               <Layers className="h-4 w-4" aria-hidden />
-              Renkli 3MF
+              Üretim 3MF
             </button>
+            <label className="adjy-pixel-box inline-flex h-9 items-center gap-1.5 bg-card px-2 font-mono text-[11px]">
+              <input
+                type="number"
+                min={1}
+                max={60}
+                value={uretimAdedi}
+                onChange={(e) =>
+                  setUretimAdedi(Math.min(60, Math.max(1, Math.round(Number(e.target.value) || 1))))
+                }
+                aria-label="Üretim adedi"
+                className="w-10 bg-transparent text-right tabular-nums outline-none"
+              />
+              adet
+            </label>
             {renkler.length > 0 && (
               <ul
                 className="flex flex-wrap items-center gap-1"
@@ -421,7 +473,7 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
                 type="button"
                 disabled={!hazir || !!indirilen}
                 onClick={() => indir([renkliPaket])}
-                title="3MF + her renk ayrı STL + renk listesi"
+                title="Modelin ekrandaki (montajlı) duruşu: her renk ayrı STL + renk listesi"
                 className={`${DUGME} text-muted-foreground hover:bg-muted hover:text-foreground`}
               >
                 <Download className="h-4 w-4" aria-hidden />
@@ -493,7 +545,7 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
               type="button"
               disabled={!hazir || !!indirilen}
               onClick={klasoreKaydet}
-              title="Renkli 3MF, parça STL'leri, belgeler ve sipariş bilgisi tek klasöre"
+              title="Üretim projesi, parça STL'leri, belgeler ve sipariş bilgisi tek klasöre"
               className={`${DUGME} adjy-pixel-frame font-medium hover:bg-muted`}
             >
               <FolderDown className="h-4 w-4" aria-hidden />
@@ -519,12 +571,27 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
             <span role="alert" className="text-destructive">
               {kayit.mesaj}
             </span>
+          ) : tablalar ? (
+            <span className="inline-flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="inline-flex items-center gap-1.5 text-brand-lime">
+                <Check className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                {tablalar.length} tabla
+              </span>
+              {tablalar.slice(0, 8).map((t) => (
+                <span key={t.no} className={t.tasiyor ? "text-brand-amber" : undefined}>
+                  {t.no}: {t.renkler.map((r) => r.ad).join(" + ")} ·{" "}
+                  {t.parcalar.reduce((s, pc) => s + pc.adet, 0)} parça
+                  {t.tasiyor ? " (sığmıyor)" : ""}
+                </span>
+              ))}
+              {tablalar.length > 8 && <span>+{tablalar.length - 8} tabla (listesi dosyada)</span>}
+            </span>
           ) : (
             <span>
-              Renkli 3MF&apos;yi dilimleyicide proje olarak açın: parçalar filament
-              yuvalarına atanmış, renkler ayarlı gelir
-              {renkler.length > 1 ? ` (${renkler.length} filament)` : ""}. Makaraları
-              aynı sıraya takın.
+              Üretim 3MF: parçalar baskı yönünde, tek renkliler rengine göre ayrı
+              tablada (filament değişmez), {uretimAdedi} adet dizili. Dilimleyicide proje
+              olarak açın, makaraları sıraya takın
+              {renkler.length > 1 ? ` (${renkler.length} filament)` : ""}.
             </span>
           )}
         </div>
