@@ -31,6 +31,12 @@ interface Props {
   vitrin?: string;
   /** Büyük kartın etiketi */
   vitrinEtiketi?: string;
+  /**
+   * Tek sıra, sade kart: geniş ekranda 5 kart yan yana,
+   * dar ekranda yatay kaydırılan bir sıra. Ayar etiketleri
+   * gizlenir, özet iki satırla sınırlanır (Üret sayfası).
+   */
+  kompakt?: boolean;
 }
 
 const KISA_AYAR = 3;
@@ -41,6 +47,7 @@ export function TasarimAracKartlari({
   baslikEtiketi = "h2",
   vitrin,
   vitrinEtiketi = "Yeni",
+  kompakt = false,
 }: Props) {
   const Baslik = baslikEtiketi;
   const sirali = vitrin
@@ -49,7 +56,13 @@ export function TasarimAracKartlari({
   const toplam = String(sirali.length).padStart(2, "0");
 
   return (
-    <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+    <ul
+      className={cn(
+        kompakt
+          ? "-mx-1 flex snap-x snap-mandatory gap-4 overflow-x-auto px-1 pb-3 lg:mx-0 lg:grid lg:grid-cols-5 lg:overflow-visible lg:px-0 lg:pb-0"
+          : "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6"
+      )}
+    >
       {sirali.map((a, i) => {
         const buyuk = a.id === vitrin;
         const gorsel = resolvePublicImage(aracGorseli(a.id));
@@ -57,7 +70,14 @@ export function TasarimAracKartlari({
         const ayarlar = buyuk ? a.ayarlar : a.ayarlar.slice(0, KISA_AYAR);
         const kalan = a.ayarlar.length - ayarlar.length;
         return (
-          <li key={a.id} className={cn("flex", buyuk && "sm:col-span-2 lg:row-span-2")}>
+          <li
+            key={a.id}
+            className={cn(
+              "flex",
+              buyuk && "sm:col-span-2 lg:row-span-2",
+              kompakt && "w-[72%] shrink-0 snap-start sm:w-[42%] md:w-[30%] lg:w-auto"
+            )}
+          >
             <Link
               href={aracAdresi(a.id)}
               className="adjy-pixel-card group flex w-full flex-col"
@@ -76,7 +96,9 @@ export function TasarimAracKartlari({
                     sizes={
                       buyuk
                         ? "(max-width: 640px) 100vw, 66vw"
-                        : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        : kompakt
+                          ? "(max-width: 640px) 72vw, (max-width: 1024px) 40vw, 20vw"
+                          : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     }
                     priority={i < oncelikli}
                     className={cn(
@@ -94,7 +116,7 @@ export function TasarimAracKartlari({
                     src={ikinci}
                     alt=""
                     fill
-                    sizes={buyuk ? "66vw" : "33vw"}
+                    sizes={buyuk ? "66vw" : kompakt ? "20vw" : "33vw"}
                     className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
                   />
                 )}
@@ -115,14 +137,19 @@ export function TasarimAracKartlari({
 
               <div
                 className={cn(
-                  "flex flex-1 flex-col border-t-2 border-dashed border-foreground/80 p-4",
+                  "flex flex-1 flex-col border-t-2 border-dashed border-foreground/80",
+                  kompakt ? "p-3.5" : "p-4",
                   buyuk && "lg:flex-none lg:p-6"
                 )}
               >
                 <Baslik
                   className={cn(
                     "font-semibold leading-snug tracking-tight",
-                    buyuk ? "text-xl lg:text-3xl lg:tracking-[-0.03em]" : "text-lg"
+                    buyuk
+                      ? "text-xl lg:text-3xl lg:tracking-[-0.03em]"
+                      : kompakt
+                        ? "text-base"
+                        : "text-lg"
                   )}
                 >
                   {a.ad}
@@ -130,32 +157,37 @@ export function TasarimAracKartlari({
                 <p
                   className={cn(
                     "mt-1.5 leading-relaxed text-muted-foreground",
-                    buyuk ? "text-sm lg:text-base" : "text-sm"
+                    buyuk ? "text-sm lg:text-base" : "text-sm",
+                    kompakt && "line-clamp-2 flex-1 text-[13px]"
                   )}
                 >
                   {a.ozet}
                 </p>
-                <ul className="mt-3 flex flex-1 flex-wrap content-start gap-1.5">
-                  {ayarlar.map((ayar) => (
-                    <li
-                      key={ayar}
-                      className="rounded-full bg-muted px-2.5 py-1 text-[11px] text-muted-foreground"
-                    >
-                      {ayar}
-                    </li>
-                  ))}
-                  {kalan > 0 && (
-                    <li className="rounded-full border border-dashed border-foreground/25 px-2.5 py-1 text-[11px] text-muted-foreground">
-                      +{kalan} ayar
-                    </li>
-                  )}
-                </ul>
+                {!kompakt && (
+                  <ul className="mt-3 flex flex-1 flex-wrap content-start gap-1.5">
+                    {ayarlar.map((ayar) => (
+                      <li
+                        key={ayar}
+                        className="rounded-full bg-muted px-2.5 py-1 text-[11px] text-muted-foreground"
+                      >
+                        {ayar}
+                      </li>
+                    ))}
+                    {kalan > 0 && (
+                      <li className="rounded-full border border-dashed border-foreground/25 px-2.5 py-1 text-[11px] text-muted-foreground">
+                        +{kalan} ayar
+                      </li>
+                    )}
+                  </ul>
+                )}
                 <p className="mt-4 flex items-center justify-between gap-3">
                   <span className="inline-flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.14em]">
                     Kendin kur
                     <PixelArrow className="h-3 w-3 transition-transform duration-200 group-hover:translate-x-1" />
                   </span>
-                  <span className="text-xs text-muted-foreground">varsayılan ölçüde</span>
+                  {!kompakt && (
+                    <span className="text-xs text-muted-foreground">varsayılan ölçüde</span>
+                  )}
                 </p>
               </div>
             </Link>
