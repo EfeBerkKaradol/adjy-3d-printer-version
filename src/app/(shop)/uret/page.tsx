@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 // kalanı "Ayarlanabilir ürünleri gör" ile /tasarla'da açılır;
 // böylece altındaki iki serbest başlangıç (elinde model olan
 // yükler, olmayan fotoğraftan başlar) ilk ekrana yaklaşır.
-// Üstteki "Kendi dosyandan üret" düğmesi o bölüme kaydırır.
+// Üstteki "Kendin üret" düğmesi o bölüme kaydırır.
 // ==========================================
 
 /** Üret sayfasında tek sırada gösterilen parametrik ürün sayısı */
@@ -79,13 +79,13 @@ export default async function UretPage() {
           yumuşatır, hareket azaltma tercihinde anında atlar. */}
       <a
         href="#kendi-dosyan"
-        className="adjy-pixel-card adjy-pixel-card-solid mt-7 inline-flex items-center gap-3 px-5 py-3 font-mono text-xs font-semibold uppercase tracking-[0.14em]"
+        className="adjy-pixel-card adjy-pixel-card-solid mt-10 inline-flex items-center gap-3 px-6 py-3.5 font-mono text-xs font-semibold uppercase tracking-[0.14em]"
       >
-        Kendi dosyandan üret
+        Kendin üret
         <ArrowDown className="h-3.5 w-3.5" aria-hidden />
       </a>
 
-      <section className="mt-12" aria-labelledby="uret-parametrik">
+      <section className="mt-14" aria-labelledby="uret-parametrik">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div className="max-w-xl">
             <p className="adjy-eyebrow mb-3">Kendin Tasarla</p>
@@ -104,7 +104,7 @@ export default async function UretPage() {
           baslikEtiketi="h3"
           kompakt
         />
-        <div className="mt-6 flex justify-center">
+        <div className="mt-6 flex justify-end">
           <PixelLink href="/tasarla#urunler">
             Ayarlanabilir ürünleri gör
             <span className="text-muted-foreground">({TASARIM_ARACLARI.length})</span>
