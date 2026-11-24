@@ -9,6 +9,7 @@ import { SearchX } from "lucide-react";
 // ==========================================
 // ÜRÜN GRİDİ
 // Masaüstü 4, tablet 3, küçük tablet 2, telefon 2 sütun.
+// Mağaza sayfası (kenar çubuğu yok) geniş ekranda 5 sütun.
 // Kartlar piksel çerçeveli (ProductCard); aralık çerçevenin
 // sert gölgesine yer bırakacak kadar.
 // ==========================================
@@ -17,19 +18,21 @@ interface ProductGridProps {
   products: ProductCardProduct[];
   isLoading?: boolean;
   /** Ana sayfadaki vitrin gibi daha seyrek yerleşimler için */
-  columns?: 3 | 4;
+  columns?: 3 | 4 | 5;
 }
 
 export function ProductGrid({ products, isLoading, columns = 4 }: ProductGridProps) {
   const gridClass =
     columns === 3
       ? "grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3"
-      : "grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 xl:grid-cols-4";
+      : columns === 5
+        ? "grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+        : "grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 xl:grid-cols-4";
 
   if (isLoading) {
     return (
       <div className={gridClass}>
-        {Array.from({ length: columns === 3 ? 6 : 8 }).map((_, i) => (
+        {Array.from({ length: columns === 3 ? 6 : columns === 5 ? 10 : 8 }).map((_, i) => (
           <div key={i} className="adjy-pixel-card">
             <Skeleton className="aspect-square rounded-none" />
             <div className="border-t-2 border-dashed border-foreground/30 px-3.5 py-3">
@@ -67,7 +70,7 @@ export function ProductGrid({ products, isLoading, columns = 4 }: ProductGridPro
   return (
     <div className={gridClass}>
       {products.map((product, i) => (
-        <ProductCard key={product.id} product={product} index={i} priority={i < 4} />
+        <ProductCard key={product.id} product={product} index={i} priority={i < columns} />
       ))}
     </div>
   );

@@ -43,9 +43,9 @@ export function SortDropdown() {
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="adjy-pixel-box inline-flex h-9 items-center gap-2 bg-background px-3 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[10px] transition-colors hover:bg-foreground hover:text-background"
+          className="adjy-pixel-box inline-flex h-9 shrink-0 items-center gap-2 bg-background px-3 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[10px] transition-colors hover:bg-foreground hover:text-background"
         >
-          <span className="opacity-60">Sırala:</span>
+          <span className="hidden opacity-60 sm:inline">Sırala:</span>
           <span className="font-medium">{currentLabel}</span>
           <ChevronDown className="h-3.5 w-3.5" aria-hidden />
         </button>
