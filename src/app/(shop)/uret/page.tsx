@@ -77,13 +77,18 @@ export default async function UretPage() {
       </p>
       {/* Düz çapa: html'deki scroll-behavior: smooth kaydırmayı
           yumuşatır, hareket azaltma tercihinde anında atlar. */}
-      <a
-        href="#kendi-dosyan"
-        className="adjy-pixel-card adjy-pixel-card-solid mt-10 inline-flex items-center gap-3 px-6 py-3.5 font-mono text-xs font-semibold uppercase tracking-[0.14em]"
-      >
-        Kendin üret
-        <ArrowDown className="h-3.5 w-3.5" aria-hidden />
-      </a>
+      {/* Boşluk sarmalayıcıda: .adjy-pixel-card katmansız
+          margin: 2px verdiği için düğmenin kendi mt-* sınıfı
+          etkisiz kalır. */}
+      <div className="mt-12">
+        <a
+          href="#kendi-dosyan"
+          className="adjy-pixel-card adjy-pixel-card-solid inline-flex items-center gap-3 px-6 py-3.5 font-mono text-xs font-semibold uppercase tracking-[0.14em]"
+        >
+          Kendin üret
+          <ArrowDown className="h-3.5 w-3.5" aria-hidden />
+        </a>
+      </div>
 
       <section className="mt-14" aria-labelledby="uret-parametrik">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
