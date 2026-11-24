@@ -8,6 +8,7 @@ import {
   LAYER_HEIGHTS,
   MATERIALS,
 } from "@/lib/slicer";
+import { GlassSelect } from "@/components/ui/glass-select";
 
 // ==========================================
 // MALZEME VE BASKI SEÇENEKLERİ
@@ -119,18 +120,12 @@ export function MaterialSelector({ value, onChange }: MaterialSelectorProps) {
             <label htmlFor="infill" className="mb-2 block text-sm">
               Doluluk · <span className="tabular-nums">{value.infillPercent}%</span>
             </label>
-            <select
+            <GlassSelect
               id="infill"
-              value={value.infillPercent}
-              onChange={(e) => set({ infillPercent: Number(e.target.value) })}
-              className="w-full rounded-md adjy-pixel-frame bg-background px-3 py-2 text-sm outline-none focus:border-foreground"
-            >
-              {INFILL_OPTIONS.map((o) => (
-                <option key={o} value={o}>
-                  {o}%
-                </option>
-              ))}
-            </select>
+              value={String(value.infillPercent)}
+              onValueChange={(v) => set({ infillPercent: Number(v) })}
+              options={INFILL_OPTIONS.map((o) => ({ value: String(o), label: `${o}%` }))}
+            />
           </div>
         </div>
       )}

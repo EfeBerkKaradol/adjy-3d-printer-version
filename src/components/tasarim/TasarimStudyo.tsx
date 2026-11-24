@@ -284,7 +284,7 @@ export function TasarimStudyo({ arac, urunId }: Props) {
 
         {/* Bütün seçimler: çubuğun altına açılır, modelin üstünde durur */}
         {secimlerAcik && secimler.length > 0 && (
-          <div className="absolute top-full right-3 z-30 mt-2 hidden w-[min(34rem,calc(100vw-1.5rem))] rounded-xl border border-foreground/15 bg-background p-4 shadow-lg lg:right-5 lg:block">
+          <div className="adjy-nav adjy-glass adjy-glass-menu absolute top-full right-3 z-30 mt-2 hidden w-[min(34rem,calc(100vw-1.5rem))] rounded-[18px] p-4 lg:right-5 lg:block">
             <dl className="grid max-h-[50vh] gap-x-8 gap-y-1.5 overflow-y-auto text-xs sm:grid-cols-2">
               {secimler.map((s) => (
                 <div key={s.ad} className="flex justify-between gap-3">

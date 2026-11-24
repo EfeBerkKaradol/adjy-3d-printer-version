@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { SEGMENTLER, segmentBelirle, uykudaMi, type SegmentId } from "@/lib/crm";
 import { formatTRY } from "@/lib/slicer";
 import { ArrowRight, Download, Search } from "lucide-react";
+import { GlassSelect } from "@/components/ui/glass-select";
 
 export const dynamic = "force-dynamic";
 
@@ -192,31 +193,26 @@ export default async function MusterilerPage({
             className="w-full rounded-lg adjy-pixel-frame bg-background py-2 pl-9 pr-3 text-sm"
           />
         </div>
-        <select
+        <GlassSelect
           name="segment"
           defaultValue={segment ?? ""}
           aria-label="Segment"
-          className="rounded-lg adjy-pixel-frame bg-background px-3 py-2 text-sm"
-        >
-          <option value="">Tüm segmentler</option>
-          {Object.values(SEGMENTLER).map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.label} ({sayim(s.id)})
-            </option>
-          ))}
-        </select>
-        <select
+          className="w-auto min-w-48"
+          options={[
+            { value: "", label: "Tüm segmentler" },
+            ...Object.values(SEGMENTLER).map((s) => ({
+              value: s.id,
+              label: `${s.label} (${sayim(s.id)})`,
+            })),
+          ]}
+        />
+        <GlassSelect
           name="sira"
           defaultValue={siralama}
           aria-label="Sıralama"
-          className="rounded-lg adjy-pixel-frame bg-background px-3 py-2 text-sm"
-        >
-          {Object.entries(SIRALAMALAR).map(([id, label]) => (
-            <option key={id} value={id}>
-              {label}
-            </option>
-          ))}
-        </select>
+          className="w-auto min-w-44"
+          options={Object.entries(SIRALAMALAR).map(([id, label]) => ({ value: id, label }))}
+        />
         <button
           type="submit"
           className="rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background"

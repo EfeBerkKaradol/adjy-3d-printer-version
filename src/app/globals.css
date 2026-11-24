@@ -731,27 +731,9 @@ a.adjy-pixel-card:focus-visible,
   border-width: 0 !important;
   box-shadow: var(--px-frame) !important;
 }
-[data-slot="select-content"],
-[data-slot="dropdown-menu-content"],
-[data-slot="dropdown-menu-sub-content"] {
-  border-width: 0 !important;
-  box-shadow: var(--px-frame), var(--px-drop) !important;
-}
-[data-slot="select-item"],
-[data-slot="dropdown-menu-item"],
-[data-slot="dropdown-menu-checkbox-item"],
-[data-slot="dropdown-menu-radio-item"] {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.04em;
-}
-[data-slot="select-item"]:focus,
-[data-slot="dropdown-menu-item"]:focus,
-[data-slot="dropdown-menu-checkbox-item"]:focus,
-[data-slot="dropdown-menu-radio-item"]:focus {
-  background: var(--foreground) !important;
-  color: var(--background) !important;
-}
+/* Açılır menüler (DropdownMenu, Select) piksel değil, üst menüdeki
+   dock paneliyle aynı buzlu camdır: görünüm src/lib/glass.ts'teki
+   ortak sınıflardan gelir, burada piksel çerçeve uygulanmaz. */
 [data-slot="sheet-content"] {
   border-width: 0 !important;
   box-shadow: var(--px-frame) !important;
