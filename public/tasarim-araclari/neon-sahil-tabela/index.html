@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Neon Sahil İsimlik — Şeritli Güneş, Palmiye, El Yazısı</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "../_adjy/three.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <!-- ADJY mağaza köprüsü: tema, müşteri/atölye kipi, durum kaydı -->
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Pacifico&family=Bungee&family=Righteous&display=swap" />
+  <link rel="stylesheet" href="../_adjy/yilbasi.css" />
+  <link rel="stylesheet" href="../_adjy/kopru.css" />
+  <script src="./adjy.js"></script>
+  <script src="../_adjy/kopru.js"></script>
+  <script src="../_adjy/olcu.js"></script>
+  <script src="../_adjy/renkli.js"></script>
+</head>
+<body>
+  <div class="yb-izgara">
+    <!-- ================= AYARLAR ================= -->
+    <aside class="yb-panel">
+      <section class="yb-grup" id="grup-hazir">
+        <h2 class="yb-baslik">Hazır tabelalar</h2>
+        <div class="yb-hazirlar">
+          <button type="button" data-hazir="gunbatimi" class="on"><b>Gün batımı</b><small>Turuncu güneş, pembe yazı</small></button>
+          <button type="button" data-hazir="gece"><b>Neon gece</b><small>Mor, turkuaz, pembe</small></button>
+          <button type="button" data-hazir="sahil"><b>Öğlen sahili</b><small>Beyaz zemin, mercan</small></button>
+          <button type="button" data-hazir="sade"><b>Yalnız yazı</b><small>Çerçeve ve palmiye</small></button>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-yazi">
+        <h2 class="yb-baslik">Yazı</h2>
+        <div class="param-row">
+          <label class="yb-etiket" for="ns-isim">Yazı <span class="yb-sayac" id="ns-isim-sayac"></span></label>
+          <input type="text" id="ns-isim" class="yb-metin" maxlength="14" value="Kaan" autocomplete="off" spellcheck="false" />
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="ns-alt">Alt satır</label>
+          <input type="text" id="ns-alt" class="yb-metin" maxlength="20" value="OYUN ODASI" autocomplete="off" spellcheck="false" />
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="ns-tip">Yazı tipi</label>
+          <select id="ns-tip" class="yb-gizli-secim">
+            <option value="elyazisi" selected>El yazısı</option>
+            <option value="blok">Blok</option>
+            <option value="retro">Retro</option>
+          </select>
+          <div class="yb-seg" data-secim="ns-tip">
+            <button type="button" data-v="elyazisi">El yazısı</button>
+            <button type="button" data-v="blok">Blok</button>
+            <button type="button" data-v="retro">Retro</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-sahne">
+        <h2 class="yb-baslik">Sahne</h2>
+        <div class="param-row">
+          <label class="yb-kutu"><input type="checkbox" id="ns-gunes" checked /> <span>Şeritli güneş</span></label>
+        </div>
+        <div class="param-row" id="ns-serit-satir">
+          <label class="yb-etiket" for="ns-serit">Güneş şeridi</label>
+          <div class="yb-kaydir"><input type="range" id="ns-serit" min="2" max="7" step="1" value="5" /><span class="num-wrap"><input type="number" data-bagli="ns-serit" min="2" max="7" step="1" value="5" aria-label="Güneş şeridi" /><span class="unit">adet</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="ns-palmiye">Palmiye</label>
+          <select id="ns-palmiye" class="yb-gizli-secim">
+            <option value="yok">Yok</option>
+            <option value="sol">Solda</option>
+            <option value="sag">Sağda</option>
+            <option value="iki" selected>İki yanda</option>
+          </select>
+          <div class="yb-seg" data-secim="ns-palmiye">
+            <button type="button" data-v="yok">Yok</button>
+            <button type="button" data-v="sol">Solda</button>
+            <button type="button" data-v="sag">Sağda</button>
+            <button type="button" data-v="iki">İki yanda</button>
+          </div>
+        </div>
+        <div class="param-row">
+          <label class="yb-kutu"><input type="checkbox" id="ns-cerceve" checked /> <span>Neon çerçeve</span></label>
+          <p class="yb-not">Kenar boyunca yazıyla aynı renkte ince bir şerit kabarır.</p>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-olcu">
+        <h2 class="yb-baslik">Ölçü ve duruş</h2>
+        <div class="param-row">
+          <label class="yb-etiket" for="ns-gen">Genişlik</label>
+          <div class="yb-kaydir"><input type="range" id="ns-gen" min="100" max="220" step="5" value="160" /><span class="num-wrap"><input type="number" data-bagli="ns-gen" min="100" max="220" step="5" value="160" aria-label="Genişlik" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="ns-yuk">Yükseklik</label>
+          <div class="yb-kaydir"><input type="range" id="ns-yuk" min="50" max="120" step="5" value="80" /><span class="num-wrap"><input type="number" data-bagli="ns-yuk" min="50" max="120" step="5" value="80" aria-label="Yükseklik" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-etiket" for="ns-durus">Duruş</label>
+          <select id="ns-durus" class="yb-gizli-secim">
+            <option value="ayak" selected>Masa ayağı</option>
+            <option value="delik">Duvar deliği</option>
+            <option value="yok">Yalnız tabela</option>
+          </select>
+          <div class="yb-seg" data-secim="ns-durus">
+            <button type="button" data-v="ayak">Masa ayağı</button>
+            <button type="button" data-v="delik">Duvar</button>
+            <button type="button" data-v="yok">Yalnız tabela</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-renk">
+        <h2 class="yb-baslik">Renk</h2>
+        <div class="param-row yb-renk-satir">
+          <label class="yb-etiket" for="ns-renk-zemin">Zemin</label>
+          <select id="ns-renk-zemin" class="yb-gizli-secim">
+            <option value="gece" selected>Gece mavisi</option><option value="siyah">Siyah</option><option value="mor">Mor</option><option value="beyaz">Beyaz</option>
+          </select>
+          <div class="yb-renkler" data-secim="ns-renk-zemin">
+            <button type="button" data-v="gece" style="--r:#161a2e" title="Gece mavisi"></button>
+            <button type="button" data-v="siyah" style="--r:#1b1b1f" title="Siyah"></button>
+            <button type="button" data-v="mor" style="--r:#4a2a7a" title="Mor"></button>
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
+          </div>
+        </div>
+        <div class="param-row yb-renk-satir" id="ns-renk-gunes-satir">
+          <label class="yb-etiket" for="ns-renk-gunes">Güneş</label>
+          <select id="ns-renk-gunes" class="yb-gizli-secim">
+            <option value="turuncu" selected>Turuncu</option><option value="sari">Sarı</option><option value="mercan">Mercan</option><option value="mor">Mor</option><option value="pembe">Pembe</option>
+          </select>
+          <div class="yb-renkler" data-secim="ns-renk-gunes">
+            <button type="button" data-v="turuncu" style="--r:#ff7a2f" title="Turuncu"></button>
+            <button type="button" data-v="sari" style="--r:#ffd23f" title="Sarı"></button>
+            <button type="button" data-v="mercan" style="--r:#ff5e62" title="Mercan"></button>
+            <button type="button" data-v="mor" style="--r:#4a2a7a" title="Mor"></button>
+            <button type="button" data-v="pembe" style="--r:#ff4fa3" title="Pembe"></button>
+          </div>
+        </div>
+        <div class="param-row yb-renk-satir" id="ns-renk-palmiye-satir">
+          <label class="yb-etiket" for="ns-renk-palmiye">Palmiye</label>
+          <select id="ns-renk-palmiye" class="yb-gizli-secim">
+            <option value="siyah">Siyah</option><option value="turkuaz" selected>Turkuaz</option><option value="gece">Gece mavisi</option><option value="beyaz">Beyaz</option>
+          </select>
+          <div class="yb-renkler" data-secim="ns-renk-palmiye">
+            <button type="button" data-v="siyah" style="--r:#1b1b1f" title="Siyah"></button>
+            <button type="button" data-v="turkuaz" style="--r:#21c8c2" title="Turkuaz"></button>
+            <button type="button" data-v="gece" style="--r:#161a2e" title="Gece mavisi"></button>
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
+          </div>
+        </div>
+        <div class="param-row yb-renk-satir">
+          <label class="yb-etiket" for="ns-renk-yazi">Yazı</label>
+          <select id="ns-renk-yazi" class="yb-gizli-secim">
+            <option value="pembe" selected>Pembe</option><option value="turkuaz">Turkuaz</option><option value="mercan">Mercan</option><option value="sari">Sarı</option><option value="beyaz">Beyaz</option><option value="siyah">Siyah</option>
+          </select>
+          <div class="yb-renkler" data-secim="ns-renk-yazi">
+            <button type="button" data-v="pembe" style="--r:#ff4fa3" title="Pembe"></button>
+            <button type="button" data-v="turkuaz" style="--r:#21c8c2" title="Turkuaz"></button>
+            <button type="button" data-v="mercan" style="--r:#ff5e62" title="Mercan"></button>
+            <button type="button" data-v="sari" style="--r:#ffd23f" title="Sarı"></button>
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
+            <button type="button" data-v="siyah" style="--r:#1b1b1f" title="Siyah"></button>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <!-- ================= SAHNE ================= -->
+    <section class="yb-sahne">
+      <canvas id="ns-tuval" class="yb-tuval"></canvas>
+      <div class="yb-sahne-ust">
+        <span class="yb-olcu" id="ns-olcu">—</span>
+        <span class="yb-uyari" id="ns-uyari" hidden></span>
+      </div>
+    </section>
+
+    <!-- ================= ATÖLYE (müşteriye gizli) ================= -->
+    <aside class="yb-atolye">
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Üretim</h2>
+        <dl class="yb-tablo" id="ns-tablo"></dl>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Baskı ayarları</h2>
+        <div class="param-row"><label class="yb-etiket" for="ns-kalin">Zemin kalınlığı</label><span class="num-wrap"><input type="number" id="ns-kalin" min="1.6" max="4" step="0.2" value="2.4" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="ns-kabartma">Yazı kabartması</label><span class="num-wrap"><input type="number" id="ns-kabartma" min="0.8" max="3" step="0.2" value="1.6" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="ns-px">Kontur hassasiyeti</label><span class="num-wrap"><input type="number" id="ns-px" min="5" max="10" step="1" value="7" /><span class="unit">px/mm</span></span></div>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Çıktılar</h2>
+        <button type="button" class="yb-cikti" id="ns-stl-zemin">Zemin (STL)</button>
+        <button type="button" class="yb-cikti" id="ns-stl-gunes">Güneş (STL)</button>
+        <button type="button" class="yb-cikti" id="ns-stl-palmiye">Palmiye (STL)</button>
+        <button type="button" class="yb-cikti" id="ns-stl-yazi">Yazı ve çerçeve (STL)</button>
+        <button type="button" class="yb-cikti" id="ns-stl-ayak">Masa ayağı (STL)</button>
+        <button type="button" class="yb-cikti yb-ikincil" id="ns-csv">Tabela bilgisi (CSV)</button>
+        <p class="yb-not">Z yukarı, mm. Zemin tablaya yatar; güneş, palmiye ve yazı zeminin üstünde kendi renginde kabarır. Desteksiz. Çok renkli yazıcıda Renkli 3MF ile tek baskı.</p>
+      </section>
+    </aside>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

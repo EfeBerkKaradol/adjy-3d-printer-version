@@ -22,6 +22,8 @@ ARACLAR = [
     "isimli-yilbasi-susu", "kar-tanesi-susu", "burgulu-yilbasi-agaci",
     "kum-tepesi-pano", "col-kurdu-kalemlik", "kum-dalgasi-kase",
     "kurabiye-kalibi", "isimli-sofra-karti", "isikli-yilbasi-feneri",
+    "neon-sahil-tabela", "col-ufku-pano", "kahraman-amblemi",
+    "lav-catlagi-zar-tepsisi", "isimli-yilbasi-celengi",
 ]
 # Varsayılandan farklı, göze çarpan bir kurulum isteyen araçlar
 HAZIRLIK = {
@@ -33,6 +35,11 @@ HAZIRLIK = {
     "kum-dalgasi-kase": ['[data-hazir="vazo"]'],
     "isimli-sofra-karti": ['[data-hazir="klasik"]'],
     "isikli-yilbasi-feneri": ['[data-hazir="isim"]'],
+    "neon-sahil-tabela": ['[data-hazir="gece"]'],
+    "col-ufku-pano": ['[data-hazir="gece"]'],
+    "kahraman-amblemi": ['[data-hazir="harf"]'],
+    "lav-catlagi-zar-tepsisi": ['[data-hazir="plazma"]'],
+    "isimli-yilbasi-celengi": ['[data-hazir="altin"]'],
 }
 
 

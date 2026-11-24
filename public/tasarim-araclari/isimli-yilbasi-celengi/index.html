@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>İsimli Yılbaşı Çelengi — Yaprak, Kokina, Fiyonk</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "../_adjy/three.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <!-- ADJY mağaza köprüsü: tema, müşteri/atölye kipi, durum kaydı -->
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Baloo+2:wght@800&family=Pacifico&display=swap" />
+  <link rel="stylesheet" href="../_adjy/yilbasi.css" />
+  <link rel="stylesheet" href="../_adjy/kopru.css" />
+  <script src="./adjy.js"></script>
+  <script src="../_adjy/kopru.js"></script>
+  <script src="../_adjy/olcu.js"></script>
+  <script src="../_adjy/renkli.js"></script>
+</head>
+<body>
+  <div class="yb-izgara">
+    <!-- ================= AYARLAR ================= -->
+    <aside class="yb-panel">
+      <section class="yb-grup" id="grup-hazir">
+        <h2 class="yb-baslik">Hazır çelenkler</h2>
+        <div class="yb-hazirlar">
+          <button type="button" data-hazir="klasik" class="on"><b>Klasik</b><small>Yeşil, kırmızı fiyonk</small></button>
+          <button type="button" data-hazir="altin"><b>Altın</b><small>Koyu yeşil, altın</small></button>
+          <button type="button" data-hazir="kar"><b>Karlı</b><small>Beyaz yaprak, lacivert</small></button>
+          <button type="button" data-hazir="sade"><b>Yalnız çelenk</b><small>Şeritsiz, fiyonk üstte</small></button>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-yazi">
+        <h2 class="yb-baslik">İsim şeridi</h2>
+        <div class="param-row">
+          <label class="yb-kutu"><input type="checkbox" id="yc-serit" checked /> <span>İsim şeridi</span></label>
+        </div>
+        <div class="param-row" id="yc-isim-satir">
+          <label class="yb-etiket" for="yc-isim">İsim <span class="yb-sayac" id="yc-isim-sayac"></span></label>
+          <input type="text" id="yc-isim" class="yb-metin" maxlength="16" value="Yılmaz Ailesi" autocomplete="off" spellcheck="false" />
+        </div>
+        <div class="param-row" id="yc-tip-satir">
+          <label class="yb-etiket" for="yc-tip">Yazı tipi</label>
+          <select id="yc-tip" class="yb-gizli-secim">
+            <option value="elyazisi" selected>El yazısı</option>
+            <option value="yuvarlak">Yuvarlak</option>
+            <option value="modern">Modern</option>
+          </select>
+          <div class="yb-seg" data-secim="yc-tip">
+            <button type="button" data-v="elyazisi">El yazısı</button>
+            <button type="button" data-v="yuvarlak">Yuvarlak</button>
+            <button type="button" data-v="modern">Modern</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-celenk">
+        <h2 class="yb-baslik">Çelenk</h2>
+        <div class="param-row" id="yc-cap-satir">
+          <label class="yb-etiket" for="yc-cap">Çap</label>
+          <div class="yb-kaydir"><input type="range" id="yc-cap" min="90" max="200" step="5" value="140" /><span class="num-wrap"><input type="number" data-bagli="yc-cap" min="90" max="200" step="5" value="140" aria-label="Çap" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row" id="yc-yaprak-satir">
+          <label class="yb-etiket" for="yc-yaprak">Yaprak sıklığı</label>
+          <div class="yb-kaydir"><input type="range" id="yc-yaprak" min="14" max="36" step="1" value="22" /><span class="num-wrap"><input type="number" data-bagli="yc-yaprak" min="14" max="36" step="1" value="22" aria-label="Yaprak sıklığı" /><span class="unit">adet</span></span></div>
+        </div>
+        <div class="param-row" id="yc-meyve-satir">
+          <label class="yb-etiket" for="yc-meyve">Kokina salkımı</label>
+          <div class="yb-kaydir"><input type="range" id="yc-meyve" min="0" max="9" step="1" value="6" /><span class="num-wrap"><input type="number" data-bagli="yc-meyve" min="0" max="9" step="1" value="6" aria-label="Kokina salkımı" /><span class="unit">adet</span></span></div>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-sus">
+        <h2 class="yb-baslik">Fiyonk ve askı</h2>
+        <div class="param-row" id="yc-fiyonk-satir">
+          <label class="yb-etiket" for="yc-fiyonk">Fiyonk</label>
+          <select id="yc-fiyonk" class="yb-gizli-secim">
+            <option value="alt" selected>Altta</option>
+            <option value="ust">Üstte</option>
+            <option value="yok">Yok</option>
+          </select>
+          <div class="yb-seg" data-secim="yc-fiyonk">
+            <button type="button" data-v="alt">Altta</button>
+            <button type="button" data-v="ust">Üstte</button>
+            <button type="button" data-v="yok">Yok</button>
+          </div>
+        </div>
+        <div class="param-row">
+          <label class="yb-kutu"><input type="checkbox" id="yc-aski" checked /> <span>Askı halkası</span></label>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-renk">
+        <h2 class="yb-baslik">Renk</h2>
+        <div class="param-row yb-renk-satir" id="yc-renk-yaprak-satir">
+          <label class="yb-etiket" for="yc-renk-yaprak">Yaprak</label>
+          <select id="yc-renk-yaprak" class="yb-gizli-secim">
+            <option value="yesil" selected>Yeşil</option><option value="koyuyesil">Koyu yeşil</option><option value="beyaz">Beyaz</option><option value="gumus">Gümüş</option>
+          </select>
+          <div class="yb-renkler" data-secim="yc-renk-yaprak">
+            <button type="button" data-v="yesil" style="--r:#1f6b3a" title="Yeşil"></button>
+            <button type="button" data-v="koyuyesil" style="--r:#12432a" title="Koyu yeşil"></button>
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
+            <button type="button" data-v="gumus" style="--r:#b9bcc2" title="Gümüş"></button>
+          </div>
+        </div>
+        <div class="param-row yb-renk-satir" id="yc-renk-meyve-satir">
+          <label class="yb-etiket" for="yc-renk-meyve">Kokina ve fiyonk</label>
+          <select id="yc-renk-meyve" class="yb-gizli-secim">
+            <option value="kirmizi" selected>Kırmızı</option><option value="altin">Altın</option><option value="beyaz">Beyaz</option><option value="lacivert">Lacivert</option>
+          </select>
+          <div class="yb-renkler" data-secim="yc-renk-meyve">
+            <button type="button" data-v="kirmizi" style="--r:#c4202b" title="Kırmızı"></button>
+            <button type="button" data-v="altin" style="--r:#d2a347" title="Altın"></button>
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
+            <button type="button" data-v="lacivert" style="--r:#1d2a52" title="Lacivert"></button>
+          </div>
+        </div>
+        <div class="param-row yb-renk-satir" id="yc-renk-serit-satir">
+          <label class="yb-etiket" for="yc-renk-serit">Şerit</label>
+          <select id="yc-renk-serit" class="yb-gizli-secim">
+            <option value="krem" selected>Krem</option><option value="beyaz">Beyaz</option><option value="kirmizi">Kırmızı</option><option value="altin">Altın</option>
+          </select>
+          <div class="yb-renkler" data-secim="yc-renk-serit">
+            <button type="button" data-v="krem" style="--r:#ece4cd" title="Krem"></button>
+            <button type="button" data-v="beyaz" style="--r:#f7f5ef" title="Beyaz"></button>
+            <button type="button" data-v="kirmizi" style="--r:#c4202b" title="Kırmızı"></button>
+            <button type="button" data-v="altin" style="--r:#d2a347" title="Altın"></button>
+          </div>
+        </div>
+        <div class="param-row yb-renk-satir" id="yc-renk-yazi-satir">
+          <label class="yb-etiket" for="yc-renk-yazi">Yazı</label>
+          <select id="yc-renk-yazi" class="yb-gizli-secim">
+            <option value="kirmizi" selected>Kırmızı</option><option value="yesil">Yeşil</option><option value="altin">Altın</option><option value="beyaz">Beyaz</option><option value="siyah">Siyah</option>
+          </select>
+          <div class="yb-renkler" data-secim="yc-renk-yazi">
+            <button type="button" data-v="kirmizi" style="--r:#c4202b" title="Kırmızı"></button>
+            <button type="button" data-v="yesil" style="--r:#1f6b3a" title="Yeşil"></button>
+            <button type="button" data-v="altin" style="--r:#d2a347" title="Altın"></button>
+            <button type="button" data-v="beyaz" style="--r:#f7f5ef" title="Beyaz"></button>
+            <button type="button" data-v="siyah" style="--r:#25262a" title="Siyah"></button>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <!-- ================= SAHNE ================= -->
+    <section class="yb-sahne">
+      <canvas id="yc-tuval" class="yb-tuval"></canvas>
+      <div class="yb-sahne-ust">
+        <span class="yb-olcu" id="yc-olcu">—</span>
+        <span class="yb-uyari" id="yc-uyari" hidden></span>
+      </div>
+    </section>
+
+    <!-- ================= ATÖLYE (müşteriye gizli) ================= -->
+    <aside class="yb-atolye">
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Üretim</h2>
+        <dl class="yb-tablo" id="yc-tablo"></dl>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Baskı ayarları</h2>
+        <div class="param-row"><label class="yb-etiket" for="yc-kalin">Taban kalınlığı</label><span class="num-wrap"><input type="number" id="yc-kalin" min="1.6" max="4" step="0.2" value="2.4" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="yc-px">Kontur hassasiyeti</label><span class="num-wrap"><input type="number" id="yc-px" min="4" max="8" step="1" value="6" /><span class="unit">px/mm</span></span></div>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Çıktılar</h2>
+        <button type="button" class="yb-cikti" id="yc-stl-yaprak">Taban ve yapraklar (STL)</button>
+        <button type="button" class="yb-cikti" id="yc-stl-meyve">Kokinalar ve fiyonk (STL)</button>
+        <button type="button" class="yb-cikti" id="yc-stl-serit">Şerit (STL)</button>
+        <button type="button" class="yb-cikti" id="yc-stl-yazi">Yazı (STL)</button>
+        <button type="button" class="yb-cikti yb-ikincil" id="yc-csv">Çelenk bilgisi (CSV)</button>
+        <p class="yb-not">Z yukarı, mm. Çelenk tablaya yatar; yapraklar, kokinalar, fiyonk ve şerit tabanın üstünde kendi renginde kabarır. Dört STL aynı orijinde. Desteksiz. Çok renkli yazıcıda Renkli 3MF ile tek baskı.</p>
+      </section>
+    </aside>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

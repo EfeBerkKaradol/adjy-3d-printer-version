@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kahraman Amblemi — Baş Harfli Çizgi Roman Kalkanı</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "../_adjy/three.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <!-- ADJY mağaza köprüsü: tema, müşteri/atölye kipi, durum kaydı -->
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Bangers&family=Bungee&display=swap" />
+  <link rel="stylesheet" href="../_adjy/yilbasi.css" />
+  <link rel="stylesheet" href="../_adjy/kopru.css" />
+  <script src="./adjy.js"></script>
+  <script src="../_adjy/kopru.js"></script>
+  <script src="../_adjy/olcu.js"></script>
+  <script src="../_adjy/renkli.js"></script>
+</head>
+<body>
+  <div class="yb-izgara">
+    <!-- ================= AYARLAR ================= -->
+    <aside class="yb-panel">
+      <section class="yb-grup" id="grup-hazir">
+        <h2 class="yb-baslik">Hazır amblemler</h2>
+        <div class="yb-hazirlar">
+          <button type="button" data-hazir="simsek" class="on"><b>Şimşek</b><small>Daire, yıldırım</small></button>
+          <button type="button" data-hazir="harf"><b>Baş harf</b><small>Kalkan, lacivert</small></button>
+          <button type="button" data-hazir="kral"><b>Kral</b><small>Altıgen, taç</small></button>
+          <button type="button" data-hazir="gece"><b>Gece bekçisi</b><small>Elmas, siyah sarı</small></button>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-bicim">
+        <h2 class="yb-baslik">Biçim ve ölçü</h2>
+        <div class="param-row" id="ka-sekil-satir">
+          <label class="yb-etiket" for="ka-sekil">Biçim</label>
+          <select id="ka-sekil" class="yb-gizli-secim">
+            <option value="daire" selected>Daire</option>
+            <option value="kalkan">Kalkan</option>
+            <option value="altigen">Altıgen</option>
+            <option value="elmas">Elmas</option>
+          </select>
+          <div class="yb-seg yb-seg-coklu" data-secim="ka-sekil">
+            <button type="button" data-v="daire">Daire</button>
+            <button type="button" data-v="kalkan">Kalkan</button>
+            <button type="button" data-v="altigen">Altıgen</button>
+            <button type="button" data-v="elmas">Elmas</button>
+          </div>
+        </div>
+        <div class="param-row" id="ka-boyut-satir">
+          <label class="yb-etiket" for="ka-boyut">Genişlik</label>
+          <div class="yb-kaydir"><input type="range" id="ka-boyut" min="50" max="160" step="5" value="90" /><span class="num-wrap"><input type="number" data-bagli="ka-boyut" min="50" max="160" step="5" value="90" aria-label="Genişlik" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-kutu"><input type="checkbox" id="ka-aski" /> <span>Askı halkası</span></label>
+          <p class="yb-not">Anahtarlık ya da çanta süsü için tepede küçük bir halka.</p>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-simge">
+        <h2 class="yb-baslik">Simge</h2>
+        <div class="param-row" id="ka-simge-satir">
+          <label class="yb-etiket" for="ka-simge">Simge</label>
+          <select id="ka-simge" class="yb-gizli-secim">
+            <option value="harf">Harf</option>
+            <option value="yildirim" selected>Yıldırım</option>
+            <option value="tac">Taç</option>
+          </select>
+          <div class="yb-seg" data-secim="ka-simge">
+            <button type="button" data-v="harf">Harf</button>
+            <button type="button" data-v="yildirim">Yıldırım</button>
+            <button type="button" data-v="tac">Taç</button>
+          </div>
+        </div>
+        <div class="param-row" id="ka-harf-satir">
+          <label class="yb-etiket" for="ka-harf">Baş harf</label>
+          <input type="text" id="ka-harf" class="yb-metin" maxlength="2" value="A" autocomplete="off" spellcheck="false" />
+          <p class="yb-not">Bir ya da iki harf. Türkçe harfler olduğu gibi basılır.</p>
+        </div>
+        <div class="param-row" id="ka-tip-satir">
+          <label class="yb-etiket" for="ka-tip">Yazı tipi</label>
+          <select id="ka-tip" class="yb-gizli-secim">
+            <option value="cizgi" selected>Çizgi roman</option>
+            <option value="blok">Blok</option>
+          </select>
+          <div class="yb-seg" data-secim="ka-tip">
+            <button type="button" data-v="cizgi">Çizgi roman</button>
+            <button type="button" data-v="blok">Blok</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-susleme">
+        <h2 class="yb-baslik">Süsleme</h2>
+        <div class="param-row">
+          <label class="yb-kutu"><input type="checkbox" id="ka-patlama" checked /> <span>Patlama yıldızı</span></label>
+        </div>
+        <div class="param-row" id="ka-dis-satir">
+          <label class="yb-etiket" for="ka-dis">Patlama dişi</label>
+          <div class="yb-kaydir"><input type="range" id="ka-dis" min="8" max="22" step="1" value="14" /><span class="num-wrap"><input type="number" data-bagli="ka-dis" min="8" max="22" step="1" value="14" aria-label="Patlama dişi" /><span class="unit">adet</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-kutu"><input type="checkbox" id="ka-nokta" checked /> <span>Baskı noktaları</span></label>
+          <p class="yb-not">Eski çizgi roman baskılarındaki gibi, aşağı doğru büyüyen noktalar.</p>
+        </div>
+        <div class="param-row" id="ka-bordur-satir">
+          <label class="yb-etiket" for="ka-bordur">Bordür</label>
+          <div class="yb-kaydir"><input type="range" id="ka-bordur" min="2" max="8" step="0.5" value="4" /><span class="num-wrap"><input type="number" data-bagli="ka-bordur" min="2" max="8" step="0.5" value="4" aria-label="Bordür" /><span class="unit">mm</span></span></div>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-renk">
+        <h2 class="yb-baslik">Renk</h2>
+        <div class="param-row yb-renk-satir" id="ka-renk-zemin-satir">
+          <label class="yb-etiket" for="ka-renk-zemin">Zemin</label>
+          <select id="ka-renk-zemin" class="yb-gizli-secim">
+            <option value="kirmizi" selected>Kırmızı</option><option value="lacivert">Lacivert</option><option value="mavi">Mavi</option><option value="siyah">Siyah</option><option value="yesil">Yeşil</option><option value="mor">Mor</option><option value="beyaz">Beyaz</option>
+          </select>
+          <div class="yb-renkler" data-secim="ka-renk-zemin">
+            <button type="button" data-v="kirmizi" style="--r:#c4202b" title="Kırmızı"></button>
+            <button type="button" data-v="lacivert" style="--r:#1d2a52" title="Lacivert"></button>
+            <button type="button" data-v="mavi" style="--r:#2a6fdb" title="Mavi"></button>
+            <button type="button" data-v="siyah" style="--r:#1b1b1f" title="Siyah"></button>
+            <button type="button" data-v="yesil" style="--r:#1f7a3d" title="Yeşil"></button>
+            <button type="button" data-v="mor" style="--r:#5b2d8e" title="Mor"></button>
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
+          </div>
+        </div>
+        <div class="param-row yb-renk-satir" id="ka-renk-ikinci-satir">
+          <label class="yb-etiket" for="ka-renk-ikinci">Bordür ve patlama</label>
+          <select id="ka-renk-ikinci" class="yb-gizli-secim">
+            <option value="sari" selected>Sarı</option><option value="beyaz">Beyaz</option><option value="gumus">Gümüş</option><option value="kirmizi">Kırmızı</option><option value="siyah">Siyah</option>
+          </select>
+          <div class="yb-renkler" data-secim="ka-renk-ikinci">
+            <button type="button" data-v="sari" style="--r:#f5c518" title="Sarı"></button>
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
+            <button type="button" data-v="gumus" style="--r:#b9bcc2" title="Gümüş"></button>
+            <button type="button" data-v="kirmizi" style="--r:#c4202b" title="Kırmızı"></button>
+            <button type="button" data-v="siyah" style="--r:#1b1b1f" title="Siyah"></button>
+          </div>
+        </div>
+        <div class="param-row yb-renk-satir" id="ka-renk-simge-satir">
+          <label class="yb-etiket" for="ka-renk-simge">Simge</label>
+          <select id="ka-renk-simge" class="yb-gizli-secim">
+            <option value="beyaz" selected>Beyaz</option><option value="siyah">Siyah</option><option value="kirmizi">Kırmızı</option><option value="sari">Sarı</option><option value="lacivert">Lacivert</option>
+          </select>
+          <div class="yb-renkler" data-secim="ka-renk-simge">
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
+            <button type="button" data-v="siyah" style="--r:#1b1b1f" title="Siyah"></button>
+            <button type="button" data-v="kirmizi" style="--r:#c4202b" title="Kırmızı"></button>
+            <button type="button" data-v="sari" style="--r:#f5c518" title="Sarı"></button>
+            <button type="button" data-v="lacivert" style="--r:#1d2a52" title="Lacivert"></button>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <!-- ================= SAHNE ================= -->
+    <section class="yb-sahne">
+      <canvas id="ka-tuval" class="yb-tuval"></canvas>
+      <div class="yb-sahne-ust">
+        <span class="yb-olcu" id="ka-olcu">—</span>
+        <span class="yb-uyari" id="ka-uyari" hidden></span>
+      </div>
+    </section>
+
+    <!-- ================= ATÖLYE (müşteriye gizli) ================= -->
+    <aside class="yb-atolye">
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Üretim</h2>
+        <dl class="yb-tablo" id="ka-tablo"></dl>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Baskı ayarları</h2>
+        <div class="param-row"><label class="yb-etiket" for="ka-kalin">Zemin kalınlığı</label><span class="num-wrap"><input type="number" id="ka-kalin" min="1.6" max="4" step="0.2" value="2.4" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="ka-kabartma">Simge kabartması</label><span class="num-wrap"><input type="number" id="ka-kabartma" min="0.8" max="3" step="0.2" value="1.6" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="ka-px">Kontur hassasiyeti</label><span class="num-wrap"><input type="number" id="ka-px" min="5" max="10" step="1" value="8" /><span class="unit">px/mm</span></span></div>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Çıktılar</h2>
+        <button type="button" class="yb-cikti" id="ka-stl-zemin">Zemin (STL)</button>
+        <button type="button" class="yb-cikti" id="ka-stl-ikinci">Bordür, patlama, noktalar (STL)</button>
+        <button type="button" class="yb-cikti" id="ka-stl-simge">Simge (STL)</button>
+        <button type="button" class="yb-cikti yb-ikincil" id="ka-csv">Amblem bilgisi (CSV)</button>
+        <p class="yb-not">Z yukarı, mm. Amblem tablaya yatar; bordür, patlama ve simge zeminin üstünde kendi renginde kabarır. Üç STL aynı orijinde. Desteksiz. Çok renkli yazıcıda Renkli 3MF ile tek baskı.</p>
+      </section>
+    </aside>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

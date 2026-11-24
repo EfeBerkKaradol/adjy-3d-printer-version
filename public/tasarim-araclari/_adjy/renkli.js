@@ -5,11 +5,12 @@
    aynen yüklenir; bu paket o modeli ekrandaki hâliyle, RENGE GÖRE
    ayrılmış dosyalar olarak indirir:
 
-     <arac>_renkli.3mf          Bütün renkler tek nesne, her renk ayrı
-                                parça (part / volume), yerleri birbirine
-                                göre korunmuş. Bambu Studio, OrcaSlicer ve
-                                PrusaSlicer'da açınca her parçaya bir
-                                filament atanır; çok renkli tek baskı.
+     <arac>_renkli.3mf          Dilimleyici projesi: bütün renkler tek nesne,
+                                her renk ayrı parça ve kendi filament
+                                yuvasına atanmış; filament renkleri ve
+                                yazıcı profili (dilimleyici-profil.json)
+                                içinde. Anycubic Slicer Next, OrcaSlicer,
+                                Bambu Studio: aç, dilimle, bas.
      <arac>_renk-1_<ad>.stl     Her renk ayrı STL, aynı orijine göre:
                                 hepsi birlikte sürüklenip "tek nesne
                                 olarak yükle" denirse yine yerine oturur.
@@ -20,7 +21,8 @@
    tutamacı yok). Birim mm, Z yukarı, model tablaya (Z=0) oturur.
 
    Paket kopru.js'in dosya toplama düzeneğiyle yakalanır: gizli
-   #adjy-renkli-paket düğmesi catalog.ts'te her aracın çıktılarında.
+   #adjy-renkli-paket (hepsi) ve #adjy-renkli-3mf (yalnız 3MF) düğmeleri
+   catalog.ts'te her aracın çıktılarında.
    ========================================================================== */
 (function () {
   "use strict";
@@ -216,21 +218,46 @@
     return new Blob([buf], { type: "model/stl" });
   }
 
-  // ---------- 3MF ----------
+  // ---------- 3MF (dilimleyici projesi) ----------
+  // Dosya Bambu Studio / OrcaSlicer ailesinin (Anycubic Slicer Next dâhil)
+  // proje biçiminde yazılır:
+  //   3D/3dmodel.model               her renk ayrı ağ, hepsi tek nesnenin parçası
+  //   Metadata/model_settings.config parça → filament yuvası (1, 2, 3…)
+  //   Metadata/project_settings.config  yazıcı + işlem + filament profili;
+  //                                  filament renkleri modelin renkleri
+  // Açınca parçalar filamentlerine atanmış, filament renkleri ayarlı gelir.
+  // Çekirdek 3MF renk tablosu (basematerials) da yazılır: başka dilimleyici
+  // renkleri oradan okur.
+  var PROFIL = null;
+  var profilSozu = fetch(new URL("../_adjy/dilimleyici-profil.json", location.href))
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (pr) { PROFIL = pr && pr.ayar ? pr : null; return PROFIL; })
+    .catch(function () { return null; });
+
   function xmlKacis(s) {
     return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
   function sayi(x) {
     return (Math.round(x * 10000) / 10000).toString();
   }
+  function parcaAdi(g) {
+    return g.no + " " + g.ad + " " + g.hex;
+  }
+  function tablaOrtasi() {
+    var t = PROFIL && PROFIL.tabla ? PROFIL.tabla : [250, 250];
+    return [t[0] / 2, t[1] / 2];
+  }
+
   function model3mf(gruplar, nesneAdi) {
     var parcalar = [];
     parcalar.push(
       '<?xml version="1.0" encoding="UTF-8"?>\n' +
-        '<model unit="millimeter" xml:lang="tr-TR" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">\n' +
-        ' <metadata name="Application">ADJY</metadata>\n' +
+        '<model unit="millimeter" xml:lang="tr-TR" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:BambuStudio="http://schemas.bambulab.com/package/2021">\n' +
+        ' <metadata name="Application">BambuStudio-2.0.0.0</metadata>\n' +
+        ' <metadata name="BambuStudio:3mfVersion">1</metadata>\n' +
         ' <metadata name="Title">' + xmlKacis(nesneAdi) + '</metadata>\n' +
-        ' <resources>\n  <basematerials id="1">\n'
+        ' <metadata name="Designer">ADJY</metadata>\n' +
+        ' <resources>\n  <basematerials id="100">\n'
     );
     gruplar.forEach(function (g) {
       parcalar.push('   <base name="' + xmlKacis(g.ad + " " + g.hex) + '" displaycolor="' + g.hex + 'FF"/>\n');
@@ -238,7 +265,7 @@
     parcalar.push("  </basematerials>\n");
 
     gruplar.forEach(function (g, gi) {
-      var id = gi + 2;
+      var id = gi + 1;
       var harita = new Map();
       var kose = [];
       var ucgen = [];
@@ -260,21 +287,77 @@
         ucgen.push('<triangle v1="' + ix[0] + '" v2="' + ix[1] + '" v3="' + ix[2] + '"/>');
       }
       parcalar.push(
-        '  <object id="' + id + '" type="model" pid="1" pindex="' + gi + '" name="' +
-          xmlKacis("Renk " + g.no + " - " + g.ad + " " + g.hex) + '">\n   <mesh>\n    <vertices>\n' +
+        '  <object id="' + id + '" type="model" pid="100" pindex="' + gi + '" name="' + xmlKacis(parcaAdi(g)) +
+          '">\n   <mesh>\n    <vertices>\n' +
           kose.join("\n") + "\n    </vertices>\n    <triangles>\n" + ucgen.join("\n") +
           "\n    </triangles>\n   </mesh>\n  </object>\n"
       );
     });
 
-    // Tek nesne, her renk bir parça: dilimleyici tek montaj olarak açar
-    var montaj = gruplar.length + 2;
+    // Tek nesne, her renk bir parça; tablanın ortasına yerleşir
+    var montaj = gruplar.length + 1;
+    var orta = tablaOrtasi();
     parcalar.push('  <object id="' + montaj + '" type="model" name="' + xmlKacis(nesneAdi) + '">\n   <components>\n');
     gruplar.forEach(function (g, gi) {
-      parcalar.push('    <component objectid="' + (gi + 2) + '"/>\n');
+      parcalar.push('    <component objectid="' + (gi + 1) + '" transform="1 0 0 0 1 0 0 0 1 0 0 0"/>\n');
     });
-    parcalar.push("   </components>\n  </object>\n </resources>\n <build>\n  <item objectid=\"" + montaj + "\"/>\n </build>\n</model>\n");
+    parcalar.push(
+      "   </components>\n  </object>\n </resources>\n <build>\n  <item objectid=\"" + montaj +
+        '" transform="1 0 0 0 1 0 0 0 1 ' + orta[0] + " " + orta[1] + ' 0" printable="1"/>\n </build>\n</model>\n'
+    );
     return parcalar.join("");
+  }
+
+  /** Parça → filament yuvası (renk sırası = filament numarası) */
+  function parcaAyari(gruplar, nesneAdi) {
+    var montaj = gruplar.length + 1;
+    var s = '<?xml version="1.0" encoding="UTF-8"?>\n<config>\n  <object id="' + montaj + '">\n' +
+      '    <metadata key="name" value="' + xmlKacis(nesneAdi) + '"/>\n    <metadata key="extruder" value="1"/>\n';
+    gruplar.forEach(function (g, gi) {
+      s += '    <part id="' + (gi + 1) + '" subtype="normal_part">\n' +
+        '      <metadata key="name" value="' + xmlKacis(parcaAdi(g)) + '"/>\n' +
+        '      <metadata key="matrix" value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>\n' +
+        '      <metadata key="extruder" value="' + g.no + '"/>\n    </part>\n';
+    });
+    return s + "  </object>\n</config>\n";
+  }
+
+  // Renk değişiminde memeden atılacak filament (mm³): açık renge geçiş
+  // daha çok temizlik ister. Kaba bir başlangıç değeri; dilimleyicideki
+  // "otomatik hesapla" ile istenirse yeniden hesaplanır.
+  function parlaklik(hex) {
+    var r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  }
+  function yikama(a, b) {
+    if (a === b) return 0;
+    var fark = 0;
+    for (var i = 1; i < 7; i += 2) fark += Math.abs(parseInt(a.slice(i, i + 2), 16) - parseInt(b.slice(i, i + 2), 16));
+    fark /= 765;
+    return Math.round(120 + 260 * fark + 380 * Math.max(0, parlaklik(b) - parlaklik(a)));
+  }
+
+  /** Profil şablonunu modelin renk sayısına ve renklerine göre doldurur */
+  function projeAyari(gruplar) {
+    if (!PROFIL) return null;
+    var n = gruplar.length;
+    var a = JSON.parse(JSON.stringify(PROFIL.ayar));
+    (PROFIL.filamentAlanlari || []).forEach(function (k) {
+      if (!Array.isArray(a[k]) || !a[k].length) return;
+      var ilk = a[k][0];
+      a[k] = gruplar.map(function () { return ilk; });
+    });
+    var renkler = gruplar.map(function (g) { return g.hex; });
+    a.filament_colour = renkler;
+    if (Array.isArray(a.filament_colour_info)) a.filament_colour_info = renkler.slice();
+    var matris = [];
+    renkler.forEach(function (x) { renkler.forEach(function (y) { matris.push(String(yikama(x, y))); }); });
+    a.flush_volumes_matrix = matris;
+    a.flush_volumes_vector = renkler.concat(renkler).map(function () { return "140"; });
+    a.different_settings_to_system = [""].concat(renkler.map(function () { return ""; }), [""]);
+    // Tek renkte temizleme kulesi gereksiz
+    if (n < 2 && "enable_prime_tower" in a) a.enable_prime_tower = "0";
+    return JSON.stringify(a, null, 1);
   }
 
   // ---------- ZIP (sıkıştırmasız; 3MF bir ZIP paketidir) ----------
@@ -335,7 +418,7 @@
   }
 
   function paket3mf(gruplar, nesneAdi) {
-    return zip([
+    var dosyalar = [
       {
         ad: "[Content_Types].xml",
         veri:
@@ -347,10 +430,14 @@
         ad: "_rels/.rels",
         veri:
           '<?xml version="1.0" encoding="UTF-8"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
-          '<Relationship Target="/3D/3dmodel.model" Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/></Relationships>'
+          '<Relationship Target="/3D/3dmodel.model" Id="rel-1" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/></Relationships>'
       },
-      { ad: "3D/3dmodel.model", veri: model3mf(gruplar, nesneAdi) }
-    ]);
+      { ad: "3D/3dmodel.model", veri: model3mf(gruplar, nesneAdi) },
+      { ad: "Metadata/model_settings.config", veri: parcaAyari(gruplar, nesneAdi) }
+    ];
+    var proje = projeAyari(gruplar);
+    if (proje) dosyalar.push({ ad: "Metadata/project_settings.config", veri: proje });
+    return zip(dosyalar);
   }
 
   // ---------- İndirme ----------
@@ -366,59 +453,97 @@
     }, 4000);
   }
 
+  function adlar() {
+    return { on: dosyaAdi(AYAR.id || "model"), nesneAdi: (AYAR.ad || AYAR.id || "ADJY model") + "" };
+  }
+  function stlAdi(on, g) {
+    return on + "_renk-" + g.no + "_" + dosyaAdi(g.ad) + "-" + g.hex.slice(1).toLowerCase() + ".stl";
+  }
+
+  /** Yalnız renk ayarlı 3MF: dilimleyicide açılıp basılacak tek dosya */
+  function ucMfIndir() {
+    var gruplar = renkGruplari();
+    var a = adlar();
+    indir(paket3mf(gruplar, a.nesneAdi), a.on + "_renkli.3mf");
+    return gruplar;
+  }
+
+  /** 3MF + renk başına STL + renk listesi */
   function paketiIndir() {
     var gruplar = renkGruplari();
-    var on = dosyaAdi(AYAR.id || "model");
-    var nesneAdi = (AYAR.ad || AYAR.id || "ADJY model") + "";
-    indir(paket3mf(gruplar, nesneAdi), on + "_renkli.3mf");
+    var a = adlar();
+    var on = a.on;
+    indir(paket3mf(gruplar, a.nesneAdi), on + "_renkli.3mf");
     gruplar.forEach(function (g) {
-      indir(
-        stl(g.ucgenler, "ADJY " + on + " renk " + g.no + " " + g.hex),
-        on + "_renk-" + g.no + "_" + dosyaAdi(g.ad) + "-" + g.hex.slice(1).toLowerCase() + ".stl"
-      );
+      indir(stl(g.ucgenler, "ADJY " + on + " renk " + g.no + " " + g.hex), stlAdi(on, g));
     });
     var b = gruplar[0] ? gruplar[0].boyut : [0, 0, 0];
     var satirlar = [
-      "RENKLİ BASKI PAKETİ — " + nesneAdi,
+      "RENKLİ BASKI PAKETİ — " + a.nesneAdi,
       "Müşterinin sitede kurduğu model; ölçüler mm, Z yukarı, parçalar birbirine göre yerinde.",
       "Toplam ölçü: " + b.map(function (x) { return x.toFixed(1); }).join(" × ") + " mm",
       "",
-      "Renkler (filament):"
+      "Filament yuvaları:"
     ];
     gruplar.forEach(function (g) {
       satirlar.push(
-        "  " + g.no + ". " + g.ad + " (" + g.hex + ") — " + (g.ucgenler.length / 9) + " üçgen — " +
-          on + "_renk-" + g.no + "_" + dosyaAdi(g.ad) + "-" + g.hex.slice(1).toLowerCase() + ".stl"
+        "  Filament " + g.no + " → " + g.ad + " (" + g.hex + ") — " + (g.ucgenler.length / 9) + " üçgen — " + stlAdi(on, g)
       );
     });
     satirlar.push(
       "",
-      "Çok renkli tek baskı: " + on + "_renkli.3mf dosyasını açın; tek nesne, her renk ayrı parça gelir.",
-      "Her parçaya listedeki filamenti atayın (Bambu/Orca: parçaya sağ tık → Filament; Prusa: Extruder).",
+      on + "_renkli.3mf: dilimleyici projesi" + (PROFIL ? " (" + PROFIL.ad + ", " + PROFIL.islem + ", " + PROFIL.filament + ")." : "."),
+      "Anycubic Slicer Next, OrcaSlicer ya da Bambu Studio'da Dosya → Projeyi aç ile açın:",
+      "  · tek nesne gelir, her renk ayrı parça ve kendi filament yuvasına atanmıştır,",
+      "  · filament renkleri yukarıdaki listeyle aynı sırada ayarlıdır,",
+      "  · makinedeki makaraları aynı sıraya takın (ya da yuvaları eşleyin), dilimleyip basın.",
+      "Başka yazıcıda: projeyi açtıktan sonra yazıcıyı ve filamenti değiştirin; parça atamaları kalır.",
+      "Parçalar atanmış gelmezse (eski sürüm): parça adları filament numarasıyla başlar; elle atayın.",
       "STL ile: bütün renk STL'lerini birlikte sürükleyin, 'tek nesne olarak yükle' sorusuna Evet deyin.",
       "Ayrı basılan parçalar (vida, kapak vb.) için aracın kendi parça STL'leri baskı yönüne göre hazırdır."
     );
-    indir(new Blob(["﻿" + satirlar.join("\r\n") + "\r\n"], { type: "text/plain;charset=utf-8" }), on + "_renkler.txt");
+    indir(new Blob(["\ufeff" + satirlar.join("\r\n") + "\r\n"], { type: "text/plain;charset=utf-8" }), on + "_renkler.txt");
     return gruplar;
   }
 
-  function kur() {
-    if (document.getElementById("adjy-renkli-paket")) return;
+  /** Renk listesi (üçgenleri taşımadan): yönetim panelindeki filament şeridi */
+  function renkListesi() {
+    return renkGruplari().map(function (g) {
+      return { no: g.no, hex: g.hex, ad: g.ad };
+    });
+  }
+
+  function dugme(id, is) {
+    if (document.getElementById(id)) return;
     var d = document.createElement("button");
     d.type = "button";
-    d.id = "adjy-renkli-paket";
+    d.id = id;
     d.hidden = true;
     d.addEventListener("click", function () {
-      try {
-        paketiIndir();
-      } catch (e) {
-        console.error("[renkli paket]", e);
-      }
+      // Profil şablonu inmeden basılırsa beklenir (proje ayarı dosyaya girsin)
+      profilSozu.then(function () {
+        try {
+          is();
+        } catch (e) {
+          console.error("[renkli paket]", e);
+        }
+      });
     });
     document.body.appendChild(d);
+  }
+  function kur() {
+    dugme("adjy-renkli-paket", paketiIndir);
+    dugme("adjy-renkli-3mf", ucMfIndir);
   }
   if (document.body) kur();
   else document.addEventListener("DOMContentLoaded", kur);
 
-  window.ADJY_RENKLI = { gruplar: renkGruplari, indir: paketiIndir };
+  window.ADJY_RENKLI = {
+    gruplar: renkGruplari,
+    renkler: renkListesi,
+    indir: paketiIndir,
+    ucMf: ucMfIndir,
+    paket3mf: paket3mf,
+    profil: function () { return profilSozu; }
+  };
 })();

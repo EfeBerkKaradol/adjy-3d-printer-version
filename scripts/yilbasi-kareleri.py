@@ -75,6 +75,36 @@ ARACLAR = {
         ("isikli-yilbasi-feneri-3.jpg", "gece", {}, 1, ["#yf-isik"]),
         ("isikli-yilbasi-feneri-4.jpg", "isim", {}, 1, ["#yf-isik"]),
     ]),
+    "neon-sahil-tabela": ("__ADJY_NS", [
+        ("neon-sahil-tabela.jpg", "gunbatimi", {}, 2),
+        ("neon-sahil-tabela-2.jpg", "gece", {"ns-isim": "Arcade", "ns-alt": "24 SAAT ACIK"}, 2),
+        ("neon-sahil-tabela-3.jpg", "sahil", {"ns-isim": "Defne", "ns-alt": "YAZ 2027", "ns-durus": "delik"}, 2),
+        ("neon-sahil-tabela-4.jpg", "sade", {"ns-isim": "Studio", "ns-alt": ""}, 2),
+    ]),
+    "col-ufku-pano": ("__ADJY_CU", [
+        ("col-ufku-pano.jpg", "ikiay", {}, 2),
+        ("col-ufku-pano-2.jpg", "gece", {}, 2),
+        ("col-ufku-pano-3.jpg", "baharat", {}, 2),
+        ("col-ufku-pano-4.jpg", "sessiz", {}, 2),
+    ]),
+    "kahraman-amblemi": ("__ADJY_KA", [
+        ("kahraman-amblemi.jpg", "simsek", {}, 2),
+        ("kahraman-amblemi-2.jpg", "harf", {"ka-harf": "D"}, 2),
+        ("kahraman-amblemi-3.jpg", "kral", {}, 2),
+        ("kahraman-amblemi-4.jpg", "gece", {"ka-harf": "K"}, 2),
+    ]),
+    "lav-catlagi-zar-tepsisi": ("__ADJY_LT", [
+        ("lav-catlagi-zar-tepsisi.jpg", "cehennem", {}, 2),
+        ("lav-catlagi-zar-tepsisi-2.jpg", "volkan", {}, 2),
+        ("lav-catlagi-zar-tepsisi-3.jpg", "plazma", {}, 2),
+        ("lav-catlagi-zar-tepsisi-4.jpg", "asit", {}, 2),
+    ]),
+    "isimli-yilbasi-celengi": ("__ADJY_YC", [
+        ("isimli-yilbasi-celengi.jpg", "klasik", {}, 2),
+        ("isimli-yilbasi-celengi-2.jpg", "altin", {"yc-isim": "Mutlu Yıllar"}, 2),
+        ("isimli-yilbasi-celengi-3.jpg", "kar", {"yc-isim": "Demir Evi"}, 2),
+        ("isimli-yilbasi-celengi-4.jpg", "sade", {}, 2),
+    ]),
 }
 
 SAHNE_CSS = f"""

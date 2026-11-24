@@ -18,6 +18,8 @@ import { secondImageOf } from "@/lib/gallery";
 import { collectionFilter } from "@/lib/categoryTree";
 import { YILBASI, yilbasiAktif } from "@/lib/yilbasi";
 import { YilbasiVitrini } from "@/components/yilbasi/YilbasiVitrini";
+import { TASARIM_ARACLARI, aracBul } from "@/lib/tasarim/catalog";
+import { TasarimAracKartlari } from "@/components/tasarim/TasarimAracKartlari";
 
 // Vitrin veritabanından beslenir; statik kalırsa yeni ürünler ancak
 // yeni bir deploy ile görünür. 5 dakikada bir tazelenir.
@@ -34,10 +36,12 @@ export const revalidate = 300;
 //
 // Yerleşim, ziyaretçinin sırayla sorduğu sorulara göre:
 //   Burası ne?         → atölye: ürünlerimizi basan piksel yazıcı
+//   Sizi ayıran ne?    → kendin tasarla: adını yazdığın, rengini ve
+//                        ölçüsünü kurduğun ürünler. Bizi mağazadan
+//                        ayıran şey bu olduğu için en üstte durur.
 //   Nelerin var?       → kategoriler (kataloğun genişliği)
 //   En iyileri?        → öne çıkanlar
 //   Yeni ne var?       → yeni gelenler
-//   Sizi ayıran ne?    → ölçüsü değişen nesneler
 //   Alanlar ne dedi?   → müşteri yorumları
 //   Size niye güveneyim? → güven şeridi
 //   Kendi modelim?     → üret
@@ -57,6 +61,20 @@ const RAIL_SELECT = {
   category: { select: { name: true } },
   _count: { select: { parameters: true } },
 } as const;
+
+/**
+ * Ana sayfadaki Kendin Tasarla vitrini: ilki büyük kart. Katalogdan
+ * okunur (veritabanı gerekmez); liste burada elle tutulur ki vitrinde
+ * birbirine benzemeyen ürünler dursun.
+ */
+const TASARIM_VITRINI = [
+  "neon-sahil-tabela",
+  "kahraman-amblemi",
+  "lav-catlagi-zar-tepsisi",
+  "col-ufku-pano",
+  "isimli-yilbasi-celengi",
+  "litofan-lamba",
+];
 
 /** Son 30 günde eklenen ürün "yeni" sayılır */
 const NEW_WINDOW_DAYS = 30;
@@ -211,21 +229,6 @@ async function getFeaturedRail(compareAt: Map<string, number>): Promise<RailProd
   }
 }
 
-/** Bizi ayıran raf: ölçüsü müşteriye göre değişen nesneler */
-async function getCustomizableRail(compareAt: Map<string, number>): Promise<RailProduct[]> {
-  try {
-    const rows = await prisma.product.findMany({
-      where: { isActive: true, thumbnailUrl: { not: null }, slug: { startsWith: "tasarla-" } },
-      orderBy: { createdAt: "desc" },
-      take: 4,
-      select: RAIL_SELECT,
-    });
-    return rows.map((p) => toRailProduct(p, false, compareAt.get(p.id) ?? null));
-  } catch {
-    return [];
-  }
-}
-
 async function getNewArrivals(compareAt: Map<string, number>): Promise<RailProduct[]> {
   try {
     const rows = await prisma.product.findMany({
@@ -315,16 +318,16 @@ async function getCustomerVoices(): Promise<{ sozler: Soz[]; ortalama: number }>
 
 export default async function HomePage() {
   const compareAt = await getCompareAtPrices();
-  const [categories, featured, customizable, newArrivals, sesler, printables, yilbasi] =
+  const [categories, featured, newArrivals, sesler, printables, yilbasi] =
     await Promise.all([
       getCategories(),
       getFeaturedRail(compareAt),
-      getCustomizableRail(compareAt),
       getNewArrivals(compareAt),
       getCustomerVoices(),
       getPrintables(),
       getYilbasiRail(compareAt),
     ]);
+  const tasarimVitrini = TASARIM_VITRINI.map((id) => aracBul(id)).filter((a) => a !== null);
 
   return (
     <>
@@ -339,9 +342,31 @@ export default async function HomePage() {
 
       {yilbasi.length > 0 && <YilbasiVitrini urunler={yilbasi} />}
 
-      {categories.length > 0 && (
+      {tasarimVitrini.length > 0 && (
         // id: karşılamadaki "Kaydır" bağlantısı buraya iner
         <section id="vitrin" className="adjy-container adjy-section scroll-mt-24">
+          <SectionHeading
+            eyebrow="Kendin Tasarla"
+            title="Adınızı yazın, rengini seçin, ölçüsünü kurun."
+            action={{ label: `${TASARIM_ARACLARI.length} ürünün hepsi`, href: "/tasarla" }}
+          />
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            Bu ürünlerin hazır bir hâli yok: modeli ekranda siz kurarsınız, fiyatı
+            anında görürsünüz, atölyemizde kurduğunuz hâliyle, çok renkli basılır.
+          </p>
+          <div className="mt-8">
+            <TasarimAracKartlari
+              araclar={tasarimVitrini}
+              vitrin={TASARIM_VITRINI[0]}
+              oncelikli={2}
+              baslikEtiketi="h3"
+            />
+          </div>
+        </section>
+      )}
+
+      {categories.length > 0 && (
+        <section className="adjy-container adjy-section border-t-2 border-dashed border-foreground/25">
           <SectionHeading
             eyebrow="Kategoriler"
             title="Ne arıyorsunuz?"
@@ -368,15 +393,6 @@ export default async function HomePage() {
           <SectionHeading eyebrow="Yeni gelenler" title="Atölyeden yeni çıkanlar" />
           <div className="mt-8">
             <ProductRail products={newArrivals} moreHref="/products?sort=newest" />
-          </div>
-        </section>
-      )}
-
-      {customizable.length > 0 && (
-        <section className="adjy-container adjy-section border-t-2 border-dashed border-foreground/25">
-          <SectionHeading eyebrow="Özel ölçüde üretim" title="Rafınıza, masanıza, pencerenize göre" />
-          <div className="mt-8">
-            <ProductRail products={customizable} moreHref="/tasarla" />
           </div>
         </section>
       )}

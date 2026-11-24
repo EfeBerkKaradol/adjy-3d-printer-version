@@ -244,4 +244,86 @@ export function gurultu(tohum) {
   };
 }
 
+// ---------------------------------------------------------------- KATMANLI (ÇOK RENKLİ) PARÇALAR
+/**
+ * Var olan maskeye mm koordinatında çizer (orijin ortada, +Y yukarı).
+ * islem "source-over": ekler · "destination-out": keser.
+ */
+export function maskeCiz(m, ciz, islem = "source-over") {
+  const c = m.ctx;
+  c.save();
+  c.translate(m.w / 2, m.h / 2);
+  c.scale(m.pxMm, -m.pxMm);
+  c.globalCompositeOperation = islem;
+  c.fillStyle = "#fff";
+  c.strokeStyle = "#fff";
+  ciz(c);
+  c.restore();
+  return m;
+}
+
+/**
+ * Yazıyı [merkezX, merkezY, genişlik, yükseklik] (mm) kutusuna sığdırır;
+ * sığmıyorsa küçültür. kalin: harflerin her yönde kalınlaşması (ince
+ * çizgiler 0,8 mm'nin altına inmesin). Harf boyu (mm) döner.
+ */
+export function yaziSigdir(c, metin, kutu, tip, kalin = 0.45) {
+  if (!metin) return 0;
+  const [kx, ky, kw, kh] = kutu;
+  let boy = kh * 1.25;
+  c.save();
+  c.font = `${tip.agirlik} ${boy}px ${tip.aile}`;
+  let m = c.measureText(metin);
+  const yuk = (m.actualBoundingBoxAscent || boy * 0.72) + (m.actualBoundingBoxDescent || 0);
+  boy *= Math.min(1, kw / Math.max(1e-6, m.width), kh / Math.max(1e-6, yuk));
+  c.font = `${tip.agirlik} ${boy}px ${tip.aile}`;
+  m = c.measureText(metin);
+  const asc = m.actualBoundingBoxAscent || boy * 0.72;
+  const desc = m.actualBoundingBoxDescent || 0;
+  c.translate(kx, ky);
+  c.scale(1, -1); // tuval mm'de ters; yazı düz okunsun
+  c.textAlign = "center";
+  c.textBaseline = "alphabetic";
+  c.fillText(metin, 0, (asc - desc) / 2);
+  if (kalin > 0) {
+    c.lineJoin = "round";
+    c.lineWidth = kalin;
+    c.strokeText(metin, 0, (asc - desc) / 2);
+  }
+  c.restore();
+  return asc + desc;
+}
+
+/** Köşeleri yuvarlak dikdörtgen yolu (mm, merkez orijinde) */
+export function yuvarlakKutu(c, x, y, w, h, r) {
+  r = Math.min(r, w / 2, h / 2);
+  c.moveTo(x + r, y);
+  c.lineTo(x + w - r, y);
+  c.arcTo(x + w, y, x + w, y + r, r);
+  c.lineTo(x + w, y + h - r);
+  c.arcTo(x + w, y + h, x + w - r, y + h, r);
+  c.lineTo(x + r, y + h);
+  c.arcTo(x, y + h, x, y + h - r, r);
+  c.lineTo(x, y + r);
+  c.arcTo(x, y, x + r, y, r);
+  c.closePath();
+}
+
+/** Düzgün çokgen yolu; n kenar, R köşe yarıçapı, a0 ilk köşenin açısı */
+export function cokgen(c, n, R, a0 = Math.PI / 2, cx = 0, cy = 0) {
+  for (let i = 0; i < n; i++) {
+    const a = a0 + (i * Math.PI * 2) / n;
+    i ? c.lineTo(cx + R * Math.cos(a), cy + R * Math.sin(a)) : c.moveTo(cx + R * Math.cos(a), cy + R * Math.sin(a));
+  }
+  c.closePath();
+}
+
+/** Yazı tipleri inince model yeniden kurulsun (ilk karede yedek yazı tipi olabilir) */
+export function yaziTipleriniBekle(tipler, yenile) {
+  if (!document.fonts) return;
+  const yukle = Object.values(tipler).map((t) => document.fonts.load(`${t.agirlik} 40px ${t.aile}`, "ĞğŞşİıÖöÜüÇç2027"));
+  Promise.allSettled(yukle).then(() => yenile());
+  document.fonts.addEventListener?.("loadingdone", () => yenile());
+}
+
 export { ayrinti };

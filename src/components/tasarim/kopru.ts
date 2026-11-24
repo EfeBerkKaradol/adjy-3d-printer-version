@@ -65,6 +65,28 @@ export function aracArayuzu(cerceve: HTMLIFrameElement | null): AracArayuzu | nu
   }
 }
 
+/** Modelin basılacak renkleri: sıra = dilimleyicideki filament yuvası */
+export interface AracRengi {
+  no: number;
+  hex: string;
+  ad: string;
+}
+
+/**
+ * Atölye kipinde aracın renkli baskı modülü (renkli.js → ADJY_RENKLI)
+ * modeli renge göre ayırır; 3MF'teki filament sırası budur.
+ */
+export function aracRenkleri(cerceve: HTMLIFrameElement | null): AracRengi[] {
+  try {
+    const pencere = cerceve?.contentWindow as
+      | (Window & { ADJY_RENKLI?: { renkler: () => AracRengi[] } })
+      | null;
+    return pencere?.ADJY_RENKLI?.renkler() ?? [];
+  } catch {
+    return [];
+  }
+}
+
 export function aracMesajiMi(veri: unknown, aracId: string): veri is AracMesaji {
   if (!veri || typeof veri !== "object") return false;
   const m = veri as Partial<AracMesaji>;

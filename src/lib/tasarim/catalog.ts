@@ -79,6 +79,7 @@ export interface TasarimAraci {
 export const ETIKET_ADLARI: Record<string, string> = {
   "koleksiyon-yilbasi": "Yılbaşı Koleksiyonu",
   "koleksiyon-kum-tepesi": "Kum Tepesi Koleksiyonu",
+  "koleksiyon-oyun-odasi": "Oyun Odası Koleksiyonu",
 };
 
 /** Araçların ortak mağaza kategorisi — eşleşen kategori yoksa buraya düşer */
@@ -90,13 +91,21 @@ export const TASARIM_KATEGORISI = {
 };
 
 /**
- * Renkli baskı paketi: müşterinin kurduğu model renge göre ayrılmış
- * (tek 3MF'te her renk bir parça + renk başına STL + renk listesi).
- * Düğmeyi atölye kipinde public/tasarim-araclari/_adjy/renkli.js kurar.
+ * Renkli baskı çıktıları. Düğmeleri atölye kipinde
+ * public/tasarim-araclari/_adjy/renkli.js kurar; her araçta vardır.
+ *
+ *   3MF   → dilimleyici projesi: müşterinin modeli tek nesne, her renk
+ *           ayrı parça ve kendi filament yuvasına atanmış, filament
+ *           renkleri ve yazıcı profili içinde. Aç, dilimle, bas.
+ *   paket → aynı 3MF + renk başına STL + renk listesi (başka dilimleyici
+ *           ya da elle atama için). "Klasöre kaydet" bunu yazar.
  */
+export const RENKLI_3MF_SECICI = "#adjy-renkli-3mf";
+export const RENKLI_PAKET_SECICI = "#adjy-renkli-paket";
+
 const RENKLI_PAKET: TasarimCiktisi = {
   ad: "Renkli baskı paketi (3MF + renk STL'leri)",
-  sec: "#adjy-renkli-paket",
+  sec: RENKLI_PAKET_SECICI,
   tur: "stl",
 };
 
@@ -711,6 +720,160 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { ad: "Fener bilgisi (CSV)", sec: "#yf-csv", tur: "belge" },
     ],
     anahtarKelimeler: ["yılbaşı feneri", "litofan fener", "led mumluk", "ışıklı yılbaşı süsü", "isimli fener", "yılbaşı dekorasyon"],
+    etiketler: ["koleksiyon-yilbasi"],
+  },
+  // ---------------- OYUN ODASI, ÇÖL UFKU, ÇELENK (çok renkli, katmanlı) ----------------
+  {
+    id: "neon-sahil-tabela",
+    ad: "Neon Sahil İsimlik",
+    ozet: "Adınızı şeritli güneşin ve palmiyelerin önüne yazdığınız dört renkli masa tabelası.",
+    aciklama:
+      "Seksenlerin sahil şeridinden bir tabela: gün batımında doğan şeritli güneş, kenarlarda palmiyeler ve önünde el yazısıyla adınız. Oyun odasına, yayın masasına ya da kapıya; yazıyı ve alt satırı siz yazın, yazı tipini, güneşin şerit sayısını, palmiyelerin yerini ve neon çerçeveyi siz seçin. Zemin, güneş, palmiye ve yazı ayrı renkte, tek seferde basılır; renkler üst üste binmez, aralarında zemin renginde ince bir kontur kalır. Masada eğik ayağıyla durur ya da iki delikten duvara asılır.",
+    ayarlar: ["Hazır tabela", "Yazı, alt satır ve yazı tipi", "Şeritli güneş ve palmiyeler", "Neon çerçeve", "Genişlik, yükseklik ve duruş (masa ayağı, duvar)", "Zemin, güneş, palmiye ve yazı rengi"],
+    kategoriler: ["masa-ofis-standlar", "ofis-aksesuarlari", "koleksiyon-kisiye-ozel", "hediye"],
+    malzeme: "PLA",
+    malzemeSabit: true,
+    varsayilan: { kutleG: 69, sureSaat: 2.32 },
+    sinir: { kutleG: [12, 200], sureSaat: [0.5, 7] },
+    tabanFiyat: 390,
+    teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Dört renk, tek baskı", metin: "Zemin, güneş, palmiye ve yazı ayrı filamentle aynı baskıda çıkar; boya ya da yapıştırma yok." },
+      { baslik: "Yazı kendini sığdırır", metin: "Adınızı yazdıkça harfler tabelaya göre büyür ya da küçülür; Türkçe harfler olduğu gibi basılır." },
+      { baslik: "Masada da duvarda da", metin: "Eğik yarıklı ayağına oturur, 12° geriye yaslanır; isterseniz iki vida deliğiyle duvara asılır." },
+    ],
+    gorseller: ["Gün batımı: turuncu güneş, pembe yazı", "Neon gece: mor güneş, turkuaz palmiye", "Öğlen sahili: beyaz zemin, duvar delikli", "Yalnız yazı: çerçeve ve palmiyeler"],
+    ciktilar: [
+      { ad: "Zemin STL", sec: "#ns-stl-zemin", tur: "stl" },
+      { ad: "Güneş STL", sec: "#ns-stl-gunes", tur: "stl" },
+      { ad: "Palmiye STL", sec: "#ns-stl-palmiye", tur: "stl" },
+      { ad: "Yazı ve çerçeve STL", sec: "#ns-stl-yazi", tur: "stl" },
+      { ad: "Masa ayağı STL", sec: "#ns-stl-ayak", tur: "stl" },
+      RENKLI_PAKET,
+      { ad: "Tabela bilgisi (CSV)", sec: "#ns-csv", tur: "belge" },
+    ],
+    anahtarKelimeler: ["isimli masa tabelası", "oyun odası tabelası", "retro neon isimlik", "palmiyeli gün batımı tabela", "yayıncı masa isimliği", "çok renkli 3d baskı"],
+    etiketler: ["koleksiyon-oyun-odasi", "koleksiyon-kisiye-ozel"],
+  },
+  {
+    id: "kahraman-amblemi",
+    ad: "Kahraman Amblemi",
+    ozet: "Baş harfinizle kurduğunuz, patlama yıldızlı çizgi roman amblemi.",
+    aciklama:
+      "Kendi süper kahramanınızın amblemi: daire, kalkan, altıgen ya da elmas biçiminde; ortasında baş harfiniz, bir yıldırım ya da taç. Simgenin arkasında elle çizilmiş gibi düzensiz dişli bir patlama yıldızı, zeminde eski çizgi roman baskılarındaki gibi aşağı doğru büyüyen noktalar, kenarda kalın bir bordür durur. Üç renk tek seferde basılır; simge patlamanın, patlama noktaların üstünde kabarır ve aralarında mürekkep konturu gibi zemin rengi kalır. Küçük ölçüde anahtarlık ve çanta süsü, büyük ölçüde duvar ya da kapı amblemi.",
+    ayarlar: ["Hazır amblem", "Biçim: daire, kalkan, altıgen, elmas", "Simge: baş harf, yıldırım ya da taç", "Patlama yıldızı, baskı noktaları ve bordür", "Genişlik ve askı halkası", "Zemin, bordür ve simge rengi"],
+    kategoriler: ["koleksiyon-kisiye-ozel", "hediye", "dekor-duvar", "ev-dekorasyon"],
+    malzeme: "PLA",
+    malzemeSabit: true,
+    varsayilan: { kutleG: 23, sureSaat: 0.96 },
+    sinir: { kutleG: [4, 180], sureSaat: [0.3, 6] },
+    tabanFiyat: 190,
+    teslim: "Sipariş sonrası üretilir, 1–3 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Amblem sizin", metin: "Baş harfiniz, biçiminiz, renkleriniz: hazır bir kahramanın değil, sizin kahramanınızın işareti." },
+      { baslik: "Çizgi roman baskısı gibi", metin: "Düzensiz dişli patlama, aşağı doğru büyüyen noktalar ve renklerin arasında kalan kontur; kâğıttaki mürekkep hissi." },
+      { baslik: "Üç renk, üç kat", metin: "Bordür, patlama ve simge ayrı yükseklikte kabarır; ışıkta gölgesiyle, elde dokusuyla seçilir." },
+    ],
+    gorseller: ["Şimşek: daire, kırmızı ve sarı", "Baş harf: kalkan, lacivert ve gümüş", "Kral: altıgen, taç", "Gece bekçisi: elmas, siyah ve sarı"],
+    ciktilar: [
+      { ad: "Zemin STL", sec: "#ka-stl-zemin", tur: "stl" },
+      { ad: "Bordür ve patlama STL", sec: "#ka-stl-ikinci", tur: "stl" },
+      { ad: "Simge STL", sec: "#ka-stl-simge", tur: "stl" },
+      RENKLI_PAKET,
+      { ad: "Amblem bilgisi (CSV)", sec: "#ka-csv", tur: "belge" },
+    ],
+    anahtarKelimeler: ["süper kahraman amblemi", "baş harfli amblem", "çizgi roman dekoru", "kişiye özel anahtarlık", "çocuk odası duvar süsü", "çok renkli 3d baskı"],
+    etiketler: ["koleksiyon-oyun-odasi", "koleksiyon-kisiye-ozel"],
+  },
+  {
+    id: "lav-catlagi-zar-tepsisi",
+    ad: "Lav Çatlağı Zar Tepsisi",
+    ozet: "Çatlak taş zemininden lav görünen, rün halkalı iki renkli zar tepsisi.",
+    aciklama:
+      "Masaüstü oyunlar için cehennem kapısından çıkma bir zar tepsisi: çatlamış taş zeminin altından lav parlar, ortada iki çemberin arasına dizili rünler ve üçgen bir mühür durur. Altıgen, sekizgen ya da daire biçimini, çapı ve duvar yüksekliğini, taşların sayısını ve çatlakların genişliğini siz belirleyin; desen numarası çatlak ağını baştan kurar, aynı numara hep aynı tepsiyi verir. Köşelerden basamaklı sivri taşlar yükselir. Lav ve taş ayrı renkte, tek seferde basılır: turuncu lav, asit yeşili ya da plazma mavisi.",
+    ayarlar: ["Hazır tepsi", "Biçim: altıgen, sekizgen, daire", "Çap ve duvar yüksekliği", "Taş sayısı, çatlak genişliği ve desen numarası", "Rün halkası, merkez mühür ve köşe dişleri", "Taş ve lav rengi"],
+    kategoriler: ["dekor-kase", "dekorasyon-kase-tepsi", "ev-dekorasyon", "hediye"],
+    malzeme: "PLA",
+    malzemeSabit: true,
+    varsayilan: { kutleG: 74, sureSaat: 2.32 },
+    sinir: { kutleG: [28, 380], sureSaat: [1, 14] },
+    tabanFiyat: 520,
+    teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Çatlaklardan lav görünür", metin: "Taş katı boydan boya çatlaktır; altındaki lav katı ayrı renkte basılır ve her çatlaktan parlar." },
+      { baslik: "Her tepsi başka", metin: "Doksan dokuz desen: çatlak ağı ve rünler numaraya göre kurulur, beğendiğinizi saklarsınız." },
+      { baslik: "Zarlar içeride kalır", metin: "Duvar düz yükselir, zemin düzdür; zarlar yuvarlanır, masadan düşmez. Anahtar ve bozukluk tepsisi olarak da durur." },
+    ],
+    gorseller: ["Cehennem kapısı: altıgen, rün halkası", "Volkan ağzı: daire, sık çatlak", "Plazma çekirdeği: sekizgen, mavi", "Asit kuyusu: yeşil, mühürsüz"],
+    ciktilar: [
+      { ad: "Taş STL", sec: "#lt-stl-tas", tur: "stl" },
+      { ad: "Lav katı STL", sec: "#lt-stl-lav", tur: "stl" },
+      RENKLI_PAKET,
+      { ad: "Tepsi bilgisi (CSV)", sec: "#lt-csv", tur: "belge" },
+    ],
+    anahtarKelimeler: ["zar tepsisi", "frp zar tepsisi", "masaüstü oyun aksesuarı", "lav temalı tepsi", "rünlü zar tepsisi", "çok renkli 3d baskı"],
+    etiketler: ["koleksiyon-oyun-odasi"],
+  },
+  {
+    id: "col-ufku-pano",
+    ad: "Çöl Ufku Katmanlı Pano",
+    ozet: "Kat kat kum tepeleri ve gökte iki ay: dört renkli, katmanlı duvar panosu.",
+    aciklama:
+      "Uzak bir çöl gezegeninin ufku, kat kat kesilmiş kâğıt gibi: en arkada gök ve iki ay, önde her biri bir öncekinden biraz daha kabarık kum tepeleri. Kemer, dikdörtgen ya da daire biçimini, ölçüyü, kat sayısını ve tepelerin yüksekliğini siz belirleyin; desen numarası her seferinde başka bir çöl kurar. İsterseniz tepelerden birinin sırtına pelerinli, asalı küçük bir gezgin yerleşir. Gök, ay ve iki kum tonu ayrı renkte, tek seferde basılır; gün batımı, gece, baharat ve kemik paletleri hazır.",
+    ayarlar: ["Hazır manzara", "Biçim: kemer, dikdörtgen, daire", "Genişlik, yükseklik, çerçeve ve askı", "Kat sayısı, tepe yüksekliği ve desen numarası", "Tek ay, iki ay ve çöl gezgini", "Dört renkli palet"],
+    kategoriler: ["dekor-duvar", "ev-dekorasyon"],
+    malzeme: "PLA",
+    malzemeSabit: true,
+    varsayilan: { kutleG: 105, sureSaat: 3.33 },
+    sinir: { kutleG: [18, 700], sureSaat: [0.7, 24] },
+    tabanFiyat: 490,
+    teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Kat kat derinlik", metin: "Her kum katı bir öncekinin önünde ve bir kat daha yüksek durur; yandan gelen ışıkta katlar birbirine gölge düşürür." },
+      { baslik: "Dört renk, tek baskı", metin: "Gök, ay ve iki kum tonu ayrı filamentle aynı baskıda çıkar; boya yok, renk solmaz." },
+      { baslik: "Kendi çölünüz", metin: "Doksan dokuz desen: aynı numara hep aynı ufku verir. İki ayı, gezgini ve paleti siz seçersiniz." },
+    ],
+    gorseller: ["İki ay: kemer, gün batımı", "Gece yürüyüşü: gezgin, lacivert gök", "Baharat vadisi: daire, turuncu ay", "Sessiz çöl: kemik tonları, çerçevesiz"],
+    ciktilar: [
+      { ad: "Gök levhası STL", sec: "#cu-stl-gok", tur: "stl" },
+      { ad: "Aylar STL", sec: "#cu-stl-ay", tur: "stl" },
+      { ad: "Açık kum STL", sec: "#cu-stl-acik", tur: "stl" },
+      { ad: "Koyu kum ve çerçeve STL", sec: "#cu-stl-koyu", tur: "stl" },
+      RENKLI_PAKET,
+      { ad: "Pano bilgisi (CSV)", sec: "#cu-csv", tur: "belge" },
+    ],
+    anahtarKelimeler: ["katmanlı duvar panosu", "çöl manzarası pano", "iki aylı çöl", "dune dekor", "bilim kurgu duvar süsü", "çok renkli 3d baskı"],
+    etiketler: ["koleksiyon-kum-tepesi"],
+  },
+  {
+    id: "isimli-yilbasi-celengi",
+    ad: "İsimli Yılbaşı Çelengi",
+    ozet: "Ortasındaki şeride aile adınızı yazdığınız, kokinalı ve fiyonklu dört renkli çelenk.",
+    aciklama:
+      "Kapıya, duvara ya da ağacın tepesine isimli yılbaşı çelengi. Üst üste binen yapraklar halkayı doldurur, aralarında damarlı kabartma yapraklar ve kokina salkımları durur; altta ya da üstte bir fiyonk, ortada kırlangıç uçlu şeritte aile adınız ya da kısa bir dileğiniz. Çapı, yaprakların sıklığını, kokina salkımlarının sayısını ve fiyongun yerini siz belirleyin; yazı şeride kendiliğinden sığar, Türkçe harfler olduğu gibi basılır. Yaprak, kokina, şerit ve yazı ayrı renkte, tek seferde basılır. Şeritsiz seçerseniz yalın bir çelenk olur.",
+    ayarlar: ["Hazır çelenk", "İsim şeridi ve yazı tipi", "Çap, yaprak sıklığı ve kokina salkımı", "Fiyonk: altta, üstte ya da yok", "Askı halkası", "Yaprak, kokina, şerit ve yazı rengi"],
+    kategoriler: ["yilbasi-dekorasyon", "yilbasi-susler", "yilbasi", "hediye-yilbasi", "hediye"],
+    malzeme: "PLA",
+    malzemeSabit: true,
+    varsayilan: { kutleG: 43, sureSaat: 1.53 },
+    sinir: { kutleG: [10, 140], sureSaat: [0.5, 5.5] },
+    tabanFiyat: 320,
+    teslim: "Sipariş sonrası üretilir, 1–3 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Aile adınız ortasında", metin: "İsim şeridin içine kendiliğinden sığar; şerit çelengin iki yanına oturur, harfler şeridin üstünde kabarır." },
+      { baslik: "Dört renk, tek baskı", metin: "Yaprak, kokina ve fiyonk, şerit ve yazı ayrı filamentle aynı baskıda çıkar." },
+      { baslik: "Kat kat kabartma", metin: "Damarlı yapraklar tabanın, kubbe gibi kokinalar yaprakların üstünde durur; çelenk düz değil, dokuludur." },
+    ],
+    gorseller: ["Klasik: yeşil yaprak, kırmızı fiyonk", "Altın: koyu yeşil, Mutlu Yıllar", "Karlı: beyaz yaprak, lacivert kokina", "Yalnız çelenk: şeritsiz, fiyonk üstte"],
+    ciktilar: [
+      { ad: "Taban ve yapraklar STL", sec: "#yc-stl-yaprak", tur: "stl" },
+      { ad: "Kokina ve fiyonk STL", sec: "#yc-stl-meyve", tur: "stl" },
+      { ad: "Şerit STL", sec: "#yc-stl-serit", tur: "stl" },
+      { ad: "Yazı STL", sec: "#yc-stl-yazi", tur: "stl" },
+      RENKLI_PAKET,
+      { ad: "Çelenk bilgisi (CSV)", sec: "#yc-csv", tur: "belge" },
+    ],
+    anahtarKelimeler: ["isimli yılbaşı çelengi", "kişiye özel kapı süsü", "yılbaşı kapı çelengi", "aile isimli çelenk", "yılbaşı hediyesi", "çok renkli 3d baskı"],
     etiketler: ["koleksiyon-yilbasi"],
   },
 ];

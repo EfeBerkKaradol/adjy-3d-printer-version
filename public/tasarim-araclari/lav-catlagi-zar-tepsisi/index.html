@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lav Çatlağı Zar Tepsisi — Çatlak Taş, Rün Halkası</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "../_adjy/three.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <!-- ADJY mağaza köprüsü: tema, müşteri/atölye kipi, durum kaydı -->
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="../_adjy/yilbasi.css" />
+  <link rel="stylesheet" href="../_adjy/kopru.css" />
+  <script src="./adjy.js"></script>
+  <script src="../_adjy/kopru.js"></script>
+  <script src="../_adjy/olcu.js"></script>
+  <script src="../_adjy/renkli.js"></script>
+</head>
+<body>
+  <div class="yb-izgara">
+    <!-- ================= AYARLAR ================= -->
+    <aside class="yb-panel">
+      <section class="yb-grup" id="grup-hazir">
+        <h2 class="yb-baslik">Hazır tepsiler</h2>
+        <div class="yb-hazirlar">
+          <button type="button" data-hazir="cehennem" class="on"><b>Cehennem kapısı</b><small>Altıgen, rün halkası</small></button>
+          <button type="button" data-hazir="volkan"><b>Volkan ağzı</b><small>Daire, sık çatlak</small></button>
+          <button type="button" data-hazir="plazma"><b>Plazma çekirdeği</b><small>Sekizgen, mavi</small></button>
+          <button type="button" data-hazir="asit"><b>Asit kuyusu</b><small>Yeşil, mühürsüz</small></button>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-bicim">
+        <h2 class="yb-baslik">Biçim ve ölçü</h2>
+        <div class="param-row" id="lt-bicim-satir">
+          <label class="yb-etiket" for="lt-bicim">Biçim</label>
+          <select id="lt-bicim" class="yb-gizli-secim">
+            <option value="altigen" selected>Altıgen</option>
+            <option value="sekizgen">Sekizgen</option>
+            <option value="daire">Daire</option>
+          </select>
+          <div class="yb-seg" data-secim="lt-bicim">
+            <button type="button" data-v="altigen">Altıgen</button>
+            <button type="button" data-v="sekizgen">Sekizgen</button>
+            <button type="button" data-v="daire">Daire</button>
+          </div>
+        </div>
+        <div class="param-row" id="lt-cap-satir">
+          <label class="yb-etiket" for="lt-cap">Çap</label>
+          <div class="yb-kaydir"><input type="range" id="lt-cap" min="100" max="200" step="5" value="150" /><span class="num-wrap"><input type="number" data-bagli="lt-cap" min="100" max="200" step="5" value="150" aria-label="Çap" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row" id="lt-duvar-satir">
+          <label class="yb-etiket" for="lt-duvar">Duvar yüksekliği</label>
+          <div class="yb-kaydir"><input type="range" id="lt-duvar" min="10" max="30" step="1" value="18" /><span class="num-wrap"><input type="number" data-bagli="lt-duvar" min="10" max="30" step="1" value="18" aria-label="Duvar yüksekliği" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row">
+          <label class="yb-kutu"><input type="checkbox" id="lt-dis" checked /> <span>Köşe dişleri</span></label>
+          <p class="yb-not">Köşelerde duvardan yükselen basamaklı sivri taşlar.</p>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-catlak">
+        <h2 class="yb-baslik">Çatlaklar</h2>
+        <div class="param-row" id="lt-hucre-satir">
+          <label class="yb-etiket" for="lt-hucre">Taş sayısı</label>
+          <div class="yb-kaydir"><input type="range" id="lt-hucre" min="8" max="40" step="1" value="28" /><span class="num-wrap"><input type="number" data-bagli="lt-hucre" min="8" max="40" step="1" value="28" aria-label="Taş sayısı" /><span class="unit">adet</span></span></div>
+        </div>
+        <div class="param-row" id="lt-genis-satir">
+          <label class="yb-etiket" for="lt-genis">Çatlak genişliği</label>
+          <div class="yb-kaydir"><input type="range" id="lt-genis" min="0.8" max="3" step="0.2" value="2" /><span class="num-wrap"><input type="number" data-bagli="lt-genis" min="0.8" max="3" step="0.2" value="2" aria-label="Çatlak genişliği" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row" id="lt-tohum-satir">
+          <label class="yb-etiket" for="lt-tohum">Desen numarası</label>
+          <div class="yb-kaydir"><input type="range" id="lt-tohum" min="1" max="99" step="1" value="13" /><span class="num-wrap"><input type="number" data-bagli="lt-tohum" min="1" max="99" step="1" value="13" aria-label="Desen numarası" /><span class="unit">no</span></span></div>
+          <p class="yb-not">Her numara başka bir çatlak ağı.</p>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-run">
+        <h2 class="yb-baslik">Rünler</h2>
+        <div class="param-row">
+          <label class="yb-kutu"><input type="checkbox" id="lt-run" checked /> <span>Rün halkası</span></label>
+          <p class="yb-not">Zeminde, iki çemberin arasında dizili köşeli işaretler; altından lav görünür.</p>
+        </div>
+        <div class="param-row">
+          <label class="yb-kutu"><input type="checkbox" id="lt-muhur" checked /> <span>Merkez mühür</span></label>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-renk">
+        <h2 class="yb-baslik">Renk</h2>
+        <div class="param-row yb-renk-satir" id="lt-renk-tas-satir">
+          <label class="yb-etiket" for="lt-renk-tas">Taş</label>
+          <select id="lt-renk-tas" class="yb-gizli-secim">
+            <option value="antrasit" selected>Antrasit</option><option value="siyah">Siyah</option><option value="gri">Gri</option><option value="bordo">Bordo</option><option value="kemik">Kemik</option>
+          </select>
+          <div class="yb-renkler" data-secim="lt-renk-tas">
+            <button type="button" data-v="antrasit" style="--r:#2f3033" title="Antrasit"></button>
+            <button type="button" data-v="siyah" style="--r:#1b1b1f" title="Siyah"></button>
+            <button type="button" data-v="gri" style="--r:#7b7d82" title="Gri"></button>
+            <button type="button" data-v="bordo" style="--r:#5a1a22" title="Bordo"></button>
+            <button type="button" data-v="kemik" style="--r:#ddd3bd" title="Kemik"></button>
+          </div>
+        </div>
+        <div class="param-row yb-renk-satir" id="lt-renk-lav-satir">
+          <label class="yb-etiket" for="lt-renk-lav">Lav</label>
+          <select id="lt-renk-lav" class="yb-gizli-secim">
+            <option value="turuncu" selected>Turuncu</option><option value="kirmizi">Kırmızı</option><option value="sari">Sarı</option><option value="yesil">Asit yeşili</option><option value="mavi">Plazma mavisi</option>
+          </select>
+          <div class="yb-renkler" data-secim="lt-renk-lav">
+            <button type="button" data-v="turuncu" style="--r:#ff6a1a" title="Turuncu"></button>
+            <button type="button" data-v="kirmizi" style="--r:#d6201f" title="Kırmızı"></button>
+            <button type="button" data-v="sari" style="--r:#ffc21a" title="Sarı"></button>
+            <button type="button" data-v="yesil" style="--r:#63d13a" title="Asit yeşili"></button>
+            <button type="button" data-v="mavi" style="--r:#2f9bff" title="Plazma mavisi"></button>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <!-- ================= SAHNE ================= -->
+    <section class="yb-sahne">
+      <canvas id="lt-tuval" class="yb-tuval"></canvas>
+      <div class="yb-sahne-ust">
+        <span class="yb-olcu" id="lt-olcu">—</span>
+        <span class="yb-uyari" id="lt-uyari" hidden></span>
+      </div>
+    </section>
+
+    <!-- ================= ATÖLYE (müşteriye gizli) ================= -->
+    <aside class="yb-atolye">
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Üretim</h2>
+        <dl class="yb-tablo" id="lt-tablo"></dl>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Baskı ayarları</h2>
+        <div class="param-row"><label class="yb-etiket" for="lt-lav-kat">Lav katı</label><span class="num-wrap"><input type="number" id="lt-lav-kat" min="0.8" max="2" step="0.2" value="1.2" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="lt-tas-kat">Taş katı</label><span class="num-wrap"><input type="number" id="lt-tas-kat" min="1.2" max="3" step="0.2" value="1.6" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="lt-duvar-kal">Duvar kalınlığı</label><span class="num-wrap"><input type="number" id="lt-duvar-kal" min="2.4" max="5" step="0.2" value="3.2" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="lt-px">Kontur hassasiyeti</label><span class="num-wrap"><input type="number" id="lt-px" min="4" max="8" step="1" value="6" /><span class="unit">px/mm</span></span></div>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Çıktılar</h2>
+        <button type="button" class="yb-cikti" id="lt-stl-tas">Taş: zemin, duvar, dişler (STL)</button>
+        <button type="button" class="yb-cikti" id="lt-stl-lav">Lav katı (STL)</button>
+        <button type="button" class="yb-cikti yb-ikincil" id="lt-csv">Tepsi bilgisi (CSV)</button>
+        <p class="yb-not">Z yukarı, mm. Tepsi tablaya oturur: altta lav katı, üstünde çatlaklı taş zemin; çatlaklardan lav rengi görünür. Duvar düz yükselir, dişler basamaklı daralır; desteksiz. İki STL aynı orijinde. Çok renkli yazıcıda Renkli 3MF ile tek baskı; tek renkli yazıcıda lav katından sonra filament değiştirin.</p>
+      </section>
+    </aside>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

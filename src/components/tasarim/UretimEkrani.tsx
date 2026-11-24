@@ -19,10 +19,17 @@ import {
   Download,
   FileText,
   FolderDown,
+  Layers,
   Loader2,
   Paperclip,
 } from "lucide-react";
-import { aracUretimKaynagi, type TasarimAraci, type TasarimCiktisi } from "@/lib/tasarim/catalog";
+import {
+  aracUretimKaynagi,
+  RENKLI_3MF_SECICI,
+  RENKLI_PAKET_SECICI,
+  type TasarimAraci,
+  type TasarimCiktisi,
+} from "@/lib/tasarim/catalog";
 import {
   secimlerMetni,
   secimleriTemizle,
@@ -30,7 +37,13 @@ import {
   type TasarimSecimi,
 } from "@/lib/tasarim/order";
 import { formatTRY } from "@/lib/slicer";
-import { aracArayuzu, aracMesajiMi, type AracPaketi } from "./kopru";
+import {
+  aracArayuzu,
+  aracMesajiMi,
+  aracRenkleri,
+  type AracPaketi,
+  type AracRengi,
+} from "./kopru";
 import {
   klasoreYaz,
   klasoruHazirla,
@@ -102,6 +115,26 @@ function genislikDinle(geriCagir: () => void) {
 const DUGME =
   "inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm transition-colors disabled:opacity-40";
 
+/** İndirme şeridinde başlıklı düğme öbeği */
+function DosyaGrubu({
+  baslik,
+  className = "",
+  children,
+}: {
+  baslik: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={`min-w-0 ${className}`}>
+      <p className="mb-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        {baslik}
+      </p>
+      <div className="flex flex-wrap items-center gap-1.5">{children}</div>
+    </div>
+  );
+}
+
 export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = false }: Props) {
   const { resolvedTheme } = useTheme();
   const cerceveRef = useRef<HTMLIFrameElement>(null);
@@ -131,6 +164,15 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
     { tur: "tamam"; sonuc: KayitSonucu } | { tur: "hata"; mesaj: string } | null
   >(null);
   const yuklendiRef = useRef(false);
+  // Modelin renkleri = 3MF'teki filament yuvaları. Model her
+  // değiştiğinde (atölye kipinde ayar oynanınca) yeniden okunur;
+  // ağ taranır, o yüzden son değişiklikten biraz sonra.
+  const [renkler, setRenkler] = useState<AracRengi[]>([]);
+  useEffect(() => {
+    if (asama !== "hazir") return;
+    const t = setTimeout(() => setRenkler(aracRenkleri(cerceveRef.current)), 600);
+    return () => clearTimeout(t);
+  }, [asama, aracPaketi]);
 
   // Serbest kipte gösterilen ve dosyalara yazılan seçimler aracın
   // o anki hâlidir; siparişte ise müşterinin kaydı.
@@ -272,7 +314,10 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
     }
   }, [arac.ad, kalem.adet, kalem.secimler, siparis.musteri, siparis.no]);
 
-  const stller = arac.ciktilar.filter((c) => c.tur === "stl");
+  const renkliPaket = arac.ciktilar.find((c) => c.sec === RENKLI_PAKET_SECICI);
+  const stller = arac.ciktilar.filter(
+    (c) => c.tur === "stl" && c.sec !== RENKLI_PAKET_SECICI
+  );
   const belgeler = arac.ciktilar.filter((c) => c.tur === "belge");
   const digerleri = arac.ciktilar.filter((c) => c.tur === "cad");
   const hazir = asama === "hazir";
@@ -336,89 +381,153 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
       </header>
 
       {/* ---------- DOSYALAR ---------- */}
-      <div className="flex flex-wrap items-center gap-2 border-b-2 border-dashed border-foreground/25 bg-background px-4 py-2.5">
-        <button
-          type="button"
-          disabled={!hazir || !!indirilen}
-          onClick={klasoreKaydet}
-          className={`${DUGME} bg-foreground font-medium text-background hover:opacity-90`}
-        >
-          <FolderDown className="h-4 w-4" aria-hidden />
-          Klasöre kaydet
-        </button>
-
-        <span className="mx-1 hidden h-5 w-px bg-border sm:block" aria-hidden />
-        {stller.map((c) => (
-          <button
-            key={c.sec}
-            type="button"
-            disabled={!hazir || !!indirilen}
-            onClick={() => indir([c])}
-            className={`${DUGME} adjy-pixel-frame hover:bg-muted`}
-          >
-            <Download className="h-4 w-4" aria-hidden />
-            {c.ad}
-          </button>
-        ))}
-
-        <span className="mx-1 hidden h-5 w-px bg-border sm:block" aria-hidden />
-
-        {belgeler.map((c) => (
-          <button
-            key={c.sec}
-            type="button"
-            disabled={!hazir || !!indirilen}
-            onClick={() => indir([c])}
-            className={`${DUGME} text-muted-foreground hover:bg-muted hover:text-foreground`}
-          >
-            <FileText className="h-4 w-4" aria-hidden />
-            {c.ad}
-          </button>
-        ))}
-
-        {digerleri.length > 0 && (
-          <details className="relative">
-            <summary
-              className={`${DUGME} cursor-pointer list-none text-muted-foreground hover:bg-muted hover:text-foreground`}
+      <div className="border-b-2 border-dashed border-foreground/25 bg-background px-4 py-3">
+        <div className="flex flex-wrap items-start gap-x-6 gap-y-3">
+          {/* Renkli baskı: dilimleyicide açılıp basılan tek dosya */}
+          <DosyaGrubu baslik="Renkli baskı">
+            <button
+              type="button"
+              disabled={!hazir || !!indirilen}
+              onClick={() => indir([{ ad: "Renkli 3MF", sec: RENKLI_3MF_SECICI, tur: "stl" }])}
+              title="Dilimleyici projesi: her renk kendi filament yuvasına atanmış, filament renkleri ayarlı"
+              className={`${DUGME} bg-foreground font-medium text-background hover:opacity-90`}
             >
-              Diğer biçimler
-              <ChevronDown className="h-3.5 w-3.5" aria-hidden />
-            </summary>
-            <div className="absolute left-0 top-full z-30 mt-1 flex min-w-56 flex-col rounded-lg bg-popover p-1 adjy-pixel-frame">
-              {digerleri.map((c) => (
+              <Layers className="h-4 w-4" aria-hidden />
+              Renkli 3MF
+            </button>
+            {renkler.length > 0 && (
+              <ul
+                className="flex flex-wrap items-center gap-1"
+                aria-label="Filament yuvaları"
+              >
+                {renkler.map((r) => (
+                  <li
+                    key={r.no}
+                    title={`Filament ${r.no}: ${r.ad} ${r.hex}`}
+                    className="adjy-pixel-box inline-flex h-9 items-center gap-1.5 bg-card px-2 font-mono text-[11px] tabular-nums"
+                  >
+                    <span
+                      className="h-3.5 w-3.5 rounded-full border border-foreground/30"
+                      style={{ backgroundColor: r.hex }}
+                      aria-hidden
+                    />
+                    {r.no} {r.ad}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {renkliPaket && (
+              <button
+                type="button"
+                disabled={!hazir || !!indirilen}
+                onClick={() => indir([renkliPaket])}
+                title="3MF + her renk ayrı STL + renk listesi"
+                className={`${DUGME} text-muted-foreground hover:bg-muted hover:text-foreground`}
+              >
+                <Download className="h-4 w-4" aria-hidden />
+                Renk STL&apos;leri
+              </button>
+            )}
+          </DosyaGrubu>
+
+          {stller.length > 0 && (
+            <DosyaGrubu baslik="Parçalar · STL">
+              {stller.map((c) => (
                 <button
                   key={c.sec}
                   type="button"
                   disabled={!hazir || !!indirilen}
                   onClick={() => indir([c])}
-                  className="rounded-md px-3 py-2 text-left text-sm hover:bg-muted disabled:opacity-40"
+                  className={`${DUGME} adjy-pixel-frame hover:bg-muted`}
                 >
+                  <Download className="h-4 w-4" aria-hidden />
+                  {c.ad.replace(/\s*\(?STL\)?$/i, "")}
+                </button>
+              ))}
+            </DosyaGrubu>
+          )}
+
+          {(belgeler.length > 0 || digerleri.length > 0) && (
+            <DosyaGrubu baslik="Belgeler">
+              {belgeler.map((c) => (
+                <button
+                  key={c.sec}
+                  type="button"
+                  disabled={!hazir || !!indirilen}
+                  onClick={() => indir([c])}
+                  className={`${DUGME} text-muted-foreground hover:bg-muted hover:text-foreground`}
+                >
+                  <FileText className="h-4 w-4" aria-hidden />
                   {c.ad}
                 </button>
               ))}
-            </div>
-          </details>
-        )}
+              {digerleri.length > 0 && (
+                <details className="relative">
+                  <summary
+                    className={`${DUGME} cursor-pointer list-none text-muted-foreground hover:bg-muted hover:text-foreground`}
+                  >
+                    Diğer biçimler
+                    <ChevronDown className="h-3.5 w-3.5" aria-hidden />
+                  </summary>
+                  <div className="absolute left-0 top-full z-30 mt-1 flex min-w-56 flex-col rounded-lg bg-popover p-1 adjy-pixel-frame">
+                    {digerleri.map((c) => (
+                      <button
+                        key={c.sec}
+                        type="button"
+                        disabled={!hazir || !!indirilen}
+                        onClick={() => indir([c])}
+                        className="rounded-md px-3 py-2 text-left text-sm hover:bg-muted disabled:opacity-40"
+                      >
+                        {c.ad}
+                      </button>
+                    ))}
+                  </div>
+                </details>
+              )}
+            </DosyaGrubu>
+          )}
 
-        {indirilen && (
-          <span className="ml-auto inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
-            {indirilen} hazırlanıyor
-          </span>
-        )}
-        {!indirilen && kayit?.tur === "tamam" && (
-          <span className="ml-auto inline-flex min-w-0 items-center gap-1.5 text-xs text-brand-lime">
-            <Check className="h-3.5 w-3.5 shrink-0" aria-hidden />
-            <span className="truncate">
-              {kayit.sonuc.dosyalar.length} dosya → {kayit.sonuc.yer}
+          {/* Hepsi tek seferde, sipariş klasörüne */}
+          <DosyaGrubu baslik="Hepsi" className="ml-auto">
+            <button
+              type="button"
+              disabled={!hazir || !!indirilen}
+              onClick={klasoreKaydet}
+              title="Renkli 3MF, parça STL'leri, belgeler ve sipariş bilgisi tek klasöre"
+              className={`${DUGME} adjy-pixel-frame font-medium hover:bg-muted`}
+            >
+              <FolderDown className="h-4 w-4" aria-hidden />
+              Klasöre kaydet
+            </button>
+          </DosyaGrubu>
+        </div>
+
+        <div className="mt-2 flex min-h-4 flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+          {indirilen ? (
+            <span className="inline-flex items-center gap-1.5">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+              {indirilen} hazırlanıyor
             </span>
-          </span>
-        )}
-        {!indirilen && kayit?.tur === "hata" && (
-          <span role="alert" className="ml-auto text-xs text-destructive">
-            {kayit.mesaj}
-          </span>
-        )}
+          ) : kayit?.tur === "tamam" ? (
+            <span className="inline-flex min-w-0 items-center gap-1.5 text-brand-lime">
+              <Check className="h-3.5 w-3.5 shrink-0" aria-hidden />
+              <span className="truncate">
+                {kayit.sonuc.dosyalar.length} dosya → {kayit.sonuc.yer}
+              </span>
+            </span>
+          ) : kayit?.tur === "hata" ? (
+            <span role="alert" className="text-destructive">
+              {kayit.mesaj}
+            </span>
+          ) : (
+            <span>
+              Renkli 3MF&apos;yi dilimleyicide proje olarak açın: parçalar filament
+              yuvalarına atanmış, renkler ayarlı gelir
+              {renkler.length > 1 ? ` (${renkler.length} filament)` : ""}. Makaraları
+              aynı sıraya takın.
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
