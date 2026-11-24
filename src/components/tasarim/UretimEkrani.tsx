@@ -21,7 +21,9 @@ import {
   FolderDown,
   Layers,
   Loader2,
+  Minus,
   Paperclip,
+  Plus,
 } from "lucide-react";
 import {
   aracUretimKaynagi,
@@ -115,14 +117,16 @@ function genislikDinle(geriCagir: () => void) {
 const DUGME =
   "inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm transition-colors disabled:opacity-40";
 
-/** İndirme şeridinde başlıklı düğme öbeği */
+/** İndirme şeridinde başlıklı düğme öbeği. tekSatir: alt satıra inmez, taşarsa yana kayar */
 function DosyaGrubu({
   baslik,
   className = "",
+  tekSatir = false,
   children,
 }: {
   baslik: string;
   className?: string;
+  tekSatir?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -130,9 +134,27 @@ function DosyaGrubu({
       <p className="mb-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
         {baslik}
       </p>
-      <div className="flex flex-wrap items-center gap-1.5">{children}</div>
+      <div
+        className={
+          tekSatir
+            ? "flex items-center gap-1.5 overflow-x-auto [scrollbar-width:none]"
+            : "flex flex-wrap items-center gap-1.5"
+        }
+      >
+        {children}
+      </div>
     </div>
   );
+}
+
+/** Tabla listesi tek satırda: "1: Siyah · 4 parça | 2: Kırmızı · 6 parça" */
+function tablaMetni(tablalar: UretimTablasi[]): string {
+  return tablalar
+    .map(
+      (t) =>
+        `${t.no}: ${t.renkler.map((r) => r.ad).join(" + ")} · ${t.parcalar.reduce((s, pc) => s + pc.adet, 0)} parça${t.tasiyor ? " (sığmıyor)" : ""}`
+    )
+    .join("  |  ");
 }
 
 export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = false }: Props) {
@@ -418,22 +440,25 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
         </div>
       </header>
 
-      {/* ---------- DOSYALAR ---------- */}
+      {/* ---------- DOSYALAR ----------
+          Şerit üç sabit satırdır; model kurulunca gelen renkler ya da
+          indirme sonrası yazan durum hiçbir düğmenin yerini değiştirmez:
+            1. üretim: adet · Üretim 3MF · filament yuvaları · Klasöre kaydet
+            2. tek tek dosyalar: parçalar ve belgeler
+            3. durum satırı (tek satır, sabit yükseklik) */}
       <div className="border-b-2 border-dashed border-foreground/25 bg-background px-4 py-3">
-        <div className="flex flex-wrap items-start gap-x-6 gap-y-3">
-          {/* Renkli baskı: dilimleyicide açılıp basılan tek dosya */}
-          <DosyaGrubu baslik="Renkli baskı">
-            <button
-              type="button"
-              disabled={!hazir || !!indirilen}
-              onClick={uretimIndir}
-              title="Dilimleyici projesi: parçalar baskı yönünde, renge göre ayrı tablalarda, adet kadar dizili"
-              className={`${DUGME} bg-foreground font-medium text-background hover:opacity-90`}
-            >
-              <Layers className="h-4 w-4" aria-hidden />
-              Üretim 3MF
-            </button>
-            <label className="adjy-pixel-box inline-flex h-9 items-center gap-1.5 bg-card px-2 font-mono text-[11px]">
+        <div className="flex flex-wrap items-end gap-x-4 gap-y-3">
+          <DosyaGrubu baslik="Adet">
+            <div className="adjy-pixel-frame inline-flex h-9 items-stretch overflow-hidden rounded-lg bg-card">
+              <button
+                type="button"
+                onClick={() => setUretimAdedi((n) => Math.max(1, n - 1))}
+                disabled={uretimAdedi <= 1}
+                aria-label="Adedi azalt"
+                className="inline-flex w-9 items-center justify-center hover:bg-muted disabled:opacity-40"
+              >
+                <Minus className="h-4 w-4" aria-hidden />
+              </button>
               <input
                 type="number"
                 min={1}
@@ -443,46 +468,77 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
                   setUretimAdedi(Math.min(60, Math.max(1, Math.round(Number(e.target.value) || 1))))
                 }
                 aria-label="Üretim adedi"
-                className="w-10 bg-transparent text-right tabular-nums outline-none"
+                className="w-12 border-x-2 border-dashed border-foreground/25 bg-transparent text-center text-base font-semibold tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
-              adet
-            </label>
-            {renkler.length > 0 && (
-              <ul
-                className="flex flex-wrap items-center gap-1"
-                aria-label="Filament yuvaları"
-              >
-                {renkler.map((r) => (
-                  <li
-                    key={r.no}
-                    title={`Filament ${r.no}: ${r.ad} ${r.hex}`}
-                    className="adjy-pixel-box inline-flex h-9 items-center gap-1.5 bg-card px-2 font-mono text-[11px] tabular-nums"
-                  >
-                    <span
-                      className="h-3.5 w-3.5 rounded-full border border-foreground/30"
-                      style={{ backgroundColor: r.hex }}
-                      aria-hidden
-                    />
-                    {r.no} {r.ad}
-                  </li>
-                ))}
-              </ul>
-            )}
-            {renkliPaket && (
               <button
                 type="button"
-                disabled={!hazir || !!indirilen}
-                onClick={() => indir([renkliPaket])}
-                title="Modelin ekrandaki (montajlı) duruşu: her renk ayrı STL + renk listesi"
-                className={`${DUGME} text-muted-foreground hover:bg-muted hover:text-foreground`}
+                onClick={() => setUretimAdedi((n) => Math.min(60, n + 1))}
+                disabled={uretimAdedi >= 60}
+                aria-label="Adedi artır"
+                className="inline-flex w-9 items-center justify-center hover:bg-muted disabled:opacity-40"
               >
-                <Download className="h-4 w-4" aria-hidden />
-                Renk STL&apos;leri
+                <Plus className="h-4 w-4" aria-hidden />
               </button>
+            </div>
+          </DosyaGrubu>
+
+          <DosyaGrubu baslik="Üretim">
+            <button
+              type="button"
+              disabled={!hazir || !!indirilen}
+              onClick={uretimIndir}
+              title="Dilimleyici projesi: parçalar baskı yönünde, renge göre ayrı tablalarda, adet kadar dizili"
+              className={`${DUGME} bg-foreground font-medium text-background hover:opacity-90`}
+            >
+              <Layers className="h-4 w-4" aria-hidden />
+              Üretim 3MF · {uretimAdedi} adet
+            </button>
+          </DosyaGrubu>
+
+          {/* Yeri hep ayrılmış: renkler gelince düğmeler kaymaz */}
+          <DosyaGrubu
+            baslik="Filament yuvaları"
+            className="order-last w-full sm:order-none sm:w-auto sm:flex-1"
+            tekSatir
+          >
+            {renkler.length > 0 ? (
+              renkler.map((r) => (
+                <span
+                  key={r.no}
+                  title={`Filament ${r.no}: ${r.ad} ${r.hex}`}
+                  className="adjy-pixel-box inline-flex h-9 shrink-0 items-center gap-1.5 bg-card px-2 font-mono text-[11px] tabular-nums"
+                >
+                  <span
+                    className="h-3.5 w-3.5 rounded-full border border-foreground/30"
+                    style={{ backgroundColor: r.hex }}
+                    aria-hidden
+                  />
+                  {r.no} {r.ad}
+                </span>
+              ))
+            ) : (
+              <span className="inline-flex h-9 items-center font-mono text-[11px] text-muted-foreground">
+                Model kurulunca listelenir
+              </span>
             )}
           </DosyaGrubu>
 
-          {stller.length > 0 && (
+          <DosyaGrubu baslik="Hepsi">
+            <button
+              type="button"
+              disabled={!hazir || !!indirilen}
+              onClick={klasoreKaydet}
+              title="Üretim projesi, parça STL'leri, belgeler ve sipariş bilgisi tek klasöre"
+              className={`${DUGME} adjy-pixel-frame font-medium hover:bg-muted`}
+            >
+              <FolderDown className="h-4 w-4" aria-hidden />
+              Klasöre kaydet
+            </button>
+          </DosyaGrubu>
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-end gap-x-6 gap-y-3">
+          {(stller.length > 0 || renkliPaket) && (
             <DosyaGrubu baslik="Parçalar · STL">
               {stller.map((c) => (
                 <button
@@ -496,6 +552,18 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
                   {c.ad.replace(/\s*\(?STL\)?$/i, "")}
                 </button>
               ))}
+              {renkliPaket && (
+                <button
+                  type="button"
+                  disabled={!hazir || !!indirilen}
+                  onClick={() => indir([renkliPaket])}
+                  title="Modelin ekrandaki (montajlı) duruşu: her renk ayrı STL + renk listesi"
+                  className={`${DUGME} text-muted-foreground hover:bg-muted hover:text-foreground`}
+                >
+                  <Download className="h-4 w-4" aria-hidden />
+                  Renk STL&apos;leri
+                </button>
+              )}
             </DosyaGrubu>
           )}
 
@@ -538,23 +606,10 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
               )}
             </DosyaGrubu>
           )}
-
-          {/* Hepsi tek seferde, sipariş klasörüne */}
-          <DosyaGrubu baslik="Hepsi" className="ml-auto">
-            <button
-              type="button"
-              disabled={!hazir || !!indirilen}
-              onClick={klasoreKaydet}
-              title="Üretim projesi, parça STL'leri, belgeler ve sipariş bilgisi tek klasöre"
-              className={`${DUGME} adjy-pixel-frame font-medium hover:bg-muted`}
-            >
-              <FolderDown className="h-4 w-4" aria-hidden />
-              Klasöre kaydet
-            </button>
-          </DosyaGrubu>
         </div>
 
-        <div className="mt-2 flex min-h-4 flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        {/* Durum: tek satır, sabit yükseklik; uzun metin kesilir (tamamı ipucunda) */}
+        <div className="mt-2 flex h-5 items-center overflow-hidden text-xs text-muted-foreground">
           {indirilen ? (
             <span className="inline-flex items-center gap-1.5">
               <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
@@ -568,30 +623,20 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
               </span>
             </span>
           ) : kayit?.tur === "hata" ? (
-            <span role="alert" className="text-destructive">
+            <span role="alert" className="truncate text-destructive">
               {kayit.mesaj}
             </span>
           ) : tablalar ? (
-            <span className="inline-flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
-              <span className="inline-flex items-center gap-1.5 text-brand-lime">
-                <Check className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                {tablalar.length} tabla
+            <span className="inline-flex min-w-0 items-center gap-1.5" title={tablaMetni(tablalar)}>
+              <Check className="h-3.5 w-3.5 shrink-0 text-brand-lime" aria-hidden />
+              <span className="truncate">
+                <span className="text-brand-lime">{tablalar.length} tabla</span> · {tablaMetni(tablalar)}
               </span>
-              {tablalar.slice(0, 8).map((t) => (
-                <span key={t.no} className={t.tasiyor ? "text-brand-amber" : undefined}>
-                  {t.no}: {t.renkler.map((r) => r.ad).join(" + ")} ·{" "}
-                  {t.parcalar.reduce((s, pc) => s + pc.adet, 0)} parça
-                  {t.tasiyor ? " (sığmıyor)" : ""}
-                </span>
-              ))}
-              {tablalar.length > 8 && <span>+{tablalar.length - 8} tabla (listesi dosyada)</span>}
             </span>
           ) : (
-            <span>
-              Üretim 3MF: parçalar baskı yönünde, tek renkliler rengine göre ayrı
-              tablada (filament değişmez), {uretimAdedi} adet dizili. Dilimleyicide proje
-              olarak açın, makaraları sıraya takın
-              {renkler.length > 1 ? ` (${renkler.length} filament)` : ""}.
+            <span className="truncate">
+              Üretim 3MF: parçalar baskı yönünde, tek renkliler rengine göre ayrı tablada
+              (filament değişmez), {uretimAdedi} adet dizili. Dilimleyicide proje olarak açın.
             </span>
           )}
         </div>
