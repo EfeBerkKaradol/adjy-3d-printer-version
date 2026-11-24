@@ -90,6 +90,34 @@
       .replace(/^-|-$/g, "");
   }
 
+  /**
+   * Ekranda parçaları ayırt etmek için kullanılan yakın tonlar (gövde koyu
+   * gri, kapak bir ton açık) aynı filamenttir. Ağırlığa göre sıralı renk
+   * listesinde her renk, kendinden ağır ve yeterince yakın ilk renge bağlanır.
+   * @param agirlikli [[hex, ağırlık], …]
+   * @returns Map hex → temsilci hex
+   */
+  function yakinRenkler(agirlikli) {
+    var sirali = agirlikli.slice().sort(function (a, b) { return b[1] - a[1]; });
+    var temsilci = new Map();
+    var secilen = [];
+    sirali.forEach(function (e) {
+      var h = e[0];
+      var r = parseInt(h.slice(1, 3), 16), g = parseInt(h.slice(3, 5), 16), b = parseInt(h.slice(5, 7), 16);
+      var bulunan = null;
+      for (var i = 0; i < secilen.length && !bulunan; i++) {
+        var q = secilen[i];
+        if (Math.hypot(q.r - r, q.g - g, q.b - b) <= 48) bulunan = q.h;
+      }
+      if (bulunan) temsilci.set(h, bulunan);
+      else {
+        secilen.push({ h: h, r: r, g: g, b: b });
+        temsilci.set(h, h);
+      }
+    });
+    return temsilci;
+  }
+
   // ---------- Geometri ----------
   /** Sahnedeki basılacak ağlar: [{ hex, u: [x, y, z, …] }] (mm, Z yukarı, sahnedeki yerinde) */
   function sahneAglari() {
@@ -170,9 +198,14 @@
   /** Renk → dünya koordinatlarında üçgen dizisi (mm, Z yukarı) */
   function renkGruplari() {
     var gruplar = new Map();
-    sahneAglari().forEach(function (a) {
-      if (!gruplar.has(a.hex)) gruplar.set(a.hex, []);
-      var h = gruplar.get(a.hex);
+    var aglar = sahneAglari();
+    var agirlik = new Map();
+    aglar.forEach(function (a) { agirlik.set(a.hex, (agirlik.get(a.hex) || 0) + a.u.length); });
+    var temsilci = yakinRenkler(Array.from(agirlik.entries()));
+    aglar.forEach(function (a) {
+      var hex = temsilci.get(a.hex) || a.hex;
+      if (!gruplar.has(hex)) gruplar.set(hex, []);
+      var h = gruplar.get(hex);
       for (var i = 0; i < a.u.length; i++) h.push(a.u[i]);
     });
 
@@ -547,10 +580,13 @@
   //     dosyalar aynı orijinde üst üste oturur: tek nesnenin renk parçaları)
   //   · renkler sahneden okunur: STL'deki her kabuk, sahnedeki eş kabukla
   //     (üçgen sayısı + hacim; dönmeden etkilenmez) eşlenir
-  //   · tek renkli nesneler rengine göre ayrı tablalara dizilir: o tablada
-  //     filament hiç değişmez, temizleme kulesi gerekmez
-  //   · çok renkli nesneler (kabartma yazılı levha gibi) kendi tablasında
-  //   · sipariş adedi kadar çoğaltılır, tablaya sığmayan sonraki tablaya geçer
+  //   · sipariş adedi kadar çoğaltılır
+  //   · hepsi tek tablaya sığıyorsa tek tabla: farklı renkte parçalar
+  //     aralıklı dizilip NESNE NESNE basılır (filament yalnız parçalar
+  //     arasında değişir; tek kelepçe 12 sa yerine 2,5 sa)
+  //   · sığmıyorsa tek renkli nesneler rengine göre ayrı tablalara dizilir:
+  //     o tablada filament hiç değişmez, temizleme kulesi gerekmez;
+  //     çok renkli nesneler (kabartma yazılı levha gibi) kendi tablasında
   var TABLA_PAYI = 6; // tabla kenarından ve nesneler arası boşluk (mm)
 
   function stlOku(buf) {
@@ -672,9 +708,16 @@
     var baskin = null, enBuyuk = -1;
     var toplam = new Map();
     dizin.forEach(function (l) {
+      l.forEach(function (x) { toplam.set(x.hex, (toplam.get(x.hex) || 0) + x.hacim + 1e-6); });
+    });
+    // Yakın tonlar tek filament
+    var temsilci = yakinRenkler(Array.from(toplam.entries()));
+    var birlesik = new Map();
+    dizin.forEach(function (l) {
       l.forEach(function (x) {
-        var t = (toplam.get(x.hex) || 0) + x.hacim + 1e-6;
-        toplam.set(x.hex, t);
+        x.hex = temsilci.get(x.hex) || x.hex;
+        var t = (birlesik.get(x.hex) || 0) + x.hacim + 1e-6;
+        birlesik.set(x.hex, t);
         if (t > enBuyuk) { enBuyuk = t; baskin = x.hex; }
       });
     });
@@ -708,9 +751,11 @@
   /**
    * @param dosyalar [{ ad, u: Float32Array, nesne? }]  aracın parça STL'leri
    * @param adet     sipariş adedi
+   * @param duzen    "oto": tek tablaya sığıyor ve filament değişimi makulse tek tabla, değilse
+   *                 renge göre ayrı (varsayılan) · "tek": sığıyorsa hep tek tabla · "ayri": hep ayrı
    * @returns { nesneler, renkler, tablalar, eslesmeyen }
    */
-  function uretimPlani(dosyalar, adet) {
+  function uretimPlani(dosyalar, adet, duzen) {
     var bul = renkBulucu();
     var tabla = PROFIL && PROFIL.tabla ? PROFIL.tabla : [250, 250];
     var hacimler = new Map();
@@ -792,6 +837,15 @@
           u[i + 2] -= z0;
         }
       });
+      parcalar.forEach(function (pc) {
+        var u = pc.u, a = Infinity, b = -Infinity;
+        for (var i = 2; i < u.length; i += 3) {
+          if (u[i] < a) a = u[i];
+          if (u[i] > b) b = u[i];
+        }
+        pc.z0 = a;
+        pc.z1 = b;
+      });
       parcalar.sort(function (a, b) { return a.no - b.no; });
       nesneler.push({
         ad: n.ad,
@@ -803,45 +857,148 @@
       });
     });
 
-    // 3) Tablalar: renk takımına göre öbekle, raf raf diz
-    var obekler = new Map();
-    nesneler.forEach(function (n, ni) {
-      var l = obekler.get(n.anahtar);
-      if (!l) obekler.set(n.anahtar, (l = []));
-      for (var k = 0; k < adet; k++) l.push(ni);
-    });
-    var tablalar = [];
-    Array.from(obekler.keys())
-      .sort(function (a, b) { return a.split("+").length - b.split("+").length || parseInt(a, 10) - parseInt(b, 10); })
-      .forEach(function (anahtar) {
-        var cokRenk = anahtar.indexOf("+") >= 0;
-        var W = tabla[0] - 2 * TABLA_PAYI;
-        // Çok renkli tablada temizleme kulesine arkada yer bırakılır
-        var D = tabla[1] - 2 * TABLA_PAYI - (cokRenk ? 45 : 0);
-        var liste = obekler.get(anahtar).slice().sort(function (a, b) { return nesneler[b].d - nesneler[a].d; });
-        var simdi = null, x = 0, y = 0, raf = 0;
-        function yeniTabla() {
-          simdi = { anahtar: anahtar, renkNo: anahtar.split("+").map(Number), ogeler: [] };
-          tablalar.push(simdi);
-          x = 0; y = 0; raf = 0;
-        }
-        liste.forEach(function (ni) {
-          var n = nesneler[ni];
-          if (!simdi) yeniTabla();
-          if (x > 0 && x + n.w > W) { x = 0; y += raf + TABLA_PAYI; raf = 0; }
-          if (y > 0 && y + n.d > D) { yeniTabla(); }
-          var buyuk = n.w > W || n.d > D;
-          simdi.ogeler.push({
-            nesne: ni,
-            x: buyuk ? tabla[0] / 2 : TABLA_PAYI + x + n.w / 2,
-            y: buyuk ? tabla[1] / 2 : TABLA_PAYI + y + n.d / 2,
-            tasiyor: n.w > tabla[0] || n.d > tabla[1]
-          });
-          x += n.w + TABLA_PAYI;
-          raf = Math.max(raf, n.d);
+    // 3) Tablalar
+    /** Nesneleri raf raf dizer; sığmayan sonraki tablaya geçer. kule: temizleme kulesine yer bırak */
+    function diz(liste, kule) {
+      var W = tabla[0] - 2 * TABLA_PAYI;
+      var D = tabla[1] - 2 * TABLA_PAYI - (kule ? 45 : 0);
+      var sirali = liste.slice().sort(function (a, b) { return nesneler[b].d - nesneler[a].d; });
+      var cikti = [], simdi = null, x = 0, y = 0, raf = 0;
+      function yeniTabla() {
+        simdi = { ogeler: [] };
+        cikti.push(simdi);
+        x = 0; y = 0; raf = 0;
+      }
+      sirali.forEach(function (ni) {
+        var n = nesneler[ni];
+        if (!simdi) yeniTabla();
+        if (x > 0 && x + n.w > W) { x = 0; y += raf + TABLA_PAYI; raf = 0; }
+        if (y > 0 && y + n.d > D) { yeniTabla(); }
+        var buyuk = n.w > W || n.d > D;
+        simdi.ogeler.push({
+          nesne: ni,
+          x: buyuk ? tabla[0] / 2 : TABLA_PAYI + x + n.w / 2,
+          y: buyuk ? tabla[1] / 2 : TABLA_PAYI + y + n.d / 2,
+          tasiyor: n.w > tabla[0] || n.d > tabla[1]
+        });
+        x += n.w + TABLA_PAYI;
+        raf = Math.max(raf, n.d);
+      });
+      return cikti;
+    }
+    function renkNolari(t) {
+      var g = new Set();
+      t.ogeler.forEach(function (o) { nesneler[o.nesne].parcalar.forEach(function (pc) { g.add(pc.no); }); });
+      return Array.from(g).sort(function (a, b) { return a - b; });
+    }
+
+    /** Katman katman baskıda tahmini filament değişimi: her 0,2 mm'de o yükseklikteki renk sayısı − 1 */
+    function katmanDegisimi(nesneNolari) {
+      var araliklar = [], tepe = 0;
+      nesneNolari.forEach(function (ni) {
+        nesneler[ni].parcalar.forEach(function (pc) {
+          araliklar.push(pc);
+          if (pc.z1 > tepe) tepe = pc.z1;
         });
       });
-    return { nesneler: nesneler, renkler: renkler, tablalar: tablalar, eslesmeyen: eslesmeyen, tabla: tabla, adet: adet, kaynaklar: kaynaklar };
+      var degisim = 0;
+      for (var z = 0.1; z < tepe; z += 0.2) {
+        var var_ = new Set();
+        for (var i = 0; i < araliklar.length; i++) if (araliklar[i].z0 <= z && z < araliklar[i].z1) var_.add(araliklar[i].no);
+        if (var_.size > 1) degisim += var_.size - 1;
+      }
+      return degisim;
+    }
+
+    /**
+     * Nesne nesne baskı dizilimi: her nesne baştan sona basılır, filament
+     * yalnız nesneler arasında değişir. Dilimleyicinin çarpışma kuralları:
+     *   · nesneler arası boşluk ≥ kafa yarıçapı (extruder_clearance_radius)
+     *   · köprü çubuğundan (height_to_rod) yüksek nesne, Y'de başka hiçbir
+     *     nesneyle aynı hizada olamaz: kendi sırasında tek başına durur
+     *   · kapaktan (height_to_lid) yüksek nesne basılamaz
+     * Hepsi tek tablaya sığmazsa null.
+     */
+    function dizNesne(liste) {
+      var ay = (PROFIL && PROFIL.ayar) || {};
+      var G = (parseFloat(ay.extruder_clearance_radius) || 60) + 3;
+      var cubuk = (parseFloat(ay.extruder_clearance_height_to_rod) || 40) - 2;
+      var kapak = (parseFloat(ay.extruder_clearance_height_to_lid) || 240) - 5;
+      var W = tabla[0] - 2 * TABLA_PAYI, D = tabla[1] - 2 * TABLA_PAYI;
+      var sira = function (a, b) {
+        return nesneler[a].anahtar < nesneler[b].anahtar ? -1 : nesneler[a].anahtar > nesneler[b].anahtar ? 1 : nesneler[b].d - nesneler[a].d;
+      };
+      var kisa = liste.filter(function (ni) { return nesneler[ni].h <= cubuk; }).sort(sira);
+      var uzun = liste.filter(function (ni) { return nesneler[ni].h > cubuk; }).sort(sira);
+      var ogeler = [], x = 0, y = 0, raf = 0, sigmadi = false;
+      function koy(ni) {
+        var n = nesneler[ni];
+        if (n.h > kapak || n.w > W || n.d > D || y + n.d > D) { sigmadi = true; return; }
+        ogeler.push({ nesne: ni, x: TABLA_PAYI + x + n.w / 2, y: TABLA_PAYI + y + n.d / 2, tasiyor: false });
+        x += n.w + G;
+        raf = Math.max(raf, n.d);
+      }
+      kisa.forEach(function (ni) {
+        if (x > 0 && x + nesneler[ni].w > W) { x = 0; y += raf + G; raf = 0; }
+        koy(ni);
+      });
+      uzun.forEach(function (ni) {
+        if (ogeler.length) { x = 0; y += raf + G; raf = 0; }
+        koy(ni);
+      });
+      if (sigmadi) return null;
+      // Değişim: her nesnenin kendi içindeki + nesneler arası renk geçişleri
+      var degisim = 0, onceki = null;
+      kisa.concat(uzun).forEach(function (ni) {
+        degisim += katmanDegisimi([ni]);
+        if (onceki !== null && nesneler[ni].anahtar !== onceki) degisim += 1;
+        onceki = nesneler[ni].anahtar;
+      });
+      return { ogeler: ogeler, nesneNesne: true, degisim: degisim };
+    }
+
+    var tablalar = [];
+    var hepsi = [];
+    nesneler.forEach(function (n, ni) { for (var k = 0; k < adet; k++) hepsi.push(ni); });
+
+    // Tek tabla adayları: katman katman (sıkı dizilim) ve nesne nesne (aralıklı)
+    var tekKatman = null, tekNesne = null;
+    if (duzen !== "ayri") {
+      var k1 = diz(hepsi, renkler.length > 1);
+      if (k1.length === 1 && !k1[0].ogeler.some(function (o) { return o.tasiyor; })) {
+        tekKatman = k1[0];
+        tekKatman.degisim = katmanDegisimi(hepsi);
+        // Nesne nesne baskı yalnız belirgin kazanç varsa (aralıklı dizilim yer yer)
+        var k2 = hepsi.length > 1 && tekKatman.degisim > 30 ? dizNesne(hepsi) : null;
+        if (k2 && k2.degisim + 30 <= tekKatman.degisim) tekNesne = k2;
+      }
+    }
+    // "oto": tek tabla, filament değişimi makul kalıyorsa; yoksa renge göre ayrı
+    // "tek": sığıyorsa her durumda tek tabla · "ayri": her durumda renge göre
+    var EN_COK_DEGISIM = 40;
+    if (tekNesne) tablalar = [tekNesne];
+    else if (tekKatman && (duzen === "tek" || tekKatman.degisim <= EN_COK_DEGISIM)) tablalar = [tekKatman];
+    else {
+      // Renk takımına göre öbekle: tek renkli tablada filament hiç değişmez
+      var obekler = new Map();
+      hepsi.forEach(function (ni) {
+        var l = obekler.get(nesneler[ni].anahtar);
+        if (!l) obekler.set(nesneler[ni].anahtar, (l = []));
+        l.push(ni);
+      });
+      Array.from(obekler.keys())
+        .sort(function (a, b) { return a.split("+").length - b.split("+").length || parseInt(a, 10) - parseInt(b, 10); })
+        .forEach(function (anahtar) {
+          diz(obekler.get(anahtar), anahtar.indexOf("+") >= 0).forEach(function (t) {
+            t.degisim = katmanDegisimi(t.ogeler.map(function (o) { return o.nesne; }));
+            tablalar.push(t);
+          });
+        });
+    }
+    tablalar.forEach(function (t) { t.renkNo = renkNolari(t); });
+    // Tek tablaya sığdığı hâlde ayrılanlar için: tek tablada kaç değişim olurdu
+    var tekTablaDegisimi = tekKatman && tablalar.length > 1 ? tekKatman.degisim : null;
+    return { nesneler: nesneler, renkler: renkler, tablalar: tablalar, eslesmeyen: eslesmeyen, tabla: tabla, adet: adet, kaynaklar: kaynaklar, tekTablaDegisimi: tekTablaDegisimi };
   }
 
   function agXml(u) {
@@ -924,7 +1081,10 @@
       });
       tablaXml.push('  <plate>\n    <metadata key="plater_id" value="' + (ti + 1) + '"/>\n' +
         '    <metadata key="plater_name" value=""/>\n' +
-        '    <metadata key="locked" value="false"/>\n' + ornekler.join("") + "  </plate>\n");
+        '    <metadata key="locked" value="false"/>\n' +
+        // Nesne nesne baskı: her parça baştan sona, filament yalnız parçalar arasında değişir
+        (t.nesneNesne ? '    <metadata key="print_sequence" value="by object"/>\n' : "") +
+        ornekler.join("") + "  </plate>\n");
     });
     model.push(" </resources>\n <build>\n" + yapi.join("") + " </build>\n</model>\n");
     ayar.push(tablaXml.join("") + "</config>\n");
@@ -963,7 +1123,9 @@
         no: ti + 1,
         renkler: t.renkNo.map(function (no) { return plan.renkler[no - 1]; }),
         parcalar: Array.from(say.entries()).map(function (e) { return { ad: e[0], adet: e[1] }; }),
-        tasiyor: t.ogeler.some(function (o) { return o.tasiyor; })
+        tasiyor: t.ogeler.some(function (o) { return o.tasiyor; }),
+        degisim: t.degisim || 0,
+        nesneNesne: !!t.nesneNesne
       };
     });
   }
@@ -971,7 +1133,7 @@
   /**
    * Aracın parça STL'lerinden üretim projesi.
    * @param kaynak [{ ad, blob, nesne? }]
-   * @param secenek { adet }
+   * @param secenek { adet, duzen: "oto" | "tek" | "ayri" }
    * @returns Promise<{ dosyalar: [{ ad, blob }], ozet, renkler, eslesmeyen }>
    */
   function uretimPaketi(kaynak, secenek) {
@@ -985,14 +1147,16 @@
       .then(function (dosyalar) {
         dosyalar = dosyalar.filter(function (d) { return d.u.length >= 9; });
         if (!dosyalar.length) throw new Error("Araç basılacak parça üretmedi");
-        var plan = uretimPlani(dosyalar, adet);
+        var duzen = secenek && (secenek.duzen === "ayri" || secenek.duzen === "tek") ? secenek.duzen : "oto";
+        var plan = uretimPlani(dosyalar, adet, duzen);
         var a = adlar();
         var ozet = planOzeti(plan);
         var satirlar = [
           "ÜRETİM PROJESİ — " + a.nesneAdi + " × " + adet + " adet",
-          "Parçalar baskı yönünde ve tablaya yatık; tek renkli parçalar rengine göre ayrı tablada",
-          "(o tablada filament değişmez). Çok renkli parçalar kendi tablasında, yalnız renk",
-          "değişen katmanlarda filament değiştirir.",
+          "Parçalar baskı yönünde ve tablaya yatık. Hepsi tek tablaya sığıyorsa tek tablada:",
+          "farklı renkte parçalar aralıklı dizilip NESNE NESNE basılır (filament yalnız parçalar",
+          "arasında değişir). Sığmıyorsa tek renkli parçalar rengine göre ayrı tablada dizilir:",
+          "o tablada filament hiç değişmez.",
           "",
           "Filament yuvaları:"
         ];
@@ -1001,6 +1165,7 @@
         ozet.forEach(function (t) {
           satirlar.push("  Tabla " + t.no + " — " + t.renkler.map(function (r) { return r.ad; }).join(" + ") + ": " +
             t.parcalar.map(function (pc) { return pc.adet + " × " + pc.ad; }).join(", ") +
+            (t.degisim ? "  [≈ " + t.degisim + " filament değişimi" + (t.nesneNesne ? ", nesne nesne baskı: parçaların yerini değiştirmeyin" : "") + "]" : "  [filament değişmez]") +
             (t.tasiyor ? "  (!) tablaya sığmıyor: elle bölün ya da büyük makinede basın" : ""));
         });
         if (plan.eslesmeyen) satirlar.push("", "(!) " + plan.eslesmeyen + " parçanın rengi sahneden okunamadı; en çok kullanılan renge atandı. Dilimleyicide kontrol edin.");
@@ -1025,6 +1190,7 @@
           ozet: ozet,
           renkler: plan.renkler,
           eslesmeyen: plan.eslesmeyen,
+          tekTablaDegisimi: plan.tekTablaDegisimi,
           kaynaklar: plan.kaynaklar,
           nesneler: plan.nesneler.map(function (n) {
             return { ad: n.ad, w: n.w, d: n.d, h: n.h, renkNo: n.parcalar.map(function (pc) { return pc.no; }) };

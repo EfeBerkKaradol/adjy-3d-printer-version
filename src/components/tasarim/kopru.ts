@@ -48,7 +48,7 @@ export interface AracArayuzu {
    */
   uretimProjesi?: (
     kaynak: (AracDosyasi & { nesne?: string })[],
-    secenek: { adet: number }
+    secenek: { adet: number; duzen?: TablaDuzeni }
   ) => Promise<UretimSonucu>;
   /** Modelin basılacak renkleri (atölye, renkli.js) */
   renkListesi?: () => AracRengi[];
@@ -82,6 +82,15 @@ export interface AracRengi {
   ad: string;
 }
 
+/**
+ * Üretim projesinin tabla düzeni.
+ *   oto  → tek tablaya sığıyor ve filament değişimi makul kalıyorsa tek tabla
+ *          (farklı renkte parçalar nesne nesne basılır); değilse renge göre ayrı
+ *   tek  → sığıyorsa her durumda tek tabla
+ *   ayri → tek renkli parçalar her durumda rengine göre ayrı tablada
+ */
+export type TablaDuzeni = "oto" | "tek" | "ayri";
+
 /** Üretim projesinin bir tablası: hangi renk(ler), hangi parçadan kaç tane */
 export interface UretimTablasi {
   no: number;
@@ -89,6 +98,10 @@ export interface UretimTablasi {
   parcalar: { ad: string; adet: number }[];
   /** Parça tablaya sığmıyor: elle bölünmeli ya da büyük makinede basılmalı */
   tasiyor: boolean;
+  /** Tahmini filament değişimi (0: tabla tek renk) */
+  degisim: number;
+  /** Tabla nesne nesne basılır: filament yalnız parçalar arasında değişir */
+  nesneNesne: boolean;
 }
 
 export interface UretimSonucu {
@@ -97,6 +110,8 @@ export interface UretimSonucu {
   renkler: AracRengi[];
   /** Rengi sahneden okunamayan parça sayısı */
   eslesmeyen: number;
+  /** Parçalar tek tablaya sığdığı hâlde ayrıldıysa: tek tablada kaç değişim olurdu */
+  tekTablaDegisimi: number | null;
 }
 
 /**

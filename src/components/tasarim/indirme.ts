@@ -10,7 +10,7 @@
 import { RENKLI_PAKET_SECICI, type TasarimAraci } from "@/lib/tasarim/catalog";
 import type { TasarimDosyasi, TasarimSecimi } from "@/lib/tasarim/order";
 import type { KaydedilecekDosya } from "@/lib/tasarim/kaydet";
-import type { AracArayuzu, AracDosyasi, UretimSonucu } from "./kopru";
+import type { AracArayuzu, AracDosyasi, TablaDuzeni, UretimSonucu } from "./kopru";
 
 export interface IndirilecekSiparis {
   id: string;
@@ -148,19 +148,21 @@ export async function parcaDosyalari(
 }
 
 /**
- * Üretim projesi: parçalar baskı yönünde, tek renkliler rengine göre ayrı
- * tablada (o tablada filament değişmez), sipariş adedi kadar dizili.
+ * Üretim projesi: parçalar baskı yönünde, sipariş adedi kadar dizili.
+ * Tek tablaya sığıyorsa tek tabla (farklı renkler nesne nesne basılır);
+ * sığmıyorsa tek renkliler rengine göre ayrı tablada (filament değişmez).
  * Araç STL vermediyse (yalnızca ZIP ya da hiç) null.
  */
 export async function uretimProjesi(
   arayuz: AracArayuzu,
   parcalar: ParcaDosyasi[],
-  adet: number
+  adet: number,
+  duzen: TablaDuzeni = "oto"
 ): Promise<UretimSonucu | null> {
   const stller = parcalar.filter((d) => /\.stl$/i.test(d.ad));
   if (!arayuz.uretimProjesi || stller.length === 0) return null;
   try {
-    return await arayuz.uretimProjesi(stller, { adet });
+    return await arayuz.uretimProjesi(stller, { adet, duzen });
   } catch {
     return null;
   }
@@ -175,13 +177,14 @@ export async function uretimDosyalari(
   arayuz: AracArayuzu,
   arac: TasarimAraci,
   siparis: IndirilecekSiparis,
-  kalem: IndirilecekKalem
+  kalem: IndirilecekKalem,
+  duzen: TablaDuzeni = "oto"
 ): Promise<KaydedilecekDosya[]> {
   const parcalar = await parcaDosyalari(arayuz, arac);
   const dosyalar: KaydedilecekDosya[] = parcalar.map((d) => ({ ad: d.ad, blob: d.blob }));
 
   // Basılacak dosya: üretim projesi (klasörde en üstte dursun diye adı öne alınır)
-  const proje = await uretimProjesi(arayuz, parcalar, kalem.adet);
+  const proje = await uretimProjesi(arayuz, parcalar, kalem.adet, duzen);
   if (proje) dosyalar.unshift(...proje.dosyalar);
 
   // Renk STL'leri (montajlı duruş) ve belgeler

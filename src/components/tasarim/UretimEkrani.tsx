@@ -44,6 +44,8 @@ import {
   aracRenkleri,
   type AracPaketi,
   type AracRengi,
+  type TablaDuzeni,
+  type UretimSonucu,
   type UretimTablasi,
 } from "./kopru";
 import {
@@ -147,12 +149,14 @@ function DosyaGrubu({
   );
 }
 
-/** Tabla listesi tek satırda: "1: Siyah · 4 parça | 2: Kırmızı · 6 parça" */
+/** Tabla listesi tek satırda: "1: Siyah · 4 parça · filament değişmez | 2: …" */
 function tablaMetni(tablalar: UretimTablasi[]): string {
   return tablalar
     .map(
       (t) =>
-        `${t.no}: ${t.renkler.map((r) => r.ad).join(" + ")} · ${t.parcalar.reduce((s, pc) => s + pc.adet, 0)} parça${t.tasiyor ? " (sığmıyor)" : ""}`
+        `${t.no}: ${t.renkler.map((r) => r.ad).join(" + ")} · ${t.parcalar.reduce((s, pc) => s + pc.adet, 0)} parça · ${
+          t.degisim > 0 ? `≈ ${t.degisim} filament değişimi${t.nesneNesne ? " (nesne nesne)" : ""}` : "filament değişmez"
+        }${t.tasiyor ? " (sığmıyor)" : ""}`
     )
     .join("  |  ");
 }
@@ -188,7 +192,9 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
   // Üretim projesi kaç adet için kurulacak: siparişte kalemin adedi,
   // atölye kipinde elle. Son kurulan projenin tabla listesi altta yazar.
   const [uretimAdedi, setUretimAdedi] = useState(Math.max(1, siparisKalemi.adet));
-  const [tablalar, setTablalar] = useState<UretimTablasi[] | null>(null);
+  const [duzen, setDuzen] = useState<TablaDuzeni>("oto");
+  const [proje, setProje] = useState<UretimSonucu | null>(null);
+  const tablalar: UretimTablasi[] | null = proje?.ozet ?? null;
   const yuklendiRef = useRef(false);
   // Modelin renkleri = 3MF'teki filament yuvaları. Model her
   // değiştiğinde (atölye kipinde ayar oynanınca) yeniden okunur;
@@ -302,14 +308,14 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
     const arayuz = aracArayuzu(cerceveRef.current);
     if (!arayuz) return;
     setKayit(null);
-    setTablalar(null);
+    setProje(null);
     setIndirilen("Üretim projesi");
     const parcalar = await parcaDosyalari(arayuz, arac);
-    const proje = await uretimProjesi(arayuz, parcalar, uretimAdedi);
-    if (!proje) {
+    const yeni = await uretimProjesi(arayuz, parcalar, uretimAdedi, duzen);
+    if (!yeni) {
       setKayit({ tur: "hata", mesaj: "Araç parça STL'si vermedi; parçaları tek tek indirin" });
     } else {
-      for (const d of proje.dosyalar) {
+      for (const d of yeni.dosyalar) {
         const a = document.createElement("a");
         a.href = URL.createObjectURL(d.blob);
         a.download = d.ad;
@@ -321,11 +327,11 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
         }, 4000);
         await new Promise((r) => setTimeout(r, 500));
       }
-      setTablalar(proje.ozet);
-      setRenkler(proje.renkler);
+      setProje(yeni);
+      setRenkler(yeni.renkler);
     }
     setIndirilen(null);
-  }, [arac, uretimAdedi]);
+  }, [arac, uretimAdedi, duzen]);
 
   // Bütün üretim dosyaları tek seferde, "Müşteri - Sipariş No"
   // klasörüne. Klasör penceresi yalnızca tıklamanın hemen ardından
@@ -338,10 +344,13 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
     setKayit(null);
     setIndirilen("Üretim dosyaları");
     try {
-      const dosyalar = await uretimDosyalari(arayuz, arac, siparis, {
-        ...kalem,
-        adet: uretimAdedi,
-      });
+      const dosyalar = await uretimDosyalari(
+        arayuz,
+        arac,
+        siparis,
+        { ...kalem, adet: uretimAdedi },
+        duzen
+      );
       if (!stlVarMi(dosyalar)) throw new Error("Araç STL üretmedi");
       const sonuc = await klasoreYaz(
         hedef,
@@ -357,7 +366,7 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
       });
     }
     setIndirilen(null);
-  }, [arac, kalem, siparis, uretimAdedi]);
+  }, [arac, kalem, siparis, uretimAdedi, duzen]);
 
   const kopyala = useCallback(async () => {
     const baslik = [
@@ -480,6 +489,20 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
                 <Plus className="h-4 w-4" aria-hidden />
               </button>
             </div>
+          </DosyaGrubu>
+
+          <DosyaGrubu baslik="Tabla düzeni">
+            <select
+              value={duzen}
+              onChange={(e) => setDuzen(e.target.value as TablaDuzeni)}
+              aria-label="Tabla düzeni"
+              title="Otomatik: tek tablaya sığıyor ve filament değişimi az kalıyorsa tek tabla; değilse renge göre ayrı tablalar"
+              className="adjy-pixel-frame h-9 rounded-lg bg-card px-2 text-sm outline-none"
+            >
+              <option value="oto">Otomatik</option>
+              <option value="tek">Tek tabla</option>
+              <option value="ayri">Renge göre ayrı</option>
+            </select>
           </DosyaGrubu>
 
           <DosyaGrubu baslik="Üretim">
@@ -631,12 +654,14 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
               <Check className="h-3.5 w-3.5 shrink-0 text-brand-lime" aria-hidden />
               <span className="truncate">
                 <span className="text-brand-lime">{tablalar.length} tabla</span> · {tablaMetni(tablalar)}
+                {proje?.tekTablaDegisimi != null &&
+                  ` · tek tablada ≈ ${proje.tekTablaDegisimi} filament değişimi olurdu`}
               </span>
             </span>
           ) : (
             <span className="truncate">
-              Üretim 3MF: parçalar baskı yönünde, tek renkliler rengine göre ayrı tablada
-              (filament değişmez), {uretimAdedi} adet dizili. Dilimleyicide proje olarak açın.
+              Üretim 3MF: parçalar baskı yönünde, {uretimAdedi} adet dizili. Tek tablaya sığıyorsa
+              tek tabla; sığmıyorsa renge göre ayrı tablalar (filament değişmez).
             </span>
           )}
         </div>

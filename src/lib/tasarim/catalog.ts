@@ -101,10 +101,12 @@ export const TASARIM_KATEGORISI = {
  * kipinde, her araçta).
  *
  *   üretim projesi → basılan dosya. Aracın baskı yönündeki parça
- *           STL'lerinden kurulur (aşağıdaki "stl" çıktıları): tek renkli
+ *           STL'lerinden kurulur (aşağıdaki "stl" çıktıları), sipariş
+ *           adedi kadar dizilir. Tek tablaya sığıyorsa tek tabla (farklı
+ *           renkte parçalar nesne nesne basılır); sığmıyorsa tek renkli
  *           parçalar rengine göre ayrı tablada, çok renkli nesneler
- *           ("nesne" adı aynı olan STL'ler) kendi tablasında, sipariş
- *           adedi kadar dizili. Filament renkleri ve yazıcı profili içinde.
+ *           ("nesne" adı aynı olan STL'ler) kendi tablasında. Filament
+ *           renkleri ve yazıcı profili içinde.
  *   paket → modelin ekrandaki (montajlı) duruşu: renk başına STL + renk
  *           listesi. Bu duruş basılmaz; renkleri görmek içindir.
  */
