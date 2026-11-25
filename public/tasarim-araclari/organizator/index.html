@@ -394,6 +394,7 @@ const fmtMin = m => { m = Math.round(m); const h = Math.floor(m / 60); return h 
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const BEDS = {
+  S1:   { n: 'Anycubic Kobra S1 — 250×250', w: 250, h: 250 },
   A1:   { n: 'Bambu Lab A1 / X1C / P1S — 256×256', w: 256, h: 256 },
   MK4:  { n: 'Prusa MK4S — 250×210', w: 250, h: 210 },
   E3:   { n: 'Creality Ender-3 V3 — 220×220', w: 220, h: 220 },
@@ -402,10 +403,10 @@ const BEDS = {
 
 /* ------------------------------ state ------------------------------ */
 const P = {
-  sys: 1, U: 42, maxPlate: 252, strategy: 'Dengeli_Bolme',
+  sys: 1, U: 42, maxPlate: 210, strategy: 'Dengeli_Bolme',
   W: 594, D: 482, H: 42, tol: 0.20, explode: 0,
   WW: 770, WH: 640, BD: 70, T: 6.0, dd: 5, wtol: 0.20, wexplode: 0,
-  bed: 'A1'
+  bed: 'S1'
 };
 const ST = {
   mode: 'product', tool: 'inspect', ctx: true, cam: 'persp',

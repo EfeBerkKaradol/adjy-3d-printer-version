@@ -4,6 +4,8 @@
 
   window.ADJY_ARAC = {
     id: "foto-kutu",
+    // Dilimleme sınıfları (bkz. ../_adjy/renkli.js)
+    baski: [{ ad: "^Kapak$", sinif: "arkaLevha" }],
     ad: "Fotoğraflı Hediye Kutusu",
     yerlesim: { kap: ".yb-izgara", panel: ".yb-panel", sahne: ".yb-sahne" },
 

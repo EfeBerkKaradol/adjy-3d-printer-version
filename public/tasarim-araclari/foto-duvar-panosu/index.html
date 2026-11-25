@@ -137,14 +137,16 @@
         <div class="param-row" id="fp-asma-satir">
           <label class="yb-etiket" for="fp-asma">Duruş</label>
           <select id="fp-asma" class="yb-gizli-secim">
-            <option value="bant" selected>Duvar (bant)</option>
+            <option value="civi" selected>Duvar (çivi)</option>
+            <option value="bant">Duvar (bant)</option>
             <option value="ayak">Masa ayağı</option>
           </select>
-          <div class="yb-seg" data-secim="fp-asma">
+          <div class="yb-seg yb-seg-coklu" data-secim="fp-asma">
+            <button type="button" data-v="civi">Duvar (çivi)</button>
             <button type="button" data-v="bant">Duvar (bant)</button>
             <button type="button" data-v="ayak">Masa ayağı</button>
           </div>
-          <p class="yb-not">Pano ince ve hafiftir: çift taraflı bantla, delik açmadan duvara yapışır.</p>
+          <p class="yb-not">Çivi: arkadaki kasnak panoyu düz tutar ve çentiğiyle çiviye asılır; pano duvarın biraz önünde durur. Bant: arkası düz, delik açmadan yapışır.</p>
         </div>
       </section>
 

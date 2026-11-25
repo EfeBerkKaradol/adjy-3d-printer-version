@@ -3,7 +3,10 @@
 
    Omuzlu kutu: kapak dıştan gövdeyle aynı hizada kapanır.
      gövde  → taban + dış duvar (omuza kadar) + ince boyun; isteğe bağlı
-              iç bölmeler. Tabanı üstüne, desteksiz basılır.
+              iç bölmeler. Tabanı üstüne, desteksiz basılır. Duvar düz ya da
+              yivli: yivler duvara 0,8 mm gömülüdür (dış ölçü ve kapak hizası
+              değişmez), altta ve omuzun altında düz bir kuşak kalır. Taban
+              kenarı iki basamak pahlıdır: ilk katman taşması kenarı bozmaz.
      kapak  → fotoğraflı üst levha (2–4 renk, çevresinde kenarlık) + boyna
               geçen etek. Fotoğraf yüzü tablaya basılır: renkler yalnız ilk
               katmanlarda değişir, etek yukarı doğru yükselir (desteksiz).
@@ -34,6 +37,7 @@ function oku() {
     W, D, H,
     kose: clamp(sayi("fk-kose", 10), 4, Math.min(20, Math.min(W, D) / 2 - 6)),
     bolme: el("fk-bolme").value,
+    doku: el("fk-doku").value,
     kenarlik: clamp(sayi("fk-kenarlik", 4), 2, 8),
     renkKapak: Math.round(clamp(sayi("fk-renk-kapak", 1), 1, 4)) - 1,
     renkKutu: Math.round(clamp(sayi("fk-renk-kutu", 1), 1, 4)) - 1,
@@ -72,6 +76,50 @@ function halka(W, D, r, a, b, z0, h) {
   g.translate(0, 0, z0);
   return g;
 }
+/**
+ * Yivli dış hat: köşeleri yuvarlak dikdörtgenin düz kenarlarına, içe doğru
+ * yarım daire kesitli yivler. Yiv köşelerde söner; en dış ölçü değişmez.
+ */
+function yivliHat(W, D, r, derin, adim) {
+  const pts = [];
+  const duz = [W - 2 * r, D - 2 * r];
+  const kenar = (uz, bas, yon, nrm) => {
+    const n = Math.max(1, Math.round(uz / adim)), gercek = uz / n;
+    const N = Math.max(8, Math.ceil(uz / 0.8)); // 0,8 mm kiriş: sapma < 0,05 mm, yazıcı kısa hamlelerde yavaşlamaz
+    for (let i = 0; i < N; i++) {
+      const s = (i / N) * uz;
+      const f = (s / gercek) % 1; // yiv içindeki konum
+      const sonme = Math.min(1, s / 3, (uz - s) / 3); // köşeye 3 mm kala söner
+      const ic = derin * Math.max(0, sonme) * Math.pow(Math.sin(Math.PI * f), 2);
+      pts.push(new THREE.Vector2(bas[0] + yon[0] * s - nrm[0] * ic, bas[1] + yon[1] * s - nrm[1] * ic));
+    }
+  };
+  const yay = (cx, cy, a0) => {
+    for (let i = 0; i < 12; i++) {
+      const a = a0 + (i / 12) * (Math.PI / 2);
+      pts.push(new THREE.Vector2(cx + r * Math.cos(a), cy + r * Math.sin(a)));
+    }
+  };
+  const x = W / 2, y = D / 2;
+  kenar(duz[0], [-x + r, -y], [1, 0], [0, -1]);
+  yay(x - r, -y + r, -Math.PI / 2);
+  kenar(duz[1], [x, -y + r], [0, 1], [1, 0]);
+  yay(x - r, y - r, 0);
+  kenar(duz[0], [x - r, y], [-1, 0], [0, 1]);
+  yay(-x + r, y - r, Math.PI / 2);
+  kenar(duz[1], [-x, y - r], [0, -1], [-1, 0]);
+  yay(-x + r, -y + r, Math.PI);
+  return pts;
+}
+/** Yivli halka: dış hat yivli, iç hat düz (içe "b" kadar) */
+function yivliHalka(W, D, r, b, z0, h) {
+  const s = new THREE.Shape(yivliHat(W, D, r, 0.8, 5.2));
+  s.holes.push(kutuYolu(new THREE.Path(), W, D, r, b));
+  const g = new THREE.ExtrudeGeometry(s, { depth: h, bevelEnabled: false, curveSegments: 10 });
+  g.translate(0, 0, z0);
+  return g;
+}
+
 function kutuGeo(w, d, h, x, y, z) {
   const g = new THREE.BoxGeometry(w, d, h).toNonIndexed();
   g.translate(x, y, z + h / 2);
@@ -108,11 +156,21 @@ function kur() {
   if (P.renkKutu >= R.n) P.renkKutu = 0;
 
   // ---- Gövde
+  // Taban kenarı iki basamak pahlı (0,6 → 0,3 → 0): ilk katman taşması gizlenir
   const parcalar = [
-    halka(P.W, P.D, P.kose, 0, null, 0, TABAN),
-    halka(P.W, P.D, P.kose, 0, tw, TABAN, Hsh - TABAN),
+    halka(P.W, P.D, P.kose, 0.6, null, 0, 0.2),
+    halka(P.W, P.D, P.kose, 0.3, null, 0.2, 0.2),
+    halka(P.W, P.D, P.kose, 0, null, 0.4, TABAN - 0.4),
     halka(P.W, P.D, P.kose, P.duvar + P.bosluk, tw, Hsh, etek - 0.5),
   ];
+  const alt = 3, ust = 2.4; // yivsiz kuşaklar
+  if (P.doku === "yivli" && Hsh - TABAN > alt + ust + 6) {
+    parcalar.push(
+      halka(P.W, P.D, P.kose, 0, tw, TABAN, alt),
+      yivliHalka(P.W, P.D, P.kose, tw, TABAN + alt, Hsh - TABAN - alt - ust),
+      halka(P.W, P.D, P.kose, 0, tw, Hsh - ust, ust)
+    );
+  } else parcalar.push(halka(P.W, P.D, P.kose, 0, tw, TABAN, Hsh - TABAN));
   const icW = P.W - 2 * tw, icD = P.D - 2 * tw, hB = Hsh + etek - 0.5 - TABAN - 3;
   const B = 1.2;
   if (P.bolme === "2" || P.bolme === "4") parcalar.push(kutuGeo(B, icD + 0.6, hB, 0, 0, TABAN));
@@ -188,6 +246,7 @@ function bilgiYaz() {
     ["Renk katı", `${P.tc.toFixed(1)} mm · ≈ ${Math.round(P.tc / 0.2) * (R.n - 1)} değişim`],
     ["Kapak / gövde", `${(vKapak.reduce((a, b) => a + b, 0) / 1000).toFixed(1)} / ${(vGovde / 1000).toFixed(1)} cm³`],
     ["Bölme", P.bolme === "yok" ? "yok" : `${P.bolme} göz`],
+    ["Duvar", P.doku === "yivli" ? "yivli (0,8 mm gömük, 5 mm aralık)" : "düz"],
     ["Filament (PLA)", `${o.kutleG.toFixed(0)} g`],
     ["Baskı süresi ≈", sureYaz(o.sureSaat)],
   ]);
@@ -212,7 +271,7 @@ el("fk-csv").addEventListener("click", () => {
   const { P, R, olcum: o, etek, icW, icD, icH } = SON;
   indir(csv([
     ["Alan", "Deger"], ["Dis_mm", `${P.W}x${P.D}x${P.H}`], ["Ic_mm", `${icW.toFixed(1)}x${icD.toFixed(1)}x${icH.toFixed(1)}`],
-    ["Kose_mm", P.kose], ["Bolme", P.bolme], ["Kenarlik_mm", P.kenarlik], ["Duvar_mm", P.duvar], ["Kapak_boslugu_mm", P.bosluk],
+    ["Kose_mm", P.kose], ["Bolme", P.bolme], ["Duvar_dokusu", P.doku], ["Kenarlik_mm", P.kenarlik], ["Duvar_mm", P.duvar], ["Kapak_boslugu_mm", P.bosluk],
     ["Kapak_levha_mm", P.Tl], ["Etek_mm", etek.toFixed(1)], ["Renk_kati_mm", P.tc],
     ...R.slot.map((k, i) => [`Renk_${i + 1}`, `${FILAMENT_AD[k]} ${R.hex[i]} %${Math.round(R.pay[i] * 100)}`]),
     ["Kapak_rengi", P.renkKapak + 1], ["Kutu_rengi", P.renkKutu + 1],
@@ -223,10 +282,10 @@ el("fk-csv").addEventListener("click", () => {
 
 // Hazır kutular fotoğrafa dokunmaz: yalnız ölçü, bölme ve renk düzeni
 const HAZIR = {
-  hatira: { "fk-gen": 120, "fk-der": 90, "fk-yuk": 50, "fk-kose": 10, "fk-bolme": "yok", "fk-kenarlik": 4, "fk-mod": "renkli", "fk-renk-sayi": 4 },
-  taki: { "fk-gen": 90, "fk-der": 90, "fk-yuk": 36, "fk-kose": 12, "fk-bolme": "4", "fk-kenarlik": 4, "fk-mod": "renkli", "fk-renk-sayi": 4 },
-  kalem: { "fk-gen": 190, "fk-der": 80, "fk-yuk": 44, "fk-kose": 8, "fk-bolme": "3", "fk-kenarlik": 3, "fk-mod": "renkli", "fk-renk-sayi": 4 },
-  klasik: { "fk-gen": 140, "fk-der": 105, "fk-yuk": 64, "fk-kose": 6, "fk-bolme": "yok", "fk-kenarlik": 6, "fk-mod": "sb", "fk-renk-sayi": 4 },
+  hatira: { "fk-doku": "yivli", "fk-gen": 120, "fk-der": 90, "fk-yuk": 50, "fk-kose": 10, "fk-bolme": "yok", "fk-kenarlik": 4, "fk-mod": "renkli", "fk-renk-sayi": 4 },
+  taki: { "fk-doku": "yivli", "fk-gen": 90, "fk-der": 90, "fk-yuk": 36, "fk-kose": 12, "fk-bolme": "4", "fk-kenarlik": 4, "fk-mod": "renkli", "fk-renk-sayi": 4 },
+  kalem: { "fk-doku": "duz", "fk-gen": 190, "fk-der": 80, "fk-yuk": 44, "fk-kose": 8, "fk-bolme": "3", "fk-kenarlik": 3, "fk-mod": "renkli", "fk-renk-sayi": 4 },
+  klasik: { "fk-doku": "duz", "fk-gen": 140, "fk-der": 105, "fk-yuk": 64, "fk-kose": 6, "fk-bolme": "yok", "fk-kenarlik": 6, "fk-mod": "sb", "fk-renk-sayi": 4 },
 };
 document.querySelectorAll("[data-hazir]").forEach((b) => {
   b.addEventListener("click", (e) => {

@@ -1,6 +1,8 @@
 /* Masa kelepçeli askı — mağaza köprüsü ayarı */
 window.ADJY_ARAC = {
   id: "kelepce-askilik",
+  // Yük taşıyan parçalar: 3 çevre, %20 dolgu (bkz. ../_adjy/renkli.js)
+  baski: [{ ad: ".", sinif: "saglam" }],
 
   // Geniş ekranda model ortada, ayarlar iki yanda (bkz. kopru.css)
   yerlesim: { kap: ".workspace-grid", panel: ".panel-left", sahne: ".viewport-stage" },

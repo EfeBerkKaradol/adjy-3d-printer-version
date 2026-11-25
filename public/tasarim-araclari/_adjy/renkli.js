@@ -416,7 +416,17 @@
     renkler.forEach(function (x) { renkler.forEach(function (y) { matris.push(String(yikama(x, y))); }); });
     a.flush_volumes_matrix = matris;
     a.flush_volumes_vector = renkler.concat(renkler).map(function () { return "140"; });
-    a.different_settings_to_system = [""].concat(renkler.map(function () { return ""; }), [""]);
+    // Stok Anycubic PLA profili meme sertliği 3 ister, pirinç meme 2'dir: her
+    // dilimlemede yersiz uyarı çıkar. PLA aşındırıcı değil; şart kaldırılır.
+    var filFark = "";
+    if (Array.isArray(a.required_nozzle_HRC)) {
+      a.required_nozzle_HRC = a.required_nozzle_HRC.map(function () { return "0"; });
+      filFark = "required_nozzle_HRC";
+    }
+    var genel = AYAR.baskiAyar || {};
+    Object.keys(genel).forEach(function (k) { a[k] = genel[k]; });
+    // Dilimleyici arayüzü sistem profilini açıp yalnız burada sayılan farkları uygular
+    a.different_settings_to_system = [Object.keys(genel).join(";")].concat(renkler.map(function () { return filFark; }), [""]);
     // Tek renkte temizleme kulesi gereksiz
     if (n < 2 && "enable_prime_tower" in a) a.enable_prime_tower = "0";
     return JSON.stringify(a, null, 1);
@@ -588,6 +598,61 @@
   //     o tablada filament hiç değişmez, temizleme kulesi gerekmez;
   //     çok renkli nesneler (kabartma yazılı levha gibi) kendi tablasında
   var TABLA_PAYI = 6; // tabla kenarından ve nesneler arası boşluk (mm)
+
+  // ---------- BASKI SINIFLARI ----------
+  // Proje dosyası her nesneye kendi dilimleme ayarını taşır: atölye dosyayı
+  // açıp dilimler, ayar girmez. Sınıf, nesnenin işine göre seçilir:
+  //   levha      ön yüzü üstte kabartmalı levha: 4 üst kat yeter, 5. kat ve
+  //              1 mm üst kalınlık şartı filament israfı
+  //   arkaLevha  fotoğraf yüzü tablada basılan levha: üstte kalan yüz arka
+  //              yüzdür, 3 kat yeter; ortası seyrek
+  //   takoz      ayak, takoz: içi %10
+  //   kap        ince duvarlı kutu gövdesi: 3 çevre (duvar dolu çıkar, araya
+  //              dolgu zikzağı girmez)
+  //   islev      görünüşü değil ölçüsü önemli parça (fikstür, devre kutusu):
+  //              tabla tek renkse 0,28 mm katman
+  //   saglam     yük taşıyan parça (kelepçe, vida): 3 çevre, %20 dolgu
+  //   dolu       litofan: duvar içi tam dolu olmazsa ışıkta dolgu deseni görünür
+  // Araç, ADJY_ARAC.baski = [{ ad: "<düzenli ifade>", sinif: "…", ayar: {…} }]
+  // ile kendi nesnelerini sınıflandırır; bildirmediği nesnede yükseklik
+  // 6 mm'yi geçmiyorsa "levha", adı ayak/stand ise "takoz" uygulanır.
+  var SINIF = {
+    levha: { top_shell_layers: "4", top_shell_thickness: "0.8", bottom_shell_layers: "3", sparse_infill_density: "20%" },
+    arkaLevha: { top_shell_layers: "3", top_shell_thickness: "0.6", bottom_shell_layers: "3", sparse_infill_density: "20%" },
+    takoz: { sparse_infill_density: "10%", top_shell_layers: "4", top_shell_thickness: "0.8" },
+    kap: { wall_loops: "3", top_shell_layers: "4", top_shell_thickness: "0.8" },
+    islev: { sparse_infill_density: "12%", top_shell_layers: "3", top_shell_thickness: "0.8", kaba: "0.28" },
+    saglam: { wall_loops: "3", sparse_infill_density: "20%" },
+    dolu: { sparse_infill_density: "100%", wall_loops: "3" }
+  };
+  var VARSAYILAN_KURAL = [{ ad: "ayak|stand|takoz", sinif: "takoz" }];
+
+  /** Nesnenin dilimleme ayarı: { anahtar: değer }. tekRenkTabla: tablada tek filament var */
+  function nesneAyari(n, tekRenkTabla, hizli) {
+    var kural = null;
+    (AYAR.baski || []).concat(VARSAYILAN_KURAL).some(function (k) {
+      try {
+        if (new RegExp(k.ad, "i").test(n.ad)) { kural = k; return true; }
+      } catch (e) { /* bozuk ifade: yok say */ }
+      return false;
+    });
+    var sinif = kural ? kural.sinif : n.h <= 6.2 ? "levha" : null;
+    var a = {};
+    var kaynak = sinif && SINIF[sinif] ? SINIF[sinif] : {};
+    Object.keys(kaynak).forEach(function (k) { a[k] = kaynak[k]; });
+    if (kural && kural.ayar) Object.keys(kural.ayar).forEach(function (k) { a[k] = kural.ayar[k]; });
+    // Kalın katman yalnız tek renkli tablada: temizleme kulesi bütün nesnelerde aynı katmanı ister
+    if (a.kaba) {
+      if (tekRenkTabla) a.layer_height = a.kaba;
+      delete a.kaba;
+    }
+    // Atölye "Hızlı" seçtiyse: tek renkli tabladaki yüksek parçalar 0,28 mm.
+    // Levhalar (renk katı 0,2'nin katı) ve litofan (ayrıntı) 0,20 mm kalır.
+    if (hizli && tekRenkTabla && n.h > 6.2 && sinif !== "dolu") a.layer_height = "0.28";
+    // Renk değişiminde atılan filament, varsa nesnenin dolgusuna gitsin
+    if (n.parcalar.length > 1 || !tekRenkTabla) a.flush_into_infill = "1";
+    return { sinif: sinif, ayar: a };
+  }
 
   function stlOku(buf) {
     var dv = new DataView(buf);
@@ -1092,6 +1157,11 @@
         yapi.push('  <item objectid="' + oid + '" transform="1 0 0 0 1 0 0 0 1 ' + sayi(ox + o.x) + " " + sayi(oy + o.y) + ' 0" printable="1"/>\n');
         ayar.push('  <object id="' + oid + '">\n    <metadata key="name" value="' + xmlKacis(n.ad) + '"/>\n' +
           '    <metadata key="extruder" value="' + n.parcalar[0].no + '"/>\n');
+        var na = nesneAyari(n, t.renkNo.length < 2, !!plan.hizli);
+        o.sinif = na.sinif;
+        Object.keys(na.ayar).forEach(function (k) {
+          ayar.push('    <metadata key="' + k + '" value="' + xmlKacis(na.ayar[k]) + '"/>\n');
+        });
         n.parcalar.forEach(function (pc) {
           ayar.push('    <part id="' + pc.id + '" subtype="normal_part">\n' +
             '      <metadata key="name" value="' + xmlKacis(pc.no + " " + plan.renkler[pc.no - 1].ad + " " + pc.hex) + '"/>\n' +
@@ -1172,6 +1242,7 @@
         if (!dosyalar.length) throw new Error("Araç basılacak parça üretmedi");
         var duzen = secenek && (secenek.duzen === "ayri" || secenek.duzen === "tek") ? secenek.duzen : "oto";
         var plan = uretimPlani(dosyalar, adet, duzen);
+        plan.hizli = !!(secenek && secenek.katman === "hizli");
         var a = adlar();
         var ozet = planOzeti(plan);
         var satirlar = [
@@ -1195,6 +1266,8 @@
         satirlar.push(
           "",
           "Dilimleyicide Dosya → Projeyi aç ile açın" + (PROFIL ? " (" + PROFIL.ad + ", " + PROFIL.islem + ")." : "."),
+          "Dilimleme ayarları dosyada kayıtlı: yazıcı ve filament profili, parça başına katman,",
+          "çevre, dolgu ve üst/alt kat sayısı; destek kapalı. Ayar girmeden Dilimle → Yazdır.",
           "Her tablayı ayrı dilimleyip basın; makaraları yukarıdaki sıraya takın."
         );
         var on = a.on + "_uretim_" + adet + "adet";

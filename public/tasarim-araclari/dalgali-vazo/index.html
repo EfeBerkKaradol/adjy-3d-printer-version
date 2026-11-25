@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dalgalı Vazo — Zambak Biçimli, Yivli, Sızdırmaz</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "../_adjy/three.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <!-- ADJY mağaza köprüsü: tema, müşteri/atölye kipi, durum kaydı -->
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="../_adjy/yilbasi.css" />
+  <link rel="stylesheet" href="../_adjy/foto.css" />
+  <link rel="stylesheet" href="../_adjy/kopru.css" />
+  <script src="./adjy.js"></script>
+  <script src="../_adjy/kopru.js"></script>
+  <script src="../_adjy/olcu.js"></script>
+  <script src="../_adjy/renkli.js"></script>
+</head>
+<body>
+  <div class="yb-izgara">
+    <!-- ================= AYARLAR ================= -->
+    <aside class="yb-panel">
+      <section class="yb-grup" id="grup-hazir">
+        <h2 class="yb-baslik">Hazır vazolar</h2>
+        <div class="yb-hazirlar">
+          <button type="button" data-hazir="lilyum" class="on"><b>Lilyum</b><small>Ø160 × 240, 24 düz yiv</small></button>
+          <button type="button" data-hazir="burgu"><b>Burgulu</b><small>Sağa dönen 16 yiv</small></button>
+          <button type="button" data-hazir="halka"><b>Halkalı lale</b><small>Yatay dalga</small></button>
+          <button type="button" data-hazir="yalin"><b>Yalın sütun</b><small>Yiv yalnız karında</small></button>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-bicim">
+        <h2 class="yb-baslik">Biçim ve ölçü</h2>
+        <div class="param-row" id="dv-bicim-satir">
+          <label class="yb-etiket" for="dv-bicim">Biçim</label>
+          <select id="dv-bicim" class="yb-gizli-secim">
+            <option value="lilyum" selected>Lilyum</option>
+            <option value="lale">Lale</option>
+            <option value="sutun">Sütun</option>
+          </select>
+          <div class="yb-seg" data-secim="dv-bicim">
+            <button type="button" data-v="lilyum">Lilyum</button>
+            <button type="button" data-v="lale">Lale</button>
+            <button type="button" data-v="sutun">Sütun</button>
+          </div>
+        </div>
+        <div class="param-row" id="dv-boy-satir">
+          <label class="yb-etiket" for="dv-boy">Boy</label>
+          <div class="yb-kaydir"><input type="range" id="dv-boy" min="100" max="240" step="5" value="240" /><span class="num-wrap"><input type="number" data-bagli="dv-boy" min="100" max="240" step="5" value="240" aria-label="Boy" /><span class="unit">mm</span></span></div>
+        </div>
+        <div class="param-row" id="dv-cap-satir">
+          <label class="yb-etiket" for="dv-cap">En geniş çap</label>
+          <div class="yb-kaydir"><input type="range" id="dv-cap" min="70" max="220" step="5" value="160" /><span class="num-wrap"><input type="number" data-bagli="dv-cap" min="70" max="220" step="5" value="160" aria-label="En geniş çap" /><span class="unit">mm</span></span></div>
+          <p class="yb-not">Boya göre fazla geniş seçilirse çap, desteksiz basılabilen en büyük değere çekilir.</p>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-dalga">
+        <h2 class="yb-baslik">Dalga</h2>
+        <div class="param-row" id="dv-yon-satir">
+          <label class="yb-etiket" for="dv-yon">Dalganın yönü</label>
+          <select id="dv-yon" class="yb-gizli-secim">
+            <option value="dikey" selected>Dikey</option>
+            <option value="saga">Sağa burgu</option>
+            <option value="sola">Sola burgu</option>
+            <option value="yatay">Yatay</option>
+          </select>
+          <div class="yb-seg yb-seg-coklu" data-secim="dv-yon">
+            <button type="button" data-v="dikey">Dikey</button>
+            <button type="button" data-v="saga">Sağa burgu</button>
+            <button type="button" data-v="sola">Sola burgu</button>
+            <button type="button" data-v="yatay">Yatay</button>
+          </div>
+        </div>
+        <div class="param-row" id="dv-burgu-satir">
+          <label class="yb-etiket" for="dv-burgu">Burgu</label>
+          <div class="yb-kaydir"><input type="range" id="dv-burgu" min="20" max="360" step="10" value="120" /><span class="num-wrap"><input type="number" data-bagli="dv-burgu" min="20" max="360" step="10" value="120" aria-label="Burgu" /><span class="unit">°</span></span></div>
+          <p class="yb-not">Yivlerin tabandan ağza kadar döndüğü açı.</p>
+        </div>
+        <div class="param-row" id="dv-yer-satir">
+          <label class="yb-etiket" for="dv-yer">Dalganın yeri</label>
+          <select id="dv-yer" class="yb-gizli-secim">
+            <option value="tumu" selected>Bütün gövde</option>
+            <option value="karin">Karın</option>
+            <option value="boyun">Boyun</option>
+            <option value="agiz">Ağız</option>
+          </select>
+          <div class="yb-seg yb-seg-coklu" data-secim="dv-yer">
+            <button type="button" data-v="tumu">Bütün gövde</button>
+            <button type="button" data-v="karin">Karın</button>
+            <button type="button" data-v="boyun">Boyun</button>
+            <button type="button" data-v="agiz">Ağız</button>
+          </div>
+        </div>
+        <div class="param-row" id="dv-sayi-satir">
+          <label class="yb-etiket" for="dv-sayi">Dalga sayısı</label>
+          <div class="yb-kaydir"><input type="range" id="dv-sayi" min="6" max="40" step="1" value="24" /><span class="num-wrap"><input type="number" data-bagli="dv-sayi" min="6" max="40" step="1" value="24" aria-label="Dalga sayısı" /><span class="unit">adet</span></span></div>
+        </div>
+        <div class="param-row" id="dv-derin-satir">
+          <label class="yb-etiket" for="dv-derin">Dalga derinliği</label>
+          <div class="yb-kaydir"><input type="range" id="dv-derin" min="0" max="7" step="0.2" value="3.8" /><span class="num-wrap"><input type="number" data-bagli="dv-derin" min="0" max="7" step="0.2" value="3.8" aria-label="Dalga derinliği" /><span class="unit">mm</span></span></div>
+          <p class="yb-not">Dalga içe doğrudur: tepeleri dış ölçüde kalır, vazonun çapı değişmez. 0 seçilirse yüzey düz olur.</p>
+        </div>
+      </section>
+
+      <section class="yb-grup" id="grup-renk">
+        <h2 class="yb-baslik">Renk</h2>
+        <div class="param-row yb-renk-satir" id="dv-renk-satir">
+          <label class="yb-etiket" for="dv-renk">Renk</label>
+          <select id="dv-renk" class="yb-gizli-secim">
+            <option value="beyaz" selected>Beyaz</option><option value="krem">Krem</option><option value="terakota">Pişmiş toprak</option><option value="adacayi">Adaçayı</option><option value="antrasit">Antrasit</option><option value="siyah">Siyah</option><option value="lacivert">Lacivert</option><option value="turkuaz">Turkuaz</option><option value="sari">Sarı</option><option value="pembe">Pembe</option><option value="mor">Mor</option><option value="kirmizi">Kırmızı</option>
+          </select>
+          <div class="yb-renkler" data-secim="dv-renk">
+            <button type="button" data-v="beyaz" style="--r:#f3f1ea" title="Beyaz"></button>
+            <button type="button" data-v="krem" style="--r:#e8e0cf" title="Krem"></button>
+            <button type="button" data-v="terakota" style="--r:#c85a3a" title="Pişmiş toprak"></button>
+            <button type="button" data-v="adacayi" style="--r:#9caf88" title="Adaçayı"></button>
+            <button type="button" data-v="antrasit" style="--r:#3a3d42" title="Antrasit"></button>
+            <button type="button" data-v="siyah" style="--r:#1b1b1f" title="Siyah"></button>
+            <button type="button" data-v="lacivert" style="--r:#1f2f5c" title="Lacivert"></button>
+            <button type="button" data-v="turkuaz" style="--r:#21b5b0" title="Turkuaz"></button>
+            <button type="button" data-v="sari" style="--r:#f6c927" title="Sarı"></button>
+            <button type="button" data-v="pembe" style="--r:#ef6fa5" title="Pembe"></button>
+            <button type="button" data-v="mor" style="--r:#6a3fa0" title="Mor"></button>
+            <button type="button" data-v="kirmizi" style="--r:#c8242b" title="Kırmızı"></button>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <!-- ================= SAHNE ================= -->
+    <section class="yb-sahne">
+      <canvas id="dv-tuval" class="yb-tuval"></canvas>
+      <div class="yb-sahne-ust">
+        <span class="yb-olcu" id="dv-olcu">—</span>
+        <span class="yb-uyari" id="dv-uyari" hidden></span>
+      </div>
+    </section>
+
+    <!-- ================= ATÖLYE (müşteriye gizli) ================= -->
+    <aside class="yb-atolye">
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Üretim</h2>
+        <dl class="yb-tablo" id="dv-tablo"></dl>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Baskı ayarları</h2>
+        <div class="param-row"><label class="yb-etiket" for="dv-duvar">Duvar kalınlığı</label><span class="num-wrap"><input type="number" id="dv-duvar" min="1.6" max="3.2" step="0.2" value="2" /><span class="unit">mm</span></span></div>
+        <div class="param-row"><label class="yb-etiket" for="dv-taban">Taban kalınlığı</label><span class="num-wrap"><input type="number" id="dv-taban" min="1.6" max="6" step="0.2" value="2.4" /><span class="unit">mm</span></span></div>
+      </section>
+      <section class="yb-grup">
+        <h2 class="yb-baslik">Çıktılar</h2>
+        <button type="button" class="yb-cikti" id="dv-stl">Vazo (STL)</button>
+        <button type="button" class="yb-cikti yb-ikincil" id="dv-csv">Vazo bilgisi (CSV)</button>
+        <p class="yb-not">Z yukarı, mm. Tabanı üstüne, desteksiz basılır. Üretim 3MF'sinde duvar üç çevre ve tam dolu, taban tam dolu kayıtlıdır (sızdırmazlık için ayarı değiştirmeyin). Kobra S1 tablasına (250 × 250 × 250 mm) sığar.</p>
+      </section>
+    </aside>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

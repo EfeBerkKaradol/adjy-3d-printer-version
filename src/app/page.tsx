@@ -72,8 +72,8 @@ const TASARIM_VITRINI = [
   "neon-sahil-tabela",
   "ses-dalgasi-plaketi",
   "foto-kutu",
+  "dalgali-vazo",
   "kahraman-amblemi",
-  "lav-catlagi-zar-tepsisi",
 ];
 
 /** Son 30 günde eklenen ürün "yeni" sayılır */

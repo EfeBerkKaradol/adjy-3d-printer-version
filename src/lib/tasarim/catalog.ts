@@ -936,12 +936,12 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ad: "Fotoğraf Duvar Panosu",
     ozet: "Fotoğrafınızdan çok renkli, ince ve hafif duvar panosu; istenirse iki ya da üç panelde.",
     aciklama:
-      "Bir fotoğrafı duvara asılacak çok renkli bir panoya çevirin. Fotoğraf iki, üç ya da dört gerçek filament rengine ayrılır; öneriyi beğenmezseniz her rengi tek tek değiştirirsiniz. Pano yalnızca iki milimetre kalınlığındadır: çift taraflı bantla, delik açmadan duvara yapışır. Tablaya sığmayan genişlikte iki ya da üç panele bölünür ve fotoğraf panellerin üstünden kesintisiz geçer; 70 santime kadar üçlü pano kurabilirsiniz. Köşe yuvarlaklığını ve kenarlığı siz ayarlarsınız. Tek panelde iki küçük ayağıyla masada da durur.",
-    ayarlar: ["Kendi fotoğrafınız: yakınlaştırma ve kaydırma", "Biçim: yatay, dikey, kare, geniş", "Toplam genişlik ve panel sayısı (1–3)", "2–4 filament rengi, renkli ya da siyah beyaz", "Köşe yuvarlaklığı ve kenarlık", "Duvar ya da masa ayağı"],
+      "Bir fotoğrafı duvara asılacak çok renkli bir panoya çevirin. Fotoğraf iki, üç ya da dört gerçek filament rengine ayrılır; öneriyi beğenmezseniz her rengi tek tek değiştirirsiniz. Pano yalnızca iki milimetre kalınlığındadır; arkasındaki kasnak onu düz tutar ve çentiğiyle tek bir çiviye asılır, pano duvarın biraz önünde durur. İsterseniz arkası düz basılır ve çift taraflı bantla, delik açmadan yapışır. Tablaya sığmayan genişlikte iki ya da üç panele bölünür ve fotoğraf panellerin üstünden kesintisiz geçer; 70 santime kadar üçlü pano kurabilirsiniz. Köşe yuvarlaklığını ve kenarlığı siz ayarlarsınız. Tek panelde iki küçük ayağıyla masada da durur.",
+    ayarlar: ["Kendi fotoğrafınız: yakınlaştırma ve kaydırma", "Biçim: yatay, dikey, kare, geniş", "Toplam genişlik ve panel sayısı (1–3)", "2–4 filament rengi, renkli ya da siyah beyaz", "Köşe yuvarlaklığı ve kenarlık", "Duruş: çiviye asılan arka kasnak, bant ya da masa ayağı"],
     kategoriler: ["dekor-duvar", "ev-dekorasyon", "hediye", "koleksiyon-kisiye-ozel"],
     malzeme: "PLA",
     malzemeSabit: true,
-    varsayilan: { kutleG: 74, sureSaat: 2.55 },
+    varsayilan: { kutleG: 82, sureSaat: 2.76 },
     sinir: { kutleG: [12, 700], sureSaat: [0.5, 22] },
     tabanFiyat: 290,
     dosyaGerekli: {
@@ -950,11 +950,11 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     },
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
-      { baslik: "Delik açmadan asılır", metin: "İki milimetre kalınlığında, hafif bir levha: çift taraflı bant ya da yapışkanlı askı yeter." },
+      { baslik: "Kasnaklı, çiviye asılır", metin: "Arka kasnak panoyu burulmaya karşı düz tutar; üstündeki çentik çiviye oturur. Bantla, delik açmadan da yapışır." },
       { baslik: "Üç panele kadar", metin: "Geniş fotoğraflar iki ya da üç panele bölünür; görüntü panelden panele kesintisiz devam eder." },
       { baslik: "Gerçek filament renkleri", metin: "Ekranda gördüğünüz renk, makineye takılan filamentin rengidir; solmaz, soyulmaz." },
     ],
-    gorseller: ["Gün batımı: tek pano, kenarlıklı", "Üçlü pano: 45 cm, kenarlıksız", "Kare portre: siyah beyaz", "Masa panosu: dikey, ayaklı"],
+    gorseller: ["Balonlar: tek pano, kenarlıklı", "Üçlü pano: 45 cm, gün batımı", "Kare portre: siyah beyaz", "Masa panosu: dikey, ayaklı"],
     ciktilar: [
       { ad: "Panel 1 · renk 1 STL", sec: "#fp-stl-p1-r1", tur: "stl", nesne: "Panel 1", tekRenk: true },
       { ad: "Panel 1 · renk 2 STL", sec: "#fp-stl-p1-r2", tur: "stl", nesne: "Panel 1", tekRenk: true },
@@ -980,12 +980,12 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ad: "Fotoğraflı Hediye Kutusu",
     ozet: "Kapağında fotoğrafınız olan, omuzlu, bölmeli hediye kutusu.",
     aciklama:
-      "Kapağında fotoğrafınız olan bir kutu: takı, mektup, hatıra ya da hediyenin kendisi için. Fotoğraf kapağa dört filament rengiyle basılır ve seçtiğiniz renkte bir kenarlıkla çerçevelenir. Genişliği, derinliği ve yüksekliği siz belirlersiniz; iç ölçü modelin üstünde yazar. Kutu omuzludur: kapak gövdenin boynuna dıştan geçer ve dış yüzeyle aynı hizada kapanır, ne sallanır ne sıkışır. İçine iki, üç ya da dört gözlü bölme ekleyebilirsiniz. Kapak ve kutu, fotoğrafın renklerinden biriyle basılır; fazladan filament gerekmez.",
-    ayarlar: ["Kendi fotoğrafınız: yakınlaştırma ve kaydırma", "Genişlik, derinlik, yükseklik", "Köşe yuvarlaklığı", "İç bölme: 2, 3 ya da 4 göz", "2–4 filament rengi ve fotoğraf kenarlığı", "Kapak ve kutu rengi"],
+      "Kapağında fotoğrafınız olan bir kutu: takı, mektup, hatıra ya da hediyenin kendisi için. Fotoğraf kapağa dört filament rengiyle basılır ve seçtiğiniz renkte bir kenarlıkla çerçevelenir. Genişliği, derinliği ve yüksekliği siz belirlersiniz; iç ölçü modelin üstünde yazar. Kutu omuzludur: kapak gövdenin boynuna dıştan geçer ve dış yüzeyle aynı hizada kapanır, ne sallanır ne sıkışır. Duvarı yivli ya da düz seçersiniz; yivler duvara gömülüdür, kutunun dış ölçüsü değişmez. İçine iki, üç ya da dört gözlü bölme ekleyebilirsiniz. Kapak ve kutu, fotoğrafın renklerinden biriyle basılır; fazladan filament gerekmez.",
+    ayarlar: ["Kendi fotoğrafınız: yakınlaştırma ve kaydırma", "Genişlik, derinlik, yükseklik", "Köşe yuvarlaklığı", "İç bölme: 2, 3 ya da 4 göz", "Yivli ya da düz duvar", "2–4 filament rengi ve fotoğraf kenarlığı", "Kapak ve kutu rengi"],
     kategoriler: ["hediye", "duzen-kutular", "koleksiyon-kisiye-ozel", "ev-dekorasyon"],
     malzeme: "PLA",
     malzemeSabit: true,
-    varsayilan: { kutleG: 106, sureSaat: 3.45 },
+    varsayilan: { kutleG: 101, sureSaat: 3.31 },
     sinir: { kutleG: [30, 520], sureSaat: [1, 16] },
     tabanFiyat: 390,
     dosyaGerekli: {
@@ -998,7 +998,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Omuzlu kapak", metin: "Kapak boynun üstüne geçer ve gövdeyle aynı hizada kapanır; açarken hafifçe direnir, kendiliğinden düşmez." },
       { baslik: "İçi sizin düzeninizde", metin: "İki, üç ya da dört göz: yüzük, küpe, kalem ya da kartlar ayrı durur." },
     ],
-    gorseller: ["Hatıra kutusu: çiçekli kapak", "Takı kutusu: kare, dört göz", "Uzun kutu: üç göz", "Klasik: siyah beyaz, geniş kenarlık"],
+    gorseller: ["Hatıra kutusu: çiçekli kapak, yivli duvar", "Takı kutusu: kare, dört göz", "Uzun kutu: üç göz, düz duvar", "Klasik: siyah beyaz, geniş kenarlık"],
     ciktilar: [
       { ad: "Kapak · renk 1 STL", sec: "#fk-stl-kapak-r1", tur: "stl", nesne: "Kapak", tekRenk: true },
       { ad: "Kapak · renk 2 STL", sec: "#fk-stl-kapak-r2", tur: "stl", nesne: "Kapak", tekRenk: true },
@@ -1042,6 +1042,33 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     anahtarKelimeler: ["ses dalgası plaketi", "ses kaydından hediye", "sevgiliye kişiye özel hediye", "bebek ilk kelime hatırası", "şarkı dalgası tablo", "çok renkli 3d baskı"],
     etiketler: ["koleksiyon-ani", "koleksiyon-kisiye-ozel"],
   },
+  {
+    id: "dalgali-vazo",
+    ad: "Dalgalı Vazo",
+    ozet: "Zambak soğanı biçiminde, yivli, sızdırmaz vazo; dalgasının yönünü ve yerini siz kurarsınız.",
+    aciklama:
+      "Geniş bir karından ince bir boyna süzülen ve ağızda yeniden açılan, zambak soğanı biçiminde bir vazo. Gövdesini saran yivleri siz kurarsınız: dikey durabilir, sağa ya da sola burulabilir, yatay halkalara dönebilir; bütün gövdeyi sarabilir ya da yalnızca karında, boyunda ya da ağızda kalabilir. Dalga sayısını ve derinliğini, boyu ve en geniş çapı siz belirlersiniz; lilyum, lale ve sütun olmak üzere üç biçim vardır. Dalgalar içe doğrudur: seçtiğiniz çap değişmez. Vazo su tutar: duvarı ve tabanı tam dolu basılır, canlı çiçek koyabilirsiniz. Ağız kenarı yuvarlatılmıştır; tek parça, desteksiz basılır.",
+    ayarlar: ["Hazır vazo", "Biçim: lilyum, lale, sütun", "Boy ve en geniş çap", "Dalganın yönü: dikey, sağa burgu, sola burgu, yatay", "Dalganın yeri: bütün gövde, karın, boyun, ağız", "Dalga sayısı ve derinliği", "Renk"],
+    kategoriler: ["vazo-saksi", "vazo-saksi-saksilar", "ev-dekorasyon", "hediye"],
+    malzeme: "PLA",
+    malzemeSabit: true,
+    varsayilan: { kutleG: 196, sureSaat: 7.06 },
+    sinir: { kutleG: [30, 380], sureSaat: [1.1, 14] },
+    tabanFiyat: 450,
+    teslim: "Sipariş sonrası üretilir, 3–5 iş günü içinde kargoya verilir.",
+    vurgular: [
+      { baslik: "Dalgayı siz yönlendirin", metin: "Aynı vazo düz yivli, burgulu ya da halkalı olabilir; dalga gövdenin tamamında ya da yalnız bir bölümünde durur." },
+      { baslik: "Su tutar", metin: "Duvar ve taban tam dolu basılır, katmanlar arasında boşluk kalmaz: canlı çiçek için su koyabilirsiniz." },
+      { baslik: "Tek parça, desteksiz", metin: "Biçim, baskının taşıyabileceği eğimde kalacak şekilde kurulur; yüzeyde destek izi olmaz." },
+    ],
+    gorseller: ["Lilyum: Ø160 × 240 mm, 24 düz yiv", "Burgulu: sağa dönen 16 yiv, pişmiş toprak", "Halkalı lale: yatay dalga, adaçayı", "Yalın sütun: yiv yalnız karında, antrasit"],
+    ciktilar: [
+      { ad: "Vazo STL", sec: "#dv-stl", tur: "stl" },
+      RENKLI_PAKET,
+      { ad: "Vazo bilgisi (CSV)", sec: "#dv-csv", tur: "belge" },
+    ],
+    anahtarKelimeler: ["dalgalı vazo", "yivli vazo", "kişiye özel vazo", "burgulu vazo", "su geçirmez 3d baskı vazo", "dekoratif vazo"],
+  },
 ];
 
 /** Belirli bir bölümde (ör. Mobilya) ayrıca listelenen araçlar */
@@ -1082,7 +1109,8 @@ export function aracGorseli(id: string): string {
 /**
  * Ürün sayfasındaki görseller, altyazılarıyla. İlki kart görseliyle
  * aynı dosya; sonrakiler "-2", "-3"… ekiyle durur. Hepsi aracın
- * kendi 3B sahnesinden alındı: her biri gerçekten üretilebilen bir
+ * kurduğu modelin kendisinden, ışın izlemeyle çizildi
+ * (scripts/urun-renderleri.py): her biri gerçekten üretilebilen bir
  * yapılandırmayı gösterir.
  */
 export function aracGorselleri(arac: TasarimAraci): { adres: string; altyazi: string }[] {

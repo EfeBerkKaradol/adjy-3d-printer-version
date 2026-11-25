@@ -4,6 +4,8 @@
 
   window.ADJY_ARAC = {
     id: "foto-duvar-panosu",
+    // Dilimleme sınıfları (bkz. ../_adjy/renkli.js): fotoğraf yüzü tablada basılır
+    baski: [{ ad: "^Panel", sinif: "arkaLevha" }],
     ad: "Fotoğraf Duvar Panosu",
     yerlesim: { kap: ".yb-izgara", panel: ".yb-panel", sahne: ".yb-sahne" },
 

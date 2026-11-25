@@ -115,7 +115,7 @@ def balon():
 
 def cicek():
     rnd = random.Random(3)
-    im = gecis([(0, (47, 143, 70)), (1, (31, 100, 52))])
+    im = gecis([(0, (38, 122, 60)), (1, (36, 116, 58))])  # düz zemin: yapraklar ayrı bir yeşil kümesi olur
     d = ImageDraw.Draw(im)
 
     def yaprak(cx, cy, uz, aci, renk):
@@ -131,7 +131,7 @@ def cicek():
 
     for _ in range(26):
         yaprak(rnd.uniform(0, W) * K, rnd.uniform(0, H) * K, rnd.uniform(150, 330) * K, rnd.uniform(0, 6.28),
-               rnd.choice([(58, 156, 78), (36, 112, 58), (50, 134, 68)]))
+               rnd.choice([(118, 186, 84), (104, 176, 78), (128, 192, 90)]))
 
     def cicek_ciz(cx, cy, R, yaprakSayisi, dis, ic, goz):
         for kat, (renk, olcek, kay) in enumerate([(dis, 1.0, 0), (ic, 0.62, math.pi / yaprakSayisi)]):

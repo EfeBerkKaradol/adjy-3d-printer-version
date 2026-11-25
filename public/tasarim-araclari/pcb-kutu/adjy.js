@@ -1,6 +1,8 @@
 /* PCB elektronik kutusu — mağaza köprüsü ayarı */
 window.ADJY_ARAC = {
   id: "pcb-kutu",
+  // Devre kutusu: ölçü önemli, yüzey değil (bkz. ../_adjy/renkli.js)
+  baski: [{ ad: ".", sinif: "islev", ayar: { sparse_infill_density: "15%" } }],
 
   // Geniş ekranda model ortada, ayarlar iki yanda (bkz. kopru.css)
   yerlesim: { kap: ".studio-grid", panel: ".left-panel", sahne: ".viewport-stage" },

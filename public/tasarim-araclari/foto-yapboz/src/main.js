@@ -102,6 +102,14 @@ function cerceveKur(P) {
     }
     c.fill();
   });
+  // İç şerit: yuvanın çevresinde ikinci renkte ince bir çizgi (paspartu gibi).
+  // Yalın çerçevede (düz, yazısız) yok: o tek renk kalır.
+  if (P.cerceve !== "duz" || P.yazi) {
+    const cevre = (c, pay) => yuvarlakKutu(c, -P.W / 2 - C.pay - pay, kayY - P.H / 2 - C.pay - pay, P.W + 2 * (C.pay + pay), P.H + 2 * (C.pay + pay), 2.4 + pay);
+    const serit = maske(gen + 2, yuk + 2, px, (c) => { c.beginPath(); cevre(c, 2.9); c.fill(); });
+    maskeCiz(serit, (c) => { c.beginPath(); cevre(c, 1.7); c.fill(); }, "destination-out");
+    maskeBirlestir(sus, serit, "lighter");
+  }
   maskeBirlestir(sus, asindir(maskeKopya(kenar), 1.4), "destination-in");
 
   const gTaban = maskedenKati(taban, C.taban, 0);

@@ -4,6 +4,8 @@
 
   window.ADJY_ARAC = {
     id: "foto-yapboz",
+    // Dilimleme sınıfları (bkz. ../_adjy/renkli.js): fotoğraf yüzü tablada basılır
+    baski: [{ ad: "^Yapboz$", sinif: "arkaLevha" }],
     ad: "Fotoğraflı Yapboz",
     yerlesim: { kap: ".yb-izgara", panel: ".yb-panel", sahne: ".yb-sahne" },
 

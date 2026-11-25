@@ -1,6 +1,8 @@
 /* Fotoğraflı litofan lamba — mağaza köprüsü ayarı */
 window.ADJY_ARAC = {
   id: "litofan-lamba",
+  // Litofan duvarı tam dolu basılır: seyrek dolgu ışıkta desen olarak görünür
+  baski: [{ ad: "Litofan", sinif: "dolu" }],
 
   // Geniş ekranda model ortada, ayarlar iki yanda (bkz. kopru.css)
   yerlesim: { kap: ".workspace-grid", panel: ".panel-controls .controls-scroll", sahne: ".viewport-3d-pane", gecis: [".panel-controls"] },

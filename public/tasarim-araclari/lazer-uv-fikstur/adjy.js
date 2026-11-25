@@ -1,6 +1,8 @@
 /* Lazer / UV baskı hizalama fikstürü — mağaza köprüsü ayarı */
 window.ADJY_ARAC = {
   id: "lazer-uv-fikstur",
+  // Fikstür: ölçü önemli, yüzey değil (bkz. ../_adjy/renkli.js)
+  baski: [{ ad: ".", sinif: "islev" }],
 
   // Geniş ekranda model ortada, ayarlar iki yanda (bkz. kopru.css)
   yerlesim: { kap: ".studio-grid", panel: ".panel-left .controls-scroll", sahne: ".stage-column", gecis: [".panel-left"] },

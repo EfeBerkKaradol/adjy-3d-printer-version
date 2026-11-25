@@ -44,6 +44,7 @@ import {
   aracRenkleri,
   type AracPaketi,
   type AracRengi,
+  type BaskiKatmani,
   type TablaDuzeni,
   type UretimSonucu,
   type UretimTablasi,
@@ -195,6 +196,7 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
   // atölye kipinde elle. Son kurulan projenin tabla listesi altta yazar.
   const [uretimAdedi, setUretimAdedi] = useState(Math.max(1, siparisKalemi.adet));
   const [duzen, setDuzen] = useState<TablaDuzeni>("oto");
+  const [katman, setKatman] = useState<BaskiKatmani>("standart");
   const [proje, setProje] = useState<UretimSonucu | null>(null);
   const tablalar: UretimTablasi[] | null = proje?.ozet ?? null;
   const yuklendiRef = useRef(false);
@@ -313,7 +315,7 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
     setProje(null);
     setIndirilen("Üretim projesi");
     const parcalar = await parcaDosyalari(arayuz, arac);
-    const yeni = await uretimProjesi(arayuz, parcalar, uretimAdedi, duzen);
+    const yeni = await uretimProjesi(arayuz, parcalar, uretimAdedi, duzen, katman);
     if (!yeni) {
       setKayit({ tur: "hata", mesaj: "Araç parça STL'si vermedi; parçaları tek tek indirin" });
     } else {
@@ -333,7 +335,7 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
       setRenkler(yeni.renkler);
     }
     setIndirilen(null);
-  }, [arac, uretimAdedi, duzen]);
+  }, [arac, uretimAdedi, duzen, katman]);
 
   // Bütün üretim dosyaları tek seferde, "Müşteri - Sipariş No"
   // klasörüne. Klasör penceresi yalnızca tıklamanın hemen ardından
@@ -351,7 +353,8 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
         arac,
         siparis,
         { ...kalem, adet: uretimAdedi },
-        duzen
+        duzen,
+        katman
       );
       if (!stlVarMi(dosyalar)) throw new Error("Araç STL üretmedi");
       const sonuc = await klasoreYaz(
@@ -368,7 +371,7 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
       });
     }
     setIndirilen(null);
-  }, [arac, kalem, siparis, uretimAdedi, duzen]);
+  }, [arac, kalem, siparis, uretimAdedi, duzen, katman]);
 
   const kopyala = useCallback(async () => {
     const baslik = [
@@ -454,7 +457,7 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
       {/* ---------- DOSYALAR ----------
           Şerit üç sabit satırdır; model kurulunca gelen renkler ya da
           indirme sonrası yazan durum hiçbir düğmenin yerini değiştirmez:
-            1. üretim: adet · Üretim 3MF · filament yuvaları · Klasöre kaydet
+            1. üretim: adet · tabla düzeni · katman · Üretim 3MF · filament yuvaları · Klasöre kaydet
             2. tek tek dosyalar: parçalar ve belgeler
             3. durum satırı (tek satır, sabit yükseklik) */}
       <div className="border-b-2 border-dashed border-foreground/25 bg-background px-4 py-3">
@@ -504,6 +507,20 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
                 { value: "oto", label: "Otomatik" },
                 { value: "tek", label: "Tek tabla" },
                 { value: "ayri", label: "Renge göre ayrı" },
+              ]}
+            />
+          </DosyaGrubu>
+
+          <DosyaGrubu baslik="Katman">
+            <GlassSelect
+              value={katman}
+              onValueChange={(v) => setKatman(v as BaskiKatmani)}
+              aria-label="Baskı katmanı"
+              title="Hızlı: tek renkli tablalardaki yüksek parçalar 0,28 mm katmanla basılır; süre dörtte bir kısalır, katman çizgisi belirginleşir. Çok renkli tablalar 0,20 mm kalır."
+              className="w-auto min-w-36"
+              options={[
+                { value: "standart", label: "Standart · 0,20" },
+                { value: "hizli", label: "Hızlı · 0,28" },
               ]}
             />
           </DosyaGrubu>
@@ -663,8 +680,8 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
             </span>
           ) : (
             <span className="truncate">
-              Üretim 3MF: parçalar baskı yönünde, {uretimAdedi} adet dizili. Tek tablaya sığıyorsa
-              tek tabla; sığmıyorsa renge göre ayrı tablalar (filament değişmez).
+              Üretim 3MF: {uretimAdedi} adet, baskı yönünde dizili; yazıcı, filament ve parça
+              başına dilimleme ayarı dosyada. Dilimleyicide açın, Dilimle → Yazdır.
             </span>
           )}
         </div>

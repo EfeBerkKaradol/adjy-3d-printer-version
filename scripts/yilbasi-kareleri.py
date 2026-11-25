@@ -116,13 +116,19 @@ ARACLAR = {
         ("foto-duvar-panosu.jpg", "tek", {"fp-ornek": "balon", "fp-renk-1": "kirmizi", "fp-renk-2": "yesil", "fp-renk-3": "acikmavi", "fp-renk-4": "beyaz", "fp-govde": "3", "fp-renk-kenarlik": "4"}, 2),
         ("foto-duvar-panosu-2.jpg", "triptik", {}, 2),
         ("foto-duvar-panosu-3.jpg", "kare", {"fp-ornek": "portre", "fp-renk-1": "siyah", "fp-renk-2": "antrasit", "fp-renk-3": "gri", "fp-renk-4": "beyaz", "fp-govde": "1", "fp-renk-kenarlik": "4", "fp-zoom": 1.5}, 2),
-        ("foto-duvar-panosu-4.jpg", "masa", {"fp-ornek": "cicek", "fp-renk-1": "yesil", "fp-renk-2": "acikyesil", "fp-renk-3": "pembe", "fp-renk-4": "beyaz", "fp-govde": "1", "fp-renk-kenarlik": "4"}, 2),
+        ("foto-duvar-panosu-4.jpg", "masa", {"fp-ornek": "cicek", "fp-renk-1": "yesil", "fp-renk-2": "pembe", "fp-renk-3": "sari", "fp-renk-4": "beyaz", "fp-govde": "1", "fp-renk-kenarlik": "4"}, 2),
     ]),
     "foto-kutu": ("__ADJY_FK", [
         ("foto-kutu.jpg", "hatira", {}, 1),
         ("foto-kutu-2.jpg", "taki", {"fk-ornek": "balon", "fk-renk-1": "kirmizi", "fk-renk-2": "yesil", "fk-renk-3": "acikmavi", "fk-renk-4": "beyaz", "fk-renk-kapak": "1", "fk-renk-kutu": "1", "fk-acik": True}, 1),
         ("foto-kutu-3.jpg", "kalem", {"fk-ornek": "gunbatimi", "fk-renk-1": "lacivert", "fk-renk-2": "mor", "fk-renk-3": "turuncu", "fk-renk-4": "sari", "fk-renk-kapak": "1", "fk-renk-kutu": "1", "fk-acik": True}, 1),
         ("foto-kutu-4.jpg", "klasik", {"fk-ornek": "portre", "fk-renk-1": "siyah", "fk-renk-2": "antrasit", "fk-renk-3": "gri", "fk-renk-4": "beyaz", "fk-renk-kapak": "1", "fk-renk-kutu": "1", "fk-zoom": 1.4}, 1),
+    ]),
+    "dalgali-vazo": ("__ADJY_DV", [
+        ("dalgali-vazo.jpg", "lilyum", {}, 1),
+        ("dalgali-vazo-2.jpg", "burgu", {}, 1),
+        ("dalgali-vazo-3.jpg", "halka", {}, 1),
+        ("dalgali-vazo-4.jpg", "yalin", {}, 1),
     ]),
     "ses-dalgasi-plaketi": ("__ADJY_SD", [
         ("ses-dalgasi-plaketi.jpg", "sevgi", {}, 2),

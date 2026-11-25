@@ -1367,7 +1367,7 @@
     "sys": 1,
     "olcu": {
      "U": 42,
-     "maxPlate": 252,
+     "maxPlate": 210,
      "strategy": "Dengeli_Bolme",
      "W": 594,
      "D": 482,
@@ -1908,8 +1908,8 @@
    }
   ],
   "olcum": {
-   "kutleG": 2816.91,
-   "sureSaat": 56.49
+   "kutleG": 2841.42,
+   "sureSaat": 57.54
   }
  },
  "araba-yolu": {
@@ -3289,7 +3289,7 @@
     "fp-kose": "4",
     "fp-kenarlik": "3",
     "fp-renk-kenarlik": "1",
-    "fp-asma": "bant",
+    "fp-asma": "civi",
     "fp-mod": "renkli",
     "fp-renk-sayi": "4",
     "fp-renk-1": "lacivert",
@@ -3346,7 +3346,7 @@
    },
    {
     "ad": "Duruş",
-    "deger": "Duvar (bant)"
+    "deger": "Duvar (çivi)"
    },
    {
     "ad": "Renk düzeni",
@@ -3394,8 +3394,8 @@
    }
   ],
   "olcum": {
-   "kutleG": 74.36,
-   "sureSaat": 2.55
+   "kutleG": 81.76,
+   "sureSaat": 2.76
   }
  },
  "foto-kutu": {
@@ -3411,12 +3411,13 @@
     "fk-yuk": "50",
     "fk-kose": "10",
     "fk-bolme": "yok",
+    "fk-doku": "yivli",
     "fk-acik": false,
     "fk-mod": "renkli",
     "fk-renk-sayi": "4",
     "fk-renk-1": "yesil",
-    "fk-renk-2": "acikyesil",
-    "fk-renk-3": "pembe",
+    "fk-renk-2": "pembe",
+    "fk-renk-3": "sari",
     "fk-renk-4": "beyaz",
     "fk-parlak": "0",
     "fk-kontrast": "0",
@@ -3467,6 +3468,10 @@
     "deger": "Yok"
    },
    {
+    "ad": "Duvar",
+    "deger": "Yivli"
+   },
+   {
     "ad": "Renk düzeni",
     "deger": "Renkli"
    },
@@ -3480,11 +3485,11 @@
    },
    {
     "ad": "Renk 2",
-    "deger": "Açık yeşil"
+    "deger": "Pembe"
    },
    {
     "ad": "Renk 3",
-    "deger": "Pembe"
+    "deger": "Sarı"
    },
    {
     "ad": "Renk 4",
@@ -3516,12 +3521,12 @@
    },
    {
     "ad": "Filamentler",
-    "deger": "Yeşil, Açık yeşil, Pembe, Beyaz"
+    "deger": "Yeşil, Pembe, Sarı, Beyaz"
    }
   ],
   "olcum": {
-   "kutleG": 106.2,
-   "sureSaat": 3.44
+   "kutleG": 101.32,
+   "sureSaat": 3.31
   }
  },
  "ses-dalgasi-plaketi": {
@@ -3600,6 +3605,73 @@
   "olcum": {
    "kutleG": 62.48,
    "sureSaat": 2.06
+  }
+ },
+ "dalgali-vazo": {
+  "durum": {
+   "surum": 1,
+   "alanlar": {
+    "dv-bicim": "lilyum",
+    "dv-boy": "240",
+    "dv-cap": "160",
+    "dv-yon": "dikey",
+    "dv-burgu": "120",
+    "dv-yer": "tumu",
+    "dv-sayi": "24",
+    "dv-derin": "3.8",
+    "dv-renk": "beyaz",
+    "dv-duvar": "2",
+    "dv-taban": "2.4"
+   },
+   "gruplar": {},
+   "dosyalar": {},
+   "ek": null
+  },
+  "ozet": [
+   {
+    "ad": "Biçim",
+    "deger": "Lilyum"
+   },
+   {
+    "ad": "Boy",
+    "deger": "240 mm"
+   },
+   {
+    "ad": "En geniş çap",
+    "deger": "160 mm"
+   },
+   {
+    "ad": "Dalganın yönü",
+    "deger": "Dikey"
+   },
+   {
+    "ad": "Burgu",
+    "deger": "120 °"
+   },
+   {
+    "ad": "Dalganın yeri",
+    "deger": "Bütün gövde"
+   },
+   {
+    "ad": "Dalga sayısı",
+    "deger": "24 adet"
+   },
+   {
+    "ad": "Dalga derinliği",
+    "deger": "3.8 mm"
+   },
+   {
+    "ad": "Renk",
+    "deger": "Beyaz"
+   },
+   {
+    "ad": "Vazo ölçüsü",
+    "deger": "Ø160 × 240 mm"
+   }
+  ],
+  "olcum": {
+   "kutleG": 196.37,
+   "sureSaat": 7.06
   }
  }
 }

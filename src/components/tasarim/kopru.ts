@@ -48,7 +48,7 @@ export interface AracArayuzu {
    */
   uretimProjesi?: (
     kaynak: (AracDosyasi & { nesne?: string; tekRenk?: boolean })[],
-    secenek: { adet: number; duzen?: TablaDuzeni }
+    secenek: { adet: number; duzen?: TablaDuzeni; katman?: BaskiKatmani }
   ) => Promise<UretimSonucu>;
   /** Modelin basılacak renkleri (atölye, renkli.js) */
   renkListesi?: () => AracRengi[];
@@ -90,6 +90,16 @@ export interface AracRengi {
  *   ayri → tek renkli parçalar her durumda rengine göre ayrı tablada
  */
 export type TablaDuzeni = "oto" | "tek" | "ayri";
+
+/**
+ * Baskı katmanı.
+ *   standart → 0,20 mm (profilin kendi değeri)
+ *   hizli    → tek filamentli tabladaki 6 mm'den yüksek parçalar 0,28 mm:
+ *              saksı, kâse, kutu gövdesi gibi parçalarda süre dörtte bir
+ *              kısalır, katman çizgisi belirginleşir. Çok renkli tablalar
+ *              ve litofan 0,20 mm kalır.
+ */
+export type BaskiKatmani = "standart" | "hizli";
 
 /** Üretim projesinin bir tablası: hangi renk(ler), hangi parçadan kaç tane */
 export interface UretimTablasi {

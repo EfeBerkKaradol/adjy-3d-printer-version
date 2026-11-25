@@ -10,7 +10,7 @@
 import { RENKLI_PAKET_SECICI, type TasarimAraci } from "@/lib/tasarim/catalog";
 import type { TasarimDosyasi, TasarimSecimi } from "@/lib/tasarim/order";
 import type { KaydedilecekDosya } from "@/lib/tasarim/kaydet";
-import type { AracArayuzu, AracDosyasi, TablaDuzeni, UretimSonucu } from "./kopru";
+import type { AracArayuzu, AracDosyasi, BaskiKatmani, TablaDuzeni, UretimSonucu } from "./kopru";
 
 export interface IndirilecekSiparis {
   id: string;
@@ -157,12 +157,13 @@ export async function uretimProjesi(
   arayuz: AracArayuzu,
   parcalar: ParcaDosyasi[],
   adet: number,
-  duzen: TablaDuzeni = "oto"
+  duzen: TablaDuzeni = "oto",
+  katman: BaskiKatmani = "standart"
 ): Promise<UretimSonucu | null> {
   const stller = parcalar.filter((d) => /\.stl$/i.test(d.ad));
   if (!arayuz.uretimProjesi || stller.length === 0) return null;
   try {
-    return await arayuz.uretimProjesi(stller, { adet, duzen });
+    return await arayuz.uretimProjesi(stller, { adet, duzen, katman });
   } catch {
     return null;
   }
@@ -178,13 +179,14 @@ export async function uretimDosyalari(
   arac: TasarimAraci,
   siparis: IndirilecekSiparis,
   kalem: IndirilecekKalem,
-  duzen: TablaDuzeni = "oto"
+  duzen: TablaDuzeni = "oto",
+  katman: BaskiKatmani = "standart"
 ): Promise<KaydedilecekDosya[]> {
   const parcalar = await parcaDosyalari(arayuz, arac);
   const dosyalar: KaydedilecekDosya[] = parcalar.map((d) => ({ ad: d.ad, blob: d.blob }));
 
   // Basılacak dosya: üretim projesi (klasörde en üstte dursun diye adı öne alınır)
-  const proje = await uretimProjesi(arayuz, parcalar, kalem.adet, duzen);
+  const proje = await uretimProjesi(arayuz, parcalar, kalem.adet, duzen, katman);
   if (proje) dosyalar.unshift(...proje.dosyalar);
 
   // Renk STL'leri (montajlı duruş) ve belgeler
