@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
 
   images: {
+    // Vercel görsel optimizasyonu kotası dolunca /_next/image 402 döndü ve
+    // önbellekte olmayan bütün görseller kırıldı. Görseller zaten küçük
+    // (ürün renderları ~90 KB JPEG): dosya olduğu gibi sunulur.
+    unoptimized: true,
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {
