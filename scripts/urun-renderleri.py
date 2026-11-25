@@ -120,6 +120,7 @@ AL_JS = r"""() => {
       saydam: mat.transparent ? 1 - mat.opacity : (mat.transmission || 0),
       isik: mat.emissive && mat.emissive.getHex() !== 0 && (mat.emissiveIntensity || 0) > 0.05 ? '#' + mat.emissive.getHexString() : null,
       isikGuc: mat.emissiveIntensity || 0, tur: mat.type,
+      dokulu: mat.bumpMap ? (mat.bumpScale || 1) : 0,
     });
   });
   const yon = new T.Vector3();

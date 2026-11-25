@@ -12,6 +12,8 @@
                yer: bütün gövde · karın · boyun · ağız
                sayı ve derinlik; dalganın tepesi dış ölçüyü belirler
                (derinlik içe doğrudur: çap değişmez)
+     yüzey   → pürüzsüz ya da pürüzlü. Pürüz ağda değil dilimlemededir (dış
+               duvar titretilir); önizlemede kabartma dokusu olarak görünür
      sızdırmazlık → duvar üç çevreyle, taban tam dolu basılır (üretim
                projesinde kayıtlı); ağız kenarı yuvarlatılmış, taban kenarı
                pahlı
@@ -20,7 +22,7 @@
    derinliği kendiliğinden kısılır (uyarıyla).
    ========================================================================== */
 import {
-  el, sayi, clamp, VITRIN, sahneKur, malzeme, ag, hacim, olcum, stl, indir, csv,
+  THREE, el, sayi, clamp, VITRIN, sahneKur, malzeme, ag, hacim, olcum, stl, indir, csv,
   formBagla, alanlariYaz, tabloYaz, sureYaz, kapKur,
 } from "../../_adjy/arac-ortak.js";
 
@@ -78,6 +80,7 @@ function oku() {
     derin: clamp(sayi("dv-derin", 3.8), 0, 7),
     yer: el("dv-yer").value,
     renk: el("dv-renk").value,
+    yuzey: el("dv-yuzey").value,
     duvar: clamp(sayi("dv-duvar", 2), 1.6, 3.2),
     taban: clamp(sayi("dv-taban", 2.4), 1.6, 6),
   };
@@ -129,6 +132,42 @@ function yuzey(P) {
   return { dis, ic, R, A, capKisildi, dalgaKisildi, halka, yatay };
 }
 
+/** Pürüz dokusu: tekrarlanan gri benek; kabartma haritası olarak kullanılır */
+const DOKU = (() => {
+  const t = document.createElement("canvas");
+  t.width = t.height = 128;
+  const c = t.getContext("2d");
+  const v = c.createImageData(128, 128);
+  let a = 1234567;
+  for (let i = 0; i < v.data.length; i += 4) {
+    a = (a * 1664525 + 1013904223) >>> 0;
+    const g = 60 + ((a >>> 24) / 255) * 195;
+    v.data[i] = v.data[i + 1] = v.data[i + 2] = g;
+    v.data[i + 3] = 255;
+  }
+  c.putImageData(v, 0, 0);
+  const d = new THREE.CanvasTexture(t);
+  d.wrapS = d.wrapT = THREE.RepeatWrapping;
+  return d;
+})();
+const DOKU_BOYU = 9; // mm: dokunun bir tekrarı
+
+/** Silindirik doku koordinatı (çevre boyunca tam sayıda tekrar; dikiş üçgenleri düzeltilir) */
+function uvEkle(g, R) {
+  const p = g.attributes.position;
+  const uv = new Float32Array(p.count * 2);
+  const tekrar = Math.max(1, Math.round((2 * Math.PI * R) / DOKU_BOYU));
+  for (let i = 0; i < p.count; i += 3) {
+    const u = [0, 1, 2].map((k) => Math.atan2(p.getY(i + k), p.getX(i + k)) / (2 * Math.PI));
+    if (Math.max(...u) - Math.min(...u) > 0.5) for (let k = 0; k < 3; k++) if (u[k] < 0) u[k] += 1;
+    for (let k = 0; k < 3; k++) {
+      uv[(i + k) * 2] = u[k] * tekrar;
+      uv[(i + k) * 2 + 1] = p.getZ(i + k) / DOKU_BOYU;
+    }
+  }
+  g.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
+}
+
 const S_ = sahneKur({ tuval: el("dv-tuval"), kutu: document.querySelector(".yb-sahne") });
 S_.bakis.set(-0.5, -0.82, 0.3);
 const mat = malzeme(RENK.beyaz, { roughness: 0.46 });
@@ -153,6 +192,12 @@ function kur() {
   const egim = (Math.atan(enDik) * 180) / Math.PI;
 
   mat.color.setHex(RENK[P.renk] ?? RENK.beyaz);
+  const puruz = P.yuzey === "hafif" ? 1 : P.yuzey === "belirgin" ? 2 : 0;
+  if (puruz) uvEkle(g, Y.R);
+  mat.bumpMap = puruz ? DOKU : null;
+  mat.bumpScale = puruz * 1.1;
+  mat.roughness = [0.46, 0.72, 0.88][puruz];
+  mat.needsUpdate = true;
   S_.modeliYaz([ag(g, mat, "vazo")]);
   const v = hacim(g);
   const o = olcum(v, 0);
@@ -168,6 +213,7 @@ function kur() {
     hazir: true,
     olcum: o,
     olcu: `Ø${(2 * Y.R).toFixed(0)} × ${P.H} mm`,
+    yuzey: P.yuzey,
   };
 }
 
@@ -185,6 +231,7 @@ function bilgiYaz() {
     ["Dış ölçü", `Ø${cap.toFixed(1)} × ${P.H} mm`],
     ["Ağız iç çapı", `${agizCap.toFixed(0)} mm`],
     ["Dalga", P.derin > 0 ? `${Y.yatay ? Y.halka + " halka" : P.N + " yiv"} · ${(Y.A * 2).toFixed(1)} mm derin` : "yok"],
+    ["Yüzey", P.yuzey === "puruzsuz" ? "pürüzsüz" : `pürüzlü (${P.yuzey === "hafif" ? "0,2" : "0,4"} mm, dilimleyicide dış duvar)`],
     ["Duvar / taban", `${P.duvar.toFixed(1)} / ${P.taban.toFixed(1)} mm`],
     ["En dik yüzey", `${egim.toFixed(0)}° (sınır 50°)`],
     ["Su hacmi ≈", `${suHacmi().toFixed(2)} L`],
@@ -220,7 +267,7 @@ el("dv-csv").addEventListener("click", () => {
   const { P, Y, olcum: o, egim, cap } = SON;
   indir(csv([
     ["Alan", "Deger"], ["Bicim", P.bicim], ["Cap_mm", cap.toFixed(1)], ["Boy_mm", P.H], ["Dalga_yonu", P.yon], ["Burgu_derece", P.burgu],
-    ["Dalga_sayisi", P.N], ["Dalga_derinligi_mm", (Y.A * 2).toFixed(1)], ["Dalga_yeri", P.yer], ["Renk", P.renk],
+    ["Dalga_sayisi", P.N], ["Dalga_derinligi_mm", (Y.A * 2).toFixed(1)], ["Dalga_yeri", P.yer], ["Renk", P.renk], ["Yuzey", P.yuzey],
     ["Duvar_mm", P.duvar], ["Taban_mm", P.taban], ["En_dik_yuzey_derece", egim.toFixed(0)], ["Su_hacmi_L", suHacmi().toFixed(2)],
     ["Baski", "Tabani ustune, desteksiz; 3 cevre, taban tam dolu (sizdirmaz)"],
     ["Kutle_g_PLA", o.kutleG.toFixed(0)], ["Sure_sa", o.sureSaat.toFixed(2)],
@@ -228,10 +275,10 @@ el("dv-csv").addEventListener("click", () => {
 });
 
 const HAZIR = {
-  lilyum: { "dv-bicim": "lilyum", "dv-boy": 240, "dv-cap": 160, "dv-yon": "dikey", "dv-sayi": 24, "dv-derin": 3.8, "dv-yer": "tumu", "dv-renk": "beyaz" },
-  burgu: { "dv-bicim": "lilyum", "dv-boy": 220, "dv-cap": 150, "dv-yon": "saga", "dv-burgu": 140, "dv-sayi": 16, "dv-derin": 5, "dv-yer": "tumu", "dv-renk": "terakota" },
-  halka: { "dv-bicim": "lale", "dv-boy": 200, "dv-cap": 130, "dv-yon": "yatay", "dv-sayi": 28, "dv-derin": 2.8, "dv-yer": "tumu", "dv-renk": "adacayi" },
-  yalin: { "dv-bicim": "sutun", "dv-boy": 180, "dv-cap": 110, "dv-yon": "dikey", "dv-sayi": 32, "dv-derin": 3, "dv-yer": "karin", "dv-renk": "antrasit" },
+  lilyum: { "dv-bicim": "lilyum", "dv-boy": 240, "dv-cap": 160, "dv-yon": "dikey", "dv-sayi": 24, "dv-derin": 3.8, "dv-yer": "tumu", "dv-renk": "beyaz", "dv-yuzey": "puruzsuz" },
+  burgu: { "dv-bicim": "lilyum", "dv-boy": 220, "dv-cap": 150, "dv-yon": "saga", "dv-burgu": 140, "dv-sayi": 16, "dv-derin": 5, "dv-yer": "tumu", "dv-renk": "terakota", "dv-yuzey": "hafif" },
+  halka: { "dv-bicim": "lale", "dv-boy": 200, "dv-cap": 130, "dv-yon": "yatay", "dv-sayi": 28, "dv-derin": 2.8, "dv-yer": "tumu", "dv-renk": "adacayi", "dv-yuzey": "puruzsuz" },
+  yalin: { "dv-bicim": "sutun", "dv-boy": 180, "dv-cap": 110, "dv-yon": "dikey", "dv-sayi": 32, "dv-derin": 3, "dv-yer": "karin", "dv-renk": "antrasit", "dv-yuzey": "belirgin" },
 };
 document.querySelectorAll("[data-hazir]").forEach((b) => {
   b.addEventListener("click", () => {

@@ -164,6 +164,19 @@ def pla(ad, a, pikselMm):
     nt.links.new(kar.outputs[0], bump.inputs["Height"])
     if guc > 0.02 and saydam <= 0.05:
         nt.links.new(bump.outputs["Normal"], p.inputs["Normal"])
+    # Pürüzlü yüzey (dilimleyicide titretilmiş dış duvar): ince taneli kabartma
+    dokulu = float(a.get("dokulu", 0) or 0)
+    if dokulu > 0:
+        gurultu = nt.nodes.new("ShaderNodeTexNoise")
+        gurultu.inputs["Scale"].default_value = 1500
+        gurultu.inputs["Detail"].default_value = 3
+        nt.links.new(geo.outputs["Position"], gurultu.inputs["Vector"])
+        tane = nt.nodes.new("ShaderNodeBump")
+        tane.inputs["Strength"].default_value = min(1.0, 0.45 * dokulu)
+        tane.inputs["Distance"].default_value = 0.00025
+        nt.links.new(gurultu.outputs["Fac"], tane.inputs["Height"])
+        nt.links.new(tane.outputs["Normal"], p.inputs["Normal"])
+        p.inputs["Roughness"].default_value = 0.62
     return mat
 
 
@@ -286,7 +299,7 @@ def ciz(sahneYolu, cikti):
     # --- malzeme ve nesneler
     matlar = {}
     for a, v, kr in veriler:
-        anahtar = json.dumps([a.get(k) for k in ("renk", "puruz", "metal", "saydam", "isik", "isikGuc")]) + ("k" if kr is not None else "")
+        anahtar = json.dumps([a.get(k) for k in ("renk", "puruz", "metal", "saydam", "isik", "isikGuc", "dokulu")]) + ("k" if kr is not None else "")
         if anahtar not in matlar:
             matlar[anahtar] = pla(a.get("ad", "pla"), a, pikselMm)
         o = ag_kur(a.get("ad") or "ag", v, kr)

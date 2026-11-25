@@ -630,7 +630,9 @@
   /** Nesnenin dilimleme ayarı: { anahtar: değer }. tekRenkTabla: tablada tek filament var */
   function nesneAyari(n, tekRenkTabla, hizli) {
     var kural = null;
-    (AYAR.baski || []).concat(VARSAYILAN_KURAL).some(function (k) {
+    // Araç kuralı seçime göre değişiyorsa (vazoda pürüzlü yüzey) işlev olarak verir
+    var aracKurali = typeof AYAR.baski === "function" ? AYAR.baski() || [] : AYAR.baski || [];
+    aracKurali.concat(VARSAYILAN_KURAL).some(function (k) {
       try {
         if (new RegExp(k.ad, "i").test(n.ad)) { kural = k; return true; }
       } catch (e) { /* bozuk ifade: yok say */ }

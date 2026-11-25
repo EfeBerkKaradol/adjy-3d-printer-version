@@ -114,7 +114,7 @@
       </section>
 
       <section class="yb-grup" id="grup-renk">
-        <h2 class="yb-baslik">Renk</h2>
+        <h2 class="yb-baslik">Renk ve yüzey</h2>
         <div class="param-row yb-renk-satir" id="dv-renk-satir">
           <label class="yb-etiket" for="dv-renk">Renk</label>
           <select id="dv-renk" class="yb-gizli-secim">
@@ -134,6 +134,20 @@
             <button type="button" data-v="mor" style="--r:#6a3fa0" title="Mor"></button>
             <button type="button" data-v="kirmizi" style="--r:#c8242b" title="Kırmızı"></button>
           </div>
+        </div>
+        <div class="param-row" id="dv-yuzey-satir">
+          <label class="yb-etiket" for="dv-yuzey">Yüzey</label>
+          <select id="dv-yuzey" class="yb-gizli-secim">
+            <option value="puruzsuz" selected>Pürüzsüz</option>
+            <option value="hafif">Hafif pürüzlü</option>
+            <option value="belirgin">Pürüzlü</option>
+          </select>
+          <div class="yb-seg" data-secim="dv-yuzey">
+            <button type="button" data-v="puruzsuz">Pürüzsüz</button>
+            <button type="button" data-v="hafif">Hafif pürüzlü</button>
+            <button type="button" data-v="belirgin">Pürüzlü</button>
+          </div>
+          <p class="yb-not">Pürüzlü yüzey mat ve kumlu durur, katman çizgilerini gizler. Vazonun ölçüsü ve su tutması değişmez.</p>
         </div>
       </section>
     </aside>

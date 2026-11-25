@@ -7,7 +7,18 @@
     ad: "Dalgalı Vazo",
     // Sızdırmazlık dilimleme ayarındadır (bkz. ../_adjy/renkli.js): duvar üç
     // çevreyle tam dolu, taban tam dolu; dikiş hizalı (bir yivin dibinde kalır)
-    baski: [{ ad: ".", ayar: { wall_loops: "3", sparse_infill_density: "100%", bottom_shell_layers: "5", seam_position: "aligned" } }],
+    // Pürüzlü yüzey geometride değil dilimlemededir: dış duvar rastgele titretilir
+    // ("fuzzy skin"); iç iki çevre düz kalır, vazo yine su tutar.
+    baski: function () {
+      var a = { wall_loops: "3", sparse_infill_density: "100%", bottom_shell_layers: "5", seam_position: "aligned" };
+      var y = d() && d().yuzey;
+      if (y === "hafif" || y === "belirgin") {
+        a.fuzzy_skin = "external";
+        a.fuzzy_skin_thickness = y === "hafif" ? "0.2" : "0.4";
+        a.fuzzy_skin_point_distance = y === "hafif" ? "0.6" : "0.8";
+      }
+      return [{ ad: ".", ayar: a }];
+    },
     yerlesim: { kap: ".yb-izgara", panel: ".yb-panel", sahne: ".yb-sahne" },
 
     adimlar: [

@@ -1047,8 +1047,8 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ad: "Dalgalı Vazo",
     ozet: "Zambak soğanı biçiminde, yivli, sızdırmaz vazo; dalgasının yönünü ve yerini siz kurarsınız.",
     aciklama:
-      "Geniş bir karından ince bir boyna süzülen ve ağızda yeniden açılan, zambak soğanı biçiminde bir vazo. Gövdesini saran yivleri siz kurarsınız: dikey durabilir, sağa ya da sola burulabilir, yatay halkalara dönebilir; bütün gövdeyi sarabilir ya da yalnızca karında, boyunda ya da ağızda kalabilir. Dalga sayısını ve derinliğini, boyu ve en geniş çapı siz belirlersiniz; lilyum, lale ve sütun olmak üzere üç biçim vardır. Dalgalar içe doğrudur: seçtiğiniz çap değişmez. Vazo su tutar: duvarı ve tabanı tam dolu basılır, canlı çiçek koyabilirsiniz. Ağız kenarı yuvarlatılmıştır; tek parça, desteksiz basılır.",
-    ayarlar: ["Hazır vazo", "Biçim: lilyum, lale, sütun", "Boy ve en geniş çap", "Dalganın yönü: dikey, sağa burgu, sola burgu, yatay", "Dalganın yeri: bütün gövde, karın, boyun, ağız", "Dalga sayısı ve derinliği", "Renk"],
+      "Geniş bir karından ince bir boyna süzülen ve ağızda yeniden açılan, zambak soğanı biçiminde bir vazo. Gövdesini saran yivleri siz kurarsınız: dikey durabilir, sağa ya da sola burulabilir, yatay halkalara dönebilir; bütün gövdeyi sarabilir ya da yalnızca karında, boyunda ya da ağızda kalabilir. Dalga sayısını ve derinliğini, boyu ve en geniş çapı siz belirlersiniz; lilyum, lale ve sütun olmak üzere üç biçim vardır. Dalgalar içe doğrudur: seçtiğiniz çap değişmez. Yüzeyi pürüzsüz bırakabilir ya da mat, kumlu bir dokuyla pürüzlü seçebilirsiniz. Vazo su tutar: duvarı ve tabanı tam dolu basılır, canlı çiçek koyabilirsiniz. Ağız kenarı yuvarlatılmıştır; tek parça, desteksiz basılır.",
+    ayarlar: ["Hazır vazo", "Biçim: lilyum, lale, sütun", "Boy ve en geniş çap", "Dalganın yönü: dikey, sağa burgu, sola burgu, yatay", "Dalganın yeri: bütün gövde, karın, boyun, ağız", "Dalga sayısı ve derinliği", "Renk", "Yüzey: pürüzsüz ya da pürüzlü"],
     kategoriler: ["vazo-saksi", "vazo-saksi-saksilar", "ev-dekorasyon", "hediye"],
     malzeme: "PLA",
     malzemeSabit: true,
@@ -1061,7 +1061,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Su tutar", metin: "Duvar ve taban tam dolu basılır, katmanlar arasında boşluk kalmaz: canlı çiçek için su koyabilirsiniz." },
       { baslik: "Tek parça, desteksiz", metin: "Biçim, baskının taşıyabileceği eğimde kalacak şekilde kurulur; yüzeyde destek izi olmaz." },
     ],
-    gorseller: ["Lilyum: Ø160 × 240 mm, 24 düz yiv", "Burgulu: sağa dönen 16 yiv, pişmiş toprak", "Halkalı lale: yatay dalga, adaçayı", "Yalın sütun: yiv yalnız karında, antrasit"],
+    gorseller: ["Lilyum: Ø160 × 240 mm, 24 düz yiv", "Burgulu: sağa dönen 16 yiv, hafif pürüzlü", "Halkalı lale: yatay dalga, adaçayı", "Yalın sütun: pürüzlü yüzey, antrasit"],
     ciktilar: [
       { ad: "Vazo STL", sec: "#dv-stl", tur: "stl" },
       RENKLI_PAKET,

@@ -3620,6 +3620,7 @@
     "dv-sayi": "24",
     "dv-derin": "3.8",
     "dv-renk": "beyaz",
+    "dv-yuzey": "puruzsuz",
     "dv-duvar": "2",
     "dv-taban": "2.4"
    },
@@ -3663,6 +3664,10 @@
    {
     "ad": "Renk",
     "deger": "Beyaz"
+   },
+   {
+    "ad": "Yüzey",
+    "deger": "Pürüzsüz"
    },
    {
     "ad": "Vazo ölçüsü",
