@@ -16,6 +16,7 @@ Kare tanımları: scripts/yilbasi-kareleri.py (ARACLAR) + bu dosyadaki ESKI ara�
 import base64
 import importlib.util
 import json
+import re
 import os
 import subprocess
 import sys
@@ -203,8 +204,10 @@ def animasyon(sayfa, arac, tur, tanim, hedef: Path, gecici: Path):
         # Zemin gibi ayıklanan düzlemler kutuya girmesin diye kutu, yazımdan sonra yeniden hesaplanır
         yol = sahne_yaz(veri, klasor / f"k{no:03d}", 1.0)
         isler.append({"sahne": str(yol), "cikti": str(klasor / f"kare_{no:03d}.jpg")})
-    mn = [min(a["kutu"][i] for v in veriler for a in v["aglar"]) for i in range(3)]
-    mx = [max(a["kutu"][i + 3] for v in veriler for a in v["aglar"]) for i in range(3)]
+    # Duvarda ayak çizilmez: kutuya da girmesin (ürün kadrajda küçülmesin)
+    sayilir = lambda a: not (ayar.get("ortam") == "duvar" and re.search(r"ayak|stand", a.get("ad", ""), re.I))
+    mn = [min(a["kutu"][i] for v in veriler for a in v["aglar"] if sayilir(a)) for i in range(3)]
+    mx = [max(a["kutu"][i + 3] for v in veriler for a in v["aglar"] if sayilir(a)) for i in range(3)]
     for is_ in isler:
         v = json.loads(Path(is_["sahne"]).read_text(encoding="utf-8"))
         v["kutu"] = [mn, mx]

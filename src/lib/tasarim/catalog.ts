@@ -766,6 +766,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Masada da duvarda da", metin: "Eğik yarıklı ayağına oturur, 12° geriye yaslanır; isterseniz iki vida deliğiyle duvara asılır." },
     ],
     gorseller: ["Evde: duvarda", "Neon gece: mor güneş, turkuaz palmiye", "Öğlen sahili: beyaz zemin, duvar delikli", "Yalnız yazı: çerçeve ve palmiyeler", "Gün batımı: turuncu güneş, pembe yazı"],
+    animasyon: true,
     ciktilar: [
       { ad: "Zemin STL", sec: "#ns-stl-zemin", tur: "stl", nesne: "Tabela" },
       { ad: "Güneş STL", sec: "#ns-stl-gunes", tur: "stl", nesne: "Tabela" },
@@ -923,6 +924,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Çerçevesiyle sergilenir", metin: "Tamamlanan yapboz yuvalı çerçevesinde durur; alt bandına adınızı ya da tarihi yazarsınız." },
     ],
     gorseller: ["Evde: masanın üstünde", "Portre: 100 parça, siyah beyaz", "Şehir manzarası: 48 parça, ayaklı", "Mini: 16 parça, çerçevesiz", "Balonlar: 48 parça, kalpli çerçeve"],
+    animasyon: true,
     ciktilar: [
       { ad: "Yapboz · renk 1 STL", sec: "#fy-stl-r1", tur: "stl", nesne: "Yapboz", tekRenk: true },
       { ad: "Yapboz · renk 2 STL", sec: "#fy-stl-r2", tur: "stl", nesne: "Yapboz", tekRenk: true },
@@ -1037,6 +1039,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Üç renk, tek baskı", metin: "Zemin, dalga ve yazı ayrı filamentle aynı baskıda çıkar; kabartma elde hissedilir." },
     ],
     gorseller: ["Evde: duvarda", "İlk kelime: dolu dalga, turkuaz", "Ses halkası: kare, duvar", "Bizim şarkı: uzun, 90 çubuk", "Seni seviyorum: çubuk dalga, masa ayağı"],
+    animasyon: true,
     ciktilar: [
       { ad: "Zemin STL", sec: "#sd-stl-zemin", tur: "stl", nesne: "Plaket" },
       { ad: "Dalga STL", sec: "#sd-stl-dalga", tur: "stl", nesne: "Plaket" },
