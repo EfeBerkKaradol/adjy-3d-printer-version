@@ -159,6 +159,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Kilitlenen alt tabak", metin: "Alt tabak gövdeye çevrilerek oturur ve fazla suyu tutar; saksıyı taşırken düşmez." },
     ],
     gorseller: ["Evde: masanın üstünde", "Sarmal doku, adaçayı yeşili", "Yivli doku, kemik rengi", "Büyük boy, antrasit", "Orta boy, pişmiş toprak"],
+    animasyon: true,
     ciktilar: [
       { ad: "Saksı STL", sec: "#btn-stl-planter", tur: "stl" },
       { ad: "Alt tabak STL", sec: "#btn-stl-tray", tur: "stl" },
@@ -595,6 +596,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Işıkla değişir", metin: "Yandan vuran güneşte tepeler uzun gölgeler bırakır; gün boyu başka görünür." },
     ],
     gorseller: ["Evde: duvarda", "Kum denizi: sık, paralel sırtlar", "Kıvrık sırtlar, pas rengi", "Tek tepe, kemik rengi", "Hilal tepeler, kum rengi"],
+    animasyon: true,
     ciktilar: [
       { ad: "Pano STL", sec: "#kp-stl", tur: "stl" },
       RENKLI_PAKET,
@@ -682,6 +684,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Parmağı korur", metin: "Geniş tutma kenarı bastırırken avucunuza oturur; deliğiyle kalıplar bir ipe dizilip asılır." },
     ],
     gorseller: ["Evde: masanın üstünde", "Kurabiye adam, yeşil", "Kardan adam, beyaz", "Kar tanesi, buz mavisi", "Yıldız, kırmızı"],
+    animasyon: true,
     ciktilar: [
       { ad: "Kalıp STL", sec: "#kk-stl", tur: "stl" },
       RENKLI_PAKET,
@@ -710,6 +713,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Sofradan sonra hatıra", metin: "Kart ayağından çıkar; misafiriniz evine götürür, ağaca ya da rafa koyar." },
     ],
     gorseller: ["Evde: masanın üstünde", "Yıldızlı: siyah ve altın", "Kar tanesi: beyaz ve buz mavisi", "Kırmızı çan", "Klasik: çam, el yazısı, altın"],
+    animasyon: true,
     ciktilar: [
       { ad: "Kart STL", sec: "#sk-stl-kart", tur: "stl", nesne: "Kart" },
       { ad: "Yazı ve motif STL", sec: "#sk-stl-yazi", tur: "stl", nesne: "Kart" },
@@ -742,6 +746,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Mum LED'iyle birlikte", metin: "Fener pilli mum LED'in üstüne kapatılır; LED kutudan çıkar." },
     ],
     gorseller: ["Evde: masanın üstünde", "Kar yağışı: parlayan kar taneleri", "Yıldızlı gece, hilal ay", "İsimli: Mutlu Yıllar", "Çam ormanı, ışık yanınca"],
+    animasyon: true,
     ciktilar: [
       { ad: "Fener STL", sec: "#yf-stl", tur: "stl" },
       RENKLI_PAKET,
@@ -865,6 +870,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Kendi çölünüz", metin: "Doksan dokuz desen: aynı numara hep aynı ufku verir. İki ayı, gezgini ve paleti siz seçersiniz." },
     ],
     gorseller: ["Evde: duvarda", "Gece yürüyüşü: gezgin, lacivert gök", "Baharat vadisi: daire, turuncu ay", "Sessiz çöl: kemik tonları, çerçevesiz", "İki ay: kemer, gün batımı"],
+    animasyon: true,
     ciktilar: [
       { ad: "Gök levhası STL", sec: "#cu-stl-gok", tur: "stl", nesne: "Pano" },
       { ad: "Aylar STL", sec: "#cu-stl-ay", tur: "stl", nesne: "Pano" },
