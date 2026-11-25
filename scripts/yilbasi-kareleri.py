@@ -185,6 +185,9 @@ def main() -> None:
             sayfa.wait_for_timeout(1500)
             for kare in kareler:
                 dosya, hazir, alanlar, yakin = kare[:4]
+                # <arac>.jpg ortam fotoğrafına ayrılmıştır (urun-renderleri.py --ortam): ilk kare sona yazılır
+                if dosya == f"{arac}.jpg":
+                    dosya = f"{arac}-{len(kareler) + 1}.jpg"
                 tikla = kare[4] if len(kare) > 4 else []
                 if hazir:
                     sayfa.evaluate("s => document.querySelector(s).click()", f'[data-hazir="{hazir}"]')

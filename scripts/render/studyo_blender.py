@@ -11,12 +11,15 @@ isler.json: [{ "sahne": "<klasör>/sahne.json", "cikti": "<dosya>.jpg" }, …]
 sahne.json: { up, bakis, fov, aglar: [{ ad, dosya, renk, puruz, metal, saydam, isik, isikGuc, koseRenk }] }
 Ağ dosyaları: float32, üçgen başına 9 sayı, dünya koordinatı (mm).
 """
-import json, math, os, sys, time
+import json, math, os, re, sys, time
 
 import bpy
 import bmesh
 import numpy as np
 from mathutils import Matrix, Vector
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import ortam  # ev ortamları: masa, duvar
 
 BOY = 1100
 ORNEK = int(os.environ.get("ADJY_ORNEK", 48))
@@ -236,37 +239,9 @@ def fon_kur(c, R, z0, fh, rh):
     return o
 
 
-def ciz(sahneYolu, cikti):
-    t0 = time.time()
-    temizle()
-    S = json.load(open(sahneYolu, encoding="utf-8"))
-    klasor = os.path.dirname(sahneYolu)
-    sc = bpy.context.scene
-    C = cevir(S["up"])
-    Cn = np.array(C, dtype=np.float32)
-
-    # --- ağlar
-    hepsi = []
-    veriler = []
-    for a in S["aglar"]:
-        v = np.fromfile(os.path.join(klasor, a["dosya"]), dtype=np.float32).reshape(-1, 3)
-        if len(v) < 3:
-            continue
-        v = (v @ Cn.T) * OLCEK
-        kr = None
-        if a.get("koseRenk"):
-            kr = np.fromfile(os.path.join(klasor, a["koseRenk"]), dtype=np.float32).reshape(-1, 3)
-        veriler.append((a, v, kr))
-        hepsi.append(v)
-    tum = np.concatenate(hepsi)
-    mn, mx = Vector(tum.min(axis=0).tolist()), Vector(tum.max(axis=0).tolist())
-    c = (mn + mx) / 2
-    R = max(0.02, (mx - mn).length / 2)
-    # "havada": sarkıt gibi asılı ürünlerde zemin, model yüksekliğinin bu oranı kadar aşağıda
-    z0 = mn.z - float(S.get("havada", 0)) * (mx.z - mn.z)
-
+def studyo(S, sc, mn, mx, c, R, z0, bakis):
+    """Boş stüdyo: sonsuz fon, üç ışık. Döner: (kamera uzaklığı, fov)."""
     # --- kamera: aracın bakış yönü korunur, uzaklık kadraja göre yeniden kurulur
-    bakis = (C @ Vector(S["bakis"])).normalized()  # kameradan modele
     if bakis.z > -0.12:  # yatay bakış: ürün fotoğrafı gibi hafif yukarıdan
         bakis = Vector((bakis.x, bakis.y, -0.22)).normalized()
     fov = math.radians(30)
@@ -294,16 +269,6 @@ def ciz(sahneYolu, cikti):
     kam.dof.use_dof = True
     kam.dof.focus_distance = uzak
     kam.dof.aperture_fstop = 20
-    pikselMm = (2 * uzak * math.tan(fov / 2) / BOY) / OLCEK
-
-    # --- malzeme ve nesneler
-    matlar = {}
-    for a, v, kr in veriler:
-        anahtar = json.dumps([a.get(k) for k in ("renk", "puruz", "metal", "saydam", "isik", "isikGuc", "dokulu")]) + ("k" if kr is not None else "")
-        if anahtar not in matlar:
-            matlar[anahtar] = pla(a.get("ad", "pla"), a, pikselMm)
-        o = ag_kur(a.get("ad") or "ag", v, kr)
-        o.data.materials.append(matlar[anahtar])
 
     # --- fon ve ışıklar (kameranın yatay yönüne göre)
     fh = Vector((bakis.x, bakis.y, 0))
@@ -320,6 +285,59 @@ def ciz(sahneYolu, cikti):
     dunya.node_tree.nodes["Background"].inputs["Color"].default_value = (1, 1, 1, 1)
     dunya.node_tree.nodes["Background"].inputs["Strength"].default_value = float(os.environ.get("ADJY_DUNYA", 0.1))
     sc.world = dunya
+    return uzak, fov
+
+
+def ciz(sahneYolu, cikti):
+    t0 = time.time()
+    temizle()
+    S = json.load(open(sahneYolu, encoding="utf-8"))
+    klasor = os.path.dirname(sahneYolu)
+    sc = bpy.context.scene
+    C = cevir(S["up"])
+    Cn = np.array(C, dtype=np.float32)
+
+    # --- ağlar
+    hepsi = []
+    veriler = []
+    for a in S["aglar"]:
+        v = np.fromfile(os.path.join(klasor, a["dosya"]), dtype=np.float32).reshape(-1, 3)
+        if len(v) < 3:
+            continue
+        v = (v @ Cn.T) * OLCEK
+        kr = None
+        if a.get("koseRenk"):
+            kr = np.fromfile(os.path.join(klasor, a["koseRenk"]), dtype=np.float32).reshape(-1, 3)
+        veriler.append((a, v, kr))
+    ortamAdi = S.get("ortam", "studyo")
+    if ortamAdi == "duvar":
+        # Ayak gibi ayrı parçalar duvarda yok; levha dik çevrilir
+        veriler = [x for x in veriler if not re.search(r"ayak|stand", x[0].get("ad", ""), re.I)]
+        ortam.duvar_cevir(veriler, np)
+    tum = np.concatenate([v for _, v, _ in veriler])
+    mn, mx = Vector(tum.min(axis=0).tolist()), Vector(tum.max(axis=0).tolist())
+    c = (mn + mx) / 2
+    R = max(0.02, (mx - mn).length / 2)
+    # "havada": sarkıt gibi asılı ürünlerde zemin, model yüksekliğinin bu oranı kadar aşağıda
+    z0 = mn.z - float(S.get("havada", 0)) * (mx.z - mn.z)
+
+    bakis = (C @ Vector(S["bakis"])).normalized()  # kameradan modele
+    if ortamAdi == "masa":
+        uzak, fov = ortam.masa(S, mn, mx, bakis)
+    elif ortamAdi == "duvar":
+        uzak, fov = ortam.duvar(S, mn, mx)
+    else:
+        uzak, fov = studyo(S, sc, mn, mx, c, R, z0, bakis)
+    pikselMm = (2 * uzak * math.tan(fov / 2) / BOY) / OLCEK
+
+    # --- malzeme ve nesneler
+    matlar = {}
+    for a, v, kr in veriler:
+        anahtar = json.dumps([a.get(k) for k in ("renk", "puruz", "metal", "saydam", "isik", "isikGuc", "dokulu")]) + ("k" if kr is not None else "")
+        if anahtar not in matlar:
+            matlar[anahtar] = pla(a.get("ad", "pla"), a, pikselMm)
+        o = ag_kur(a.get("ad") or "ag", v, kr)
+        o.data.materials.append(matlar[anahtar])
 
     # --- çizim
     sc.render.engine = "CYCLES"

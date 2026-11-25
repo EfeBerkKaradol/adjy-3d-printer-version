@@ -152,7 +152,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Dokuyu siz kurarsınız", metin: "Dilim sayısı ve burgu açısı gövdenin karakterini belirler: düz yivli de olur, sarmal da." },
       { baslik: "Kilitlenen alt tabak", metin: "Alt tabak gövdeye çevrilerek oturur ve fazla suyu tutar; saksıyı taşırken düşmez." },
     ],
-    gorseller: ["Orta boy, pişmiş toprak","Sarmal doku, adaçayı yeşili","Yivli doku, kemik rengi","Büyük boy, antrasit"],
+    gorseller: ["Evde: masanın üstünde", "Sarmal doku, adaçayı yeşili", "Yivli doku, kemik rengi", "Büyük boy, antrasit", "Orta boy, pişmiş toprak"],
     ciktilar: [
       { ad: "Saksı STL", sec: "#btn-stl-planter", tur: "stl" },
       { ad: "Alt tabak STL", sec: "#btn-stl-tray", tur: "stl" },
@@ -183,7 +183,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Odanıza göre ölçü", metin: "Çapı 14 ile 25, yüksekliği 15 ile 25 santim arasında seçersiniz; dalga ve burgu sizin elinizde." },
       { baslik: "Duyu ve ampulü birlikte", metin: "E27 ya da E14 duya göre üretilir; duy ve ampul kutudan çıkar." },
     ],
-    gorseller: ["Klasik dalga, E27","Mimari plise","Yalın silindir","Kompakt, E14"],
+    gorseller: ["Evde: yemek masasının üstünde asılı", "Mimari plise", "Yalın silindir", "Kompakt, E14", "Klasik dalga, E27"],
     ciktilar: [
       { ad: "Avize STL", sec: "#btn-export-stl", tur: "stl" },
       RENKLI_PAKET,
@@ -211,7 +211,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Masa kalınlığınıza göre", metin: "1,8 ile 5,5 santim arasındaki tablalar için üretilir; kalınlığı siz girersiniz, kelepçe ona göre açılır." },
       { baslik: "Kulaklık da çanta da", metin: "Üstte kulaklık beşiği, altta çanta ve kablo için kanca; dört ayrı gövde modelinden biri." },
     ],
-    gorseller: ["Üst beşik ve alt kanca","Derin kancalı model","Kafes gövdeli model","Stüdyo modeli"],
+    gorseller: ["Evde: masanın üstünde", "Derin kancalı model", "Kafes gövdeli model", "Stüdyo modeli", "Üst beşik ve alt kanca"],
     ciktilar: [
       { ad: "Gövde STL", sec: "#btn-stl-body", tur: "stl" },
       { ad: "Vida STL", sec: "#btn-stl-screw", tur: "stl" },
@@ -244,7 +244,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Kesitler yerinde", metin: "USB, güç, anten ve ağ kesitlerini istediğiniz duvara, istediğiniz konuma yerleştirirsiniz." },
       { baslik: "Defalarca açılır", metin: "Kapak pirinç vida yuvalarına vidalanır; plastik diş gibi birkaç açışta sıyırmaz." },
     ],
-    gorseller: ["Raspberry Pi boyutunda kutu","Kompakt sensör kutusu","Geniş denetleyici kutusu","Güç kaynağı kutusu"],
+    gorseller: ["Evde: masanın üstünde", "Kompakt sensör kutusu", "Geniş denetleyici kutusu", "Güç kaynağı kutusu", "Raspberry Pi boyutunda kutu"],
     ciktilar: [
       { ad: "Alt kutu STL", sec: "#btn-dl-base-stl", tur: "stl" },
       { ad: "Kapak STL", sec: "#btn-dl-lid-stl", tur: "stl" },
@@ -310,7 +310,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Yazı ve simge sizden", metin: "Bağlantıyı, başlığı ve alt yazıyı girersiniz; gövde şeklini ve renk çiftini seçersiniz." },
       { baslik: "Stand ya da anahtarlık", metin: "Masada duran eğik stand olarak da, halkalı anahtarlık olarak da üretilir." },
     ],
-    gorseller: ["Kafe masası standı","Otel madalyonu","Anahtarlık","Sosyal medya rozeti"],
+    gorseller: ["Evde: masanın üstünde", "Otel madalyonu", "Anahtarlık", "Sosyal medya rozeti", "Kafe masası standı"],
     ciktilar: [
       { ad: "Tekil üretim STL", sec: "#btn-dl-stl-unit", tur: "stl" },
       RENKLI_PAKET,
@@ -339,7 +339,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Ürününüze göre yuva", metin: "Kart, kalem, jeton için ölçü girersiniz; şekli farklıysa modelini yükler, yuvayı ondan çıkarırsınız." },
       { baslik: "Masanıza oturur", metin: "Tabla M6 delikli optik masaların 25 ve 50 mm aralığına göre delinir; vidalayıp çalışmaya başlarsınız." },
     ],
-    gorseller: ["Kart fikstürü, 2×3","Kalem fikstürü","Jeton fikstürü","Matara fikstürü"],
+    gorseller: ["Evde: masanın üstünde", "Kalem fikstürü", "Jeton fikstürü", "Matara fikstürü", "Kart fikstürü, 2×3"],
     ciktilar: [
       { ad: "Fikstür STL", sec: "#btnExportSTL", tur: "stl" },
       RENKLI_PAKET,
@@ -369,7 +369,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Ölçek sizden", metin: "1:50'den 1:500'e ölçeği seçersiniz; bina ölçüsünü metre olarak girersiniz, maket ona göre küçülür." },
       { baslik: "Kendi modeliniz de olur", metin: "Revit, Rhino ya da SketchUp'tan çıkardığınız modeli yüklersiniz; aynı şekilde katlara bölünür." },
     ],
-    gorseller: ["Konut bloğu, 1:200","Ofis kulesi, 1:500","Pavyon, 1:50","Karma kullanım, 1:100"],
+    gorseller: ["Evde: masanın üstünde", "Ofis kulesi, 1:500", "Pavyon, 1:50", "Karma kullanım, 1:100", "Konut bloğu, 1:200"],
     ciktilar: [
       { ad: "Tüm katlar, ayrı ayrı (STL)", sec: "#btn-download-all-stl", tur: "stl" },
       RENKLI_PAKET,
@@ -400,7 +400,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Modül modül", metin: "Dolap, tezgâh ve sehpaları tek tek ekler, ölçülerini ayarlar, odaya yerleştirirsiniz." },
       { baslik: "Her parça ayrı", metin: "Dolaplar odadan ayrı basılır ve yerine oturur; yerlerini değiştirip başka bir dizilimi deneyebilirsiniz." },
     ],
-    gorseller: ["Mutfak","Salon ve sehpa","Yatak odası ve gardırop","Çalışma odası ve kitaplık"],
+    gorseller: ["Evde: masanın üstünde", "Salon ve sehpa", "Yatak odası ve gardırop", "Çalışma odası ve kitaplık", "Mutfak"],
     ciktilar: [
       { ad: "Tam set STL", sec: "#btnExportAllSTL", tur: "stl" },
       RENKLI_PAKET,
@@ -434,7 +434,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Kutular kaymaz", metin: "Her kutu tabandaki yuvasına oturur; çekmeceyi hızlı çekseniz de yerinde kalır. Yerlerini dilediğiniz zaman değiştirirsiniz." },
       { baslik: "Yerleşimi siz kurarsınız", metin: "Kutuları tek tek ekler, siler, içlerine bölme koyarsınız; büyük, küçük ve bölmeli kutular aynı çekmecede yan yana durur." },
     ],
-    gorseller: ["Çekmece organizeri, 59 × 48 cm","Üstten: kutu yerleşimi","Duvar ızgarası ve askılı kutular","Küçük çekmece, 33 × 28 cm"],
+    gorseller: ["Evde: masanın üstünde", "Üstten: kutu yerleşimi", "Duvar ızgarası ve askılı kutular", "Küçük çekmece, 33 × 28 cm", "Çekmece organizeri, 59 × 48 cm"],
     ciktilar: [
       { ad: "Tabla ve kilit STL", sec: "#exPlates", tur: "stl" },
       { ad: "Kutular STL", sec: "#exBins", tur: "stl" },
@@ -466,7 +466,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Virajdan fırlamaz", metin: "Dış kenar yarış pistlerindeki gibi yatar, kenarlar yükseltilebilir; hızlı giren araba yolda kalır." },
       { baslik: "Uçlar her zaman oturur", metin: "Parça ne kadar yükselse ya da yatsa da uçları düzdür: diğer parçalara takılır, yükselen ucu kendi ayaklarıyla durur." },
     ],
-    gorseller: ["Looping atlayışı: iniş, düz yol ve Ø200 mm looping", "Oval pist: 4 parça, kendi üstüne kapanır", "Eğimli viraj, 90°", "Sarmal: dönerek yükselen viraj", "Tepe: çıkış, düz yol, iniş", "Korkuluklu viraj: dış kenar ortada yükselir"],
+    gorseller: ["Evde: masanın üstünde", "Oval pist: 4 parça, kendi üstüne kapanır", "Eğimli viraj, 90°", "Sarmal: dönerek yükselen viraj", "Tepe: çıkış, düz yol, iniş", "Korkuluklu viraj: dış kenar ortada yükselir", "Looping atlayışı: iniş, düz yol ve Ø200 mm looping"],
     ciktilar: [
       { ad: "Yol parçaları STL (çok parçada ZIP)", sec: "#hw-stl", tur: "stl" },
       { ad: "Bağlantı parçaları STL", sec: "#hw-baglayici-stl", tur: "stl" },
@@ -496,7 +496,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "İki renk, kabartma yazı", metin: "Gövde ve yazı ayrı renkte basılır; yazı ve çerçeve gövdenin üstünde kabarık durur, dokununca hissedilir." },
       { baslik: "Hediyenin üstüne de olur", metin: "Halkasıyla ağaca, deliğiyle kurdeleye; askısız seçerseniz hediye paketinin üstüne ya da masaya." },
     ],
-    gorseller: ["Top süs: el yazısıyla aile adı, altın yazı", "Yıldız: ilk yılbaşı, pembe yazı", "Çam ağacı: Mutlu Yıllar", "Kalp: iki isim, el yazısı"],
+    gorseller: ["Evde: masanın üstünde", "Yıldız: ilk yılbaşı, pembe yazı", "Çam ağacı: Mutlu Yıllar", "Kalp: iki isim, el yazısı", "Top süs: el yazısıyla aile adı, altın yazı"],
     ciktilar: [
       { ad: "Gövde STL", sec: "#yb-stl-govde", tur: "stl", nesne: "Süs" },
       { ad: "Yazı ve çerçeve STL", sec: "#yb-stl-yazi", tur: "stl", nesne: "Süs" },
@@ -526,7 +526,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "İnce ama sağlam", metin: "Kollar en az 1,6 mm kalınlıkta basılır; iç halka kolları ortada birbirine bağlar, ağaçtan düşse kırılmaz." },
       { baslik: "Ağaçtan cama", metin: "6–9 cm ağaç süsü, 12 cm ve üstü cam, kapı ve hediye paketi süsü olarak." },
     ],
-    gorseller: ["Klasik: üç dal, kristal uçlar", "Dantel: iç halkalı, dört dal", "Kristal: yıldız göbek", "Yalın: uzun kollar, buz mavisi"],
+    gorseller: ["Evde: masanın üstünde", "Dantel: iç halkalı, dört dal", "Kristal: yıldız göbek", "Yalın: uzun kollar, buz mavisi", "Klasik: üç dal, kristal uçlar"],
     ciktilar: [
       { ad: "Kar tanesi STL", sec: "#kt-stl", tur: "stl" },
       RENKLI_PAKET,
@@ -554,7 +554,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "İçten ışıklı", metin: "LED yuvalı ağaç içi boş basılır; alttan konan mum LED kolların arasından yumuşak bir ışık verir." },
       { baslik: "Desteksiz, temiz yüzey", metin: "Katların altı 45° pahla açılır, iç boşluğun tavanı konidir: ağaç destek izi olmadan, tek parça basılır." },
     ],
-    gorseller: ["Klasik: beş kat, altın yıldız", "Işıklı: içi boş, mum LED'li", "Modern: kavisli, altın", "Mini: masaüstü, kırmızı"],
+    gorseller: ["Evde: masanın üstünde", "Işıklı: içi boş, mum LED'li", "Modern: kavisli, altın", "Mini: masaüstü, kırmızı", "Klasik: beş kat, altın yıldız"],
     ciktilar: [
       { ad: "Ağaç STL", sec: "#ag-stl", tur: "stl", nesne: "Ağaç" },
       { ad: "Yıldız STL", sec: "#ag-stl-yildiz", tur: "stl" },
@@ -585,7 +585,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Gerçek kum tepesi gibi", metin: "Rüzgâr yüzü yumuşak yükselir, kayma yüzü dik iner; ince dalgacıklar rüzgâra dik uzanır." },
       { baslik: "Işıkla değişir", metin: "Yandan vuran güneşte tepeler uzun gölgeler bırakır; gün boyu başka görünür." },
     ],
-    gorseller: ["Hilal tepeler, kum rengi", "Kum denizi: sık, paralel sırtlar", "Kıvrık sırtlar, pas rengi", "Tek tepe, kemik rengi"],
+    gorseller: ["Evde: duvarda", "Kum denizi: sık, paralel sırtlar", "Kıvrık sırtlar, pas rengi", "Tek tepe, kemik rengi", "Hilal tepeler, kum rengi"],
     ciktilar: [
       { ad: "Pano STL", sec: "#kp-stl", tur: "stl" },
       RENKLI_PAKET,
@@ -613,7 +613,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Dişler kalemi tutar", metin: "Ağzın dişleri içe doğru eğilir: kalemler, fırçalar ve makaslar dik durur, dışarı devrilmez." },
       { baslik: "Desteksiz, tek parça", metin: "Boğumların altı 45°'yi aşmaz, dişler 40°'den fazla eğilmez; kurt destek izi olmadan basılır." },
     ],
-    gorseller: ["Çöl kurdu: açık ağız, 18 diş", "Yaşlı kurt: derin boğumlar", "Yavru: kısa, küçük dişler", "Kurt saksı: geniş gövde"],
+    gorseller: ["Evde: masanın üstünde", "Yaşlı kurt: derin boğumlar", "Yavru: kısa, küçük dişler", "Kurt saksı: geniş gövde", "Çöl kurdu: açık ağız, 18 diş"],
     ciktilar: [
       { ad: "Kalemlik STL", sec: "#ck-stl", tur: "stl" },
       RENKLI_PAKET,
@@ -641,7 +641,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Kaseden vazoya", metin: "Profil, ağız çapı ve yükseklikle aynı araçtan meyve kasesi, anahtar tabağı ya da yüksek bir vazo çıkar." },
       { baslik: "Desteksiz açılır", metin: "Duvarın açılması 45°'yi geçmeyecek şekilde sınırlanır; istenen ağız çapı sığmazsa araç söyler." },
     ],
-    gorseller: ["Meyve kasesi, kum rengi", "Anahtar tabağı, dalgalı ağız", "Derin kase, okra", "Kum vazosu: yüksek, burgulu"],
+    gorseller: ["Evde: masanın üstünde", "Anahtar tabağı, dalgalı ağız", "Derin kase, okra", "Kum vazosu: yüksek, burgulu", "Meyve kasesi, kum rengi"],
     ciktilar: [
       { ad: "Kase STL", sec: "#kd-stl", tur: "stl" },
       RENKLI_PAKET,
@@ -670,7 +670,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Keskin, temiz kenar", metin: "Bıçağın son 3 mm'si incelir; hamur yırtılmadan, kenarları düzgün kesilir." },
       { baslik: "Parmağı korur", metin: "Geniş tutma kenarı bastırırken avucunuza oturur; deliğiyle kalıplar bir ipe dizilip asılır." },
     ],
-    gorseller: ["Yıldız, kırmızı", "Kurabiye adam, yeşil", "Kardan adam, beyaz", "Kar tanesi, buz mavisi"],
+    gorseller: ["Evde: masanın üstünde", "Kurabiye adam, yeşil", "Kardan adam, beyaz", "Kar tanesi, buz mavisi", "Yıldız, kırmızı"],
     ciktilar: [
       { ad: "Kalıp STL", sec: "#kk-stl", tur: "stl" },
       RENKLI_PAKET,
@@ -698,7 +698,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Üç renk", metin: "Kart, kabartma yazı ve ayak ayrı renkte: çam yeşiline altın, kırmızıya beyaz." },
       { baslik: "Sofradan sonra hatıra", metin: "Kart ayağından çıkar; misafiriniz evine götürür, ağaca ya da rafa koyar." },
     ],
-    gorseller: ["Klasik: çam, el yazısı, altın", "Yıldızlı: siyah ve altın", "Kar tanesi: beyaz ve buz mavisi", "Kırmızı çan"],
+    gorseller: ["Evde: masanın üstünde", "Yıldızlı: siyah ve altın", "Kar tanesi: beyaz ve buz mavisi", "Kırmızı çan", "Klasik: çam, el yazısı, altın"],
     ciktilar: [
       { ad: "Kart STL", sec: "#sk-stl-kart", tur: "stl", nesne: "Kart" },
       { ad: "Yazı ve motif STL", sec: "#sk-stl-yazi", tur: "stl", nesne: "Kart" },
@@ -730,7 +730,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Sizin geceniz", metin: "Desen numarası ve yoğunlukla her fener ayrı; ön yüzüne aile adı ya da kısa bir söz." },
       { baslik: "Mum LED'iyle birlikte", metin: "Fener pilli mum LED'in üstüne kapatılır; LED kutudan çıkar." },
     ],
-    gorseller: ["Çam ormanı, ışık yanınca", "Kar yağışı: parlayan kar taneleri", "Yıldızlı gece, hilal ay", "İsimli: Mutlu Yıllar"],
+    gorseller: ["Evde: masanın üstünde", "Kar yağışı: parlayan kar taneleri", "Yıldızlı gece, hilal ay", "İsimli: Mutlu Yıllar", "Çam ormanı, ışık yanınca"],
     ciktilar: [
       { ad: "Fener STL", sec: "#yf-stl", tur: "stl" },
       RENKLI_PAKET,
@@ -759,7 +759,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Yazı kendini sığdırır", metin: "Adınızı yazdıkça harfler tabelaya göre büyür ya da küçülür; Türkçe harfler olduğu gibi basılır." },
       { baslik: "Masada da duvarda da", metin: "Eğik yarıklı ayağına oturur, 12° geriye yaslanır; isterseniz iki vida deliğiyle duvara asılır." },
     ],
-    gorseller: ["Gün batımı: turuncu güneş, pembe yazı", "Neon gece: mor güneş, turkuaz palmiye", "Öğlen sahili: beyaz zemin, duvar delikli", "Yalnız yazı: çerçeve ve palmiyeler"],
+    gorseller: ["Evde: duvarda", "Neon gece: mor güneş, turkuaz palmiye", "Öğlen sahili: beyaz zemin, duvar delikli", "Yalnız yazı: çerçeve ve palmiyeler", "Gün batımı: turuncu güneş, pembe yazı"],
     ciktilar: [
       { ad: "Zemin STL", sec: "#ns-stl-zemin", tur: "stl", nesne: "Tabela" },
       { ad: "Güneş STL", sec: "#ns-stl-gunes", tur: "stl", nesne: "Tabela" },
@@ -791,7 +791,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Çizgi roman baskısı gibi", metin: "Düzensiz dişli patlama, aşağı doğru büyüyen noktalar ve renklerin arasında kalan kontur; kâğıttaki mürekkep hissi." },
       { baslik: "Üç renk, üç kat", metin: "Bordür, patlama ve simge ayrı yükseklikte kabarır; ışıkta gölgesiyle, elde dokusuyla seçilir." },
     ],
-    gorseller: ["Şimşek: daire, kırmızı ve sarı", "Baş harf: kalkan, lacivert ve gümüş", "Kral: altıgen, taç", "Gece bekçisi: elmas, siyah ve sarı"],
+    gorseller: ["Evde: duvarda", "Baş harf: kalkan, lacivert ve gümüş", "Kral: altıgen, taç", "Gece bekçisi: elmas, siyah ve sarı", "Şimşek: daire, kırmızı ve sarı"],
     ciktilar: [
       { ad: "Zemin STL", sec: "#ka-stl-zemin", tur: "stl", nesne: "Amblem" },
       { ad: "Bordür ve patlama STL", sec: "#ka-stl-ikinci", tur: "stl", nesne: "Amblem" },
@@ -821,7 +821,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Her tepsi başka", metin: "Doksan dokuz desen: çatlak ağı ve rünler numaraya göre kurulur, beğendiğinizi saklarsınız." },
       { baslik: "Zarlar içeride kalır", metin: "Duvar düz yükselir, zemin düzdür; zarlar yuvarlanır, masadan düşmez. Anahtar ve bozukluk tepsisi olarak da durur." },
     ],
-    gorseller: ["Cehennem kapısı: altıgen, rün halkası", "Volkan ağzı: daire, sık çatlak", "Plazma çekirdeği: sekizgen, mavi", "Asit kuyusu: yeşil, mühürsüz"],
+    gorseller: ["Evde: masanın üstünde", "Volkan ağzı: daire, sık çatlak", "Plazma çekirdeği: sekizgen, mavi", "Asit kuyusu: yeşil, mühürsüz", "Cehennem kapısı: altıgen, rün halkası"],
     ciktilar: [
       { ad: "Taş STL", sec: "#lt-stl-tas", tur: "stl", nesne: "Tepsi" },
       { ad: "Lav katı STL", sec: "#lt-stl-lav", tur: "stl", nesne: "Tepsi" },
@@ -850,7 +850,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Dört renk, tek baskı", metin: "Gök, ay ve iki kum tonu ayrı filamentle aynı baskıda çıkar; boya yok, renk solmaz." },
       { baslik: "Kendi çölünüz", metin: "Doksan dokuz desen: aynı numara hep aynı ufku verir. İki ayı, gezgini ve paleti siz seçersiniz." },
     ],
-    gorseller: ["İki ay: kemer, gün batımı", "Gece yürüyüşü: gezgin, lacivert gök", "Baharat vadisi: daire, turuncu ay", "Sessiz çöl: kemik tonları, çerçevesiz"],
+    gorseller: ["Evde: duvarda", "Gece yürüyüşü: gezgin, lacivert gök", "Baharat vadisi: daire, turuncu ay", "Sessiz çöl: kemik tonları, çerçevesiz", "İki ay: kemer, gün batımı"],
     ciktilar: [
       { ad: "Gök levhası STL", sec: "#cu-stl-gok", tur: "stl", nesne: "Pano" },
       { ad: "Aylar STL", sec: "#cu-stl-ay", tur: "stl", nesne: "Pano" },
@@ -881,7 +881,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Dört renk, tek baskı", metin: "Yaprak, kokina ve fiyonk, şerit ve yazı ayrı filamentle aynı baskıda çıkar." },
       { baslik: "Kat kat kabartma", metin: "Damarlı yapraklar tabanın, kubbe gibi kokinalar yaprakların üstünde durur; çelenk düz değil, dokuludur." },
     ],
-    gorseller: ["Klasik: yeşil yaprak, kırmızı fiyonk", "Altın: koyu yeşil, Mutlu Yıllar", "Karlı: beyaz yaprak, lacivert kokina", "Yalnız çelenk: şeritsiz, fiyonk üstte"],
+    gorseller: ["Evde: duvarda", "Altın: koyu yeşil, Mutlu Yıllar", "Karlı: beyaz yaprak, lacivert kokina", "Yalnız çelenk: şeritsiz, fiyonk üstte", "Klasik: yeşil yaprak, kırmızı fiyonk"],
     ciktilar: [
       { ad: "Taban ve yapraklar STL", sec: "#yc-stl-yaprak", tur: "stl", nesne: "Çelenk" },
       { ad: "Kokina ve fiyonk STL", sec: "#yc-stl-meyve", tur: "stl", nesne: "Çelenk" },
@@ -916,7 +916,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Renk baskının içinde", metin: "Fotoğraf dört filamentle parçanın kendisine basılır; kâğıt, çıkartma ya da boya yok, yıpranmaz." },
       { baslik: "Çerçevesiyle sergilenir", metin: "Tamamlanan yapboz yuvalı çerçevesinde durur; alt bandına adınızı ya da tarihi yazarsınız." },
     ],
-    gorseller: ["Balonlar: 48 parça, kalpli çerçeve", "Portre: 100 parça, siyah beyaz", "Şehir manzarası: 48 parça, ayaklı", "Mini: 16 parça, çerçevesiz"],
+    gorseller: ["Evde: masanın üstünde", "Portre: 100 parça, siyah beyaz", "Şehir manzarası: 48 parça, ayaklı", "Mini: 16 parça, çerçevesiz", "Balonlar: 48 parça, kalpli çerçeve"],
     ciktilar: [
       { ad: "Yapboz · renk 1 STL", sec: "#fy-stl-r1", tur: "stl", nesne: "Yapboz", tekRenk: true },
       { ad: "Yapboz · renk 2 STL", sec: "#fy-stl-r2", tur: "stl", nesne: "Yapboz", tekRenk: true },
@@ -954,7 +954,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Üç panele kadar", metin: "Geniş fotoğraflar iki ya da üç panele bölünür; görüntü panelden panele kesintisiz devam eder." },
       { baslik: "Gerçek filament renkleri", metin: "Ekranda gördüğünüz renk, makineye takılan filamentin rengidir; solmaz, soyulmaz." },
     ],
-    gorseller: ["Balonlar: tek pano, kenarlıklı", "Üçlü pano: 45 cm, gün batımı", "Kare portre: siyah beyaz", "Masa panosu: dikey, ayaklı"],
+    gorseller: ["Evde: duvarda", "Üçlü pano: 45 cm, gün batımı", "Kare portre: siyah beyaz", "Masa panosu: dikey, ayaklı", "Balonlar: tek pano, kenarlıklı"],
     ciktilar: [
       { ad: "Panel 1 · renk 1 STL", sec: "#fp-stl-p1-r1", tur: "stl", nesne: "Panel 1", tekRenk: true },
       { ad: "Panel 1 · renk 2 STL", sec: "#fp-stl-p1-r2", tur: "stl", nesne: "Panel 1", tekRenk: true },
@@ -998,7 +998,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Omuzlu kapak", metin: "Kapak boynun üstüne geçer ve gövdeyle aynı hizada kapanır; açarken hafifçe direnir, kendiliğinden düşmez." },
       { baslik: "İçi sizin düzeninizde", metin: "İki, üç ya da dört göz: yüzük, küpe, kalem ya da kartlar ayrı durur." },
     ],
-    gorseller: ["Hatıra kutusu: çiçekli kapak, yivli duvar", "Takı kutusu: kare, dört göz", "Uzun kutu: üç göz, düz duvar", "Klasik: siyah beyaz, geniş kenarlık"],
+    gorseller: ["Evde: masanın üstünde", "Takı kutusu: kare, dört göz", "Uzun kutu: üç göz, düz duvar", "Klasik: siyah beyaz, geniş kenarlık", "Hatıra kutusu: çiçekli kapak, yivli duvar"],
     ciktilar: [
       { ad: "Kapak · renk 1 STL", sec: "#fk-stl-kapak-r1", tur: "stl", nesne: "Kapak", tekRenk: true },
       { ad: "Kapak · renk 2 STL", sec: "#fk-stl-kapak-r2", tur: "stl", nesne: "Kapak", tekRenk: true },
@@ -1030,7 +1030,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Ses sizde kalır", metin: "Kayıt tarayıcınızda çözülür ve hiçbir yere yüklenmez; siparişe yalnız dalganın biçimi girer." },
       { baslik: "Üç renk, tek baskı", metin: "Zemin, dalga ve yazı ayrı filamentle aynı baskıda çıkar; kabartma elde hissedilir." },
     ],
-    gorseller: ["Seni seviyorum: çubuk dalga, masa ayağı", "İlk kelime: dolu dalga, turkuaz", "Ses halkası: kare, duvar", "Bizim şarkı: uzun, 90 çubuk"],
+    gorseller: ["Evde: duvarda", "İlk kelime: dolu dalga, turkuaz", "Ses halkası: kare, duvar", "Bizim şarkı: uzun, 90 çubuk", "Seni seviyorum: çubuk dalga, masa ayağı"],
     ciktilar: [
       { ad: "Zemin STL", sec: "#sd-stl-zemin", tur: "stl", nesne: "Plaket" },
       { ad: "Dalga STL", sec: "#sd-stl-dalga", tur: "stl", nesne: "Plaket" },
@@ -1061,7 +1061,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Su tutar", metin: "Duvar ve taban tam dolu basılır, katmanlar arasında boşluk kalmaz: canlı çiçek için su koyabilirsiniz." },
       { baslik: "Tek parça, desteksiz", metin: "Biçim, baskının taşıyabileceği eğimde kalacak şekilde kurulur; yüzeyde destek izi olmaz." },
     ],
-    gorseller: ["Lilyum: Ø160 × 240 mm, 24 düz yiv", "Burgulu: sağa dönen 16 yiv, hafif pürüzlü", "Halkalı lale: yatay dalga, adaçayı", "Yalın sütun: pürüzlü yüzey, antrasit"],
+    gorseller: ["Evde: masanın üstünde", "Burgulu: sağa dönen 16 yiv, hafif pürüzlü", "Halkalı lale: yatay dalga, adaçayı", "Yalın sütun: pürüzlü yüzey, antrasit", "Lilyum: Ø160 × 240 mm, 24 düz yiv"],
     ciktilar: [
       { ad: "Vazo STL", sec: "#dv-stl", tur: "stl" },
       RENKLI_PAKET,
@@ -1108,8 +1108,9 @@ export function aracGorseli(id: string): string {
 
 /**
  * Ürün sayfasındaki görseller, altyazılarıyla. İlki kart görseliyle
- * aynı dosya; sonrakiler "-2", "-3"… ekiyle durur. Hepsi aracın
- * kurduğu modelin kendisinden, ışın izlemeyle çizildi
+ * aynı dosya ve ürünü bir ev ortamında gösterir (masada, duvarda);
+ * sonrakiler "-2", "-3"… ekiyle durur ve boş stüdyoda çekilmiştir. Hepsi
+ * aracın kurduğu modelin kendisinden, ışın izlemeyle çizildi
  * (scripts/urun-renderleri.py): her biri gerçekten üretilebilen bir
  * yapılandırmayı gösterir.
  */

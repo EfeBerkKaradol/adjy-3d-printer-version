@@ -71,6 +71,34 @@ ESKI = {
     ],
 }
 
+# Ortam fotoğrafı: her ürünün İLK görseli (<arac>.jpg). Ürün bir ev ortamında durur
+# (bkz. render/ortam.py). "kare": hangi stüdyo karesinin kurulumu kullanılacak (0 = ilk).
+# Belirtilmeyen araç: ilk kare, masa üstünde.
+ORTAM = {
+    "foto-duvar-panosu": {"ortam": "duvar", "duvar": "acik"},
+    "col-ufku-pano": {"ortam": "duvar", "duvar": "mavi"},
+    "kum-tepesi-pano": {"ortam": "duvar", "duvar": "adacayi"},
+    "isimli-yilbasi-celengi": {"ortam": "duvar", "duvar": "acik"},
+    "kahraman-amblemi": {"ortam": "duvar", "duvar": "kum"},
+    "neon-sahil-tabela": {"ortam": "duvar", "kare": 2, "duvar": "adacayi"},
+    "ses-dalgasi-plaketi": {"ortam": "duvar", "kare": 2, "duvar": "acik"},
+    "avize": {"havada": 1.0, "egim": 6, "doluluk": 0.66},
+    "dalgali-vazo": {"duvar": "adacayi"},
+    "saksi": {"duvar": "acik"},
+    "kum-dalgasi-kase": {"duvar": "kum"},
+    "col-kurdu-kalemlik": {"duvar": "mavi"},
+    "isikli-yilbasi-feneri": {"duvar": "koyu", "isik": 26},
+    "burgulu-yilbasi-agaci": {"duvar": "acik"},
+    "foto-kutu": {"duvar": "kum"},
+    "lav-catlagi-zar-tepsisi": {"duvar": "koyu"},
+}
+
+
+def ilk_adi(arac: str, dosya: str, n: int) -> str:
+    """Stüdyo karelerinin ilki sona taşınır: <arac>.jpg ortam fotoğrafına ayrılmıştır."""
+    return f"{arac}-{n + 1}.jpg" if dosya == f"{arac}.jpg" else dosya
+
+
 # Sahnedeki ağlar: görünür, yardımcı olmayan Mesh'ler; dünya koordinatında üçgenler
 AL_JS = r"""() => {
   const O = window.ADJY_OLCU;
@@ -223,6 +251,7 @@ def main() -> None:
     hedef.mkdir(parents=True, exist_ok=True)
     yalniz = set(sys.argv[sys.argv.index("--yalniz") + 1].split(",")) if "--yalniz" in sys.argv else None
     ilk = "--ilk" in sys.argv
+    ortamKipi = "--ortam" in sys.argv  # yalnız ortam fotoğrafları (<arac>.jpg)
     # --sahneler <klasör>: alınan sahneler orada kalır (ışık ayarını yeniden denemek için)
     gecici = Path(sys.argv[sys.argv.index("--sahneler") + 1]).resolve() if "--sahneler" in sys.argv else Path(tempfile.mkdtemp(prefix="adjy-render-"))
     isler = []
@@ -234,13 +263,24 @@ def main() -> None:
             if yalniz and arac not in yalniz:
                 continue
             try:
-                kaynak = yb_kareleri(sayfa, arac, tanim[0], tanim[1], ilk) if tur == "yb" else eski_kareleri(sayfa, arac, tanim, ilk)
+                kareler = tanim[1] if tur == "yb" else tanim
+                ayar = dict(ORTAM.get(arac, {}))
+                if ortamKipi:
+                    secili = [kareler[ayar.pop("kare", 0)]]
+                    kaynak = yb_kareleri(sayfa, arac, tanim[0], secili, False) if tur == "yb" else eski_kareleri(sayfa, arac, secili, False)
+                else:
+                    kaynak = yb_kareleri(sayfa, arac, tanim[0], kareler, ilk) if tur == "yb" else eski_kareleri(sayfa, arac, kareler, ilk)
                 for dosya, veri in kaynak:
                     if not veri or not veri["aglar"]:
                         print("SAHNE YOK", arac, dosya)
                         continue
+                    if ortamKipi:
+                        dosya = f"{arac}.jpg"
+                        veri.update({"ortam": "masa", "tohum": sum(map(ord, arac)), **ayar})
+                    else:
+                        dosya = ilk_adi(arac, dosya, len(kareler))
                     birim = 1.0
-                    yol = sahne_yaz(veri, gecici / Path(dosya).stem, birim)
+                    yol = sahne_yaz(veri, gecici / (Path(dosya).stem + ("-ortam" if ortamKipi else "")), birim)
                     isler.append({"sahne": str(yol), "cikti": str(hedef / dosya)})
                     print("alındı", dosya, len(veri["aglar"]), "ağ", sum(a["ucgen"] for a in veri["aglar"]), "üçgen", flush=True)
                     if "--kuru" in sys.argv:  # yalnız sahneyi dök, çizme
