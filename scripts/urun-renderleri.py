@@ -94,6 +94,137 @@ ORTAM = {
 }
 
 
+# Özelleştirme animasyonu (--animasyon): aracın hazır ayarları sırayla dolaşılır;
+# aradaki karelerde sayısal alanlar (boy, çap, dalga sayısı…) adım adım değişir,
+# seçimler (renk, biçim) geçişin ortasında döner. Her kare aynı ev ortamında,
+# sabit kamerayla çizilir ve <arac>.mp4 olarak birleştirilir.
+ANIM = {"gecis": 7, "bekle": 3, "kareHizi": 10, "boy": 640, "ornek": 16}
+if "--anim-deneme" in sys.argv:  # hızlı deneme: az kare, küçük boy
+    ANIM.update({"gecis": 2, "bekle": 1, "boy": 480, "ornek": 12})
+
+# Sayfadaki bütün ayar alanları: { id: [tür, değer, adım] }
+DURUM_JS = r"""() => {
+  const o = {};
+  document.querySelectorAll('input[id], select[id]').forEach((e) => {
+    if (e.type === 'file' || e.type === 'button' || e.type === 'hidden') return;
+    if (e.type === 'checkbox') o[e.id] = ['kutu', e.checked, 0];
+    else if (e.type === 'range' || e.type === 'number') o[e.id] = ['sayi', parseFloat(e.value), parseFloat(e.step) || 1];
+    else o[e.id] = ['secim', e.value, 0];
+  });
+  return o;
+}"""
+
+
+def ara_durum(a, b, t):
+    """İki hazır ayar arası: sayılar adımına oturtularak, seçimler ortada."""
+    t = t * t * (3 - 2 * t)
+    o = {}
+    for k, (tur, va, adim) in a.items():
+        vb = b.get(k, (tur, va, adim))[1]
+        if tur == "sayi" and va == va and vb == vb:  # NaN değilse
+            v = va + (vb - va) * t
+            adim = adim or 1
+            o[k] = round(round(v / adim) * adim, 6)
+        else:
+            o[k] = va if t < 0.5 else vb
+    return o
+
+
+def anim_kareleri(sayfa, arac, tur, tanim):
+    """Döner: her kare için sahne verisi listesi."""
+    kareler = (tanim[1] if tur == "yb" else tanim)[:4]
+    hazir = lambda: sayfa.wait_for_function(
+        f"() => window.{tanim[0]} && window.{tanim[0]}.hazir" if tur == "yb" else "() => window.ADJY && window.ADJY.hazirMi()", timeout=60000)
+    sayfa.goto(ADRES.format(arac=arac), wait_until="networkidle")
+    hazir()
+    sayfa.wait_for_timeout(1200)
+    durumlar = []
+    for kare in kareler:
+        if tur == "yb":
+            _dosya, onayar, alanlar, _y = kare[:4]
+            tikla = kare[4] if len(kare) > 4 else []
+            if onayar:
+                sayfa.evaluate("s => document.querySelector(s).click()", f'[data-hazir="{onayar}"]')
+                sayfa.wait_for_timeout(600)
+            if alanlar:
+                sayfa.evaluate(_k.ALAN_JS, alanlar)
+            for sec in tikla:
+                sayfa.evaluate("s => document.querySelector(s).click()", sec)
+                sayfa.wait_for_timeout(300)
+        else:
+            for adim in kare[1]:
+                if adim[0] == "sec":
+                    sayfa.evaluate("""([s, v]) => { const e = document.querySelector(s); e.value = v;
+                      e.dispatchEvent(new Event('input', { bubbles: true })); e.dispatchEvent(new Event('change', { bubbles: true })); }""", [adim[1], adim[2]])
+                elif adim[0] == "tikla":
+                    sayfa.evaluate("s => document.querySelector(s).click()", adim[1])
+                elif adim[0] == "js":
+                    sayfa.evaluate(adim[1])
+                sayfa.wait_for_timeout(900)
+        sayfa.wait_for_timeout(1500)
+        durumlar.append(sayfa.evaluate(DURUM_JS))
+    n = len(durumlar)
+    dizi = []
+    for i in range(n):
+        a, b = durumlar[i], durumlar[(i + 1) % n]
+        tam = {k: v[1] for k, v in a.items()}
+        dizi += [tam] * ANIM["bekle"]
+        dizi += [ara_durum(a, b, f / (ANIM["gecis"] + 1)) for f in range(1, ANIM["gecis"] + 1)]
+    yavas = arac.startswith("foto-") or tur == "eski"
+    onceki, cikti = None, []
+    for no, durum in enumerate(dizi):
+        degisen = {k: v for k, v in durum.items() if onceki is None or onceki.get(k) != v}
+        if degisen:
+            sayfa.evaluate(_k.ALAN_JS, degisen)
+            ornekDegisti = any(k.endswith("-ornek") for k in degisen)
+            sayfa.wait_for_timeout(2600 if ornekDegisti else 1300 if yavas else 550)
+        onceki = durum
+        veri = sayfa.evaluate(AL_JS)
+        if veri and veri["aglar"]:
+            cikti.append(veri)
+    return cikti
+
+
+def animasyon(sayfa, arac, tur, tanim, hedef: Path, gecici: Path):
+    veriler = anim_kareleri(sayfa, arac, tur, tanim)
+    if len(veriler) < 8:
+        print("ANIMASYON YOK", arac, len(veriler))
+        return
+    ayar = dict(ORTAM.get(arac, {}))
+    ayar.pop("kare", None)
+    # Bütün karelerin birleşik kutusu: kamera ve eşyalar sabit kalır
+    mn = [min(a["kutu"][i] for v in veriler for a in v["aglar"]) for i in range(3)]
+    mx = [max(a["kutu"][i + 3] for v in veriler for a in v["aglar"]) for i in range(3)]
+    klasor = gecici / f"{arac}-anim"
+    isler = []
+    for no, veri in enumerate(veriler):
+        veri.update({"ortam": "masa", "tohum": sum(map(ord, arac)), **ayar, "boy": ANIM["boy"], "ornek": ANIM["ornek"]})
+        veri["bakis"] = veriler[0]["bakis"]
+        # Zemin gibi ayıklanan düzlemler kutuya girmesin diye kutu, yazımdan sonra yeniden hesaplanır
+        yol = sahne_yaz(veri, klasor / f"k{no:03d}", 1.0)
+        isler.append({"sahne": str(yol), "cikti": str(klasor / f"kare_{no:03d}.jpg")})
+    mn = [min(a["kutu"][i] for v in veriler for a in v["aglar"]) for i in range(3)]
+    mx = [max(a["kutu"][i + 3] for v in veriler for a in v["aglar"]) for i in range(3)]
+    for is_ in isler:
+        v = json.loads(Path(is_["sahne"]).read_text(encoding="utf-8"))
+        v["kutu"] = [mn, mx]
+        Path(is_["sahne"]).write_text(json.dumps(v), encoding="utf-8")
+    isYolu = klasor / "isler.json"
+    isYolu.write_text(json.dumps(isler), encoding="utf-8")
+    r = subprocess.run([BLENDER, "-b", "-P", str(KOK / "render" / "studyo_blender.py"), "--", str(isYolu)],
+                       capture_output=True, text=True, encoding="utf-8", errors="replace")
+    hata = [s for s in (r.stdout + r.stderr).splitlines() if s.startswith("HATA")]
+    cizilen = sorted(klasor.glob("kare_*.jpg"))
+    if hata or len(cizilen) != len(isler):
+        print("ANIMASYON EKSİK", arac, len(cizilen), "/", len(isler), hata[:2])
+        return
+    mp4 = hedef / f"{arac}.mp4"
+    f = subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(ANIM["kareHizi"]), "-i", str(klasor / "kare_%03d.jpg"),
+                        "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "25", "-preset", "slow", "-movflags", "+faststart", "-an", str(mp4)],
+                       capture_output=True, text=True)
+    print("ANIMASYON", arac, len(isler), "kare", mp4.stat().st_size // 1024 if mp4.exists() else 0, "KB", f.stderr[:200])
+
+
 def ilk_adi(arac: str, dosya: str, n: int) -> str:
     """Stüdyo karelerinin ilki sona taşınır: <arac>.jpg ortam fotoğrafına ayrılmıştır."""
     return f"{arac}-{n + 1}.jpg" if dosya == f"{arac}.jpg" else dosya
@@ -261,6 +392,12 @@ def main() -> None:
         hepsi = [(a, "yb", v) for a, v in _k.ARACLAR.items()] + [(a, "eski", v) for a, v in ESKI.items()]
         for arac, tur, tanim in hepsi:
             if yalniz and arac not in yalniz:
+                continue
+            if "--animasyon" in sys.argv:
+                try:
+                    animasyon(sayfa, arac, tur, tanim, hedef, gecici)
+                except Exception as e:
+                    print("HATA", arac, str(e)[:300], flush=True)
                 continue
             try:
                 kareler = tanim[1] if tur == "yb" else tanim

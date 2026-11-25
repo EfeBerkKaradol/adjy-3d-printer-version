@@ -316,6 +316,17 @@ def ciz(sahneYolu, cikti):
         ortam.duvar_cevir(veriler, np)
     tum = np.concatenate([v for _, v, _ in veriler])
     mn, mx = Vector(tum.min(axis=0).tolist()), Vector(tum.max(axis=0).tolist())
+    # Animasyon: kamera ve eşyalar kareden kareye oynamasın diye kutu sabit verilir
+    # (bütün karelerin birleşik kutusu, aracın ekseninde, mm)
+    if S.get("kutu"):
+        k = np.array(S["kutu"], dtype=np.float32).reshape(2, 3)
+        kose = np.array([[k[i][0], k[j][1], k[l][2]] for i in (0, 1) for j in (0, 1) for l in (0, 1)], dtype=np.float32) @ Cn.T * OLCEK
+        a, b = kose.min(axis=0), kose.max(axis=0)
+        if ortamAdi == "duvar":  # dik çevrilmiş levha: genişlik x, kalınlık y, yükseklik z; merkez göz hizasında
+            gx, gy, gz = (b[0] - a[0]) / 2, (b[1] - a[1]) / 2, b[2] - a[2]
+            mn, mx = Vector((-gx, -gz - 0.0015, 1.42 - gy)), Vector((gx, -0.0015, 1.42 + gy))
+        else:
+            mn, mx = Vector(a.tolist()), Vector(b.tolist())
     c = (mn + mx) / 2
     R = max(0.02, (mx - mn).length / 2)
     # "havada": sarkıt gibi asılı ürünlerde zemin, model yüksekliğinin bu oranı kadar aşağıda
@@ -328,7 +339,8 @@ def ciz(sahneYolu, cikti):
         uzak, fov = ortam.duvar(S, mn, mx)
     else:
         uzak, fov = studyo(S, sc, mn, mx, c, R, z0, bakis)
-    pikselMm = (2 * uzak * math.tan(fov / 2) / BOY) / OLCEK
+    boy = int(S.get("boy", BOY))
+    pikselMm = (2 * uzak * math.tan(fov / 2) / boy) / OLCEK
 
     # --- malzeme ve nesneler
     matlar = {}
@@ -357,14 +369,14 @@ def ciz(sahneYolu, cikti):
                 break
         except Exception:
             pass
-    cy.samples = ORNEK
+    cy.samples = int(S.get("ornek", ORNEK))
     cy.use_adaptive_sampling = True
     cy.adaptive_threshold = 0.02
     cy.use_denoising = True
     cy.max_bounces = 8
     cy.transparent_max_bounces = 12
     cy.filter_width = 1.3
-    sc.render.resolution_x = sc.render.resolution_y = BOY
+    sc.render.resolution_x = sc.render.resolution_y = boy
     sc.render.resolution_percentage = 100
     sc.render.image_settings.file_format = "JPEG"
     sc.render.image_settings.quality = 92

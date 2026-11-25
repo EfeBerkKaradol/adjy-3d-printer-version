@@ -7,6 +7,7 @@ import {
   aracAdresi,
   aracBul,
   aracGorseli,
+  aracAnimasyonu,
   aracGorselleri,
   aracOzellestirmeAdresi,
 } from "@/lib/tasarim/catalog";
@@ -101,6 +102,7 @@ export default async function TasarimUrunPage({
   const gorseller = aracGorselleri(arac).filter((g) => resolvePublicImage(g.adres));
   const digerleri = TASARIM_ARACLARI.filter((a) => a.id !== arac.id).slice(0, 4);
   const ozellestir = aracOzellestirmeAdresi(arac.id);
+  const animasyon = aracAnimasyonu(arac);
 
   return (
     <div className="pb-28 lg:pb-0">
@@ -210,6 +212,25 @@ export default async function TasarimUrunPage({
               <h2 id="ayarlar-baslik" className="adjy-eyebrow">
                 Neleri değiştirebilirsiniz
               </h2>
+              {animasyon && (
+                // Sessiz, kısa döngü: ayarlar değiştikçe ürünün aldığı biçimler
+                <figure className="adjy-pixel-frame mt-4 overflow-hidden bg-muted/40">
+                  <video
+                    src={animasyon}
+                    poster={gorseller[0]?.adres}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    className="aspect-square w-full object-cover"
+                    aria-label={`${arac.ad}: ayarlar değiştikçe ürünün aldığı biçimler`}
+                  />
+                  <figcaption className="px-4 py-3 text-xs leading-relaxed text-muted-foreground">
+                    Aynı ürün, farklı ayarlarla: biçim, ölçü ve renk değiştikçe ürün böyle görünür.
+                  </figcaption>
+                </figure>
+              )}
               <ul className="mt-4 grid gap-2.5 sm:grid-cols-2">
                 {arac.ayarlar.map((ayar, i) => (
                   <li

@@ -77,6 +77,12 @@ export interface TasarimAraci {
   vurgular: { baslik: string; metin: string }[];
   /** Ürün sayfasındaki görsellerin altyazıları — sayısı kadar görsel aranır */
   gorseller: string[];
+  /**
+   * Özelleştirme animasyonu var mı (_gorsel/<id>.mp4): ayarlar değiştikçe
+   * ürünün aldığı biçimler, ev ortamında çizilmiş kısa döngü
+   * (scripts/urun-renderleri.py --animasyon).
+   */
+  animasyon?: boolean;
   ciktilar: TasarimCiktisi[];
   anahtarKelimeler: string[];
   /**
@@ -1122,6 +1128,11 @@ export function aracGorselleri(arac: TasarimAraci): { adres: string; altyazi: st
         : `/tasarim-araclari/_gorsel/${arac.id}-${i + 1}.jpg`,
     altyazi,
   }));
+}
+
+/** Özelleştirme animasyonunun adresi; araçta yoksa null */
+export function aracAnimasyonu(arac: TasarimAraci): string | null {
+  return arac.animasyon ? `/tasarim-araclari/_gorsel/${arac.id}.mp4` : null;
 }
 
 /** Veritabanındaki ürünün adres parçası */
