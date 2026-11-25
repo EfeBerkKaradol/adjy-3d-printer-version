@@ -799,6 +799,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Üç renk, üç kat", metin: "Bordür, patlama ve simge ayrı yükseklikte kabarır; ışıkta gölgesiyle, elde dokusuyla seçilir." },
     ],
     gorseller: ["Evde: duvarda", "Baş harf: kalkan, lacivert ve gümüş", "Kral: altıgen, taç", "Gece bekçisi: elmas, siyah ve sarı", "Şimşek: daire, kırmızı ve sarı"],
+    animasyon: true,
     ciktilar: [
       { ad: "Zemin STL", sec: "#ka-stl-zemin", tur: "stl", nesne: "Amblem" },
       { ad: "Bordür ve patlama STL", sec: "#ka-stl-ikinci", tur: "stl", nesne: "Amblem" },
@@ -963,6 +964,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Gerçek filament renkleri", metin: "Ekranda gördüğünüz renk, makineye takılan filamentin rengidir; solmaz, soyulmaz." },
     ],
     gorseller: ["Evde: duvarda", "Üçlü pano: 45 cm, gün batımı", "Kare portre: siyah beyaz", "Masa panosu: dikey, ayaklı", "Balonlar: tek pano, kenarlıklı"],
+    animasyon: true,
     ciktilar: [
       { ad: "Panel 1 · renk 1 STL", sec: "#fp-stl-p1-r1", tur: "stl", nesne: "Panel 1", tekRenk: true },
       { ad: "Panel 1 · renk 2 STL", sec: "#fp-stl-p1-r2", tur: "stl", nesne: "Panel 1", tekRenk: true },
@@ -1007,6 +1009,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "İçi sizin düzeninizde", metin: "İki, üç ya da dört göz: yüzük, küpe, kalem ya da kartlar ayrı durur." },
     ],
     gorseller: ["Evde: masanın üstünde", "Takı kutusu: kare, dört göz", "Uzun kutu: üç göz, düz duvar", "Klasik: siyah beyaz, geniş kenarlık", "Hatıra kutusu: çiçekli kapak, yivli duvar"],
+    animasyon: true,
     ciktilar: [
       { ad: "Kapak · renk 1 STL", sec: "#fk-stl-kapak-r1", tur: "stl", nesne: "Kapak", tekRenk: true },
       { ad: "Kapak · renk 2 STL", sec: "#fk-stl-kapak-r2", tur: "stl", nesne: "Kapak", tekRenk: true },
