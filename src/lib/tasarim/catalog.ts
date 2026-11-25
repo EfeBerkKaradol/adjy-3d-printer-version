@@ -1068,6 +1068,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Tek parça, desteksiz", metin: "Biçim, baskının taşıyabileceği eğimde kalacak şekilde kurulur; yüzeyde destek izi olmaz." },
     ],
     gorseller: ["Evde: masanın üstünde", "Burgulu: sağa dönen 16 yiv, hafif pürüzlü", "Halkalı lale: yatay dalga, adaçayı", "Yalın sütun: pürüzlü yüzey, antrasit", "Lilyum: Ø160 × 240 mm, 24 düz yiv"],
+    animasyon: true,
     ciktilar: [
       { ad: "Vazo STL", sec: "#dv-stl", tur: "stl" },
       RENKLI_PAKET,
