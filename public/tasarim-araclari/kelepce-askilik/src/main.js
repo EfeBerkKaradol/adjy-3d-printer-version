@@ -190,6 +190,7 @@ scene.add(studioGrid);
 
 // Ghost Desk Preview Mesh (Translucent Architectural Oak Slab)
 const ghostDeskGroup = new THREE.Group();
+ghostDeskGroup.name = "baglam-masa"; // ürün görseli betiği masayı adından tanır
 const ghostDeskMat = new THREE.MeshPhysicalMaterial({
   color: 0xc8a97e,
   roughness: 0.52,

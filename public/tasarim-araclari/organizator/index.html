@@ -1216,6 +1216,8 @@ function buildCtx() {
     ctxBox(W + 760, 38, 620, W / 2, -250, 310, CTXM.bench);
     ctxBox(W + 760, 6, 4, W / 2, -231, 618, CTXM.alu);
   }
+  // Ürün görseli betiği (scripts/urun-renderleri.py) bağlam gövdelerini adından tanır
+  ctxGroup.children.forEach((m) => { m.name = 'baglam-' + (Object.keys(CTXM).find((k) => CTXM[k] === m.material) || 'diger'); });
 }
 
 // ---- 04_ui.js ----

@@ -21,7 +21,7 @@ from mathutils import Matrix, Vector
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import ortam  # ev ortamları: masa, duvar
 
-BOY = 1100
+BOY = int(os.environ.get("ADJY_BOY", 1100))
 ORNEK = int(os.environ.get("ADJY_ORNEK", 48))
 SSS = os.environ.get("ADJY_SSS", "1") == "1"
 OLCEK = 0.001  # mm → m
@@ -300,7 +300,12 @@ def ciz(sahneYolu, cikti):
     # --- ağlar
     hepsi = []
     veriler = []
+    # renkEsle: aracın ekranda ayırt etmek için boyadığı parçalar (kilit takozu, dolgu
+    # şeridi) gerçekte gövdeyle aynı filamenttir
+    esle = {k.lower(): v for k, v in (S.get("renkEsle") or {}).items()}
     for a in S["aglar"]:
+        if a.get("renk", "").lower() in esle:
+            a["renk"] = esle[a["renk"].lower()]
         v = np.fromfile(os.path.join(klasor, a["dosya"]), dtype=np.float32).reshape(-1, 3)
         if len(v) < 3:
             continue
@@ -310,6 +315,20 @@ def ciz(sahneYolu, cikti):
             kr = np.fromfile(os.path.join(klasor, a["koseRenk"]), dtype=np.float32).reshape(-1, 3)
         veriler.append((a, v, kr))
     ortamAdi = S.get("ortam", "studyo")
+    # Bağlam gövdeleri (aracın çekmecesi, masa önizlemesi, tezgâhı): adına göre kutuları
+    bk = {}
+    for a, v, _ in veriler:
+        k = a.get("baglam")
+        if k:
+            lo, hi = v.min(axis=0), v.max(axis=0)
+            if k in bk:
+                lo, hi = np.minimum(lo, bk[k][0]), np.maximum(hi, bk[k][1])
+            bk[k] = (lo, hi)
+    bk = {k: (Vector(lo.tolist()), Vector(hi.tolist())) for k, (lo, hi) in bk.items()}
+    if ortamAdi in ("atolye", "masaKenari"):  # bunları ortam kendisi gerçek eşyayla kurar
+        veriler = [x for x in veriler if not x[0].get("baglam")]
+    if S.get("ayakli"):
+        ortam.ayaga_kaldir(veriler, np, float(S["ayakli"]))
     if ortamAdi == "duvar":
         # Ayak gibi ayrı parçalar duvarda yok; levha dik çevrilir
         veriler = [x for x in veriler if not re.search(r"ayak|stand", x[0].get("ad", ""), re.I)]
@@ -337,6 +356,12 @@ def ciz(sahneYolu, cikti):
         uzak, fov = ortam.masa(S, mn, mx, bakis)
     elif ortamAdi == "duvar":
         uzak, fov = ortam.duvar(S, mn, mx)
+    elif ortamAdi == "cekmece":
+        uzak, fov = ortam.cekmece(S, mn, mx, bk)
+    elif ortamAdi == "atolye":
+        uzak, fov = ortam.atolye(S, mn, mx, bk)
+    elif ortamAdi == "masaKenari":
+        uzak, fov = ortam.masa_kenari(S, mn, mx, bk, veriler, np)
     else:
         uzak, fov = studyo(S, sc, mn, mx, c, R, z0, bakis)
     boy = int(S.get("boy", BOY))
@@ -345,9 +370,10 @@ def ciz(sahneYolu, cikti):
     # --- malzeme ve nesneler
     matlar = {}
     for a, v, kr in veriler:
-        anahtar = json.dumps([a.get(k) for k in ("renk", "puruz", "metal", "saydam", "isik", "isikGuc", "dokulu")]) + ("k" if kr is not None else "")
+        anahtar = json.dumps([a.get(k) for k in ("renk", "puruz", "metal", "saydam", "isik", "isikGuc", "dokulu", "baglam")]) + ("k" if kr is not None else "")
         if anahtar not in matlar:
-            matlar[anahtar] = pla(a.get("ad", "pla"), a, pikselMm)
+            # Bağlam gövdesi baskı değil: ahşap, metal, sıva
+            matlar[anahtar] = ortam.baglam_malzemesi(a["baglam"]) if a.get("baglam") else pla(a.get("ad", "pla"), a, pikselMm)
         o = ag_kur(a.get("ad") or "ag", v, kr)
         o.data.materials.append(matlar[anahtar])
 

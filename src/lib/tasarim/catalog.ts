@@ -218,7 +218,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Masa kalınlığınıza göre", metin: "1,8 ile 5,5 santim arasındaki tablalar için üretilir; kalınlığı siz girersiniz, kelepçe ona göre açılır." },
       { baslik: "Kulaklık da çanta da", metin: "Üstte kulaklık beşiği, altta çanta ve kablo için kanca; dört ayrı gövde modelinden biri." },
     ],
-    gorseller: ["Evde: masanın üstünde", "Derin kancalı model", "Kafes gövdeli model", "Stüdyo modeli", "Üst beşik ve alt kanca"],
+    gorseller: ["Evde: çalışma masasının kenarında, kulaklıkla", "Derin kancalı model", "Kafes gövdeli model", "Stüdyo modeli", "Üst beşik ve alt kanca"],
     ciktilar: [
       { ad: "Gövde STL", sec: "#btn-stl-body", tur: "stl" },
       { ad: "Vida STL", sec: "#btn-stl-screw", tur: "stl" },
@@ -317,7 +317,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Yazı ve simge sizden", metin: "Bağlantıyı, başlığı ve alt yazıyı girersiniz; gövde şeklini ve renk çiftini seçersiniz." },
       { baslik: "Stand ya da anahtarlık", metin: "Masada duran eğik stand olarak da, halkalı anahtarlık olarak da üretilir." },
     ],
-    gorseller: ["Evde: masanın üstünde", "Otel madalyonu", "Anahtarlık", "Sosyal medya rozeti", "Kafe masası standı"],
+    gorseller: ["Evde: masanın üstünde", "Otel madalyonu, lacivert ve altın", "Anahtarlık, zümrüt ve krem", "Sosyal medya rozeti, siyah ve kırmızı", "Yatay kart, beyaz ve siyah", "Sekizgen plaka, lacivert ve altın", "Kafe masası standı, siyah ve kemik beyazı"],
     ciktilar: [
       { ad: "Tekil üretim STL", sec: "#btn-dl-stl-unit", tur: "stl" },
       RENKLI_PAKET,
@@ -441,7 +441,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Kutular kaymaz", metin: "Her kutu tabandaki yuvasına oturur; çekmeceyi hızlı çekseniz de yerinde kalır. Yerlerini dilediğiniz zaman değiştirirsiniz." },
       { baslik: "Yerleşimi siz kurarsınız", metin: "Kutuları tek tek ekler, siler, içlerine bölme koyarsınız; büyük, küçük ve bölmeli kutular aynı çekmecede yan yana durur." },
     ],
-    gorseller: ["Evde: masanın üstünde", "Üstten: kutu yerleşimi", "Duvar ızgarası ve askılı kutular", "Küçük çekmece, 33 × 28 cm", "Çekmece organizeri, 59 × 48 cm"],
+    gorseller: ["Evde: komodinin çekmecesinde", "Evde: duvar ızgarası, tezgâhın üstünde", "Üstten: kutu yerleşimi", "Duvar ızgarası ve askılı kutular", "Küçük çekmece, 33 × 28 cm", "Çekmece organizeri, 59 × 48 cm"],
     ciktilar: [
       { ad: "Tabla ve kilit STL", sec: "#exPlates", tur: "stl" },
       { ad: "Kutular STL", sec: "#exBins", tur: "stl" },

@@ -38,11 +38,11 @@ _spec.loader.exec_module(_k)
 # adım: ("sec", seçici, değer) | ("tikla", seçici) | ("alan", {id: değer}) | ("js", kod)
 # seçenek: {"boya": "#hex"} en büyük ağın rengi · {"bakis": [x, y, z]} kamera yönü (aracın ekseninde)
 def _hazir(arac, secici, degerler, bekle=2.5, ek=None):
-    return [(f"{arac}{'' if i == 0 else '-' + str(i + 1)}.jpg", [("sec", secici, v)], bekle, (ek or [{}] * 4)[i]) for i, v in enumerate(degerler)]
+    return [(f"{arac}{'' if i == 0 else '-' + str(i + 1)}.jpg", [("sec", secici, v)], bekle, (ek or [{}] * len(degerler))[i]) for i, v in enumerate(degerler)]
 
 
 def _tikla(arac, kalip, degerler, bekle=2.5, ek=None):
-    return [(f"{arac}{'' if i == 0 else '-' + str(i + 1)}.jpg", [("tikla", kalip.format(v))], bekle, (ek or [{}] * 4)[i]) for i, v in enumerate(degerler)]
+    return [(f"{arac}{'' if i == 0 else '-' + str(i + 1)}.jpg", [("tikla", kalip.format(v))], bekle, (ek or [{}] * len(degerler))[i]) for i, v in enumerate(degerler)]
 
 
 ESKI = {
@@ -52,7 +52,15 @@ ESKI = {
     "avize": _hazir("avize", "#preset-selector", ["klasik_e27", "mimari_plise", "minimal_silindir", "kompakt_e14"], ek=[{"havada": 0.45}] * 4),
     "kelepce-askilik": _hazir("kelepce-askilik", "#preset-selector", ["cift_j_istasyon", "derin_canta_j", "aero_truss_agir", "standart_studyo"]),
     "pcb-kutu": _hazir("pcb-kutu", "#preset-select", ["rpi_iot", "esp32_sensor", "stm32_plc", "power_psu"]),
-    "nfc-qr": _tikla("nfc-qr", '[data-preset="{}"]', ["cafe_arch", "hotel_medallion", "corner_keychain", "crest_social"]),
+    # Taban ve kabartma QR iki ayrı filament, zıt renk çiftleri (aracın hazır renk çiftlerinden)
+    "nfc-qr": [
+        ("nfc-qr.jpg", [("tikla", '[data-preset="cafe_arch"]')], 2.5, {}),
+        ("nfc-qr-2.jpg", [("tikla", '[data-preset="hotel_medallion"]')], 2.5, {}),
+        ("nfc-qr-3.jpg", [("tikla", '[data-preset="corner_keychain"]')], 2.5, {}),
+        ("nfc-qr-4.jpg", [("tikla", '[data-preset="crest_social"]'), ("tikla", '#color-pair-swatches [data-emboss="#E04F33"]')], 2.5, {}),
+        ("nfc-qr-5.jpg", [("tikla", '[data-preset="landscape_split"]'), ("tikla", '#color-pair-swatches [data-base="#F2EFE9"]')], 2.5, {}),
+        ("nfc-qr-6.jpg", [("tikla", '[data-preset="octagon_ind"]'), ("tikla", '#color-pair-swatches [data-base="#142238"]')], 2.5, {}),
+    ],
     "lazer-uv-fikstur": _hazir("lazer-uv-fikstur", "#presetSelect", ["metal_card", "laser_pen", "round_token", "uv_flask"]),
     "mimari-maket": _hazir("mimari-maket", "#preset-select", ["konut_200", "kule_500", "pavyon_50", "karma_100"], bekle=4),
     "moduler-dolap": _tikla("moduler-dolap", '[data-room="{}"]', ["ODA_01_Mutfak", "ODA_02_Salon_Sehpa", "ODA_03_Yatak_Gardirop", "ODA_05_Calisma_Kitaplik"], bekle=3.5),
@@ -64,13 +72,18 @@ ESKI = {
         ("araba-yolu-5.jpg", [("tikla", '[data-yol="tepe"]')], 3, {}),
         ("araba-yolu-6.jpg", [("tikla", '[data-yol="tek"]'), ("tikla", '[data-hazir="korkuluklu"]')], 3, {}),
     ],
+    # organizator.jpg ve -2 ev ortamına ayrılmıştır (ORTAM, EK_ORTAM): stüdyo kareleri -3…-6
     "organizator": [
-        ("organizator.jpg", [], 2.5, {}),
-        ("organizator-2.jpg", [], 2.5, {"bakis": [0.02, -1, -0.05]}),
-        ("organizator-3.jpg", [("tikla", '[data-sys="2"]')], 3.5, {}),
-        ("organizator-4.jpg", [("js", "P.W = 336; P.D = 294; DIRTY = true;")], 3.5, {}),
+        ("organizator-6.jpg", [], 2.5, {}),
+        ("organizator-3.jpg", [], 2.5, {"bakis": [0.02, -1, -0.05]}),
+        ("organizator-4.jpg", [("tikla", '[data-sys="2"]')], 3.5, {}),
+        ("organizator-5.jpg", [("js", "P.W = 336; P.D = 294; DIRTY = true;")], 3.5, {}),
     ],
 }
+
+# Organizatör ekranda kilit takozlarını (turuncu) ve dolgu şeritlerini (yeşil) ayırt
+# etmek için boyar; basılan parça gövdeyle aynı filamenttir
+ORG_RENK = {"#f59e0b": "#333c4a", "#ff5500": "#333c4a", "#00d48a": "#333c4a"}
 
 # Ortam fotoğrafı: her ürünün İLK görseli (<arac>.jpg). Ürün bir ev ortamında durur
 # (bkz. render/ortam.py). "kare": hangi stüdyo karesinin kurulumu kullanılacak (0 = ilk).
@@ -92,6 +105,17 @@ ORTAM = {
     "burgulu-yilbasi-agaci": {"duvar": "acik"},
     "foto-kutu": {"duvar": "kum"},
     "lav-catlagi-zar-tepsisi": {"duvar": "koyu"},
+    # Yapboz çerçevesi eğik yarıklı ayaklarına takılı, masada dik durur (egim: yarığın açısı)
+    "foto-yapboz": {"ayakli": 15, "duvar": "acik"},
+    # Çekmece organizeri: komodinin yarıya çekilmiş çekmecesinde
+    "organizator": {"ortam": "cekmece", "duvar": "acik", "renkEsle": ORG_RENK},
+    # Kelepçe askılık: gerçek masa kenarına sıkılmış, kancada kulaklık
+    "kelepce-askilik": {"ortam": "masaKenari", "duvar": "kum", "doluluk": 0.8},
+}
+
+# Aynı ürünün ikinci ev fotoğrafı: (dosya, ayar) — "kare" hangi stüdyo karesinin kurulumu
+EK_ORTAM = {
+    "organizator": [("organizator-2.jpg", {"ortam": "atolye", "kare": 2, "duvar": "adacayi", "renkEsle": ORG_RENK})],
 }
 
 
@@ -244,18 +268,25 @@ AL_JS = r"""() => {
   const b64 = (f32) => { const u = new Uint8Array(f32.buffer, f32.byteOffset, f32.byteLength); let s = ''; const N = 0x8000;
     for (let i = 0; i < u.length; i += N) s += String.fromCharCode.apply(null, u.subarray(i, i + N)); return btoa(s); };
   const gorunur = (o) => { for (let p = o; p; p = p.parent) if (!p.visible) return false; return true; };
+  // Bağlam gövdesi (çekmece, masa önizlemesi, duvar…): ürün değil, Blender kendi ortamını kurar
+  const baglamAdi = (o) => { for (let p = o; p; p = p.parent) if (/^baglam/.test(p.name || '')) return p.name; return null; };
   const aglar = [];
   const v = new T.Vector3(), m4 = new T.Matrix4();
   sahne.traverse((o) => {
     if (!o.isMesh || !gorunur(o) || !o.geometry || !o.geometry.attributes.position) return;
     if (/zemin|izgara|grid|ground|floor|helper|golge|shadow|gizmo|outline|kutu-cizgi/i.test(o.name || '')) return;
-    const mat = Array.isArray(o.material) ? o.material[0] : o.material;
-    if (!mat || mat.type === 'ShadowMaterial' || mat.visible === false) return;
-    if (mat.transparent && mat.opacity < 0.08) return;
-    if (mat.wireframe) return;
     const g = o.geometry, pos = g.attributes.position, idx = g.index;
-    const n = idx ? idx.count : pos.count;
-    if (n < 3) return;
+    const N = idx ? idx.count : pos.count;
+    // Çok malzemeli ağ (ör. taban + kabartma QR): her grup kendi rengiyle ayrı ağ
+    const parcalar = Array.isArray(o.material) && g.groups && g.groups.length
+      ? g.groups.map((gr) => [gr.start, Math.min(N, gr.start + gr.count), o.material[gr.materialIndex || 0]])
+      : [[0, N, Array.isArray(o.material) ? o.material[0] : o.material]];
+    for (const [i0, i1, mat] of parcalar) {
+    if (!mat || mat.type === 'ShadowMaterial' || mat.visible === false) continue;
+    if (mat.transparent && mat.opacity < 0.08) continue;
+    if (mat.wireframe) continue;
+    const n = i1 - i0;
+    if (n < 3) continue;
     const ornek = o.isInstancedMesh ? o.count : 1;
     const renkOz = mat.vertexColors && g.attributes.color ? g.attributes.color : null;
     const u = new Float32Array(n * 3 * ornek);
@@ -263,7 +294,7 @@ AL_JS = r"""() => {
     let k = 0;
     for (let e = 0; e < ornek; e++) {
       if (o.isInstancedMesh) { o.getMatrixAt(e, m4); m4.premultiply(o.matrixWorld); } else m4.copy(o.matrixWorld);
-      for (let i = 0; i < n; i++) {
+      for (let i = i0; i < i1; i++) {
         const j = idx ? idx.getX(i) : i;
         v.fromBufferAttribute(pos, j).applyMatrix4(m4);
         if (kr) { kr[k] = renkOz.getX(j); kr[k + 1] = renkOz.getY(j); kr[k + 2] = renkOz.getZ(j); }
@@ -283,7 +314,9 @@ AL_JS = r"""() => {
       isik: mat.emissive && mat.emissive.getHex() !== 0 && (mat.emissiveIntensity || 0) > 0.05 ? '#' + mat.emissive.getHexString() : null,
       isikGuc: mat.emissiveIntensity || 0, tur: mat.type,
       dokulu: mat.bumpMap ? (mat.bumpScale || 1) : 0,
+      baglam: baglamAdi(o),
     });
+    }
   });
   const yon = new T.Vector3();
   kamera.getWorldDirection(yon);
@@ -404,18 +437,21 @@ def main() -> None:
                 continue
             try:
                 kareler = tanim[1] if tur == "yb" else tanim
-                ayar = dict(ORTAM.get(arac, {}))
+                kaynak = []
                 if ortamKipi:
-                    secili = [kareler[ayar.pop("kare", 0)]]
-                    kaynak = yb_kareleri(sayfa, arac, tanim[0], secili, False) if tur == "yb" else eski_kareleri(sayfa, arac, secili, False)
+                    # (dosya, ortam ayarı, sahne) üçlüleri: ilk görsel + varsa ek ortam fotoğrafları
+                    for hedefAdi, ayar in [(f"{arac}.jpg", dict(ORTAM.get(arac, {})))] + [(d, dict(e)) for d, e in EK_ORTAM.get(arac, [])]:
+                        secili = [kareler[ayar.pop("kare", 0)]]
+                        al = yb_kareleri(sayfa, arac, tanim[0], secili, False) if tur == "yb" else eski_kareleri(sayfa, arac, secili, False)
+                        kaynak += [(hedefAdi, ayar, veri) for _d, veri in al]
                 else:
-                    kaynak = yb_kareleri(sayfa, arac, tanim[0], kareler, ilk) if tur == "yb" else eski_kareleri(sayfa, arac, kareler, ilk)
-                for dosya, veri in kaynak:
+                    al = yb_kareleri(sayfa, arac, tanim[0], kareler, ilk) if tur == "yb" else eski_kareleri(sayfa, arac, kareler, ilk)
+                    kaynak = [(d, None, veri) for d, veri in al]
+                for dosya, ayar, veri in kaynak:
                     if not veri or not veri["aglar"]:
                         print("SAHNE YOK", arac, dosya)
                         continue
                     if ortamKipi:
-                        dosya = f"{arac}.jpg"
                         veri.update({"ortam": "masa", "tohum": sum(map(ord, arac)), **ayar})
                     else:
                         dosya = ilk_adi(arac, dosya, len(kareler))
