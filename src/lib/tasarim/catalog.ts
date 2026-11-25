@@ -503,6 +503,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Hediyenin üstüne de olur", metin: "Halkasıyla ağaca, deliğiyle kurdeleye; askısız seçerseniz hediye paketinin üstüne ya da masaya." },
     ],
     gorseller: ["Evde: masanın üstünde", "Yıldız: ilk yılbaşı, pembe yazı", "Çam ağacı: Mutlu Yıllar", "Kalp: iki isim, el yazısı", "Top süs: el yazısıyla aile adı, altın yazı"],
+    animasyon: true,
     ciktilar: [
       { ad: "Gövde STL", sec: "#yb-stl-govde", tur: "stl", nesne: "Süs" },
       { ad: "Yazı ve çerçeve STL", sec: "#yb-stl-yazi", tur: "stl", nesne: "Süs" },
@@ -533,6 +534,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Ağaçtan cama", metin: "6–9 cm ağaç süsü, 12 cm ve üstü cam, kapı ve hediye paketi süsü olarak." },
     ],
     gorseller: ["Evde: masanın üstünde", "Dantel: iç halkalı, dört dal", "Kristal: yıldız göbek", "Yalın: uzun kollar, buz mavisi", "Klasik: üç dal, kristal uçlar"],
+    animasyon: true,
     ciktilar: [
       { ad: "Kar tanesi STL", sec: "#kt-stl", tur: "stl" },
       RENKLI_PAKET,
@@ -561,6 +563,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Desteksiz, temiz yüzey", metin: "Katların altı 45° pahla açılır, iç boşluğun tavanı konidir: ağaç destek izi olmadan, tek parça basılır." },
     ],
     gorseller: ["Evde: masanın üstünde", "Işıklı: içi boş, mum LED'li", "Modern: kavisli, altın", "Mini: masaüstü, kırmızı", "Klasik: beş kat, altın yıldız"],
+    animasyon: true,
     ciktilar: [
       { ad: "Ağaç STL", sec: "#ag-stl", tur: "stl", nesne: "Ağaç" },
       { ad: "Yıldız STL", sec: "#ag-stl-yildiz", tur: "stl" },
@@ -620,6 +623,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Desteksiz, tek parça", metin: "Boğumların altı 45°'yi aşmaz, dişler 40°'den fazla eğilmez; kurt destek izi olmadan basılır." },
     ],
     gorseller: ["Evde: masanın üstünde", "Yaşlı kurt: derin boğumlar", "Yavru: kısa, küçük dişler", "Kurt saksı: geniş gövde", "Çöl kurdu: açık ağız, 18 diş"],
+    animasyon: true,
     ciktilar: [
       { ad: "Kalemlik STL", sec: "#ck-stl", tur: "stl" },
       RENKLI_PAKET,
@@ -648,6 +652,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Desteksiz açılır", metin: "Duvarın açılması 45°'yi geçmeyecek şekilde sınırlanır; istenen ağız çapı sığmazsa araç söyler." },
     ],
     gorseller: ["Evde: masanın üstünde", "Anahtar tabağı, dalgalı ağız", "Derin kase, okra", "Kum vazosu: yüksek, burgulu", "Meyve kasesi, kum rengi"],
+    animasyon: true,
     ciktilar: [
       { ad: "Kase STL", sec: "#kd-stl", tur: "stl" },
       RENKLI_PAKET,
@@ -830,6 +835,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Zarlar içeride kalır", metin: "Duvar düz yükselir, zemin düzdür; zarlar yuvarlanır, masadan düşmez. Anahtar ve bozukluk tepsisi olarak da durur." },
     ],
     gorseller: ["Evde: masanın üstünde", "Volkan ağzı: daire, sık çatlak", "Plazma çekirdeği: sekizgen, mavi", "Asit kuyusu: yeşil, mühürsüz", "Cehennem kapısı: altıgen, rün halkası"],
+    animasyon: true,
     ciktilar: [
       { ad: "Taş STL", sec: "#lt-stl-tas", tur: "stl", nesne: "Tepsi" },
       { ad: "Lav katı STL", sec: "#lt-stl-lav", tur: "stl", nesne: "Tepsi" },
@@ -890,6 +896,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
       { baslik: "Kat kat kabartma", metin: "Damarlı yapraklar tabanın, kubbe gibi kokinalar yaprakların üstünde durur; çelenk düz değil, dokuludur." },
     ],
     gorseller: ["Evde: duvarda", "Altın: koyu yeşil, Mutlu Yıllar", "Karlı: beyaz yaprak, lacivert kokina", "Yalnız çelenk: şeritsiz, fiyonk üstte", "Klasik: yeşil yaprak, kırmızı fiyonk"],
+    animasyon: true,
     ciktilar: [
       { ad: "Taban ve yapraklar STL", sec: "#yc-stl-yaprak", tur: "stl", nesne: "Çelenk" },
       { ad: "Kokina ve fiyonk STL", sec: "#yc-stl-meyve", tur: "stl", nesne: "Çelenk" },
