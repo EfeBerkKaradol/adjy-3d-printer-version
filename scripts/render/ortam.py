@@ -332,6 +332,8 @@ def masa(S, mn, mx, bakis):
     hedef = Vector((c.x, c.y, mn.z + hz * 0.5))
     fov = math.radians(28)
     uzak = sigdir(mn, mx, hedef, yon, fov, float(S.get("doluluk", 0.74 if yassilik < 0.15 else 0.62)))
+    # "kaydir": hedefi yüksekliğin bu oranı kadar kaydırır (sarkıtta askı teli kadrajın üstünden çıksın)
+    hedef = hedef + Vector((0, 0, float(S.get("kaydir", 0)) * hz))
     kamera(hedef - yon * uzak, hedef, fov, (mx - mn).length * 0.8)
 
     G = float(S.get("isik", 42))
@@ -368,7 +370,8 @@ def duvar(S, mn, mx):
     kutu("konsolOn", (2.2, 0.03, 0.5), Vector((c.x + 0.15, -0.4, ustZ - 0.29)), 0, ahsap, 0.003)
     yuzey = Vector((c.x, 0, ustZ))
     # Eşyalar duvar dibinde ve ürünün iki yanında: kamerayla ürün arasına girmez
-    bitki(yuzey + Vector((-gen / 2 - 0.16, -0.1, 0)), 1.25, rnd, "#d9d3c7")
+    # Bitki ürünün solunda ve yeterince uzakta: yaprakları ürünün önüne düşmez
+    bitki(yuzey + Vector((-gen / 2 - 0.3, -0.1, 0)), 0.95, rnd, "#d9d3c7")
     kitaplar(yuzey + Vector((gen / 2 + 0.2, -0.11, 0)), 0.25, rnd)
 
     fov = math.radians(28)

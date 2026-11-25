@@ -82,7 +82,7 @@ ORTAM = {
     "kahraman-amblemi": {"ortam": "duvar", "duvar": "kum"},
     "neon-sahil-tabela": {"ortam": "duvar", "kare": 2, "duvar": "adacayi"},
     "ses-dalgasi-plaketi": {"ortam": "duvar", "kare": 2, "duvar": "acik"},
-    "avize": {"havada": 1.0, "egim": 6, "doluluk": 0.66},
+    "avize": {"havada": 1.0, "egim": 6, "doluluk": 0.8, "kaydir": -0.2},
     "dalgali-vazo": {"duvar": "adacayi"},
     "saksi": {"duvar": "acik"},
     "kum-dalgasi-kase": {"duvar": "kum"},
