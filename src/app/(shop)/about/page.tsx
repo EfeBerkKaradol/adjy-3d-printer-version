@@ -13,7 +13,7 @@ export const revalidate = 300;
 export const metadata: Metadata = pageMetadata({
   title: "Hakkımızda",
   description:
-    "ADJY, ev ve çalışma masası için dekoratif ürünler üretir. Çoğunun ölçüsünü siz belirlersiniz; üretim Beşiktaş'taki kendi atölyemizde, sipariş geldikten sonra başlar.",
+    "ADJY, Beşiktaş'taki kendi atölyesinde siparişe özel ev ve masa ürünleri üretir: vazo, saksı, aydınlatma, düzenleyici ve kişiye özel hediyeler. Ölçüsünü, rengini ve yazısını siz seçersiniz.",
   path: "/about",
 });
 
@@ -91,20 +91,21 @@ export default async function AboutPage() {
           <div className="mx-auto max-w-3xl">
             <p className="adjy-eyebrow mb-6">Neden</p>
             <p className="adjy-display text-[clamp(1.6rem,3.2vw,2.4rem)] leading-[1.25]">
-              Bir raf iki santim uzun geldiği için geri gönderilmez. Orada
-              durur, biraz yanlış durur, her gün biraz rahatsız eder.
+              Seri üretim herkese aynı ürünü satar. Biz her siparişi, onu
+              isteyen kişi için basıyoruz.
             </p>
             <div className="mt-8 space-y-4 text-base leading-relaxed text-muted-foreground">
               <p>
-                Katalog, ürünü ortalama bir eve göre tasarlar. Sizin eviniz
-                ortalama değil: rafın boşluğu 38 santim, pencerenin önü dar,
-                masanın kenarı kısa kalıyor.
+                Mağaza raflarındaki ürünler ortalama bir eve göre çizilir.
+                Oysa sizin rafınızın boşluğu 38 santim, pencerenizin önü dar,
+                hediye edeceğiniz kişinin adı da o hazır ürünün üstünde yazmıyor.
               </p>
               <p>
-                ADJY bu yüzden ürünleri sabit ölçülü parçalar olarak değil,
-                ölçüsü belirlenebilen tasarımlar olarak kuruyor. Ölçüyü
-                siz verdiğiniz için üretim de ancak siz söyledikten sonra
-                başlıyor.
+                ADJY bu yüzden ürünlerini sabit kalıplar olarak değil,
+                kurulabilen tasarımlar olarak hazırlıyor. Ölçüyü, rengi,
+                yazıyı ya da fotoğrafı siz seçiyorsunuz; seçiminiz modelde ve
+                fiyatta anında görünüyor. Üretim siparişinizle başlıyor, bu
+                yüzden ne stok fazlası ne de depoda bekleyen bir ürün var.
               </p>
             </div>
           </div>
@@ -114,10 +115,10 @@ export default async function AboutPage() {
       {/* 03 — Kendin Üret: ayarlanabilir ürünler */}
       <section className="adjy-container adjy-section border-t-2 border-dashed border-foreground/25">
         <SectionHeading
-          eyebrow="Özel ölçüde üretim"
-          title="Ölçüyü siz belirleyin."
-          description="Saksıdan araba yoluna, Kendin Üret ürünlerinde ölçüyü ve biçimi siz kurarsınız; fiyat seçiminizle birlikte hesaplanır."
-          action={{ label: "Kendin Üret", href: "/tasarla" }}
+          eyebrow="Kendin tasarla"
+          title="Ürünü siz kurun, biz basalım."
+          description="Ses kaydınızdan plaket, fotoğrafınızdan yapboz ya da hediye kutusu, adınızla isimlik, bitkinize göre saksı. Her ürünün kendi tasarım aracı var: değiştirdiğiniz her ayar modelde ve fiyatta anında görünür."
+          action={{ label: "Kendin tasarla", href: "/tasarla" }}
         />
       </section>
 

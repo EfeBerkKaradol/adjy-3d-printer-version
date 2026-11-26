@@ -5,6 +5,7 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import { ProductImageFallback } from "./ProductImageFallback";
 import { cn } from "@/lib/utils";
+import { GaleriOklari, galeriAdimi } from "./GaleriOklari";
 
 // Yalnızca fotoğrafsız ürünlerde mount edilir — three.js maliyeti
 // tüm ürün sayfaları için ödenmez.
@@ -49,7 +50,13 @@ export function ProductGallery({
 
   return (
     <div>
-      <div className="relative aspect-square overflow-hidden bg-surface-2">
+      <div className="group relative aspect-square overflow-hidden bg-surface-2">
+        <GaleriOklari
+          adet={usable.length}
+          ad={name}
+          onceki={() => setIndex((s) => galeriAdimi(s, -1, images.length, failed))}
+          sonraki={() => setIndex((s) => galeriAdimi(s, 1, images.length, failed))}
+        />
         {showImage ? (
           <Image
             src={current}

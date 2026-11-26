@@ -30,23 +30,12 @@ import {
   tasarimUrunSlug,
   type TasarimAraci,
 } from "../src/lib/tasarim/catalog";
-import { productionCost, sellingPrice } from "../src/lib/production";
+import { tasarimBaslangicFiyati } from "../src/lib/tasarim/pricing";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
-// src/lib/tasarim/pricing.ts ile aynı hesap. O dosya "@/" takma
-// adıyla içe aktarım yaptığı için betikten doğrudan çağrılamıyor.
-function baslangicFiyati(arac: TasarimAraci): number {
-  const maliyet = productionCost({
-    route: "fdm",
-    weightGrams: arac.varsayilan.kutleG,
-    printMinutes: arac.varsayilan.sureSaat * 60,
-    largestMm: arac.enUzunMm,
-  });
-  const fiyat = sellingPrice(maliyet.unitCost + (arac.ekMaliyet ?? 0)).unitPriceGross;
-  return Math.max(arac.tabanFiyat, Math.ceil(fiyat / 5) * 5);
-}
+const baslangicFiyati = (arac: TasarimAraci) => tasarimBaslangicFiyati(arac);
 
 async function main() {
   const ortak = await prisma.category.upsert({

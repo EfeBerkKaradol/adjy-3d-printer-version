@@ -30,7 +30,7 @@
 
 import type { Prisma, PrismaClient } from "../../generated/prisma/client";
 import { TASARIM_ARACLARI, type TasarimAraci } from "./catalog";
-import { productionCost, sellingPrice } from "../production";
+import { olcumuDogrula, tasarimFiyati } from "./pricing";
 import PAKETLER from "../../../prisma/ornek-tasarim-paketleri.json";
 
 interface Paket {
@@ -60,22 +60,10 @@ const ADRES = {
 /** Hazır ürünlerden kaç tanesine örnek sipariş açılır */
 const HAZIR_ORNEK = 3;
 
-// src/lib/tasarim/pricing.ts ile aynı hesap. O dosya "@/" takma
-// adıyla içe aktarım yaptığı için betikten çağrılamıyor.
-function oturt(v: number, [min, max]: [number, number], yedek: number): number {
-  return Number.isFinite(v) && v > 0 ? Math.min(max, Math.max(min, v)) : yedek;
-}
-function fiyat(arac: TasarimAraci, olcum: Paket["olcum"]) {
-  const kutleG = oturt(olcum.kutleG, arac.sinir.kutleG, arac.varsayilan.kutleG);
-  const sureSaat = oturt(olcum.sureSaat, arac.sinir.sureSaat, arac.varsayilan.sureSaat);
-  const maliyet = productionCost({
-    route: "fdm",
-    weightGrams: kutleG,
-    printMinutes: sureSaat * 60,
-    largestMm: arac.enUzunMm,
-  });
-  const brut = sellingPrice(maliyet.unitCost + (arac.ekMaliyet ?? 0)).unitPriceGross;
-  return { birim: Math.max(arac.tabanFiyat, Math.ceil(brut / 5) * 5), olcum: { kutleG, sureSaat } };
+// Sipariş akışıyla aynı hesap (pricing.ts)
+function fiyat(arac: TasarimAraci, ham: Paket["olcum"]) {
+  const { kutleG, sureSaat } = olcumuDogrula(arac, ham);
+  return { birim: tasarimFiyati(arac, { kutleG, sureSaat }), olcum: { kutleG, sureSaat } };
 }
 
 function secimler(ozet: Paket["ozet"]) {

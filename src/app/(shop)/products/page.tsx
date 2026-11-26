@@ -20,6 +20,7 @@ import {
 } from "@/lib/categoryTree";
 import type { FilterCategory } from "@/components/product/ProductFilters";
 import { tasarimUrunleriniHazirla } from "@/lib/tasarim/ensure";
+import { TASARIM_KATEGORISI } from "@/lib/tasarim/catalog";
 import { MAGAZA_LISTELERI_ETIKETI, MAGAZA_LISTELERI_SURESI } from "./onbellek";
 import { YILBASI, yilbasiAktif } from "@/lib/yilbasi";
 import { YilbasiBandi } from "@/components/yilbasi/YilbasiBandi";
@@ -157,7 +158,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const where: any = { isActive: true };
 
   // Ana kategori seçilince alt kategorilerindeki ürünler de gelir
-  if (params.category) where.category = categoryFilter(params.category);
+  // "Kendin Tasarla" kategorisi bütün özelleştirilebilir ürünleri
+  // listeler: kategoride yalnız eşleşen mağaza kategorisi olmayan
+  // araçlar duruyor (saksı "Saksılar"da, avize "Aydınlatma"da).
+  if (params.category === TASARIM_KATEGORISI.slug) where.AND = [PARAMETRIK];
+  else if (params.category) where.category = categoryFilter(params.category);
   if (params.koleksiyon) where.tags = collectionFilter(params.koleksiyon);
   if (params.featured === "true") where.featured = true;
   if (params.inStock === "true") where.stockQty = { gt: 0 };
@@ -313,7 +318,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           id: c.id,
           name: c.name,
           slug: c.slug,
-          productCount: c.productCount,
+          productCount: c.slug === TASARIM_KATEGORISI.slug ? configurableCount : c.productCount,
           children: c.children.filter((k) => k.productCount > 0),
         })),
     };

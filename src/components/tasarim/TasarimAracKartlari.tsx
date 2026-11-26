@@ -1,6 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
-import { aracAdresi, aracGorseli, type TasarimAraci } from "@/lib/tasarim/catalog";
+import {
+  ONE_CIKANLAR,
+  aracAdresi,
+  aracAnimasyonu,
+  aracGorseli,
+  vitrinSirasi,
+  type TasarimAraci,
+} from "@/lib/tasarim/catalog";
+import { KartVideosu } from "./KartVideosu";
 import { tasarimBaslangicFiyati } from "@/lib/tasarim/pricing";
 import { resolvePublicImage } from "@/lib/publicAsset";
 import { ProductImageFallback } from "@/components/product/ProductImageFallback";
@@ -31,6 +39,11 @@ interface Props {
   vitrin?: string;
   /** Büyük kartın etiketi */
   vitrinEtiketi?: string;
+  /**
+   * true: öne çıkanlar ve animasyonlu ürünler başa alınır
+   * (catalog.ts, vitrinSirasi). false: verilen sıra korunur.
+   */
+  sirala?: boolean;
 }
 
 const KISA_AYAR = 3;
@@ -40,12 +53,14 @@ export function TasarimAracKartlari({
   oncelikli = 3,
   baslikEtiketi = "h2",
   vitrin,
-  vitrinEtiketi = "Yeni",
+  vitrinEtiketi = "Öne çıkan",
+  sirala = true,
 }: Props) {
   const Baslik = baslikEtiketi;
+  const temel = sirala ? vitrinSirasi(araclar) : araclar;
   const sirali = vitrin
-    ? [...araclar].sort((a, b) => Number(b.id === vitrin) - Number(a.id === vitrin))
-    : araclar;
+    ? [...temel].sort((a, b) => Number(b.id === vitrin) - Number(a.id === vitrin))
+    : temel;
   const toplam = String(sirali.length).padStart(2, "0");
 
   return (
@@ -54,6 +69,8 @@ export function TasarimAracKartlari({
         const buyuk = a.id === vitrin;
         const gorsel = resolvePublicImage(aracGorseli(a.id));
         const ikinci = resolvePublicImage(`/tasarim-araclari/_gorsel/${a.id}-2.jpg`);
+        const animasyon = aracAnimasyonu(a);
+        const oneCikan = ONE_CIKANLAR.includes(a.id);
         const ayarlar = buyuk ? a.ayarlar : a.ayarlar.slice(0, KISA_AYAR);
         const kalan = a.ayarlar.length - ayarlar.length;
         return (
@@ -88,8 +105,12 @@ export function TasarimAracKartlari({
                 ) : (
                   <ProductImageFallback slug={a.id} />
                 )}
-                {/* Aynı ürünün başka bir kurulumu: üzerine gelince belirir */}
-                {gorsel && ikinci && (
+                {/* Animasyonlu ürün: üzerine gelince ayarların değiştiği döngü
+                    oynar (büyük kartta hemen). Yoksa aynı ürünün başka bir
+                    kurulumu belirir. */}
+                {gorsel && animasyon ? (
+                  <KartVideosu adres={animasyon} otomatik={buyuk} />
+                ) : gorsel && ikinci && (
                   <Image
                     src={ikinci}
                     alt=""
@@ -102,12 +123,18 @@ export function TasarimAracKartlari({
                   <span className="adjy-pixel-box bg-background px-1.5 py-0.5 font-mono text-[10px] font-semibold tabular-nums tracking-[0.1em]">
                     {String(i + 1).padStart(2, "0")} / {toplam}
                   </span>
-                  {buyuk && (
+                  {(buyuk || oneCikan) && (
                     <span className="adjy-pixel-box bg-foreground px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-background">
-                      {vitrinEtiketi}
+                      {buyuk ? vitrinEtiketi : "Öne çıkan"}
                     </span>
                   )}
                 </span>
+                {animasyon && (
+                  <span className="adjy-pixel-box absolute right-3 top-3 flex items-center gap-1 bg-background px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.1em]">
+                    <span aria-hidden className="text-[8px]">▶</span>
+                    Canlı önizleme
+                  </span>
+                )}
                 <span className="adjy-pixel-box absolute bottom-3 left-3 bg-background px-2 py-1 font-mono text-xs font-semibold tabular-nums">
                   {formatTRY(tasarimBaslangicFiyati(a))}
                 </span>

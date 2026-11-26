@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     template: "%s | ADJY",
   },
   description:
-    "Vazo, saksı, aydınlatma ve dekoratif ürünler; kendi atölyemizde 3D baskı, seramik ve alçı ile üretiliyor. Çoğunun ölçüsünü kendinize göre belirleyebilirsiniz.",
+    "Siparişe özel üretilen vazo, saksı, aydınlatma ve kişiye özel hediyeler. Ölçüsünü, rengini ve yazısını seçin; Beşiktaş'taki atölyemizde 3D baskı ile üretip kargolayalım.",
   keywords: [
     "dekoratif ürünler",
     "tasarım vazo",
@@ -70,13 +70,13 @@ export const metadata: Metadata = {
     siteName: "ADJY",
     title: "ADJY — Özel Ölçüde Tasarım Ürünleri",
     description:
-      "Vazo, saksı, aydınlatma ve dekoratif ürünler. Kendi atölyemizde üretiliyor; çoğunda ölçüyü siz belirliyorsunuz.",
+      "Siparişe özel üretilen ev ürünleri ve kişiye özel hediyeler. Ölçüsünü, rengini ve yazısını siz seçin, atölyemiz bassın.",
   },
   twitter: {
     card: "summary_large_image",
     title: "ADJY — Özel Ölçüde Tasarım Ürünleri",
     description:
-      "Vazo, saksı, aydınlatma ve dekoratif ürünler. Kendi atölyemizde üretiliyor; çoğunda ölçüyü siz belirliyorsunuz.",
+      "Siparişe özel üretilen ev ürünleri ve kişiye özel hediyeler. Ölçüsünü, rengini ve yazısını siz seçin, atölyemiz bassın.",
   },
   manifest: "/manifest.json",
   // Merchant Center (ADJY, 5875752891) "HTML etiketi" doğrulaması.

@@ -35,21 +35,27 @@ export function AboutOpening({ gorsel, urunSayisi, olcuSayisi }: Props) {
         <div>
           <p className="adjy-eyebrow mb-6">Hakkımızda</p>
           <h1 className="adjy-display text-[clamp(2.1rem,4.8vw,3.6rem)] leading-[1.04]">
-            Ürünü alana göre üretiyoruz,
+            Rafta beklemez,
             <br />
-            <span className="text-muted-foreground">alanı ürüne göre değil.</span>
+            <span className="text-muted-foreground">siparişinizle basılır.</span>
           </h1>
           <p className="mt-7 max-w-xl text-lg leading-relaxed">
-            ADJY, evler ve çalışma masaları için dekoratif ve işlevsel ürünler
-            üretir: vazo, saksı, aydınlatma, masa düzeni ve figürler. Çoğunun
-            ölçüsünü siz belirlersiniz — rafınıza iki santim uzun gelen bir
-            ürünü almak zorunda kalmayın diye.
+            ADJY, Beşiktaş&apos;taki kendi atölyesinde ev ve masa ürünleri
+            üreten bir tasarım stüdyosu: vazo, saksı, aydınlatma, düzenleyici
+            ve kişiye özel hediyeler. Ürünlerimiz depoda beklemez; ölçüsünü,
+            rengini ve üstündeki yazıyı siz seçersiniz, atölyemiz o hâliyle
+            basar.
+          </p>
+          <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">
+            Ekranda gördüğünüz model, kapınıza gelecek parçanın kendisidir:
+            fiyatı da teslim süresi de sipariş vermeden önce bellidir.
           </p>
 
-          <div className="mt-8">
-            <PixelLink href="/products" variant="solid">
-              Ürünleri görün
+          <div className="mt-8 flex flex-wrap gap-3">
+            <PixelLink href="/tasarla" variant="solid">
+              Kendin tasarla
             </PixelLink>
+            <PixelLink href="/products">Mağazaya göz at</PixelLink>
           </div>
         </div>
 
@@ -77,7 +83,7 @@ export function AboutOpening({ gorsel, urunSayisi, olcuSayisi }: Props) {
           <dd className="mt-3 text-2xl font-semibold sm:text-3xl tabular-nums">{urunSayisi}</dd>
         </div>
         <div className="adjy-pixel-card p-4 sm:p-5">
-          <dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Ölçüsünü siz verirsiniz</dt>
+          <dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Kendin tasarla ürünü</dt>
           <dd className="mt-3 text-2xl font-semibold sm:text-3xl tabular-nums">{olcuSayisi}</dd>
         </div>
         <div className="adjy-pixel-card p-4 sm:p-5">

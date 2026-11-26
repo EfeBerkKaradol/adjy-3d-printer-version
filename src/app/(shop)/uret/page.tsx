@@ -10,7 +10,7 @@ import { YilbasiBandi } from "@/components/yilbasi/YilbasiBandi";
 export const metadata: Metadata = {
   title: "Üret",
   description:
-    "Parametrik ürünlerimizi kendi ölçünde kur, elindeki 3D modeli yükle ya da bir fotoğraftan yeni bir ürün oluştur. Ölçüyü sen belirle, ADJY üretsin.",
+    "Fotoğraflı yapbozdan ses dalgası plaketine, isimlikten avizeye: özelleştirilebilir ürünleri kendin kur, elindeki 3D modeli yükle ya da bir fotoğraftan yeni bir ürün oluştur. ADJY atölyesi üretsin.",
   openGraph: {
     title: "Üret | ADJY Shopping",
     description:
@@ -72,14 +72,14 @@ export default async function UretPage() {
       <section className="mt-14" aria-labelledby="uret-parametrik">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div className="max-w-xl">
-            <p className="adjy-eyebrow mb-3">Kendin Tasarla</p>
+            <p className="adjy-eyebrow mb-3">Kendin Tasarla · {TASARIM_ARACLARI.length} ürün</p>
             <h2 id="uret-parametrik" className="text-2xl font-medium tracking-tight">
-              Parametrik ürünler
+              Özelleştirilebilir ürünlerin hepsi
             </h2>
             <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
-              Her biri kendi tasarım aracıyla gelir: ölçüsünü ve ayrıntısını
-              sen kurarsın, fiyat anında güncellenir, sipariş verdiğinde model
-              atölyeye olduğu gibi ulaşır.
+              Her ürün kendi tasarım aracıyla açılır: ölçüsünü, rengini, yazısını
+              ya da fotoğrafını sen seçersin, model ve fiyat anında güncellenir.
+              Sipariş verdiğinde kurduğun model atölyeye olduğu gibi ulaşır.
             </p>
           </div>
           <Link

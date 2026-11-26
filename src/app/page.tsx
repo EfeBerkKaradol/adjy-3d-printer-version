@@ -18,7 +18,7 @@ import { secondImageOf } from "@/lib/gallery";
 import { collectionFilter } from "@/lib/categoryTree";
 import { YILBASI, yilbasiAktif } from "@/lib/yilbasi";
 import { YilbasiVitrini } from "@/components/yilbasi/YilbasiVitrini";
-import { TASARIM_ARACLARI, aracBul } from "@/lib/tasarim/catalog";
+import { ONE_CIKANLAR, TASARIM_ARACLARI, aracBul } from "@/lib/tasarim/catalog";
 import { TasarimAracKartlari } from "@/components/tasarim/TasarimAracKartlari";
 
 // Vitrin veritabanından beslenir; statik kalırsa yeni ürünler ancak
@@ -63,18 +63,11 @@ const RAIL_SELECT = {
 } as const;
 
 /**
- * Ana sayfadaki Kendin Tasarla vitrini: ilki büyük kart. Katalogdan
- * okunur (veritabanı gerekmez); liste burada elle tutulur ki vitrinde
- * birbirine benzemeyen ürünler dursun.
+ * Ana sayfadaki Kendin Tasarla vitrini: öne çıkan ürünlerin ilk altısı
+ * (catalog.ts, ONE_CIKANLAR), ilki büyük kart. Katalogdan okunur,
+ * veritabanı gerekmez.
  */
-const TASARIM_VITRINI = [
-  "foto-yapboz",
-  "neon-sahil-tabela",
-  "ses-dalgasi-plaketi",
-  "foto-kutu",
-  "dalgali-vazo",
-  "kahraman-amblemi",
-];
+const TASARIM_VITRINI = ONE_CIKANLAR.slice(0, 6);
 
 /** Son 30 günde eklenen ürün "yeni" sayılır */
 const NEW_WINDOW_DAYS = 30;
@@ -335,7 +328,7 @@ export default async function HomePage() {
       <WebSiteJsonLd
         name="ADJY"
         url={getAbsoluteUrl()}
-        description="İstediğiniz ölçüde tasarım ürünleri: vazo, saksı, aydınlatma, masa düzeni ve dekoratif figürler. Kendi atölyemizde 3D baskı, seramik ve alçı ile üretiyoruz."
+        description="Siparişe özel üretilen vazo, saksı, aydınlatma, düzenleyici ve kişiye özel hediyeler. Ölçüsünü, rengini ve yazısını siz seçersiniz; Beşiktaş'taki atölyemizde 3D baskı, seramik ve alçı ile üretiriz."
       />
 
       <PrinterIntro items={printables} />
@@ -347,12 +340,13 @@ export default async function HomePage() {
         <section id="vitrin" className="adjy-container adjy-section scroll-mt-24">
           <SectionHeading
             eyebrow="Kendin Tasarla"
-            title="Adınızı yazın, rengini seçin, ölçüsünü kurun."
+            title="Sesinizden, fotoğrafınızdan, adınızdan bir ürün."
             action={{ label: `${TASARIM_ARACLARI.length} ürünün hepsi`, href: "/tasarla" }}
           />
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            Bu ürünlerin hazır bir hâli yok: modeli ekranda siz kurarsınız, fiyatı
-            anında görürsünüz, atölyemizde kurduğunuz hâliyle, çok renkli basılır.
+            Bu ürünlerin hazır bir hâli yok. Ses kaydınızı yükleyin, fotoğrafınızı
+            seçin ya da adınızı yazın; model ekranda anında değişir, fiyatı da
+            onunla birlikte. Kurduğunuz hâliyle, çok renkli basıp kargolarız.
           </p>
           <div className="mt-8">
             <TasarimAracKartlari
@@ -409,8 +403,9 @@ export default async function HomePage() {
               ADJY nasıl çalışır?
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Nesneleri nasıl tasarladığımızı, hangi malzemeyle ürettiğimizi ve
-              ölçünün neden değişebildiğini anlattık.
+              Siparişiniz atölyeye düştüğü andan kargoya verildiği güne kadar ne
+              olduğunu, hangi malzemeyle ürettiğimizi ve neleri yapamadığımızı
+              anlattık.
             </p>
           </div>
           <Link

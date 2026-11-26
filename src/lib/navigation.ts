@@ -96,7 +96,7 @@ export const MAIN_NAV: NavLink[] = [
               // ürünü ölçüsü ve ayrıntısıyla burada kurar.
               label: "Kendin Tasarla",
               href: "/tasarla",
-              description: "Saksı, avize, lamba, kutu — ölçüsünü sen kur",
+              description: "Fotoğraflı hediyeden avizeye, bütün özelleştirilebilir ürünler",
             },
             {
               label: "Fotoğraftan Oluştur",

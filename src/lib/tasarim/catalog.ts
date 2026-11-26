@@ -69,7 +69,12 @@ export interface TasarimAraci {
   ekMaliyetAciklamasi?: string;
   /** En uzun kenar 25 cm'i geçiyorsa büyük makine ücreti uygulanır */
   enUzunMm?: number;
-  tabanFiyat: number;
+  /**
+   * Varsayılan kurulumun KDV dâhil satış fiyatı (₺): Türkiye'de benzer
+   * 3B baskı ürünlerin ortalama fiyatına göre seçildi. Ölçü ya da
+   * ayrıntı değişince fiyat maliyetle aynı oranda değişir (pricing.ts).
+   */
+  piyasaFiyati: number;
   /** Müşterinin dosya yüklemesi şart mı (litofanda fotoğraf) */
   dosyaGerekli?: { giris: string; uyari: string };
   teslim: string;
@@ -142,8 +147,8 @@ const CAD_EKLERI = (onEk: string): TasarimCiktisi[] => [
 export const TASARIM_ARACLARI: TasarimAraci[] = [
   {
     id: "saksi",
-    ad: "Dokulu Saksı ve Alt Tabak",
-    ozet: "Çapını, yüksekliğini ve dilimlerin burgusunu siz belirleyin.",
+    ad: "Ölçüye Özel Burgulu Saksı",
+    ozet: "Bitkinize göre çap ve boy; dilimleri ve burgusu sizden, alt tabağı yerine kilitlenir.",
     aciklama:
       "Dilimli, burgulu gövdesi ve yerine kilitlenen alt tabağıyla saksı. Çapı bitkinize, yüksekliği rafınıza göre ayarlayın; dilim sayısı ve burgu açısıyla dokuyu kendiniz kurun. Alt tabak fazla suyu tutar, gövdeye çevirerek oturur.",
     ayarlar: ["Çap ve yükseklik", "Dilim sayısı ve derinliği", "Burgu açısı", "Malzeme ve renk"],
@@ -151,7 +156,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzeme: "PLA",
     varsayilan: { kutleG: 509, sureSaat: 8.4 },
     sinir: { kutleG: [60, 2500], sureSaat: [1, 45] },
-    tabanFiyat: 350,
+    piyasaFiyati: 999,
     teslim: "Sipariş sonrası üretilir, 3–5 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Bitkinize göre ölçü", metin: "Çapı 8 ile 22, yüksekliği 8 ile 24 santim arasında santim santim seçersiniz; saksı rafınıza ve bitkinizin köküne göre üretilir." },
@@ -172,8 +177,8 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
   },
   {
     id: "avize",
-    ad: "Dalgalı Avize",
-    ozet: "Dalgasını, burgusunu ve ölçüsünü kendiniz kurduğunuz sarkıt.",
+    ad: "Dalgalı Sarkıt Avize",
+    ozet: "Işığı dalgalarından süzen sarkıt; çapı, burgusu ve duyu odanıza göre.",
     aciklama:
       "Işığı dilimlerinden süzen, tek parça basılan avize gövdesi. Çapı ve yüksekliği odanıza göre seçin; dalga sıklığı ve burgu açısı gölgenin karakterini belirler. E27 ya da E14 duya göre üretilir, ışığın nasıl görüneceğini sipariş vermeden önce modelde görürsünüz.",
     ayarlar: ["Çap ve yükseklik", "Dalga ve burgu", "Dilim sayısı", "E27 / E14 duy", "Malzeme"],
@@ -183,7 +188,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     sinir: { kutleG: [60, 900], sureSaat: [3, 60] },
     ekMaliyet: 110,
     ekMaliyetAciklamasi: "Duy ve ampul",
-    tabanFiyat: 650,
+    piyasaFiyati: 1199,
     teslim: "Sipariş sonrası üretilir, 4–6 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Işık dilimlerden süzülür", metin: "Gövde tek parça ve ince cidarlı basılır; ışık dalgaların arasından yumuşayarak geçer." },
@@ -203,7 +208,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
   {
     id: "kelepce-askilik",
     ad: "Masa Kelepçeli Kulaklık Askısı",
-    ozet: "Masanızın kalınlığına göre üretilen, vidayla sıkılan askı.",
+    ozet: "Masayı delmeden kenarına sıkılır; kelepçe masanızın kalınlığına göre açılır.",
     aciklama:
       "Masayı delmeden, kenarına kelepçeyle tutunan kulaklık ve çanta askısı. Masa kalınlığınızı girin, kelepçe ona göre açılsın; askı kolunun uzunluğunu ve alt kancanın derinliğini asacağınız şeye göre ayarlayın. Vidası ve baskı pabucu birlikte gelir.",
     ayarlar: ["Masa kalınlığı", "Askı kolu uzunluğu", "Alt kanca", "Model ve malzeme"],
@@ -211,7 +216,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzeme: "PETG",
     varsayilan: { kutleG: 111, sureSaat: 2.9 },
     sinir: { kutleG: [40, 500], sureSaat: [1, 14] },
-    tabanFiyat: 350,
+    piyasaFiyati: 349,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Masanızı delmez", metin: "Kelepçe masanın kenarına vidayla sıkılır; iz bırakmadan sökülür, başka masaya taşınır." },
@@ -234,7 +239,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
   {
     id: "pcb-kutu",
     ad: "Ölçüye Özel Elektronik Kutusu",
-    ozet: "Kartınızın ölçüsüne göre, kesitleri yerinde bir muhafaza.",
+    ozet: "Kartınızın ölçüsünde, USB ve güç kesitleri yerinde, vidalı kapaklı muhafaza.",
     aciklama:
       "Elektronik kartınız için vidalı kapaklı kutu. Kartın enini, boyunu ve gereken iç yüksekliği girin; USB, güç ve anten kesitlerini hangi duvarda istiyorsanız oraya yerleştirin. Pirinç vida yuvaları gövdeye gömülü gelir, kapak defalarca açılıp kapanabilir.",
     ayarlar: ["Kart ölçüsü ve iç yükseklik", "USB ve yan kesitler", "Havalandırma", "Vida yuvası ve malzeme"],
@@ -244,7 +249,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     sinir: { kutleG: [15, 700], sureSaat: [0.8, 40] },
     ekMaliyet: 40,
     ekMaliyetAciklamasi: "Pirinç yuvalar, vidalar ve ayaklar",
-    tabanFiyat: 450,
+    piyasaFiyati: 449,
     teslim: "Sipariş sonrası üretilir, 3–5 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Kartınıza göre ölçü", metin: "Kartın enini, boyunu ve gereken iç yüksekliği girersiniz; kutu tam ona göre çıkar." },
@@ -264,8 +269,8 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
   },
   {
     id: "litofan-lamba",
-    ad: "Kendi Fotoğrafınla Litofan Lamba",
-    ozet: "Fotoğrafınız, ışık yanınca beliren bir lambaya dönüşür.",
+    ad: "Fotoğraflı Litofan Lamba",
+    ozet: "Kapalıyken düz beyaz; ışığı yakınca fotoğrafınız gövdenin içinden belirir.",
     aciklama:
       "Işık kapalıyken düz beyaz bir gövde; yanınca fotoğrafınız kabartmanın içinden belirir. Fotoğrafınızı yükleyin, silindir, kavisli panel ya da altıgen formdan birini seçin ve sonucu ışığı açıp kapatarak modelde görün. E14 duylu tabanıyla birlikte gelir.",
     ayarlar: ["Fotoğrafınız", "Form: silindir, panel, altıgen", "Çap ve yükseklik", "Kontrast ve yerleşim"],
@@ -275,7 +280,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     sinir: { kutleG: [80, 900], sureSaat: [3, 40] },
     ekMaliyet: 145,
     ekMaliyetAciklamasi: "E14 duy, kablo ve ampul",
-    tabanFiyat: 750,
+    piyasaFiyati: 899,
     dosyaGerekli: {
       giris: "Fotograf_Yukle",
       uyari: "Lamba fotoğrafınızla üretilecek. Sepete eklemeden önce kendi fotoğrafınızı yükleyin.",
@@ -299,8 +304,8 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
   },
   {
     id: "nfc-qr",
-    ad: "NFC ve QR Kodlu Stand",
-    ozet: "Menünüz, Wi-Fi'niz ya da Instagram'ınız için kabartma QR'lı stand.",
+    ad: "NFC'li QR Kod Standı",
+    ozet: "Telefonu yaklaştırınca ya da kodu okutunca menünüz, Wi-Fi'niz ya da Instagram'ınız açılır.",
     aciklama:
       "Telefonu yaklaştırınca ya da kodu okutunca bağlantınızı açan masa standı ve anahtarlık. Bağlantıyı ve yazıyı girin, gövde şeklini ve renk çiftini seçin; QR kod kabartma olarak, iki renkle basılır ve içine NFC etiketi gömülür. Kafe menüsü, otel Wi-Fi'si, sosyal medya için.",
     ayarlar: ["Bağlantı ve yazılar", "Stand ya da anahtarlık", "Gövde şekli ve ölçü", "Renk çifti ve simge"],
@@ -310,7 +315,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     sinir: { kutleG: [8, 250], sureSaat: [0.2, 6] },
     ekMaliyet: 17,
     ekMaliyetAciklamasi: "NFC etiketi",
-    tabanFiyat: 290,
+    piyasaFiyati: 299,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Yaklaştır ya da okut", metin: "İçine gömülü NFC etiketi telefon yaklaşınca, kabartma QR kod kamera tutulunca bağlantınızı açar." },
@@ -339,7 +344,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzeme: "PETG-CF",
     varsayilan: { kutleG: 222, sureSaat: 6.8 },
     sinir: { kutleG: [40, 2500], sureSaat: [1, 60] },
-    tabanFiyat: 650,
+    piyasaFiyati: 799,
     teslim: "Sipariş sonrası üretilir, 3–5 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Her seferinde aynı yer", metin: "Ürünler yuvalara oturur; markalama ya da baskı her parçada aynı noktaya düşer." },
@@ -369,7 +374,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzeme: "PLA",
     varsayilan: { kutleG: 660, sureSaat: 17 },
     sinir: { kutleG: [30, 8000], sureSaat: [1, 300] },
-    tabanFiyat: 900,
+    piyasaFiyati: 2499,
     teslim: "Sipariş sonrası üretilir; kat sayısına göre 5–10 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Kat kat ayrılır", metin: "Her kat ayrı basılır ve köşe pimleriyle üst üste oturur; maketi açıp içini gösterebilirsiniz." },
@@ -400,7 +405,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzeme: "PLA",
     varsayilan: { kutleG: 288, sureSaat: 6.3 },
     sinir: { kutleG: [20, 3000], sureSaat: [0.5, 80] },
-    tabanFiyat: 650,
+    piyasaFiyati: 899,
     teslim: "Sipariş sonrası üretilir; modül sayısına göre 4–8 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Odanız avucunuzda", metin: "Mutfağı, salonu ya da gardırobu ölçekli olarak kurarsınız; mobilya planını elinizde çevirerek görürsünüz." },
@@ -423,8 +428,8 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
   },
   {
     id: "organizator",
-    ad: "Çekmece Organizeri ve Duvar Izgarası",
-    ozet: "Çekmecenizin iç ölçüsüne göre kurulan, kutuları yerinden oynamayan düzen sistemi.",
+    ad: "Çekmece Düzenleyici ve Duvar Izgarası",
+    ozet: "Çekmecenizin iç ölçüsüne milimetresine oturan, kutuları kaymayan düzen sistemi.",
     aciklama:
       "Çekmecenizin iç genişliğini ve derinliğini girin; taban ızgarası o ölçüye göre kurulur, kutular ızgaradaki yuvalarına oturur ve çekmeceyi açıp kapatırken kaymaz. Kutuların yerini, boyunu ve iç bölmelerini modelin üstünde kendiniz düzenlersiniz. Büyük çekmecelerde taban birkaç parça hâlinde basılır ve papyon kilitlerle birbirine geçer. Aynı sistemin duvar tipi de var: duvara vidalanan ızgara panolar ve üstüne asılan kutular.",
     ayarlar: ["Çekmece ya da duvar ölçüsü", "Kutu yüksekliği", "Kutu yerleşimi ve iç bölmeler", "Hücre boyu"],
@@ -434,7 +439,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     varsayilan: { kutleG: 2817, sureSaat: 56.5 },
     // En küçük: 15 × 15 cm taban, kutusuz. En büyük: 120 × 90 cm duvar, tam dolu.
     sinir: { kutleG: [25, 27000], sureSaat: [0.5, 520] },
-    tabanFiyat: 250,
+    piyasaFiyati: 5499,
     teslim: "Sipariş sonrası üretilir; ölçüye ve kutu sayısına göre 5–15 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Milimetresine oturur", metin: "Çekmecenizin iç ölçüsünü milimetre olarak girersiniz; taban o ölçüye göre üretilir, kenarda kalan boşluk kör şeritlerle kapatılır." },
@@ -454,8 +459,8 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
   },
   {
     id: "araba-yolu",
-    ad: "Oyuncak Araba Yolu",
-    ozet: "Virajını, rampasını, loopingini kendiniz kurduğunuz yol parçası ya da bütün bir pist.",
+    ad: "Oyuncak Araba Pisti",
+    ozet: "Virajı, rampası ve loopingi sizden: tek parça yol ya da uç uca eklenen bütün bir pist.",
     aciklama:
       "Hot Wheels ölçüsündeki (1:64) oyuncak arabalar için yol parçası. Viraj, düz yol, rampa ya da looping seçin; virajın yarıçapını, dönüş açısını, ne kadar yükselip ineceğini, dış kenarın ne kadar yatacağını ve korkuluğunu, loopingin çapını siz belirleyin. Parçaları uç uca ekleyip çıkararak, sırasını değiştirerek kendi pistinizi kurabilir ya da oval, dört köşe, tepe ve looping atlayışı gibi hazır yollardan biriyle başlayabilirsiniz. Uçlar her parçada düz kalır: parçaları birbirine kilitleyen bağlantı parçaları da yolla birlikte basılır (isterseniz yedekleriyle) ya da geçmeli uçla parçalar doğrudan birbirine geçer. Yükselen ve yatık parçalar kendi ayaklarıyla masada durur.",
     ayarlar: ["Hazır yol ya da tek parça", "Kendi yolun: parça ekleme, çıkarma, sıralama, geri alma (12 parçaya kadar)", "Viraj, düz, rampa ya da looping", "Yarıçap, açı, uzunluk, looping çapı", "Yükselme, iniş, yan yatış ve dış kenar korkuluğu", "Kenar yüksekliği ve bağlantı", "Bağlantı parçaları ve yedek adedi", "Renk"],
@@ -466,7 +471,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     // En küçük: 60 mm düz, alçak kenar. Tek parçanın en büyüğü Ø240 looping (142 g, 3,7 sa);
     // uç uca en çok 12 parça: hazır yollar 47–193 g, 12 büyük parça ≈ 1,5 kg.
     sinir: { kutleG: [5, 1700], sureSaat: [0.3, 48] },
-    tabanFiyat: 180,
+    piyasaFiyati: 199,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Pistinizi siz çizin", metin: "Parçaları uç uca ekleyip bütün pisti ekranda kurarsınız; virajın yarıçapını ve açısını derece derece seçer, pistin kapanıp kapanmadığını hemen görürsünüz." },
@@ -486,7 +491,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
   {
     id: "isimli-yilbasi-susu",
     ad: "İsimli Yılbaşı Süsü",
-    ozet: "Şeklini, ismini ve renklerini sizin seçtiğiniz iki renkli yılbaşı süsü.",
+    ozet: "Adı yazılı, iki renkli ağaç süsü; şekli ve renkleri sizden.",
     aciklama:
       "Ağaca, kapıya ya da hediye paketinin üstüne kişiye özel yılbaşı süsü. Top, yıldız, çam ağacı, çan ya da kalp şeklini seçin; ismi ve alt satıra yılı ya da kısa bir sözü yazın. Yazı süsün içine kendiliğinden sığar, Türkçe harfler olduğu gibi basılır; yuvarlak, el yazısı ve modern yazı tipleri arasından seçebilirsiniz. Gövde ve kabartma yazı ayrı renkte basılır; isterseniz kenarı da yazı renginde bir çerçeveyle çevrilir. Asmak için halka ya da delik, ya da hiçbiri.",
     ayarlar: ["Top, yıldız, çam ağacı, çan ya da kalp", "İsim ve alt satır (yıl, tarih, kısa söz)", "Yuvarlak, el yazısı ya da modern yazı tipi", "Genişlik ve kalınlık", "Kenar çerçevesi ve askı", "Gövde ve yazı rengi"],
@@ -496,7 +501,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     varsayilan: { kutleG: 26, sureSaat: 0.95 },
     // En küçük: 50 mm yıldız, 2,4 mm; en büyük: 120 mm top, 6 mm
     sinir: { kutleG: [3, 120], sureSaat: [0.3, 4.5] },
-    tabanFiyat: 150,
+    piyasaFiyati: 179,
     teslim: "Sipariş sonrası üretilir, 1–3 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "İsim süsün içine sığar", metin: "Yazıyı yazdıkça süs kendini ayarlar: harfler şeklin içine, çerçeveye değmeden yerleşir. Türkçe harfler olduğu gibi basılır." },
@@ -527,7 +532,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 5.5, sureSaat: 0.35 },
     sinir: { kutleG: [1.5, 60], sureSaat: [0.2, 3.5] },
-    tabanFiyat: 90,
+    piyasaFiyati: 129,
     teslim: "Sipariş sonrası üretilir, 1–3 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Her desen bir kez", metin: "Desen numarası dalların yerini ve açısını değiştirir; doksan dokuz desenin her biri ayrı bir kar tanesi. Beğendiğiniz numarayı tekrar seçtiğinizde aynısı gelir." },
@@ -556,7 +561,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 126, sureSaat: 3.8 },
     sinir: { kutleG: [15, 900], sureSaat: [0.8, 28] },
-    tabanFiyat: 350,
+    piyasaFiyati: 449,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Kolları siz döndürün", metin: "Kol sayısı, derinliği ve burgusu ağacın dokusunu belirler: sakin bir çamdan sarmal bir heykele kadar." },
@@ -588,7 +593,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 60, sureSaat: 2.2 },
     sinir: { kutleG: [15, 420], sureSaat: [0.6, 14] },
-    tabanFiyat: 450,
+    piyasaFiyati: 349,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Kendi çölünüz", metin: "Doksan dokuz desen, rüzgârın her yönü: aynı numara hep aynı tepeleri verir, beğendiğinizi saklarsınız." },
@@ -617,7 +622,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 74, sureSaat: 2.45 },
     sinir: { kutleG: [25, 320], sureSaat: [0.8, 11] },
-    tabanFiyat: 380,
+    piyasaFiyati: 329,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Kumdan yükselir", metin: "Gövde tabandan yukarı doğru bir yana eğilir; boğumlar halka halka belirir, pullu doku ışığı yakalar." },
@@ -646,7 +651,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 97, sureSaat: 3 },
     sinir: { kutleG: [20, 480], sureSaat: [0.7, 16] },
-    tabanFiyat: 380,
+    piyasaFiyati: 349,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Kumun dokusu", metin: "Dalgalar gerçek kum dalgacıkları gibi asimetrik: bir yüzü yumuşak, öbürü dik; burgu onları gövde boyunca döndürür." },
@@ -676,7 +681,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 8, sureSaat: 0.5 },
     sinir: { kutleG: [3, 40], sureSaat: [0.25, 2.5] },
-    tabanFiyat: 90,
+    piyasaFiyati: 129,
     teslim: "Sipariş sonrası üretilir, 1–3 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Tam ölçüde keser", metin: "Bıçak şeklin dışında durur: 75 mm seçtiyseniz kurabiye 75 mm çıkar." },
@@ -705,7 +710,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 24, sureSaat: 1.05 },
     sinir: { kutleG: [8, 60], sureSaat: [0.4, 2.5] },
-    tabanFiyat: 90,
+    piyasaFiyati: 149,
     teslim: "Sipariş sonrası üretilir, 1–3 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Her misafire bir kart", metin: "İsimler Türkçe harfleriyle basılır; yazı kartın içine kendiliğinden sığar." },
@@ -738,7 +743,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     sinir: { kutleG: [25, 200], sureSaat: [1.2, 11] },
     ekMaliyet: 60,
     ekMaliyetAciklamasi: "Pilli mum LED",
-    tabanFiyat: 450,
+    piyasaFiyati: 449,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Işıkla beliren desen", metin: "Gündüz yalnızca hafif bir kabartma; mum LED yanınca çam ormanı, kar taneleri ya da yıldızlı gece ortaya çıkar." },
@@ -758,8 +763,8 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
   // ---------------- OYUN ODASI, ÇÖL UFKU, ÇELENK (çok renkli, katmanlı) ----------------
   {
     id: "neon-sahil-tabela",
-    ad: "Neon Sahil İsimlik",
-    ozet: "Adınızı şeritli güneşin ve palmiyelerin önüne yazdığınız dört renkli masa tabelası.",
+    ad: "Retro Gün Batımı İsimlik",
+    ozet: "Adınız şeritli güneşin ve palmiyelerin önünde: dört renkli, masada duran isimlik.",
     aciklama:
       "Seksenlerin sahil şeridinden bir tabela: gün batımında doğan şeritli güneş, kenarlarda palmiyeler ve önünde el yazısıyla adınız. Oyun odasına, yayın masasına ya da kapıya; yazıyı ve alt satırı siz yazın, yazı tipini, güneşin şerit sayısını, palmiyelerin yerini ve neon çerçeveyi siz seçin. Zemin, güneş, palmiye ve yazı ayrı renkte, tek seferde basılır; renkler üst üste binmez, aralarında zemin renginde ince bir kontur kalır. Masada eğik ayağıyla durur ya da iki delikten duvara asılır.",
     ayarlar: ["Hazır tabela", "Yazı, alt satır ve yazı tipi", "Şeritli güneş ve palmiyeler", "Neon çerçeve", "Genişlik, yükseklik ve duruş (masa ayağı, duvar)", "Zemin, güneş, palmiye ve yazı rengi"],
@@ -768,7 +773,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 69, sureSaat: 2.32 },
     sinir: { kutleG: [12, 200], sureSaat: [0.5, 7] },
-    tabanFiyat: 390,
+    piyasaFiyati: 349,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Dört renk, tek baskı", metin: "Zemin, güneş, palmiye ve yazı ayrı filamentle aynı baskıda çıkar; boya ya da yapıştırma yok." },
@@ -791,8 +796,8 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
   },
   {
     id: "kahraman-amblemi",
-    ad: "Kahraman Amblemi",
-    ozet: "Baş harfinizle kurduğunuz, patlama yıldızlı çizgi roman amblemi.",
+    ad: "Baş Harfli Kahraman Amblemi",
+    ozet: "Baş harfinizle kurulan, patlama yıldızlı çizgi roman amblemi.",
     aciklama:
       "Kendi süper kahramanınızın amblemi: daire, kalkan, altıgen ya da elmas biçiminde; ortasında baş harfiniz, bir yıldırım ya da taç. Simgenin arkasında elle çizilmiş gibi düzensiz dişli bir patlama yıldızı, zeminde eski çizgi roman baskılarındaki gibi aşağı doğru büyüyen noktalar, kenarda kalın bir bordür durur. Üç renk tek seferde basılır; simge patlamanın, patlama noktaların üstünde kabarır ve aralarında mürekkep konturu gibi zemin rengi kalır. Küçük ölçüde anahtarlık ve çanta süsü, büyük ölçüde duvar ya da kapı amblemi.",
     ayarlar: ["Hazır amblem", "Biçim: daire, kalkan, altıgen, elmas", "Simge: baş harf, yıldırım ya da taç", "Patlama yıldızı, baskı noktaları ve bordür", "Genişlik ve askı halkası", "Zemin, bordür ve simge rengi"],
@@ -801,7 +806,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 23, sureSaat: 0.96 },
     sinir: { kutleG: [4, 180], sureSaat: [0.3, 6] },
-    tabanFiyat: 190,
+    piyasaFiyati: 199,
     teslim: "Sipariş sonrası üretilir, 1–3 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Amblem sizin", metin: "Baş harfiniz, biçiminiz, renkleriniz: hazır bir kahramanın değil, sizin kahramanınızın işareti." },
@@ -832,7 +837,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 74, sureSaat: 2.32 },
     sinir: { kutleG: [28, 380], sureSaat: [1, 14] },
-    tabanFiyat: 520,
+    piyasaFiyati: 349,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Çatlaklardan lav görünür", metin: "Taş katı boydan boya çatlaktır; altındaki lav katı ayrı renkte basılır ve her çatlaktan parlar." },
@@ -862,7 +867,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 105, sureSaat: 3.33 },
     sinir: { kutleG: [18, 700], sureSaat: [0.7, 24] },
-    tabanFiyat: 490,
+    piyasaFiyati: 449,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Kat kat derinlik", metin: "Her kum katı bir öncekinin önünde ve bir kat daha yüksek durur; yandan gelen ışıkta katlar birbirine gölge düşürür." },
@@ -894,7 +899,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 43, sureSaat: 1.53 },
     sinir: { kutleG: [10, 140], sureSaat: [0.5, 5.5] },
-    tabanFiyat: 320,
+    piyasaFiyati: 249,
     teslim: "Sipariş sonrası üretilir, 1–3 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Aile adınız ortasında", metin: "İsim şeridin içine kendiliğinden sığar; şerit çelengin iki yanına oturur, harfler şeridin üstünde kabarır." },
@@ -926,7 +931,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 176, sureSaat: 5.4 },
     sinir: { kutleG: [25, 300], sureSaat: [0.8, 10] },
-    tabanFiyat: 450,
+    piyasaFiyati: 549,
     dosyaGerekli: {
       giris: "fy-foto",
       uyari: "Yapboz fotoğrafınızla üretilecek. Sepete eklemeden önce kendi fotoğrafınızı yükleyin.",
@@ -955,8 +960,8 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
   },
   {
     id: "foto-duvar-panosu",
-    ad: "Fotoğraf Duvar Panosu",
-    ozet: "Fotoğrafınızdan çok renkli, ince ve hafif duvar panosu; istenirse iki ya da üç panelde.",
+    ad: "Fotoğraflı Duvar Panosu",
+    ozet: "Fotoğrafınızdan çok renkli basılan ince, hafif duvar panosu; istenirse iki ya da üç panelde.",
     aciklama:
       "Bir fotoğrafı duvara asılacak çok renkli bir panoya çevirin. Fotoğraf iki, üç ya da dört gerçek filament rengine ayrılır; öneriyi beğenmezseniz her rengi tek tek değiştirirsiniz. Pano yalnızca iki milimetre kalınlığındadır; arkasındaki kasnak onu düz tutar ve çentiğiyle tek bir çiviye asılır, pano duvarın biraz önünde durur. İsterseniz arkası düz basılır ve çift taraflı bantla, delik açmadan yapışır. Tablaya sığmayan genişlikte iki ya da üç panele bölünür ve fotoğraf panellerin üstünden kesintisiz geçer; 70 santime kadar üçlü pano kurabilirsiniz. Köşe yuvarlaklığını ve kenarlığı siz ayarlarsınız. Tek panelde iki küçük ayağıyla masada da durur.",
     ayarlar: ["Kendi fotoğrafınız: yakınlaştırma ve kaydırma", "Biçim: yatay, dikey, kare, geniş", "Toplam genişlik ve panel sayısı (1–3)", "2–4 filament rengi, renkli ya da siyah beyaz", "Köşe yuvarlaklığı ve kenarlık", "Duruş: çiviye asılan arka kasnak, bant ya da masa ayağı"],
@@ -965,7 +970,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 82, sureSaat: 2.76 },
     sinir: { kutleG: [12, 700], sureSaat: [0.5, 22] },
-    tabanFiyat: 290,
+    piyasaFiyati: 379,
     dosyaGerekli: {
       giris: "fp-foto",
       uyari: "Pano fotoğrafınızla üretilecek. Sepete eklemeden önce kendi fotoğrafınızı yükleyin.",
@@ -1001,7 +1006,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
   {
     id: "foto-kutu",
     ad: "Fotoğraflı Hediye Kutusu",
-    ozet: "Kapağında fotoğrafınız olan, omuzlu, bölmeli hediye kutusu.",
+    ozet: "Kapağı fotoğrafınızdan basılmış, bölmeli takı ve hatıra kutusu.",
     aciklama:
       "Kapağında fotoğrafınız olan bir kutu: takı, mektup, hatıra ya da hediyenin kendisi için. Fotoğraf kapağa dört filament rengiyle basılır ve seçtiğiniz renkte bir kenarlıkla çerçevelenir. Genişliği, derinliği ve yüksekliği siz belirlersiniz; iç ölçü modelin üstünde yazar. Kutu omuzludur: kapak gövdenin boynuna dıştan geçer ve dış yüzeyle aynı hizada kapanır, ne sallanır ne sıkışır. Duvarı yivli ya da düz seçersiniz; yivler duvara gömülüdür, kutunun dış ölçüsü değişmez. İçine iki, üç ya da dört gözlü bölme ekleyebilirsiniz. Kapak ve kutu, fotoğrafın renklerinden biriyle basılır; fazladan filament gerekmez.",
     ayarlar: ["Kendi fotoğrafınız: yakınlaştırma ve kaydırma", "Genişlik, derinlik, yükseklik", "Köşe yuvarlaklığı", "İç bölme: 2, 3 ya da 4 göz", "Yivli ya da düz duvar", "2–4 filament rengi ve fotoğraf kenarlığı", "Kapak ve kutu rengi"],
@@ -1010,7 +1015,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 101, sureSaat: 3.31 },
     sinir: { kutleG: [30, 520], sureSaat: [1, 16] },
-    tabanFiyat: 390,
+    piyasaFiyati: 449,
     dosyaGerekli: {
       giris: "fk-foto",
       uyari: "Kutu fotoğrafınızla üretilecek. Sepete eklemeden önce kendi fotoğrafınızı yükleyin.",
@@ -1038,7 +1043,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
   {
     id: "ses-dalgasi-plaketi",
     ad: "Ses Dalgası Plaketi",
-    ozet: "Kendi sesinizin dalgası kabartma olarak: bir söz, bir kahkaha, bir ilk kelime.",
+    ozet: "Bir \"seni seviyorum\", bir kahkaha, bebeğin ilk kelimesi: sesinizin dalgası elde tutulan bir plakete dönüşür.",
     aciklama:
       "Birkaç saniyelik bir sesi elinizde tutabileceğiniz bir plakete çevirin: \"seni seviyorum\", bir kahkaha, bebeğinizin ilk kelimesi ya da şarkınızın nakaratı. Sesi tarayıcıda kaydedin ya da bir ses dosyası seçin; dalga anında plaketin üstünde belirir. Ses cihazınızdan çıkmaz, hiçbir yere gönderilmez: siparişe yalnız dalganın biçimi yazılır. Dalgayı çubuk, dolu dalga ya da halka olarak kurabilir, altına bir söz ya da tarih yazabilirsiniz. Zemin, dalga ve yazı ayrı renkte, tek seferde basılır. Masada eğik ayağıyla durur ya da iki delikten duvara asılır.",
     ayarlar: ["Ses kaydı ya da ses dosyası", "Dalga biçimi: çubuk, dolu dalga, halka", "Çubuk sayısı", "Yazı ve yazı tipi", "Genişlik, yükseklik ve duruş (masa ayağı, duvar)", "Zemin, dalga ve yazı rengi"],
@@ -1047,7 +1052,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 62, sureSaat: 2.06 },
     sinir: { kutleG: [20, 190], sureSaat: [0.7, 6.5] },
-    tabanFiyat: 320,
+    piyasaFiyati: 349,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Dalga sizin sesiniz", metin: "Hazır bir desen değil: kaydınızın her hecesi çubukların boyunda okunur, iki plaket aynı olmaz." },
@@ -1070,7 +1075,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
   {
     id: "dalgali-vazo",
     ad: "Dalgalı Vazo",
-    ozet: "Zambak soğanı biçiminde, yivli, sızdırmaz vazo; dalgasının yönünü ve yerini siz kurarsınız.",
+    ozet: "Su tutan yivli vazo: dalgaların yönünü, yerini ve sıklığını siz seçersiniz.",
     aciklama:
       "Geniş bir karından ince bir boyna süzülen ve ağızda yeniden açılan, zambak soğanı biçiminde bir vazo. Gövdesini saran yivleri siz kurarsınız: dikey durabilir, sağa ya da sola burulabilir, yatay halkalara dönebilir; bütün gövdeyi sarabilir ya da yalnızca karında, boyunda ya da ağızda kalabilir. Dalga sayısını ve derinliğini, boyu ve en geniş çapı siz belirlersiniz; lilyum, lale ve sütun olmak üzere üç biçim vardır. Dalgalar içe doğrudur: seçtiğiniz çap değişmez. Yüzeyi pürüzsüz bırakabilir ya da mat, kumlu bir dokuyla pürüzlü seçebilirsiniz. Vazo su tutar: duvarı ve tabanı tam dolu basılır, canlı çiçek koyabilirsiniz. Ağız kenarı yuvarlatılmıştır; tek parça, desteksiz basılır.",
     ayarlar: ["Hazır vazo", "Biçim: lilyum, lale, sütun", "Boy ve en geniş çap", "Dalganın yönü: dikey, sağa burgu, sola burgu, yatay", "Dalganın yeri: bütün gövde, karın, boyun, ağız", "Dalga sayısı ve derinliği", "Renk", "Yüzey: pürüzsüz ya da pürüzlü"],
@@ -1079,7 +1084,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 196, sureSaat: 7.06 },
     sinir: { kutleG: [30, 380], sureSaat: [1.1, 14] },
-    tabanFiyat: 450,
+    piyasaFiyati: 649,
     teslim: "Sipariş sonrası üretilir, 3–5 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Dalgayı siz yönlendirin", metin: "Aynı vazo düz yivli, burgulu ya da halkalı olabilir; dalga gövdenin tamamında ya da yalnız bir bölümünde durur." },
@@ -1096,6 +1101,48 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     anahtarKelimeler: ["dalgalı vazo", "yivli vazo", "kişiye özel vazo", "burgulu vazo", "su geçirmez 3d baskı vazo", "dekoratif vazo"],
   },
 ];
+
+/**
+ * Öne çıkan ürünler, sırasıyla: listelerin başında durur, mağazada
+ * "Öne çıkanlar" işaretini alır. İlki ızgaranın başındaki büyük kart.
+ *
+ * Seçim ölçütü: hediye olarak alınması kolay (kişiye özel, fotoğraflı,
+ * isimli), fiyatı 200–600 ₺ bandında, sosyal medyada paylaşılınca kendini
+ * anlatan ve özelleştirme animasyonu olan ürünler. Ses dalgası plaketi
+ * başta: bir sesi elde tutulan bir nesneye çeviriyor, başka mağazada
+ * benzeri yok ve aralık sezonunda (yılbaşı, yıl dönümü) en çok
+ * aranan hediye türüne giriyor.
+ */
+export const ONE_CIKANLAR: string[] = [
+  "ses-dalgasi-plaketi",
+  "foto-kutu",
+  "isimli-yilbasi-susu",
+  "foto-yapboz",
+  "neon-sahil-tabela",
+  "dalgali-vazo",
+  "isikli-yilbasi-feneri",
+  "foto-duvar-panosu",
+];
+
+/** Izgaranın başında büyük duran ürün */
+export const VITRIN_ARACI = ONE_CIKANLAR[0];
+
+/**
+ * Listeleme sırası: önce öne çıkanlar (yukarıdaki sırayla), sonra
+ * özelleştirme animasyonu olanlar, en sonda diğerleri. Grup içinde
+ * katalog sırası korunur.
+ */
+export function vitrinSirasi(araclar: TasarimAraci[]): TasarimAraci[] {
+  const puan = (a: TasarimAraci) => {
+    const i = ONE_CIKANLAR.indexOf(a.id);
+    if (i >= 0) return i;
+    return a.animasyon ? 100 : 200;
+  };
+  return araclar
+    .map((a, i) => ({ a, i }))
+    .sort((x, y) => puan(x.a) - puan(y.a) || x.i - y.i)
+    .map(({ a }) => a);
+}
 
 /** Belirli bir bölümde (ör. Mobilya) ayrıca listelenen araçlar */
 export function bolumAraclari(bolum: "mobilya"): TasarimAraci[] {

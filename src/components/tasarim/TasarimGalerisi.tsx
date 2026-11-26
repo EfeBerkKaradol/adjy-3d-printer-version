@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { GaleriOklari, galeriAdimi } from "@/components/product/GaleriOklari";
 
 // ==========================================
 // ÜRÜN SAYFASI GALERİSİ — TASARIM ÜRÜNLERİ
@@ -32,7 +33,13 @@ export function TasarimGalerisi({ ad, gorseller }: Props) {
   return (
     <div>
       <figure>
-        <div className="adjy-pixel-frame relative aspect-square overflow-hidden bg-surface-2">
+        <div className="adjy-pixel-frame group relative aspect-square overflow-hidden bg-surface-2">
+          <GaleriOklari
+            adet={saglam.length}
+            ad={ad}
+            onceki={() => setSira((s) => galeriAdimi(s, -1, gorseller.length, bozuk))}
+            sonraki={() => setSira((s) => galeriAdimi(s, 1, gorseller.length, bozuk))}
+          />
           {!bozuk[sira] && (
             <Image
               key={secili.adres}

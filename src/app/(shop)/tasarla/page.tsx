@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { TASARIM_ARACLARI, aracAdresi, aracBul, aracGorseli } from "@/lib/tasarim/catalog";
+import {
+  TASARIM_ARACLARI,
+  VITRIN_ARACI,
+  aracAdresi,
+  aracBul,
+  aracGorseli,
+} from "@/lib/tasarim/catalog";
 import { tumTasarimUrunleri } from "@/lib/tasarim/ensure";
 import { resolvePublicImage } from "@/lib/publicAsset";
 import { TasarimAracKartlari } from "@/components/tasarim/TasarimAracKartlari";
@@ -31,7 +37,7 @@ import { cn } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "Kendin Tasarla",
   description:
-    "Saksı, avize, litofan lamba, elektronik kutusu, QR stand ve daha fazlası — ölçüsünü ve ayrıntılarını siz belirleyin. Tasarımınızı modelde görün, fiyatı anında öğrenin; atölyemizde birebir üretelim.",
+    "Ses dalgası plaketi, fotoğraflı yapboz ve hediye kutusu, isimli yılbaşı süsü, dalgalı vazo ve avize: ölçüsünü, rengini, yazısını siz seçin. Modeli ekranda görün, fiyatı anında öğrenin; atölyemizde birebir üretelim.",
   alternates: { canonical: "/tasarla" },
   openGraph: {
     title: "Kendin Tasarla | ADJY",
@@ -46,10 +52,10 @@ export const metadata: Metadata = {
 // (ensure.ts), çoğu istek veritabanına hiç gitmez.
 export const dynamic = "force-dynamic";
 
-/** Izgaranın başında büyük duran ürün */
-const VITRIN = "foto-yapboz";
+/** Izgaranın başında büyük duran ürün (catalog.ts, ONE_CIKANLAR) */
+const VITRIN = VITRIN_ARACI;
 /** Girişteki dört kare: birbirinden farklı görünen ürünler */
-const KOLAJ = ["foto-yapboz", "neon-sahil-tabela", "ses-dalgasi-plaketi", "foto-kutu"];
+const KOLAJ = ["ses-dalgasi-plaketi", "foto-kutu", "neon-sahil-tabela", "foto-yapboz"];
 
 const NASIL = [
   {

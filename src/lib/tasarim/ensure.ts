@@ -3,6 +3,7 @@ import {
   TASARIM_ARACLARI,
   TASARIM_KATEGORISI,
   ETIKET_ADLARI,
+  ONE_CIKANLAR,
   aracGorseli,
   tasarimUrunSlug,
   type TasarimAraci,
@@ -133,7 +134,7 @@ async function urunuBulVeyaAc(arac: TasarimAraci): Promise<string | null> {
         printTimeEst: Math.round(arac.varsayilan.sureSaat * 60),
         stockQty: 999,
         isActive: true,
-        featured: false,
+        featured: ONE_CIKANLAR.includes(arac.id),
         // Koleksiyon etiketleri (yılbaşı araçları yılbaşı koleksiyonunda)
         ...(arac.etiketler?.length
           ? {
@@ -169,6 +170,43 @@ async function urunuBulVeyaAc(arac: TasarimAraci): Promise<string | null> {
 }
 
 /**
+ * Var olan satırları katalogla eşitler: ad, açıklama, başlangıç fiyatı
+ * ve öne çıkan işareti kodda değişince mağaza listesi de değişsin.
+ * Satır açılırken bir kez yazılıyordu; katalogdaki ad ya da fiyat
+ * değişince mağaza kartı eski hâlinde kalıyordu. Yalnızca farklı
+ * olan satır yazılır; hata sayfayı düşürmez.
+ */
+async function katalogaEsitle(
+  satirlar: {
+    id: string;
+    sku: string | null;
+    name: string;
+    description: string | null;
+    basePrice: unknown;
+    featured: boolean;
+  }[]
+): Promise<void> {
+  const isler = satirlar.flatMap((s) => {
+    const arac = TASARIM_ARACLARI.find((a) => tasarimSku(a.id) === s.sku);
+    if (!arac) return [];
+    const beklenen = {
+      name: arac.ad,
+      description: arac.aciklama,
+      basePrice: tasarimBaslangicFiyati(arac),
+      featured: ONE_CIKANLAR.includes(arac.id),
+    };
+    const farkli =
+      s.name !== beklenen.name ||
+      s.description !== beklenen.description ||
+      Number(s.basePrice) !== beklenen.basePrice ||
+      s.featured !== beklenen.featured;
+    return farkli ? [prisma.product.update({ where: { id: s.id }, data: beklenen })] : [];
+  });
+  if (isler.length === 0) return;
+  await Promise.allSettled(isler);
+}
+
+/**
  * Bütün araçların satırlarını açar — liste sayfası ve seed betiği için.
  *
  * Bellekte olmayanlar tek sorguda aranır (araç başına bir sorgu
@@ -190,9 +228,10 @@ export async function tumTasarimUrunleri(): Promise<Map<string, string>> {
   try {
     const satirlar = await prisma.product.findMany({
       where: { sku: { in: aranacak.map((a) => tasarimSku(a.id)) } },
-      select: { id: true, sku: true },
+      select: { id: true, sku: true, name: true, description: true, basePrice: true, featured: true },
     });
     for (const s of satirlar) if (s.sku) mevcut.set(s.sku, s.id);
+    await katalogaEsitle(satirlar);
   } catch {
     // Veritabanına ulaşılamadı: araç başına yeniden denemek aynı
     // hatayı on kez bekletir. Eldekiyle dönülür, sonraki istek dener.
