@@ -21,6 +21,7 @@ import {
 import type { FilterCategory } from "@/components/product/ProductFilters";
 import { tasarimUrunleriniHazirla } from "@/lib/tasarim/ensure";
 import { TASARIM_KATEGORISI } from "@/lib/tasarim/catalog";
+import { satirGosterimi } from "@/lib/tasarim/pricing";
 import { MAGAZA_LISTELERI_ETIKETI, MAGAZA_LISTELERI_SURESI } from "./onbellek";
 import { YILBASI, yilbasiAktif } from "@/lib/yilbasi";
 import { YilbasiBandi } from "@/components/yilbasi/YilbasiBandi";
@@ -305,7 +306,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       products: rows.map(({ gallery, tags, ...p }) => ({
         ...p,
         isYilbasi: yilbasi && tags.length > 0,
-        basePrice: Number(p.basePrice),
+        // Kendin Tasarla ürününde ad ve fiyat katalogdan
+        ...satirGosterimi(p),
         hoverImageUrl: secondImageOf(p.thumbnailUrl, gallery),
       })),
       count,

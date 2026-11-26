@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ProductImageFallback } from "./ProductImageFallback";
+import { KartVideosu } from "@/components/tasarim/KartVideosu";
+import { aracAnimasyonu, aracBul, slugdanAracId } from "@/lib/tasarim/catalog";
 
 // ==========================================
 // KART GÖRSELİ — İKİNCİ GÖRSEL "BASILIR"
@@ -65,6 +67,28 @@ export function ProductCardImage({ slug, name, src, hoverSrc, sizes, priority }:
   }, [ikinciVar, ikinciIstendi]);
 
   if (!src || hata) return <ProductImageFallback slug={slug} />;
+
+  // Kendin Tasarla ürününün özelleştirme animasyonu varsa üzerine
+  // gelince ikinci görsel yerine o oynar.
+  const arac = aracBul(slugdanAracId(slug));
+  const animasyon = arac ? aracAnimasyonu(arac) : null;
+  if (animasyon) {
+    return (
+      <>
+        <Image
+          ref={kapakRef}
+          src={src}
+          alt={name}
+          fill
+          sizes={sizes}
+          priority={priority}
+          onError={() => setHata(true)}
+          className="object-cover"
+        />
+        <KartVideosu adres={animasyon} />
+      </>
+    );
+  }
 
   // Görsel inene kadar basılma animasyonu bekletilir: kart o sırada
   // zaten üzerine gelinmiş durumda, animasyon boş bir karenin

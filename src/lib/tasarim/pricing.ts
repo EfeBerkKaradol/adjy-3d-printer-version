@@ -28,7 +28,7 @@
 // Göreli yol: örnek sipariş betiği (ornekSiparisler.ts) "@/" takma
 // adını çözemiyor ve fiyatı buradan alıyor.
 import { productionCost } from "../production";
-import type { TasarimAraci } from "./catalog";
+import { aracBul, slugdanAracId, type TasarimAraci } from "./catalog";
 
 export interface TasarimOlcumu {
   /** Basılacak toplam filament (g) */
@@ -105,4 +105,19 @@ export function tasarimFiyati(
 /** Kartlarda ve arama sonuçlarında gösterilen başlangıç fiyatı */
 export function tasarimBaslangicFiyati(arac: TasarimAraci): number {
   return tasarimFiyati(arac, arac.varsayilan);
+}
+
+/**
+ * Veritabanından okunan bir ürün satırının gösterilecek fiyatı ve adı.
+ * Kendin Tasarla ürünlerinde (slug: tasarla-…) katalogdan gelir: satır
+ * eşitlenmeden önce oluşmuş önbellekli bir sayfa (ana sayfa 5 dk)
+ * eski fiyatı göstermesin. Diğer ürünlerde satır olduğu gibi.
+ */
+export function satirGosterimi(satir: { slug: string; name: string; basePrice: unknown }): {
+  name: string;
+  basePrice: number;
+} {
+  const arac = aracBul(slugdanAracId(satir.slug));
+  if (!arac) return { name: satir.name, basePrice: Number(satir.basePrice) };
+  return { name: arac.ad, basePrice: tasarimBaslangicFiyati(arac) };
 }

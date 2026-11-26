@@ -156,7 +156,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzeme: "PLA",
     varsayilan: { kutleG: 509, sureSaat: 8.4 },
     sinir: { kutleG: [60, 2500], sureSaat: [1, 45] },
-    piyasaFiyati: 999,
+    piyasaFiyati: 1199,
     teslim: "Sipariş sonrası üretilir, 3–5 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Bitkinize göre ölçü", metin: "Çapı 8 ile 22, yüksekliği 8 ile 24 santim arasında santim santim seçersiniz; saksı rafınıza ve bitkinizin köküne göre üretilir." },
@@ -188,7 +188,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     sinir: { kutleG: [60, 900], sureSaat: [3, 60] },
     ekMaliyet: 110,
     ekMaliyetAciklamasi: "Duy ve ampul",
-    piyasaFiyati: 1199,
+    piyasaFiyati: 1399,
     teslim: "Sipariş sonrası üretilir, 4–6 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Işık dilimlerden süzülür", metin: "Gövde tek parça ve ince cidarlı basılır; ışık dalgaların arasından yumuşayarak geçer." },
@@ -216,7 +216,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzeme: "PETG",
     varsayilan: { kutleG: 111, sureSaat: 2.9 },
     sinir: { kutleG: [40, 500], sureSaat: [1, 14] },
-    piyasaFiyati: 349,
+    piyasaFiyati: 449,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Masanızı delmez", metin: "Kelepçe masanın kenarına vidayla sıkılır; iz bırakmadan sökülür, başka masaya taşınır." },
@@ -249,7 +249,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     sinir: { kutleG: [15, 700], sureSaat: [0.8, 40] },
     ekMaliyet: 40,
     ekMaliyetAciklamasi: "Pirinç yuvalar, vidalar ve ayaklar",
-    piyasaFiyati: 449,
+    piyasaFiyati: 649,
     teslim: "Sipariş sonrası üretilir, 3–5 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Kartınıza göre ölçü", metin: "Kartın enini, boyunu ve gereken iç yüksekliği girersiniz; kutu tam ona göre çıkar." },
@@ -280,7 +280,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     sinir: { kutleG: [80, 900], sureSaat: [3, 40] },
     ekMaliyet: 145,
     ekMaliyetAciklamasi: "E14 duy, kablo ve ampul",
-    piyasaFiyati: 899,
+    piyasaFiyati: 1099,
     dosyaGerekli: {
       giris: "Fotograf_Yukle",
       uyari: "Lamba fotoğrafınızla üretilecek. Sepete eklemeden önce kendi fotoğrafınızı yükleyin.",
@@ -315,7 +315,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     sinir: { kutleG: [8, 250], sureSaat: [0.2, 6] },
     ekMaliyet: 17,
     ekMaliyetAciklamasi: "NFC etiketi",
-    piyasaFiyati: 299,
+    piyasaFiyati: 399,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Yaklaştır ya da okut", metin: "İçine gömülü NFC etiketi telefon yaklaşınca, kabartma QR kod kamera tutulunca bağlantınızı açar." },
@@ -344,7 +344,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzeme: "PETG-CF",
     varsayilan: { kutleG: 222, sureSaat: 6.8 },
     sinir: { kutleG: [40, 2500], sureSaat: [1, 60] },
-    piyasaFiyati: 799,
+    piyasaFiyati: 999,
     teslim: "Sipariş sonrası üretilir, 3–5 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Her seferinde aynı yer", metin: "Ürünler yuvalara oturur; markalama ya da baskı her parçada aynı noktaya düşer." },
@@ -374,7 +374,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzeme: "PLA",
     varsayilan: { kutleG: 660, sureSaat: 17 },
     sinir: { kutleG: [30, 8000], sureSaat: [1, 300] },
-    piyasaFiyati: 2499,
+    piyasaFiyati: 2699,
     teslim: "Sipariş sonrası üretilir; kat sayısına göre 5–10 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Kat kat ayrılır", metin: "Her kat ayrı basılır ve köşe pimleriyle üst üste oturur; maketi açıp içini gösterebilirsiniz." },
@@ -405,7 +405,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzeme: "PLA",
     varsayilan: { kutleG: 288, sureSaat: 6.3 },
     sinir: { kutleG: [20, 3000], sureSaat: [0.5, 80] },
-    piyasaFiyati: 899,
+    piyasaFiyati: 1099,
     teslim: "Sipariş sonrası üretilir; modül sayısına göre 4–8 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Odanız avucunuzda", metin: "Mutfağı, salonu ya da gardırobu ölçekli olarak kurarsınız; mobilya planını elinizde çevirerek görürsünüz." },
@@ -439,7 +439,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     varsayilan: { kutleG: 2817, sureSaat: 56.5 },
     // En küçük: 15 × 15 cm taban, kutusuz. En büyük: 120 × 90 cm duvar, tam dolu.
     sinir: { kutleG: [25, 27000], sureSaat: [0.5, 520] },
-    piyasaFiyati: 5499,
+    piyasaFiyati: 5699,
     teslim: "Sipariş sonrası üretilir; ölçüye ve kutu sayısına göre 5–15 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Milimetresine oturur", metin: "Çekmecenizin iç ölçüsünü milimetre olarak girersiniz; taban o ölçüye göre üretilir, kenarda kalan boşluk kör şeritlerle kapatılır." },
@@ -471,7 +471,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     // En küçük: 60 mm düz, alçak kenar. Tek parçanın en büyüğü Ø240 looping (142 g, 3,7 sa);
     // uç uca en çok 12 parça: hazır yollar 47–193 g, 12 büyük parça ≈ 1,5 kg.
     sinir: { kutleG: [5, 1700], sureSaat: [0.3, 48] },
-    piyasaFiyati: 199,
+    piyasaFiyati: 299,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Pistinizi siz çizin", metin: "Parçaları uç uca ekleyip bütün pisti ekranda kurarsınız; virajın yarıçapını ve açısını derece derece seçer, pistin kapanıp kapanmadığını hemen görürsünüz." },
@@ -501,7 +501,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     varsayilan: { kutleG: 26, sureSaat: 0.95 },
     // En küçük: 50 mm yıldız, 2,4 mm; en büyük: 120 mm top, 6 mm
     sinir: { kutleG: [3, 120], sureSaat: [0.3, 4.5] },
-    piyasaFiyati: 179,
+    piyasaFiyati: 279,
     teslim: "Sipariş sonrası üretilir, 1–3 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "İsim süsün içine sığar", metin: "Yazıyı yazdıkça süs kendini ayarlar: harfler şeklin içine, çerçeveye değmeden yerleşir. Türkçe harfler olduğu gibi basılır." },
@@ -532,7 +532,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 5.5, sureSaat: 0.35 },
     sinir: { kutleG: [1.5, 60], sureSaat: [0.2, 3.5] },
-    piyasaFiyati: 129,
+    piyasaFiyati: 229,
     teslim: "Sipariş sonrası üretilir, 1–3 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Her desen bir kez", metin: "Desen numarası dalların yerini ve açısını değiştirir; doksan dokuz desenin her biri ayrı bir kar tanesi. Beğendiğiniz numarayı tekrar seçtiğinizde aynısı gelir." },
@@ -561,7 +561,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 126, sureSaat: 3.8 },
     sinir: { kutleG: [15, 900], sureSaat: [0.8, 28] },
-    piyasaFiyati: 449,
+    piyasaFiyati: 649,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Kolları siz döndürün", metin: "Kol sayısı, derinliği ve burgusu ağacın dokusunu belirler: sakin bir çamdan sarmal bir heykele kadar." },
@@ -593,7 +593,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 60, sureSaat: 2.2 },
     sinir: { kutleG: [15, 420], sureSaat: [0.6, 14] },
-    piyasaFiyati: 349,
+    piyasaFiyati: 449,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Kendi çölünüz", metin: "Doksan dokuz desen, rüzgârın her yönü: aynı numara hep aynı tepeleri verir, beğendiğinizi saklarsınız." },
@@ -622,7 +622,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 74, sureSaat: 2.45 },
     sinir: { kutleG: [25, 320], sureSaat: [0.8, 11] },
-    piyasaFiyati: 329,
+    piyasaFiyati: 429,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Kumdan yükselir", metin: "Gövde tabandan yukarı doğru bir yana eğilir; boğumlar halka halka belirir, pullu doku ışığı yakalar." },
@@ -651,7 +651,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 97, sureSaat: 3 },
     sinir: { kutleG: [20, 480], sureSaat: [0.7, 16] },
-    piyasaFiyati: 349,
+    piyasaFiyati: 449,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Kumun dokusu", metin: "Dalgalar gerçek kum dalgacıkları gibi asimetrik: bir yüzü yumuşak, öbürü dik; burgu onları gövde boyunca döndürür." },
@@ -681,7 +681,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 8, sureSaat: 0.5 },
     sinir: { kutleG: [3, 40], sureSaat: [0.25, 2.5] },
-    piyasaFiyati: 129,
+    piyasaFiyati: 229,
     teslim: "Sipariş sonrası üretilir, 1–3 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Tam ölçüde keser", metin: "Bıçak şeklin dışında durur: 75 mm seçtiyseniz kurabiye 75 mm çıkar." },
@@ -710,7 +710,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 24, sureSaat: 1.05 },
     sinir: { kutleG: [8, 60], sureSaat: [0.4, 2.5] },
-    piyasaFiyati: 149,
+    piyasaFiyati: 249,
     teslim: "Sipariş sonrası üretilir, 1–3 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Her misafire bir kart", metin: "İsimler Türkçe harfleriyle basılır; yazı kartın içine kendiliğinden sığar." },
@@ -743,7 +743,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     sinir: { kutleG: [25, 200], sureSaat: [1.2, 11] },
     ekMaliyet: 60,
     ekMaliyetAciklamasi: "Pilli mum LED",
-    piyasaFiyati: 449,
+    piyasaFiyati: 649,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Işıkla beliren desen", metin: "Gündüz yalnızca hafif bir kabartma; mum LED yanınca çam ormanı, kar taneleri ya da yıldızlı gece ortaya çıkar." },
@@ -773,7 +773,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 69, sureSaat: 2.32 },
     sinir: { kutleG: [12, 200], sureSaat: [0.5, 7] },
-    piyasaFiyati: 349,
+    piyasaFiyati: 449,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Dört renk, tek baskı", metin: "Zemin, güneş, palmiye ve yazı ayrı filamentle aynı baskıda çıkar; boya ya da yapıştırma yok." },
@@ -806,7 +806,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 23, sureSaat: 0.96 },
     sinir: { kutleG: [4, 180], sureSaat: [0.3, 6] },
-    piyasaFiyati: 199,
+    piyasaFiyati: 299,
     teslim: "Sipariş sonrası üretilir, 1–3 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Amblem sizin", metin: "Baş harfiniz, biçiminiz, renkleriniz: hazır bir kahramanın değil, sizin kahramanınızın işareti." },
@@ -837,7 +837,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 74, sureSaat: 2.32 },
     sinir: { kutleG: [28, 380], sureSaat: [1, 14] },
-    piyasaFiyati: 349,
+    piyasaFiyati: 449,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Çatlaklardan lav görünür", metin: "Taş katı boydan boya çatlaktır; altındaki lav katı ayrı renkte basılır ve her çatlaktan parlar." },
@@ -867,7 +867,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 105, sureSaat: 3.33 },
     sinir: { kutleG: [18, 700], sureSaat: [0.7, 24] },
-    piyasaFiyati: 449,
+    piyasaFiyati: 649,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Kat kat derinlik", metin: "Her kum katı bir öncekinin önünde ve bir kat daha yüksek durur; yandan gelen ışıkta katlar birbirine gölge düşürür." },
@@ -899,7 +899,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 43, sureSaat: 1.53 },
     sinir: { kutleG: [10, 140], sureSaat: [0.5, 5.5] },
-    piyasaFiyati: 249,
+    piyasaFiyati: 349,
     teslim: "Sipariş sonrası üretilir, 1–3 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Aile adınız ortasında", metin: "İsim şeridin içine kendiliğinden sığar; şerit çelengin iki yanına oturur, harfler şeridin üstünde kabarır." },
@@ -931,7 +931,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 176, sureSaat: 5.4 },
     sinir: { kutleG: [25, 300], sureSaat: [0.8, 10] },
-    piyasaFiyati: 549,
+    piyasaFiyati: 749,
     dosyaGerekli: {
       giris: "fy-foto",
       uyari: "Yapboz fotoğrafınızla üretilecek. Sepete eklemeden önce kendi fotoğrafınızı yükleyin.",
@@ -970,7 +970,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 82, sureSaat: 2.76 },
     sinir: { kutleG: [12, 700], sureSaat: [0.5, 22] },
-    piyasaFiyati: 379,
+    piyasaFiyati: 479,
     dosyaGerekli: {
       giris: "fp-foto",
       uyari: "Pano fotoğrafınızla üretilecek. Sepete eklemeden önce kendi fotoğrafınızı yükleyin.",
@@ -1015,7 +1015,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 101, sureSaat: 3.31 },
     sinir: { kutleG: [30, 520], sureSaat: [1, 16] },
-    piyasaFiyati: 449,
+    piyasaFiyati: 649,
     dosyaGerekli: {
       giris: "fk-foto",
       uyari: "Kutu fotoğrafınızla üretilecek. Sepete eklemeden önce kendi fotoğrafınızı yükleyin.",
@@ -1052,7 +1052,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 62, sureSaat: 2.06 },
     sinir: { kutleG: [20, 190], sureSaat: [0.7, 6.5] },
-    piyasaFiyati: 349,
+    piyasaFiyati: 449,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Dalga sizin sesiniz", metin: "Hazır bir desen değil: kaydınızın her hecesi çubukların boyunda okunur, iki plaket aynı olmaz." },
@@ -1084,7 +1084,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     malzemeSabit: true,
     varsayilan: { kutleG: 196, sureSaat: 7.06 },
     sinir: { kutleG: [30, 380], sureSaat: [1.1, 14] },
-    piyasaFiyati: 649,
+    piyasaFiyati: 849,
     teslim: "Sipariş sonrası üretilir, 3–5 iş günü içinde kargoya verilir.",
     vurgular: [
       { baslik: "Dalgayı siz yönlendirin", metin: "Aynı vazo düz yivli, burgulu ya da halkalı olabilir; dalga gövdenin tamamında ya da yalnız bir bölümünde durur." },

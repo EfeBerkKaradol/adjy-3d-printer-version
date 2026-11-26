@@ -3,6 +3,7 @@ import { cache } from "react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { aracAdresi, slugdanAracId } from "@/lib/tasarim/catalog";
+import { satirGosterimi } from "@/lib/tasarim/pricing";
 import { prisma } from "@/lib/db";
 import {
   Accordion,
@@ -151,7 +152,7 @@ async function getRelated(categoryId: string, parentId: string | null, excludeId
     });
     return rows.map(({ gallery, ...p }) => ({
       ...p,
-      basePrice: Number(p.basePrice),
+      ...satirGosterimi(p),
       hoverImageUrl: secondImageOf(p.thumbnailUrl, gallery),
     }));
   } catch {

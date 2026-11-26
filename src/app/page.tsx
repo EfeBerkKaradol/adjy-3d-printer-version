@@ -20,6 +20,7 @@ import { YILBASI, yilbasiAktif } from "@/lib/yilbasi";
 import { YilbasiVitrini } from "@/components/yilbasi/YilbasiVitrini";
 import { ONE_CIKANLAR, TASARIM_ARACLARI, aracBul } from "@/lib/tasarim/catalog";
 import { TasarimAracKartlari } from "@/components/tasarim/TasarimAracKartlari";
+import { satirGosterimi } from "@/lib/tasarim/pricing";
 
 // Vitrin veritabanından beslenir; statik kalırsa yeni ürünler ancak
 // yeni bir deploy ile görünür. 5 dakikada bir tazelenir.
@@ -115,9 +116,9 @@ function toRailProduct(
   const cutoff = Date.now() - NEW_WINDOW_DAYS * 24 * 60 * 60 * 1000;
   return {
     id: p.id,
-    name: p.name,
     slug: p.slug,
-    basePrice: Number(p.basePrice),
+    // Kendin Tasarla ürününde ad ve fiyat katalogdan (pricing.ts)
+    ...satirGosterimi(p),
     compareAtPrice: compareAt,
     thumbnailUrl: p.thumbnailUrl,
     hoverImageUrl: secondImageOf(p.thumbnailUrl, p.gallery),

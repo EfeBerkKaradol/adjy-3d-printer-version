@@ -10,6 +10,7 @@ import { loadCategoryTree, loadCollectionTags } from "@/lib/categoryTree";
 import { ArrowRight } from "lucide-react";
 import { MATERIAL_FAMILIES, familyFor } from "@/lib/materialFamily";
 import { secondImageOf } from "@/lib/gallery";
+import { satirGosterimi } from "@/lib/tasarim/pricing";
 
 // Kategoriler ve ürün sayıları yarım saatte bir tazelenir
 export const revalidate = 1800;
@@ -101,7 +102,7 @@ async function getCollections(): Promise<Collection[]> {
           fromPrice: enUcuz._min.basePrice ? Number(enUcuz._min.basePrice) : null,
           products: products.map(({ gallery, ...p }) => ({
             ...p,
-            basePrice: Number(p.basePrice),
+            ...satirGosterimi(p),
             hoverImageUrl: secondImageOf(p.thumbnailUrl, gallery),
             isCustomizable: p.slug.startsWith("tasarla-"),
           })),

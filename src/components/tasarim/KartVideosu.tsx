@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 //   değilse  → kartın üzerine gelince oynar, ayrılınca durur; dosya
 //              ancak o an indirilir (preload="none")
 //
-// Hareketi azalt tercihinde hiç oynamaz.
+// Hareketi azalt tercihinde kendiliğinden oynamaz, üzerine gelince oynar.
 // ==========================================
 
 interface Props {
@@ -31,7 +31,6 @@ export function KartVideosu({ adres, otomatik = false, className }: Props) {
   useEffect(() => {
     const video = ref.current;
     if (!video) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const oynat = () => {
       video.play().catch(() => {});
@@ -41,7 +40,11 @@ export function KartVideosu({ adres, otomatik = false, className }: Props) {
       setOynuyor(false);
     };
 
-    if (otomatik) {
+    // Kendiliğinden oynama hareketi azalt tercihinde kapalı; üzerine
+    // gelince oynama ise kullanıcının kendi eylemi, her durumda oynar
+    // (Windows'ta animasyonlar kapalıyken tarayıcı da "azalt" diyor).
+    const azalt = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (otomatik && !azalt) {
       oynat();
       return;
     }
