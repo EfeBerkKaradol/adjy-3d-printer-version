@@ -56,6 +56,7 @@ import {
   type KayitSonucu,
 } from "@/lib/tasarim/kaydet";
 import { parcaDosyalari, stlVarMi, uretimDosyalari, uretimProjesi } from "./indirme";
+import type { OtomatikIndirme } from "@/lib/tasarim/adresler";
 import { GlassSelect } from "@/components/ui/glass-select";
 import { GLASS_MENU, GLASS_MENU_ITEM } from "@/lib/glass";
 
@@ -107,6 +108,12 @@ interface Props {
     durum: Record<string, unknown> | null;
     olcum: { kutleG: number | null; sureSaat: number | null };
   };
+  /**
+   * Model kurulunca kendiliğinden inecek dosya (Kendin Üret
+   * Atölyesi listesindeki düğmelerden gelir): baskıya hazır 3MF ya da
+   * aracın bir belgesi. Bir kez çalışır.
+   */
+  otomatikIndir?: OtomatikIndirme | null;
 }
 
 type Asama = "aciliyor" | "yukleniyor" | "hazir";
@@ -164,7 +171,13 @@ function tablaMetni(tablalar: UretimTablasi[]): string {
     .join("  |  ");
 }
 
-export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = false }: Props) {
+export function UretimEkrani({
+  arac,
+  siparis,
+  kalem: siparisKalemi,
+  serbest = false,
+  otomatikIndir = null,
+}: Props) {
   const { resolvedTheme } = useTheme();
   const cerceveRef = useRef<HTMLIFrameElement>(null);
   // Çerçevenin adresi ilk temayla bir kez belirlenir; tema sonradan
@@ -308,13 +321,17 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
 
   // Üretim projesi: parçalar baskı yönünde, renge göre ayrı tablalarda,
   // adet kadar dizili. Dosya bu sayfadan iner (çerçevenin içinden değil).
-  const uretimIndir = useCallback(async () => {
+  // yalniz: yalnızca o çıktının parçaları (tek parçalık 3MF)
+  const uretimIndir = useCallback(async (yalniz?: string) => {
     const arayuz = aracArayuzu(cerceveRef.current);
     if (!arayuz) return;
     setKayit(null);
     setProje(null);
     setIndirilen("Üretim projesi");
-    const parcalar = await parcaDosyalari(arayuz, arac);
+    const kaynak = yalniz
+      ? { ...arac, ciktilar: arac.ciktilar.filter((c) => c.sec === yalniz) }
+      : arac;
+    const parcalar = await parcaDosyalari(arayuz, kaynak);
     const yeni = await uretimProjesi(arayuz, parcalar, uretimAdedi, duzen, katman);
     if (!yeni) {
       setKayit({ tur: "hata", mesaj: "Araç parça STL'si vermedi; parçaları tek tek indirin" });
@@ -336,6 +353,28 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
     }
     setIndirilen(null);
   }, [arac, uretimAdedi, duzen, katman]);
+
+  // Listeden gelen "açılınca indir" isteği: model kurulunca bir kez.
+  // Adres temizlenir; sayfa yenilenince dosya ikinci kez inmesin.
+  const otomatikRef = useRef(false);
+  useEffect(() => {
+    if (!otomatikIndir || otomatikRef.current || asama !== "hazir") return;
+    otomatikRef.current = true;
+    window.history.replaceState(null, "", window.location.pathname);
+    // Ölçüm ve renk okuması otursun. Zamanlayıcı bilerek iptal
+    // edilmez: istek bir kez işaretlendi, yeniden çizim onu düşürmesin.
+    setTimeout(() => {
+      if (otomatikIndir.tur === "3mf") {
+        const parca = arac.ciktilar.find(
+          (c) => c.sec === otomatikIndir.sec && c.tur === "stl" && c.sec !== RENKLI_PAKET_SECICI
+        );
+        void uretimIndir(parca?.sec);
+      } else {
+        const c = arac.ciktilar.find((x) => x.sec === otomatikIndir.sec);
+        if (c) void indir([c]);
+      }
+    }, 400);
+  }, [otomatikIndir, asama, arac, uretimIndir, indir]);
 
   // Bütün üretim dosyaları tek seferde, "Müşteri - Sipariş No"
   // klasörüne. Klasör penceresi yalnızca tıklamanın hemen ardından
@@ -529,7 +568,7 @@ export function UretimEkrani({ arac, siparis, kalem: siparisKalemi, serbest = fa
             <button
               type="button"
               disabled={!hazir || !!indirilen}
-              onClick={uretimIndir}
+              onClick={() => void uretimIndir()}
               title="Dilimleyici projesi: parçalar baskı yönünde, renge göre ayrı tablalarda, adet kadar dizili"
               className={`${DUGME} bg-foreground font-medium text-background hover:opacity-90`}
             >

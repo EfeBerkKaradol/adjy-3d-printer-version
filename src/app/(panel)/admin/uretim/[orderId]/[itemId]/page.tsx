@@ -8,6 +8,7 @@ import {
   tasarimDosyalari,
 } from "@/lib/tasarim/order";
 import { UretimEkrani } from "@/components/tasarim/UretimEkrani";
+import { otomatikIndirmeOku } from "@/lib/tasarim/adresler";
 
 // ==========================================
 // ÜRETİM EKRANI
@@ -28,10 +29,13 @@ export const dynamic = "force-dynamic";
 
 export default async function UretimPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ orderId: string; itemId: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { orderId, itemId } = await params;
+  const otomatikIndir = otomatikIndirmeOku(await searchParams);
 
   const kalem = await prisma.orderItem.findFirst({
     where: { id: itemId, orderId },
@@ -71,6 +75,7 @@ export default async function UretimPage({
 
   return (
     <UretimEkrani
+      otomatikIndir={otomatikIndir}
       arac={arac}
       siparis={{
         id: kalem.order.id,

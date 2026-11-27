@@ -1,10 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Download, FileText, Wrench } from "lucide-react";
+import { ArrowRight, Download, FileText, Layers, Wrench } from "lucide-react";
 import { prisma } from "@/lib/db";
-import { TASARIM_ARACLARI, aracGorseli } from "@/lib/tasarim/catalog";
+import { RENKLI_PAKET_SECICI, TASARIM_ARACLARI, aracGorseli } from "@/lib/tasarim/catalog";
 import { tasarimSku } from "@/lib/tasarim/order";
-import { atolyeAdresi, uretimEkraniAdresi } from "@/lib/tasarim/adresler";
+import {
+  atolyeAdresi,
+  otomatikIndirmeAdresi,
+  uretimEkraniAdresi,
+} from "@/lib/tasarim/adresler";
 import { resolvePublicImage } from "@/lib/publicAsset";
 import { formatTRY } from "@/lib/slicer";
 import { ORNEK_SIPARIS_ONEK, ornekSiparisleriGerekirseKur } from "@/lib/tasarim/ornekSiparisler";
@@ -42,6 +46,11 @@ const DURUM: Record<string, string> = {
 
 const SIPARIS_SAYISI = 3;
 
+/** "Avize STL" → "Avize": düğme artık STL değil 3MF indiriyor */
+function parcaAdi(ad: string): string {
+  return ad.replace(/\s*\(?STL\)?$/i, "").trim() || ad;
+}
+
 export default async function TasarimAtolyesiPage() {
   await ornekSiparisleriGerekirseKur(prisma);
   const kalemler = await prisma.orderItem.findMany({
@@ -78,9 +87,10 @@ export default async function TasarimAtolyesiPage() {
         <div>
           <h1 className="text-2xl font-bold">Kendin Üret Atölyesi</h1>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            Özelleştirilebilir ürünlerin üretici yüzü. Modeli bütün ayarlarıyla
-            kurun, STL ve imalat dosyalarını indirin ya da bir siparişi
-            müşterinin kaydıyla açın.
+            Özelleştirilebilir ürünlerin üretici yüzü. Parça düğmeleri baskıya
+            hazır 3MF indirir (baskı yönünde dizili, yazıcı ve dilimleme ayarı
+            dosyada); siparişin yanındaki 3MF müşterinin modelini sipariş
+            adedince hazırlar.
           </p>
         </div>
         <div className="flex flex-col items-end gap-2">
@@ -112,20 +122,48 @@ export default async function TasarimAtolyesiPage() {
                   <p className="mt-0.5 font-mono text-[11px] text-muted-foreground">
                     {tasarimSku(arac.id)} · {arac.malzeme}
                   </p>
+                  {/* Parça düğmeleri baskıya hazır 3MF indirir: atölye açılır,
+                      model kurulur, üretim projesi kendiliğinden iner */}
                   <ul className="mt-2 flex flex-wrap gap-1.5 text-[11px]">
-                    {stl.map((c) => (
-                      <li key={c.sec} className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5">
-                        <Download className="h-3 w-3" aria-hidden />
-                        {c.ad}
-                      </li>
-                    ))}
+                    {stl.map((c) => {
+                      const tumu = c.sec === RENKLI_PAKET_SECICI;
+                      return (
+                        <li key={c.sec}>
+                          <Link
+                            href={otomatikIndirmeAdresi(atolyeAdresi(arac.id), {
+                              tur: "3mf",
+                              sec: tumu ? null : c.sec,
+                            })}
+                            title={
+                              tumu
+                                ? "Bütün parçalar tek dilimleyici projesinde: baskı yönünde dizili, yazıcı ve dilimleme ayarı dosyada"
+                                : `${parcaAdi(c.ad)}: baskı yönünde, dilimleme ayarı dosyada`
+                            }
+                            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 transition-colors ${
+                              tumu
+                                ? "bg-foreground font-medium text-background hover:opacity-90"
+                                : "bg-muted hover:bg-accent"
+                            }`}
+                          >
+                            {tumu ? (
+                              <Layers className="h-3 w-3" aria-hidden />
+                            ) : (
+                              <Download className="h-3 w-3" aria-hidden />
+                            )}
+                            {tumu ? "Tüm parçalar · 3MF" : `${parcaAdi(c.ad)} · 3MF`}
+                          </Link>
+                        </li>
+                      );
+                    })}
                     {belge.map((c) => (
-                      <li
-                        key={c.sec}
-                        className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-muted-foreground ring-1 ring-border"
-                      >
-                        <FileText className="h-3 w-3" aria-hidden />
-                        {c.ad}
+                      <li key={c.sec}>
+                        <Link
+                          href={otomatikIndirmeAdresi(atolyeAdresi(arac.id), { tur: "dosya", sec: c.sec })}
+                          className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-muted-foreground ring-1 ring-border transition-colors hover:bg-muted hover:text-foreground"
+                        >
+                          <FileText className="h-3 w-3" aria-hidden />
+                          {c.ad}
+                        </Link>
                       </li>
                     ))}
                   </ul>
@@ -152,10 +190,10 @@ export default async function TasarimAtolyesiPage() {
                 ) : (
                   <ul className="space-y-1">
                     {siparisler.slice(0, SIPARIS_SAYISI).map((k) => (
-                      <li key={k.id}>
+                      <li key={k.id} className="flex items-center gap-1">
                         <Link
                           href={uretimEkraniAdresi(k.orderId, k.id)}
-                          className="group flex items-center gap-3 rounded-md px-2 py-1.5 text-sm hover:bg-muted"
+                          className="group flex min-w-0 flex-1 items-center gap-3 rounded-md px-2 py-1.5 text-sm hover:bg-muted"
                         >
                           <span className="min-w-0 flex-1">
                             <span className="block truncate font-mono text-xs">
@@ -174,6 +212,18 @@ export default async function TasarimAtolyesiPage() {
                             className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
                             aria-hidden
                           />
+                        </Link>
+                        <Link
+                          href={otomatikIndirmeAdresi(uretimEkraniAdresi(k.orderId, k.id), {
+                            tur: "3mf",
+                            sec: null,
+                          })}
+                          title={`${k.order.orderNumber}: müşterinin modeliyle, ${k.quantity} adet, baskıya hazır 3MF`}
+                          aria-label={`${k.order.orderNumber} siparişinin 3MF dosyasını indir`}
+                          className="inline-flex shrink-0 items-center gap-1 rounded-md bg-foreground px-2 py-1 font-mono text-[11px] font-semibold text-background transition-opacity hover:opacity-90"
+                        >
+                          <Download className="h-3 w-3" aria-hidden />
+                          3MF
                         </Link>
                       </li>
                     ))}

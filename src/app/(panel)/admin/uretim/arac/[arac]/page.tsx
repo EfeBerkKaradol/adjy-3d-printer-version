@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { aracBul } from "@/lib/tasarim/catalog";
 import { UretimEkrani } from "@/components/tasarim/UretimEkrani";
+import { otomatikIndirmeOku } from "@/lib/tasarim/adresler";
 
 // ==========================================
 // ATÖLYE — SERBEST KURULUM
@@ -30,10 +31,13 @@ export async function generateMetadata({
 
 export default async function AtolyeAracPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ arac: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { arac: id } = await params;
+  const otomatikIndir = otomatikIndirmeOku(await searchParams);
   const arac = aracBul(id);
   if (!arac) notFound();
 
@@ -43,6 +47,7 @@ export default async function AtolyeAracPage({
   return (
     <UretimEkrani
       serbest
+      otomatikIndir={otomatikIndir}
       arac={arac}
       siparis={{
         id: "",
