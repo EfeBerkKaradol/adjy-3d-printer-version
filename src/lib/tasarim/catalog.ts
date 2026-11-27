@@ -210,11 +210,11 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ad: "Masa Kelepçeli Kulaklık Askısı",
     ozet: "Masayı delmeden kenarına sıkılır; kelepçe masanızın kalınlığına göre açılır.",
     aciklama:
-      "Masayı delmeden, kenarına kelepçeyle tutunan kulaklık ve çanta askısı. Masa kalınlığınızı girin, kelepçe ona göre açılsın; askı kolunun uzunluğunu ve alt kancanın derinliğini asacağınız şeye göre ayarlayın. Sıkma vidası ucundaki baskı ayağıyla tek parça basılır, takılacak ayrı parça yoktur.",
+      "Masayı delmeden, kenarına kelepçeyle tutunan kulaklık ve çanta askısı. Masa kalınlığınızı girin, kelepçe ona göre açılsın; askı kolunun uzunluğunu ve alt kancanın derinliğini asacağınız şeye göre ayarlayın. Geniş baskı pabucu vidanın ucuna yandan kayarak takılır; sıkarken de gevşetirken de yerinden çıkmaz, masayı çizmeden tutar.",
     ayarlar: ["Masa kalınlığı", "Askı kolu uzunluğu", "Alt kanca", "Model ve malzeme"],
     kategoriler: ["masa-ofis-standlar", "ofis-aksesuarlari"],
     malzeme: "PETG",
-    varsayilan: { kutleG: 106, sureSaat: 2.6 },
+    varsayilan: { kutleG: 114, sureSaat: 2.9 },
     sinir: { kutleG: [40, 500], sureSaat: [1, 14] },
     piyasaFiyati: 449,
     teslim: "Sipariş sonrası üretilir, 2–4 iş günü içinde kargoya verilir.",
@@ -227,6 +227,7 @@ export const TASARIM_ARACLARI: TasarimAraci[] = [
     ciktilar: [
       { ad: "Gövde STL", sec: "#btn-stl-body", tur: "stl" },
       { ad: "Vida STL", sec: "#btn-stl-screw", tur: "stl" },
+      { ad: "Pabuç STL", sec: "#btn-stl-pad", tur: "stl" },
       RENKLI_PAKET,
       { ad: "Tüm set, tek tabla (STL)", sec: "#btn-stl-platter", tur: "cad" },
       { ad: "İmalat anteti (SVG)", sec: "#btn-export-svg", tur: "belge" },

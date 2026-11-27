@@ -43,7 +43,7 @@ function prepareSlicerGeometryZUp(sourceGeom, rotEuler = null, centerXY = true) 
  * Builds the 3 print-oriented slicer meshes (Z-up, Z = 0 on build plate):
  *  - C-Body + J-Hook flat on its side (Z_assembled -> Z_slicer, continuous XY perimeters!)
  *  - 60° Trapezoidal Screw knob-down (+Y_local -> +Z_slicer via +90° X rotation)
- *  (the pressure foot is printed in one piece with the screw)
+ *  - T-slot slide pad lip-down (+Y_local -> +Z_slicer via +90° X rotation), table face on top
  */
 export function buildPrintPlatterGroupZUp(geometries, dim) {
   const group = new THREE.Group();
@@ -66,6 +66,16 @@ export function buildPrintPlatterGroupZUp(geometries, dim) {
   screwMesh.name = 'Trapez_Sikma_Vidasi_60deg';
   group.add(screwMesh);
 
+  const padGeom = prepareSlicerGeometryZUp(
+    geometries.pad,
+    new THREE.Euler(Math.PI * 0.5, 0, 0),
+    true
+  );
+  padGeom.translate(screwOffsetX, -(dim.padRadius + 18.0), 0);
+  const padMesh = new THREE.Mesh(padGeom);
+  padMesh.name = 'Kayar_Baski_Pabucu';
+  group.add(padMesh);
+
   return group;
 }
 
@@ -82,6 +92,10 @@ export function exportPartSTL(partKey, geometries, dim, assembledGroup) {
     const g = prepareSlicerGeometryZUp(geometries.screw, new THREE.Euler(Math.PI * 0.5, 0, 0), true);
     targetObj = new THREE.Mesh(g);
     filename = `02_Trapez_Vida_60deg_Tr${Math.round(dim.screwD)}.stl`;
+  } else if (partKey === 'pad') {
+    const g = prepareSlicerGeometryZUp(geometries.pad, new THREE.Euler(Math.PI * 0.5, 0, 0), true);
+    targetObj = new THREE.Mesh(g);
+    filename = `03_Kayar_Baski_Pabucu_Tr${Math.round(dim.screwD)}.stl`;
   } else if (partKey === 'platter') {
     targetObj = buildPrintPlatterGroupZUp(geometries, dim);
     filename = `Tum_Set_Baski_Tablasi_Z0_${tag}.stl`;
@@ -369,11 +383,11 @@ export function generateImalatAntetiSVG(rawParams, metrics) {
   <line x1="${X(xScr - rFemMin)}" y1="${Y(yTop)}" x2="${X(xScr - rFemMin)}" y2="${Y(yBot)}" stroke="#D9381E" stroke-width="1" stroke-dasharray="3,2" />
   <line x1="${X(xScr + rFemMin)}" y1="${Y(yTop)}" x2="${X(xScr + rFemMin)}" y2="${Y(yBot)}" stroke="#D9381E" stroke-width="1" stroke-dasharray="3,2" />
 
-  <!-- Screw with one-piece pressure foot -->
+  <!-- Screw head in T-slot slide pad -->
   <line x1="${X(xScr)}" y1="${Y(5)}" x2="${X(xScr)}" y2="${Y(yBot - 26)}" stroke="#D9381E" stroke-width="1" stroke-dasharray="8,3,2,3" />
-  <rect x="${X(xScr - dim.footR)}" y="${Y(-dim.maxDesk)}" width="${(dim.footR * 2 * s1).toFixed(1)}" height="${(dim.footLen * s1).toFixed(1)}"
+  <rect x="${X(xScr - dim.padRadius)}" y="${Y(-dim.maxDesk)}" width="${(dim.padRadius * 2 * s1).toFixed(1)}" height="${(dim.padTotalH * s1).toFixed(1)}"
         fill="#ECE6D8" stroke="#141413" stroke-width="1.3" />
-  <rect x="${X(xScr - dim.maleMinorR)}" y="${Y(-dim.maxDesk - dim.footLen)}" width="${(dim.maleMinorR * 2 * s1).toFixed(1)}" height="${((Math.abs(yBot) - dim.maxDesk - dim.footLen + 12) * s1).toFixed(1)}"
+  <rect x="${X(xScr - dim.maleMinorR)}" y="${Y(-dim.maxDesk - dim.padTotalH)}" width="${(dim.maleMinorR * 2 * s1).toFixed(1)}" height="${((Math.abs(yBot) - dim.maxDesk - dim.padTotalH + 12) * s1).toFixed(1)}"
         fill="url(#PolymerHatch)" stroke="#D9381E" stroke-width="1.2" />
   <rect x="${X(xScr - dim.knobRadius)}" y="${Y(yBot - 12)}" width="${(dim.knobRadius * 2 * s1).toFixed(1)}" height="${(12 * s1).toFixed(1)}"
         rx="2" fill="#E3DDD0" stroke="#141413" stroke-width="1.4" />
@@ -449,10 +463,14 @@ export function generateImalatAntetiSVG(rawParams, metrics) {
   <text x="580" y="613" font-size="9">${parts.screw.printMinutes} dk</text>
   <text x="650" y="613" font-size="9">${parts.screw.totalCostTL.toFixed(2)} TL</text>
 
-  <text x="52"  y="643" font-size="9">—   Baskı ayağı vidayla tek parça (Ø${(dim.footR * 2).toFixed(1)})</text>
-  <text x="275" y="643" font-size="9" fill="#1F6E43">Vida: 6 çevre, %40 dolgu</text>
+  <text x="52"  y="643" font-size="9">03  Kayar Baskı Pabucu (T-yuva, Ø${(dim.padRadius * 2).toFixed(0)})</text>
+  <text x="275" y="643" font-size="9" fill="#1F6E43">Dudak Tabanda (Z=0)</text>
+  <text x="405" y="643" font-size="9">${parts.pad.volCm3.toFixed(2)}</text>
+  <text x="495" y="643" font-size="9">${parts.pad.printedMassG.toFixed(1)} g</text>
+  <text x="580" y="643" font-size="9">${parts.pad.printMinutes} dk</text>
+  <text x="650" y="643" font-size="9">${parts.pad.totalCostTL.toFixed(2)} TL</text>
 
-  <text x="52"  y="673" font-size="9.5" font-weight="bold">TOPLAM SET (2 PARÇA)</text>
+  <text x="52"  y="673" font-size="9.5" font-weight="bold">TOPLAM SET (3 PARÇA)</text>
   <text x="275" y="673" font-size="9" font-weight="bold">%${metrics.infillPct} Doluluk / ${metrics.perimeters} Duvar</text>
   <text x="405" y="673" font-size="9.5" font-weight="bold">${parts.total.volCm3.toFixed(2)}</text>
   <text x="495" y="673" font-size="9.5" font-weight="bold">${parts.total.printedMassG.toFixed(1)} g</text>
@@ -538,7 +556,8 @@ export function exportLoadAndCostCSV(rawParams, metrics, computeMetricsFn, partM
 
   rows.push(['3_PARCA_MALIYET', '01_C_Govde_Askilik', styleInfo.name, parts.body.printedMassG.toFixed(2), 'g', `${parts.body.volCm3.toFixed(2)} cm³ | ${parts.body.printMinutes} dk | ${parts.body.totalCostTL.toFixed(2)} TL`]);
   rows.push(['3_PARCA_MALIYET', '02_Trapez_Sikma_Vidasi', '60° Desteksiz Volan Trapez Vida', parts.screw.printedMassG.toFixed(2), 'g', `${parts.screw.volCm3.toFixed(2)} cm³ | ${parts.screw.printMinutes} dk | ${parts.screw.totalCostTL.toFixed(2)} TL`]);
-  rows.push(['3_PARCA_MALIYET', 'TOPLAM_BIRIM_MALIYET', 'Toplam Üretim Maliyeti (2 Parça Set)', parts.total.totalCostTL.toFixed(2), 'TL', `${parts.total.printedMassG.toFixed(1)} g | ${parts.total.printMinutes} dk`]);
+  rows.push(['3_PARCA_MALIYET', '03_Kayar_Baski_Pabucu', 'T-Yuvalı Kayar Baskı Pabucu', parts.pad.printedMassG.toFixed(2), 'g', `${parts.pad.volCm3.toFixed(2)} cm³ | ${parts.pad.printMinutes} dk | ${parts.pad.totalCostTL.toFixed(2)} TL`]);
+  rows.push(['3_PARCA_MALIYET', 'TOPLAM_BIRIM_MALIYET', 'Toplam Üretim Maliyeti (3 Parça Set)', parts.total.totalCostTL.toFixed(2), 'TL', `${parts.total.printedMassG.toFixed(1)} g | ${parts.total.printMinutes} dk`]);
 
   Object.keys(MATERIALS).forEach((mKey) => {
     const alt = computeMetricsFn({ ...rawParams, Malzeme: mKey, Filament_Kg_Fiyati_TL: MATERIALS[mKey].defaultPriceTL }, partMetrology);

@@ -209,13 +209,31 @@ export function deriveClampDimensions(rawParams) {
   const femaleMinorR = maleMinorR + clearance;
   const flankAxialExtraFrac = (clearance * (1 - Math.sin(Math.PI / 6))) / (pitch * Math.cos(Math.PI / 6));
 
-  // Vida ucu: tek parça basılan düz baskı ayağı. Ayrı döner pabuç ve
-  // bilyeli geçme kaldırıldı (geçme tutmuyordu); ayak vidayla birlikte
-  // somundan geçtiği için çapı diş dibi çapını aşamaz.
-  const footR = maleMinorR;
-  const footLen = 3.0;
-  const footChamfer = 0.8;
-  const tipStackClearance = footLen + 2.6; // 5.6 mm: geri çekik uç ile en kalın masa arası
+  // Vida ucu + kayar pabuç (T-yuva). Eski bilyeli geçme esneyerek
+  // takılıyordu ve tutmadı. Şimdi uçta ince bir boyun ve somundan geçen
+  // bir başlık var (başlık çapı diş dibi çapını aşamaz); geniş pabuç
+  // yandan sürülerek başlığa geçer: başlık pabucun odasında, boyun dar
+  // yarıkta. Sıkarken başlık odanın tavanına, gevşetirken alt dudağa
+  // dayanır; hiçbir yer esnemez. Yarığın ağzındaki küçük tırnak, masa
+  // yokken pabucun kayıp düşmesini engeller.
+  const headR = maleMinorR;
+  const neckR = Math.max(2.5, maleMinorR * 0.55);
+  const tipConeLen = maleMinorR - neckR;    // dişten boyuna 45° daralma
+  const headConeLen = headR - neckR;        // boyundan başlığa 45° (desteksiz)
+  const headH = headConeLen + 1.5;          // + 1.0 düz + 0.5 pah
+  const padAxialPlay = 0.6;
+  const padRadius = Math.max(13.0, Math.min(width * 0.48, screwD * 0.88));
+  const padPlateH = 4.0;                    // masaya basan plaka
+  const padChamberH = headH + padAxialPlay; // başlık odası
+  const padLipH = 3.0;                      // boyunu tutan alt dudak
+  const padTotalH = padPlateH + padChamberH + padLipH;
+  const neckLen = padLipH + padAxialPlay;
+  const padSlotWide = headR + 0.4;          // oda yarı genişliği
+  const padSlotNarrow = neckR + 0.35;       // dudak yarığı yarı genişliği
+  const padDetent = 0.5;                    // ağızdaki tırnak (yarıktan içeri)
+  // Diş sonundan başlık üstüne
+  const tipLen = tipConeLen + neckLen + headH;
+  const tipStackClearance = padTotalH + 2.6;
 
   const throatHeight = maxDesk + tipStackClearance;
   const nutHeight = Math.max(Math.round(wallT * 1.45 * 2) / 2, pitch * 3.5);
@@ -242,8 +260,8 @@ export function deriveClampDimensions(rawParams) {
   // vidayı tam buradan kırıyordu.
   const collarFilletR = 3.0;
   const minClampedDesk = Math.max(8, maxDesk - 38);
-  // En ince masada uç masaya değerken diş hâlâ somunun altına kadar inmeli
-  const threadLength = throatHeight - minClampedDesk - footLen + nutHeight + 2.0;
+  // En ince masada pabuç masaya değerken diş hâlâ somunun altına kadar inmeli
+  const threadLength = throatHeight - minClampedDesk - padPlateH - tipLen + nutHeight + 2.0;
 
   return {
     styleKey,
@@ -271,9 +289,21 @@ export function deriveClampDimensions(rawParams) {
     femaleMajorR,
     femaleMinorR,
     mouthR,
-    footR,
-    footLen,
-    footChamfer,
+    headR,
+    neckR,
+    tipConeLen,
+    headConeLen,
+    headH,
+    neckLen,
+    tipLen,
+    padRadius,
+    padPlateH,
+    padChamberH,
+    padLipH,
+    padTotalH,
+    padSlotWide,
+    padSlotNarrow,
+    padDetent,
     tipStackClearance,
     throatHeight,
     nutHeight,
@@ -980,7 +1010,7 @@ export function buildCBodyWithHelicalJaw(rawParams) {
 
 /**
  * Builds the High-Detail Support-Free 60° Trapezoidal Screw (`Trapez_Sikma_Vidasi`)
- * featuring a dual-zone Tactical Scalloped + Knurled Handwheel Knob, filleted collar, and a one-piece flat pressure foot.
+ * featuring a dual-zone Tactical Scalloped + Knurled Handwheel Knob, filleted collar, and a neck + head that slides into the T-slot pad.
  */
 export function buildTrapezoidalScrew(rawParams) {
   const dim = deriveClampDimensions(rawParams);
@@ -995,9 +1025,11 @@ export function buildTrapezoidalScrew(rawParams) {
     shoulderH,
     threadLength,
     collarFilletR,
-    footR,
-    footLen,
-    footChamfer
+    headR,
+    neckR,
+    tipConeLen,
+    headConeLen,
+    neckLen
   } = dim;
 
   const radialSegs = 96;
@@ -1015,7 +1047,9 @@ export function buildTrapezoidalScrew(rawParams) {
   const yFilletTop = coneC + rf * Math.SQRT2 - rS - rf;
   const yThreadStart = Math.max(yKnobTop + shoulderH + 1.8, yFilletTop + 1.0);
   const yThreadEnd = yThreadStart + threadLength;
-  const yFootTop = yThreadEnd + footLen;
+  const yNeckBot = yThreadEnd + tipConeLen;
+  const yNeckTop = yNeckBot + neckLen;
+  const yHeadTop = yNeckTop + headConeLen + 1.5;
 
   // Dual-zone ergonomic handwheel profile: 6 torque scallops + 36 crisp micro-knurl grooves
   function knobOuterR(theta, yFrac) {
@@ -1070,20 +1104,16 @@ export function buildTrapezoidalScrew(rawParams) {
     });
   }
 
-  // 4. Tek parça baskı ayağı: düz gövde, 45° pah, masaya basan yüzde
-  //    kaymaz iki halka oluk. Üst yüz baskıda en son kat, destek gerekmez.
-  addRing(yFootTop - footChamfer, footR);
-  const rTop = footR - footChamfer;
-  addRing(yFootTop, rTop);
-  const oluk = (r) => {
-    addRing(yFootTop, r + 0.45);
-    addRing(yFootTop - 0.35, r);
-    addRing(yFootTop, r - 0.45);
-  };
-  oluk(rTop * 0.72);
-  oluk(rTop * 0.4);
+  // 4. Kayar pabucun T-yuvasına giren uç: 45° daralma → boyun → 45°
+  //    genişleyen başlık (dik basılırken desteksiz) → düz → pah.
+  //    Başlık çapı diş dibi çapında: vida somundan geçer.
+  addRing(yNeckBot, neckR);
+  addRing(yNeckTop, neckR);
+  addRing(yNeckTop + headConeLen, headR);
+  addRing(yHeadTop - 0.5, headR);
+  addRing(yHeadTop, headR - 0.5);
 
-  const yTopFlat = yFootTop;
+  const yTopFlat = yHeadTop;
 
   const firstRing = rings[0];
   for (let i = 0; i < radialSegs; i++) {
@@ -1112,6 +1142,134 @@ export function buildTrapezoidalScrew(rawParams) {
     yThreadStart,
     totalHeight: yTopFlat
   };
+  return geom;
+}
+
+/**
+ * Kayar baskı pabucu (T-yuva). Yerel eksen: Y yukarı, masaya basan yüz
+ * Y = 0'da, pabuç aşağı doğru padTotalH kalınlığında. Üç kat:
+ *
+ *   plaka  [-padPlateH, 0]            tam disk, masaya basar
+ *   oda    [.. , -padPlateH]          başlığın oturduğu, +X'e açık geniş yarık
+ *   dudak  [-padTotalH, ..]           boyunun geçtiği, +X'e açık dar yarık;
+ *                                     ağzında küçük tırnak
+ *
+ * Baskıda dudak tablada, masa yüzü üstte (son kat). Oda tavanı iki yandan
+ * taşınan kısa bir köprü; destek gerekmez.
+ *
+ * Katlar ortak kenarlarla birleştirilir (aynı çember örnekleri, köşe
+ * açıları her halkada): kapalı, tek kabuklu ağ.
+ */
+export function buildSlidePad(rawParams) {
+  const dim = deriveClampDimensions(rawParams);
+  const R = dim.padRadius;
+  const hA = dim.padPlateH;
+  const hB = dim.padChamberH;
+  const H = dim.padTotalH;
+  const wW = dim.padSlotWide;
+  const wN = dim.padSlotNarrow;
+  const d = dim.padDetent;
+
+  const TAU = Math.PI * 2;
+  const thW = Math.asin(wW / R);
+  const thN = Math.asin(wN / R);
+
+  // Çember örnekleri + dört köşe açısı
+  const acilar = [];
+  const N = 96;
+  for (let i = 0; i < N; i++) acilar.push((i / N) * TAU);
+  [thW, TAU - thW, thN, TAU - thN].forEach((a) => acilar.push(a));
+  acilar.sort((a, b) => a - b);
+  const temiz = acilar.filter((a, i) => i === 0 || a - acilar[i - 1] > 1e-6);
+  const nokta = (a) => ({ u: R * Math.cos(a), v: R * Math.sin(a) });
+  const yay = (a0, a1) => temiz.filter((a) => a >= a0 - 1e-9 && a <= a1 + 1e-9).map(nokta);
+  // a0 > a1 ise 0'dan geçen yay (ör. -thW → thW)
+  const yaySar = (a0, a1) =>
+    temiz.filter((a) => a >= a0 - 1e-9).concat(temiz.filter((a) => a <= a1 + 1e-9)).map(nokta);
+
+  /** Yarık yolu: üst köşeden içeri, yarım daire (sol), alt köşeye */
+  function yarik(w, tirnak) {
+    const uKenar = Math.sqrt(R * R - w * w);
+    const ust = [{ u: uKenar, v: w }];
+    if (tirnak) {
+      [0.86, 0.82, 0.74, 0.7].forEach((f, i) => {
+        const yw = i === 1 || i === 2 ? w - d : w;
+        ust.push({ u: R * f, v: yw });
+      });
+    }
+    ust.push({ u: 0, v: w });
+    const yol = ust.slice();
+    const S = 16;
+    for (let s = 1; s < S; s++) {
+      const a = Math.PI * 0.5 + (s / S) * Math.PI;
+      yol.push({ u: w * Math.cos(a), v: w * Math.sin(a) });
+    }
+    for (let i = ust.length - 1; i >= 0; i--) yol.push({ u: ust[i].u, v: -ust[i].v });
+    return yol;
+  }
+
+  function birlestir(...parcalar) {
+    const out = [];
+    for (const p of parcalar.flat()) {
+      const son = out[out.length - 1];
+      if (son && Math.abs(son.u - p.u) < 1e-7 && Math.abs(son.v - p.v) < 1e-7) continue;
+      out.push(p);
+    }
+    const ilk = out[0], son = out[out.length - 1];
+    if (Math.abs(ilk.u - son.u) < 1e-7 && Math.abs(ilk.v - son.v) < 1e-7) out.pop();
+    return out;
+  }
+
+  const yW = yarik(wW, false);
+  const yN = yarik(wN, true);
+
+  const disA = temiz.map(nokta);
+  const disB = birlestir(yay(thW, TAU - thW), yW.slice().reverse());
+  const disC = birlestir(yay(thN, TAU - thN), yN.slice().reverse());
+  const tavan = birlestir(yaySar(TAU - thW, thW), yW);
+  const taban = birlestir(yay(thN, thW), yW, yay(TAU - thW, TAU - thN), yN.slice().reverse());
+
+  const tris = [];
+  // uv → xyz: x = u, z = -v. uv'de saat yönü tersi = normal +Y.
+  function kapak(poli, y, yukari) {
+    let kontur = poli.map((p) => new THREE.Vector2(p.u, p.v));
+    if (THREE.ShapeUtils.isClockWise(kontur)) kontur = kontur.reverse();
+    const yuzler = THREE.ShapeUtils.triangulateShape(kontur, []);
+    for (const [a, b, c] of yuzler) {
+      const A = kontur[a], B = kontur[b], C = kontur[c];
+      if (yukari) pushTri(tris, A.x, y, -A.y, B.x, y, -B.y, C.x, y, -C.y);
+      else pushTri(tris, A.x, y, -A.y, C.x, y, -C.y, B.x, y, -B.y);
+    }
+  }
+  function duvar(poli, y0, y1) {
+    let p = poli;
+    const alan = p.reduce((s, q, i) => {
+      const r = p[(i + 1) % p.length];
+      return s + q.u * r.v - r.u * q.v;
+    }, 0);
+    if (alan < 0) p = p.slice().reverse();
+    for (let i = 0; i < p.length; i++) {
+      const a = p[i], b = p[(i + 1) % p.length];
+      pushQuadWall(a, b, y0, y1);
+    }
+  }
+  function pushQuadWall(a, b, y0, y1) {
+    pushTri(tris, a.u, y0, -a.v, b.u, y0, -b.v, b.u, y1, -b.v);
+    pushTri(tris, a.u, y0, -a.v, b.u, y1, -b.v, a.u, y1, -a.v);
+  }
+
+  const yAB = -hA;
+  const yBC = -hA - hB;
+  kapak(disA, 0, true);        // masaya basan yüz
+  duvar(disA, yAB, 0);
+  kapak(tavan, yAB, false);    // oda tavanı (köprü)
+  duvar(disB, yBC, yAB);
+  kapak(taban, yBC, true);     // dudağın üstü (oda tabanı)
+  duvar(disC, -H, yBC);
+  kapak(disC, -H, false);      // tablaya oturan yüz
+
+  const geom = finalizeCreasedCADGeometry(tris, 32);
+  geom.userData = { totalHeight: H, plateH: hA };
   return geom;
 }
 
@@ -1250,17 +1408,18 @@ export function computeStructuralAndCostMetrics(rawParams, partMetrology) {
 
   const bodyStats = calcPartPrintStats(partMetrology.body);
   const screwStats = calcPartPrintStats(partMetrology.screw, 0.55);
+  const padStats = calcPartPrintStats(partMetrology.pad, 0.45);
 
   const totalStats = {
-    volCm3: bodyStats.volCm3 + screwStats.volCm3,
-    areaCm2: bodyStats.areaCm2 + screwStats.areaCm2,
-    triangleCount: bodyStats.triangleCount + screwStats.triangleCount,
-    solidMassG: bodyStats.solidMassG + screwStats.solidMassG,
-    printedMassG: bodyStats.printedMassG + screwStats.printedMassG,
-    printMinutes: bodyStats.printMinutes + screwStats.printMinutes,
-    materialCostTL: bodyStats.materialCostTL + screwStats.materialCostTL,
-    machineCostTL: bodyStats.machineCostTL + screwStats.machineCostTL,
-    totalCostTL: bodyStats.totalCostTL + screwStats.totalCostTL
+    volCm3: bodyStats.volCm3 + screwStats.volCm3 + padStats.volCm3,
+    areaCm2: bodyStats.areaCm2 + screwStats.areaCm2 + padStats.areaCm2,
+    triangleCount: bodyStats.triangleCount + screwStats.triangleCount + padStats.triangleCount,
+    solidMassG: bodyStats.solidMassG + screwStats.solidMassG + padStats.solidMassG,
+    printedMassG: bodyStats.printedMassG + screwStats.printedMassG + padStats.printedMassG,
+    printMinutes: bodyStats.printMinutes + screwStats.printMinutes + padStats.printMinutes,
+    materialCostTL: bodyStats.materialCostTL + screwStats.materialCostTL + padStats.materialCostTL,
+    machineCostTL: bodyStats.machineCostTL + screwStats.machineCostTL + padStats.machineCostTL,
+    totalCostTL: bodyStats.totalCostTL + screwStats.totalCostTL + padStats.totalCostTL
   };
 
   return {
@@ -1290,6 +1449,7 @@ export function computeStructuralAndCostMetrics(rawParams, partMetrology) {
     parts: {
       body: bodyStats,
       screw: screwStats,
+      pad: padStats,
       total: totalStats
     }
   };
