@@ -9,7 +9,6 @@ import {
   deriveClampDimensions,
   buildCBodyWithHelicalJaw,
   buildTrapezoidalScrew,
-  buildSwivelPad,
   computeMeshMetrology,
   computeStructuralAndCostMetrics
 } from './geometry-engine.js';
@@ -216,8 +215,7 @@ scene.add(assemblyRoot);
 
 const bodyWrapper = new THREE.Group();
 const screwWrapper = new THREE.Group();
-const padWrapper = new THREE.Group();
-assemblyRoot.add(bodyWrapper, screwWrapper, padWrapper);
+assemblyRoot.add(bodyWrapper, screwWrapper);
 
 let layerFlowLines = null;
 
@@ -226,14 +224,12 @@ const targetPoses = {
   bodyQuat: new THREE.Quaternion(),
   screwPos: new THREE.Vector3(),
   screwQuat: new THREE.Quaternion(),
-  padPos: new THREE.Vector3(),
-  padQuat: new THREE.Quaternion(),
   camTarget: new THREE.Vector3(16, -34, 0)
 };
 
-let currentGeometries = { body: null, screw: null, pad: null };
-let currentMeshes = { body: null, screw: null, pad: null };
-let currentEdges = { body: null, screw: null, pad: null };
+let currentGeometries = { body: null, screw: null };
+let currentMeshes = { body: null, screw: null };
+let currentEdges = { body: null, screw: null };
 let currentDim = null;
 let currentMetrology = null;
 let currentMetrics = null;
@@ -253,14 +249,6 @@ const matScrew = new THREE.MeshPhysicalMaterial({
   metalness: 0.10,
   clearcoat: 0.18,
   clearcoatRoughness: 0.32,
-  side: THREE.DoubleSide
-});
-const matPad = new THREE.MeshPhysicalMaterial({
-  color: 0x454a50,
-  roughness: 0.38,
-  metalness: 0.16,
-  clearcoat: 0.12,
-  clearcoatRoughness: 0.4,
   side: THREE.DoubleSide
 });
 
@@ -293,8 +281,7 @@ function applyDisplayAndClippingState() {
 
   [
     { mat: matBody, baseHex: baseBodyColor },
-    { mat: matScrew, baseHex: 0xd9381e },
-    { mat: matPad, baseHex: 0x4b5057 }
+    { mat: matScrew, baseHex: 0xd9381e }
   ].forEach(({ mat, baseHex }) => {
     mat.clippingPlanes = activePlanes;
     mat.clipShadows = true;
@@ -413,13 +400,15 @@ function rebuildGhostDesk(dim, padTopY) {
 }
 
 function updatePoseTargets() {
-  if (!currentDim || !currentGeometries.screw || !currentGeometries.pad) return;
+  if (!currentDim || !currentGeometries.screw) return;
   const dim = currentDim;
 
+  // Vida ucunun (baskı ayağının) üst yüzü: geri çekikken somunun hemen
+  // üstünde, tam sıkıda en ince masanın altında
   const clampFrac = THREE.MathUtils.clamp(state.Sikma_Pozisyonu_pct / 100, 0, 1);
-  const yPadRetracted = dim.yJawTop + dim.padBaseH + dim.padSocketH + 1.2;
-  const yPadMax = -dim.minClampedDesk;
-  const padTopY = THREE.MathUtils.lerp(yPadRetracted, yPadMax, clampFrac);
+  const yTipRetracted = dim.yJawTop + 1.2;
+  const yTipMax = -dim.minClampedDesk;
+  const padTopY = THREE.MathUtils.lerp(yTipRetracted, yTipMax, clampFrac);
 
   rebuildGhostDesk(dim, padTopY);
 
@@ -434,11 +423,7 @@ function updatePoseTargets() {
 
     // 2. 60° Trapezoidal Screw knob-down at Y_world = 0
     targetPoses.screwQuat.setFromEuler(new THREE.Euler(0, 0, 0));
-    targetPoses.screwPos.set(dim.wallT + dim.armLen + 28, 0, -24);
-
-    // 3. Swivel Pad flat face-down at Y_world = 0
-    targetPoses.padQuat.setFromEuler(new THREE.Euler(Math.PI, 0, 0));
-    targetPoses.padPos.set(dim.wallT + dim.armLen + 28, 0, 26);
+    targetPoses.screwPos.set(dim.wallT + dim.armLen + 28, 0, 0);
 
     targetPoses.camTarget.set(16, 12, 6);
   } else {
@@ -446,20 +431,15 @@ function updatePoseTargets() {
     studioGrid.visible = true;
     if (layerFlowLines) layerFlowLines.visible = false;
 
-    const explodePadOffset = state.exploded ? 12.0 : 0.0;
     const explodeScrewDrop = state.exploded ? -32.0 : 0.0;
 
     targetPoses.bodyQuat.identity();
     targetPoses.bodyPos.set(0, 0, 0);
 
-    targetPoses.padQuat.identity();
-    targetPoses.padPos.set(dim.xScrew, padTopY + explodePadOffset, 0);
-
-    const ySocketCenter = currentGeometries.pad.userData.ySocketCenter;
-    const yBallCenter = currentGeometries.screw.userData.yBallCenter;
+    const yTip = currentGeometries.screw.userData.totalHeight;
     const yThreadStart = currentGeometries.screw.userData.yThreadStart;
 
-    const screwWorldY = padTopY + ySocketCenter - yBallCenter + explodeScrewDrop;
+    const screwWorldY = padTopY - yTip + explodeScrewDrop;
     const screwRotY = (Math.PI * 2 * (screwWorldY + yThreadStart)) / dim.pitch;
 
     targetPoses.screwQuat.setFromEuler(new THREE.Euler(0, screwRotY, 0));
@@ -473,8 +453,6 @@ function updatePoseTargets() {
     bodyWrapper.quaternion.copy(targetPoses.bodyQuat);
     screwWrapper.position.copy(targetPoses.screwPos);
     screwWrapper.quaternion.copy(targetPoses.screwQuat);
-    padWrapper.position.copy(targetPoses.padPos);
-    padWrapper.quaternion.copy(targetPoses.padQuat);
     controls.target.copy(targetPoses.camTarget);
     poseInitialized = true;
   }
@@ -485,16 +463,13 @@ function rebuildAllCADGeometry() {
 
   disposeMeshPair(bodyWrapper, 'body');
   disposeMeshPair(screwWrapper, 'screw');
-  disposeMeshPair(padWrapper, 'pad');
 
   currentGeometries.body = buildCBodyWithHelicalJaw(state);
   currentGeometries.screw = buildTrapezoidalScrew(state);
-  currentGeometries.pad = buildSwivelPad(state);
 
   const pairs = [
     { key: 'body', wrapper: bodyWrapper, mat: matBody },
-    { key: 'screw', wrapper: screwWrapper, mat: matScrew },
-    { key: 'pad', wrapper: padWrapper, mat: matPad }
+    { key: 'screw', wrapper: screwWrapper, mat: matScrew }
   ];
 
   pairs.forEach(({ key, wrapper, mat }) => {
@@ -518,8 +493,7 @@ function rebuildAllCADGeometry() {
 
   currentMetrology = {
     body: computeMeshMetrology(currentGeometries.body),
-    screw: computeMeshMetrology(currentGeometries.screw),
-    pad: computeMeshMetrology(currentGeometries.pad)
+    screw: computeMeshMetrology(currentGeometries.screw)
   };
 
   // Toggle visibility of J-hook specific UI rows when single upper cradle is selected
@@ -601,8 +575,6 @@ function refreshEngineeringReadouts() {
     `${m.parts.body.printedMassG.toFixed(1)} g (${m.parts.body.volCm3.toFixed(1)} cm³)`;
   document.getElementById('val-screw-mass').textContent =
     `${m.parts.screw.printedMassG.toFixed(1)} g (${m.parts.screw.volCm3.toFixed(1)} cm³)`;
-  document.getElementById('val-pad-mass').textContent =
-    `${m.parts.pad.printedMassG.toFixed(1)} g (${m.parts.pad.volCm3.toFixed(1)} cm³)`;
   document.getElementById('val-total-cost').textContent =
     `${m.parts.total.printedMassG.toFixed(1)} g · ${m.parts.total.printMinutes} dk · ${m.parts.total.totalCostTL.toFixed(2)} ₺`;
 
@@ -864,9 +836,6 @@ document.getElementById('btn-stl-body').addEventListener('click', () =>
 document.getElementById('btn-stl-screw').addEventListener('click', () =>
   exportPartSTL('screw', currentGeometries, currentDim, assemblyRoot)
 );
-document.getElementById('btn-stl-pad').addEventListener('click', () =>
-  exportPartSTL('pad', currentGeometries, currentDim, assemblyRoot)
-);
 document.getElementById('btn-stl-platter').addEventListener('click', () =>
   exportPartSTL('platter', currentGeometries, currentDim, assemblyRoot)
 );
@@ -941,9 +910,6 @@ function animate() {
 
   dampVec3(screwWrapper.position, targetPoses.screwPos, 10.0, dt);
   dampQuat(screwWrapper.quaternion, targetPoses.screwQuat, 10.0, dt);
-
-  dampVec3(padWrapper.position, targetPoses.padPos, 10.0, dt);
-  dampQuat(padWrapper.quaternion, targetPoses.padQuat, 10.0, dt);
 
   controls.update();
   renderer.render(scene, activeCamera);

@@ -209,12 +209,15 @@ export function deriveClampDimensions(rawParams) {
   const femaleMinorR = maleMinorR + clearance;
   const flankAxialExtraFrac = (clearance * (1 - Math.sin(Math.PI / 6))) / (pitch * Math.cos(Math.PI / 6));
 
-  const padRadius = Math.max(13.0, Math.min(width * 0.48, screwD * 0.88));
-  const padBaseH = 4.6;
-  const padSocketH = 7.6;
-  const padStackClearance = padBaseH + padSocketH + 2.6; // 14.8 mm
+  // Vida ucu: tek parça basılan düz baskı ayağı. Ayrı döner pabuç ve
+  // bilyeli geçme kaldırıldı (geçme tutmuyordu); ayak vidayla birlikte
+  // somundan geçtiği için çapı diş dibi çapını aşamaz.
+  const footR = maleMinorR;
+  const footLen = 3.0;
+  const footChamfer = 0.8;
+  const tipStackClearance = footLen + 2.6; // 5.6 mm: geri çekik uç ile en kalın masa arası
 
-  const throatHeight = maxDesk + padStackClearance;
+  const throatHeight = maxDesk + tipStackClearance;
   const nutHeight = Math.max(Math.round(wallT * 1.45 * 2) / 2, pitch * 3.5);
 
   const yJawTop = -throatHeight;
@@ -234,11 +237,13 @@ export function deriveClampDimensions(rawParams) {
   const knobRadius = Math.max(15.0, screwD * 0.96);
   const knobHeight = 14.5;
   const shoulderH = Math.max(3.8, knobRadius - maleMinorR);
-  const ballRadius = Math.max(4.5, screwD * 0.34);
-  const neckRadius = ballRadius * 0.68;
-  const neckHeight = 3.8;
+  // Yaka ile gövde arasındaki iç köşe yarıçapı. Eski çentik (diş dibinden
+  // 0,25 mm içeri) dik basılan vidada katman çizgisiyle aynı yere düşüp
+  // vidayı tam buradan kırıyordu.
+  const collarFilletR = 3.0;
   const minClampedDesk = Math.max(8, maxDesk - 38);
-  const threadLength = throatHeight - minClampedDesk - padStackClearance + nutHeight + 4.5;
+  // En ince masada uç masaya değerken diş hâlâ somunun altına kadar inmeli
+  const threadLength = throatHeight - minClampedDesk - footLen + nutHeight + 2.0;
 
   return {
     styleKey,
@@ -266,10 +271,10 @@ export function deriveClampDimensions(rawParams) {
     femaleMajorR,
     femaleMinorR,
     mouthR,
-    padRadius,
-    padBaseH,
-    padSocketH,
-    padStackClearance,
+    footR,
+    footLen,
+    footChamfer,
+    tipStackClearance,
     throatHeight,
     nutHeight,
     yJawTop,
@@ -282,9 +287,7 @@ export function deriveClampDimensions(rawParams) {
     knobRadius,
     knobHeight,
     shoulderH,
-    ballRadius,
-    neckRadius,
-    neckHeight,
+    collarFilletR,
     threadLength,
     minClampedDesk,
     threadDesignation: `Tr${Math.round(screwD)}×${pitch.toFixed(1)} (60° FDM)`
@@ -977,7 +980,7 @@ export function buildCBodyWithHelicalJaw(rawParams) {
 
 /**
  * Builds the High-Detail Support-Free 60° Trapezoidal Screw (`Trapez_Sikma_Vidasi`)
- * featuring a dual-zone Tactical Scalloped + Knurled Handwheel Knob, machined collar, and spherical pivot ball.
+ * featuring a dual-zone Tactical Scalloped + Knurled Handwheel Knob, filleted collar, and a one-piece flat pressure foot.
  */
 export function buildTrapezoidalScrew(rawParams) {
   const dim = deriveClampDimensions(rawParams);
@@ -991,9 +994,10 @@ export function buildTrapezoidalScrew(rawParams) {
     knobHeight,
     shoulderH,
     threadLength,
-    ballRadius,
-    neckRadius,
-    neckHeight
+    collarFilletR,
+    footR,
+    footLen,
+    footChamfer
   } = dim;
 
   const radialSegs = 96;
@@ -1002,11 +1006,16 @@ export function buildTrapezoidalScrew(rawParams) {
   const yKnobBot = 0;
   const yKnobChamfer = 1.4;
   const yKnobTop = knobHeight;
-  const yCollarTop = yKnobTop + shoulderH;
-  const yThreadStart = yCollarTop + 1.8;
+
+  // 45° yaka (r + y = sabit) ile r = maleMinorR gövdesi arasına teğet iç
+  // köşe yayı. Yay merkezi gövdenin dışında: (rS + Rf, yc).
+  const rS = maleMinorR;
+  const rf = collarFilletR;
+  const coneC = knobRadius - 1.4 + yKnobTop;
+  const yFilletTop = coneC + rf * Math.SQRT2 - rS - rf;
+  const yThreadStart = Math.max(yKnobTop + shoulderH + 1.8, yFilletTop + 1.0);
   const yThreadEnd = yThreadStart + threadLength;
-  const yNeckStart = yThreadEnd + Math.max(1.8, maleMinorR - neckRadius);
-  const yNeckEnd = yNeckStart + neckHeight;
+  const yFootTop = yThreadEnd + footLen;
 
   // Dual-zone ergonomic handwheel profile: 6 torque scallops + 36 crisp micro-knurl grooves
   function knobOuterR(theta, yFrac) {
@@ -1038,9 +1047,13 @@ export function buildTrapezoidalScrew(rawParams) {
   addRing(yKnobTop - 1.4, (th) => knobOuterR(th, 0.92));
   addRing(yKnobTop, knobRadius - 1.4);
 
-  // 2. 45° Support-free conical torque collar + machined relief groove
-  addRing(yCollarTop - 0.6, maleMinorR + 0.6);
-  addRing(yCollarTop, maleMinorR - 0.25);
+  // 2. 45° destek gerektirmeyen yaka, gövdeye yuvarlatılmış iç köşeyle
+  //    bağlanır (çentik yok). Yay 225°'den 180°'ye: koniden dik gövdeye.
+  const filletSteps = 10;
+  for (let s = 0; s <= filletSteps; s++) {
+    const phi = Math.PI * 1.25 - (s / filletSteps) * Math.PI * 0.25;
+    addRing(yFilletTop + rf * Math.sin(phi), rS + rf + rf * Math.cos(phi));
+  }
   addRing(yThreadStart, maleMinorR);
 
   // 3. High-Resolution 60° Trapezoidal Helical Shaft
@@ -1057,24 +1070,20 @@ export function buildTrapezoidalScrew(rawParams) {
     });
   }
 
-  // 4. Machined Neck & Support-Free Spherical Swivel Ball Stud
-  addRing(yNeckStart, neckRadius);
-  addRing(yNeckEnd, neckRadius);
+  // 4. Tek parça baskı ayağı: düz gövde, 45° pah, masaya basan yüzde
+  //    kaymaz iki halka oluk. Üst yüz baskıda en son kat, destek gerekmez.
+  addRing(yFootTop - footChamfer, footR);
+  const rTop = footR - footChamfer;
+  addRing(yFootTop, rTop);
+  const oluk = (r) => {
+    addRing(yFootTop, r + 0.45);
+    addRing(yFootTop - 0.35, r);
+    addRing(yFootTop, r - 0.45);
+  };
+  oluk(rTop * 0.72);
+  oluk(rTop * 0.4);
 
-  const sin45 = Math.SQRT1_2;
-  const rConeJoin = ballRadius * sin45;
-  const coneRise = Math.max(0.4, rConeJoin - neckRadius);
-  const yBallCenter = yNeckEnd + coneRise + ballRadius * sin45;
-  addRing(yNeckEnd + coneRise, rConeJoin);
-
-  const ballArcSteps = 12;
-  const maxLat = Math.PI * 0.37;
-  for (let s = 1; s <= ballArcSteps; s++) {
-    const lat = -Math.PI * 0.25 + (s / ballArcSteps) * (maxLat + Math.PI * 0.25);
-    addRing(yBallCenter + ballRadius * Math.sin(lat), ballRadius * Math.cos(lat));
-  }
-
-  const yTopFlat = rings[rings.length - 1][0].y;
+  const yTopFlat = yFootTop;
 
   const firstRing = rings[0];
   for (let i = 0; i < radialSegs; i++) {
@@ -1101,114 +1110,7 @@ export function buildTrapezoidalScrew(rawParams) {
   const geom = finalizeCreasedCADGeometry(tris, 34);
   geom.userData = {
     yThreadStart,
-    yBallCenter,
     totalHeight: yTopFlat
-  };
-  return geom;
-}
-
-/**
- * Builds the High-Detail Support-Free Swivel Pad (`Doner_Baski_Pabucu`)
- * with concentric anti-mar traction grooves on top (`Y = 0`), 12-lobe tactile rim,
- * and 4 radial flex-relief collet flutes around the snap-fit socket!
- */
-export function buildSwivelPad(rawParams) {
-  const dim = deriveClampDimensions(rawParams);
-  const {
-    padRadius,
-    padBaseH,
-    padSocketH,
-    ballRadius,
-    clearance
-  } = dim;
-
-  const socketInnerR = ballRadius + clearance;
-  const snapLipR = ballRadius * 0.87 + clearance * 0.5;
-  const collarOuterR = socketInnerR + 3.8;
-  const totalH = padBaseH + padSocketH;
-
-  // Profile with concentric anti-slip desk pad grooves on top face!
-  const g1 = padRadius * 0.36;
-  const g2 = padRadius * 0.68;
-  const profile = [
-    new THREE.Vector2(0, 0),
-    new THREE.Vector2(g1 - 0.6, 0),
-    new THREE.Vector2(g1, -0.35),
-    new THREE.Vector2(g1 + 0.6, 0),
-    new THREE.Vector2(g2 - 0.6, 0),
-    new THREE.Vector2(g2, -0.35),
-    new THREE.Vector2(g2 + 0.6, 0),
-    new THREE.Vector2(padRadius - 1.1, 0),
-    new THREE.Vector2(padRadius, -1.1),
-    new THREE.Vector2(padRadius, -padBaseH + 0.9),
-    new THREE.Vector2(padRadius - 0.9, -padBaseH),
-    new THREE.Vector2(collarOuterR + 1.6, -padBaseH),
-    new THREE.Vector2(collarOuterR, -padBaseH - 1.6),
-    new THREE.Vector2(collarOuterR, -totalH + 1.1),
-    new THREE.Vector2(collarOuterR - 1.1, -totalH),
-    new THREE.Vector2(snapLipR + 0.9, -totalH),
-    new THREE.Vector2(snapLipR, -totalH + 1.1)
-  ];
-
-  const ySocketCenter = -padBaseH - padSocketH * 0.44;
-  const arcSteps = 12;
-  for (let s = 0; s <= arcSteps; s++) {
-    const ang = -Math.PI * 0.24 + (s / arcSteps) * (Math.PI * 0.49);
-    profile.push(new THREE.Vector2(socketInnerR * Math.cos(ang), ySocketCenter + socketInnerR * Math.sin(ang)));
-  }
-  const lastPt = profile[profile.length - 1];
-  const yApex = Math.min(-1.8, lastPt.y + lastPt.x);
-  profile.push(new THREE.Vector2(0, yApex));
-
-  const segs = 80;
-  const tris = [];
-
-  function modRadius(baseR, yVal, th) {
-    // 12-lobe grip around outer pad perimeter
-    if (baseR > collarOuterR + 2.0 && yVal < -0.5) {
-      return baseR * (1 - 0.022 * (1 - Math.cos(th * 12)));
-    }
-    // 4 compliant flex-collet relief scallops on outer socket wall
-    if (Math.abs(baseR - collarOuterR) < 1.2 && yVal < -padBaseH - 1.2) {
-      const slot = Math.pow(Math.max(0, Math.cos(th * 4)), 6);
-      return baseR - 1.05 * slot;
-    }
-    return baseR;
-  }
-
-  for (let p = 0; p < profile.length - 1; p++) {
-    const a = profile[p];
-    const b = profile[p + 1];
-
-    for (let i = 0; i < segs; i++) {
-      const iNext = (i + 1) % segs;
-      const th0 = (i / segs) * Math.PI * 2;
-      const th1 = (iNext / segs) * Math.PI * 2;
-
-      const rA0 = modRadius(a.x, a.y, th0);
-      const rA1 = modRadius(a.x, a.y, th1);
-      const rB0 = modRadius(b.x, b.y, th0);
-      const rB1 = modRadius(b.x, b.y, th1);
-
-      const x00 = rA0 * Math.cos(th0), z00 = rA0 * Math.sin(th0);
-      const x10 = rA1 * Math.cos(th1), z10 = rA1 * Math.sin(th1);
-      const x11 = rB1 * Math.cos(th1), z11 = rB1 * Math.sin(th1);
-      const x01 = rB0 * Math.cos(th0), z01 = rB0 * Math.sin(th0);
-
-      if (a.x < 1e-5) {
-        pushTri(tris, 0, a.y, 0, x11, b.y, z11, x01, b.y, z01);
-      } else if (b.x < 1e-5) {
-        pushTri(tris, 0, b.y, 0, x00, a.y, z00, x10, a.y, z10);
-      } else {
-        pushQuad(tris, x00, a.y, z00, x10, a.y, z10, x11, b.y, z11, x01, b.y, z01);
-      }
-    }
-  }
-
-  const geom = finalizeCreasedCADGeometry(tris, 32);
-  geom.userData = {
-    ySocketCenter,
-    totalHeight: totalH
   };
   return geom;
 }
@@ -1348,18 +1250,17 @@ export function computeStructuralAndCostMetrics(rawParams, partMetrology) {
 
   const bodyStats = calcPartPrintStats(partMetrology.body);
   const screwStats = calcPartPrintStats(partMetrology.screw, 0.55);
-  const padStats = calcPartPrintStats(partMetrology.pad, 0.45);
 
   const totalStats = {
-    volCm3: bodyStats.volCm3 + screwStats.volCm3 + padStats.volCm3,
-    areaCm2: bodyStats.areaCm2 + screwStats.areaCm2 + padStats.areaCm2,
-    triangleCount: bodyStats.triangleCount + screwStats.triangleCount + padStats.triangleCount,
-    solidMassG: bodyStats.solidMassG + screwStats.solidMassG + padStats.solidMassG,
-    printedMassG: bodyStats.printedMassG + screwStats.printedMassG + padStats.printedMassG,
-    printMinutes: bodyStats.printMinutes + screwStats.printMinutes + padStats.printMinutes,
-    materialCostTL: bodyStats.materialCostTL + screwStats.materialCostTL + padStats.materialCostTL,
-    machineCostTL: bodyStats.machineCostTL + screwStats.machineCostTL + padStats.machineCostTL,
-    totalCostTL: bodyStats.totalCostTL + screwStats.totalCostTL + padStats.totalCostTL
+    volCm3: bodyStats.volCm3 + screwStats.volCm3,
+    areaCm2: bodyStats.areaCm2 + screwStats.areaCm2,
+    triangleCount: bodyStats.triangleCount + screwStats.triangleCount,
+    solidMassG: bodyStats.solidMassG + screwStats.solidMassG,
+    printedMassG: bodyStats.printedMassG + screwStats.printedMassG,
+    printMinutes: bodyStats.printMinutes + screwStats.printMinutes,
+    materialCostTL: bodyStats.materialCostTL + screwStats.materialCostTL,
+    machineCostTL: bodyStats.machineCostTL + screwStats.machineCostTL,
+    totalCostTL: bodyStats.totalCostTL + screwStats.totalCostTL
   };
 
   return {
@@ -1389,7 +1290,6 @@ export function computeStructuralAndCostMetrics(rawParams, partMetrology) {
     parts: {
       body: bodyStats,
       screw: screwStats,
-      pad: padStats,
       total: totalStats
     }
   };

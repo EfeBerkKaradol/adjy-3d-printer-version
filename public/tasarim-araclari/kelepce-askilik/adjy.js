@@ -1,8 +1,13 @@
 /* Masa kelepçeli askı — mağaza köprüsü ayarı */
 window.ADJY_ARAC = {
   id: "kelepce-askilik",
-  // Yük taşıyan parçalar: 3 çevre, %20 dolgu (bkz. ../_adjy/renkli.js)
-  baski: [{ ad: ".", sinif: "saglam" }],
+  // Yük taşıyan parçalar: 3 çevre, %20 dolgu (bkz. ../_adjy/renkli.js).
+  // Vida dik basılır, eğilmede katman çizgisinden yüklenir: diş dibi
+  // çekirdeği 6 çevreyle neredeyse dolu çıksın, içi %40.
+  baski: [
+    { ad: "Vida", sinif: "saglam", ayar: { wall_loops: "6", sparse_infill_density: "40%" } },
+    { ad: ".", sinif: "saglam" },
+  ],
 
   // Geniş ekranda model ortada, ayarlar iki yanda (bkz. kopru.css)
   yerlesim: { kap: ".workspace-grid", panel: ".panel-left", sahne: ".viewport-stage" },
