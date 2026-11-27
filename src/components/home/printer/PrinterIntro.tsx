@@ -22,8 +22,11 @@ import type { PrintItem } from "./catalog";
 //     büyük ekranlarda menünün altında boş alan kalmaz.
 //   - Yazılmamış harfler saydam olarak yerini tutar; yazılırken
 //     satırlar kaymaz.
-//   - Hareket azaltma açıksa yazılar hazır gelir, yazıcı tek bir
-//     bitmiş kare gösterir, kaydırma efekti uygulanmaz.
+//   - Hareket azaltma açıksa yalnızca kaydırma efekti uygulanmaz.
+//     Yazıcı ve daktilo yine çalışır: Android'de pil tasarrufu ya da
+//     "animasyonları kaldır" açıkken tarayıcı bu tercihi bildiriyor,
+//     yazıcı tek bir bitmiş karede donup kalıyordu. Döngü küçük ve
+//     yerinde, sayfayı kaydırmıyor; görünmezken zaten durur.
 // ==========================================
 
 const BASLIK = ["Her ürün,", "katman katman", "sizin için basılıyor."];
@@ -106,13 +109,13 @@ export function PrinterIntro({ items }: Props) {
   const item = items[current] ?? items[0];
 
   // ---- başlık daktilosu ----
-  const typed = useTyped(BASLIK, { enabled: !reduce, delay: 350, speed: 48 });
+  const typed = useTyped(BASLIK, { enabled: true, delay: 350, speed: 48 });
   const baslikBitti = typed >= BASLIK_TOPLAM;
   const satirlar = BASLIK.map((l, i) => Math.max(0, Math.min(l.length, typed - BASLIK_BASI[i])));
 
   // ---- baskıdaki ürün adı: her yeni nesnede yeniden yazılır ----
   const adSatiri = useMemo(() => [item?.name ?? ""], [item?.name]);
-  const adYazilan = useTyped(adSatiri, { enabled: !reduce && baslikBitti, delay: 80, speed: 28 });
+  const adYazilan = useTyped(adSatiri, { enabled: baslikBitti, delay: 80, speed: 28 });
 
   const onTick = useCallback((t: PrinterTick) => {
     // Piksel çubuk: yüzdeye göre dolu blok sayısı, doğrudan DOM'a yazılır
@@ -196,7 +199,7 @@ export function PrinterIntro({ items }: Props) {
           />
           <PixelPrinter
             keys={keys}
-            reduceMotion={reduce}
+            reduceMotion={false}
             onObject={setCurrent}
             onTick={onTick}
             className="relative block h-auto w-[312px] md:w-[416px] xl:w-[520px]"
@@ -219,7 +222,7 @@ export function PrinterIntro({ items }: Props) {
                 {Array.from({ length: BLOK }, (_, i) => (
                   <span
                     key={i}
-                    data-on={reduce ? "1" : "0"}
+                    data-on="0"
                     className="block h-2 w-1.5 bg-foreground/15 data-[on=1]:bg-foreground"
                   />
                 ))}
